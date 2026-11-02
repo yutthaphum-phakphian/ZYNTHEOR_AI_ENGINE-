@@ -1,0 +1,25 @@
+{
+  "jobId": "test-recover-1793635331119",
+  "taskState": "VERIFYING",
+  "taskGraph": {
+    "nodes": [
+      {
+        "id": "T1",
+        "status": "COMPLETED"
+      },
+      {
+        "id": "T2",
+        "status": "PENDING"
+      }
+    ]
+  },
+  "approvedPlanDigest": "digest-xyz",
+  "executionId": "exec-2",
+  "appliedChangeIds": [
+    "package.json"
+  ],
+  "verificationResults": [],
+  "auditRef": "audit-2",
+  "timestamp": "2026-11-02T16:02:11.119Z",
+  "sha256": "28acb7e7a6d6371c0ecdc31a09c160ee3b783948882868a50ecc273615144984"
+}

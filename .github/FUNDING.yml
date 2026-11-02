@@ -1,9 +1,16 @@
-# ZYNTHEOR AI ENGINE - Enterprise Autonomous Agent
-# https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-
+# ZYNTHEOR AI ENGINE — Sovereign AI Workspace (Buffalo Edition v1.2.2)
+# Repository: https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-
+# Official GitHub Funding Configuration
 
+# GitHub Sponsors (up to 4 accounts)
 github: [yutthaphum-phakphian]
-buy_me_a_coffee: yutthaphum
+
+# Supported platform usernames
 ko_fi: zyntheor
 patreon: zyntheor
 open_collective: zyntheor-ai
-custom: ['https://paypal.me/yutthaphum', 'https://zyntheor.ai/support']
+
+# Custom sponsorship links (up to 4 HTTPS URLs)
+custom:
+  - https://buymeacoffee.com/yutthaphum
+  - https://paypal.me/yutthaphum

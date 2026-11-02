@@ -6,6 +6,10 @@
   "engines": {
     "node": ">=20"
   },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/yutthaphum-phakphian"
+  },
   "scripts": {
     "dev": "PORT=3000 HOST=0.0.0.0 tsx server.ts",
     "build": "tsc --noEmit && vite build",

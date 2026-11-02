@@ -13,6 +13,7 @@
   <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions"><img src="https://img.shields.io/badge/Build-Passing-10B981?style=flat-square&logo=githubactions&logoColor=white" alt="Build Status" /></a>
   <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions"><img src="https://img.shields.io/badge/Native%20Core-Verified-38BDF8?style=flat-square&logo=githubactions&logoColor=white" alt="Native Core" /></a>
   <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions"><img src="https://img.shields.io/badge/CodeQL-Passed-10B981?style=flat-square&logo=github&logoColor=white" alt="CodeQL" /></a>
+  <a href="https://github.com/sponsors/yutthaphum-phakphian"><img src="https://img.shields.io/badge/Sponsor-ZYNTHEOR-EA4AAA?style=flat-square&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" /></a>
 </p>
 
 <p align="center">
@@ -231,6 +232,20 @@ docker run -d -p 3000:3000 \
 ## 🤝 การมีส่วนร่วมและการพัฒนาต่อยอด (Contributing Guidelines)
 
 คำแนะนำขั้นตอนการพัฒนา, เกณฑ์คุณภาพ (Quality Gates), และระเบียบข้อบังคับ Zero-Purple Discipline สามารถอ่านได้ที่ [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+ 
+<a id="sponsors"></a>
+### 💖 การสนับสนุนโครงการ (Sponsorship & Funding)
+
+ร่วมสนับสนุนการวิจัยและพัฒนาสถาปัตยกรรม ZYNTHEOR AI ENGINE เพื่อความก้าวหน้าของระบบปัญญาประดิษฐ์อธิปไตย (Sovereign Local-First AI) และ Native Core Intelligence ได้ผ่านช่องทางดังต่อไปนี้:
+
+- **GitHub Sponsors**: [github.com/sponsors/yutthaphum-phakphian](https://github.com/sponsors/yutthaphum-phakphian)
+- **Ko-fi**: [ko-fi.com/zyntheor](https://ko-fi.com/zyntheor)
+- **Buy Me a Coffee**: [buymeacoffee.com/yutthaphum](https://buymeacoffee.com/yutthaphum)
+- **PayPal**: [paypal.me/yutthaphum](https://paypal.me/yutthaphum)
+- **Open Collective**: [opencollective.com/zyntheor-ai](https://opencollective.com/zyntheor-ai)
+- **Patreon**: [patreon.com/zyntheor](https://patreon.com/zyntheor)
+
+ดูการตั้งค่า GitHub Funding อย่างเป็นทางการได้ที่ [`.github/FUNDING.yml`](./.github/FUNDING.yml)
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
