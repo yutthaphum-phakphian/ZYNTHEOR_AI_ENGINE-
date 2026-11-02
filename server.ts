@@ -25,6 +25,9 @@ import editingRoute from './src/routes/editing.js';
 import intelligenceRoute from './src/routes/intelligence.js';
 import authRoute from './src/routes/auth.js';
 import billingRoute from './src/routes/billing.js';
+import healthRoute from './src/server/routes/health.ts';
+import capabilitiesRoute from './src/server/routes/capabilities.ts';
+import evaluationRoute from './src/server/routes/evaluation.ts';
 import { getSystemErrors, logSystemError, resolveSystemError, clearSystemErrors } from './src/services/errorLogger.js';
 import { resolveRequestUser, serverSessionMiddleware } from './src/services/authService.js';
 import { tenantMiddleware } from './src/middleware/tenant.ts';
@@ -3120,6 +3123,9 @@ app.get('/api/governance/federation', rateLimit(30, 60_000), (_req, res) => {
 app.use(workspaceRoute);
 app.use(editingRoute);
 app.use(intelligenceRoute);
+app.use('/api/health', healthRoute);
+app.use('/api/capabilities', capabilitiesRoute);
+app.use('/api/evaluation', evaluationRoute);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'api_route_not_found' }));
 
 const isProd = process.env.NODE_ENV === 'production' && existsSync(path.join(root, 'dist', 'index.html'));

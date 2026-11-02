@@ -4,7 +4,7 @@ import {
   CheckCircle2, ChevronDown, ChevronRight, CircleHelp, ClipboardCheck, Clock, Code2, Cpu, CreditCard, Download,
   Eye, File, FileCode2, FileText, Files, Gauge, GitBranch, Globe, HardDrive, History, Keyboard, LayoutDashboard,
   LockKeyhole, Menu, MessageSquare, MoreHorizontal, Network, Plus, RefreshCw, RotateCcw, Search, Send, Server,
-  Settings, Shield, ShieldCheck, Sparkles, Split, Square, SquareTerminal, Trash2, Upload, WandSparkles, X, Zap, GitCompare, Workflow
+  Settings, Shield, ShieldCheck, Sparkles, Split, Square, SquareTerminal, Trash2, Upload, WandSparkles, X, Zap, GitCompare, Workflow, Layers
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { readServerEvents, type ChatMode } from '../lib/chat-core.mjs';
@@ -35,12 +35,13 @@ import { IntelligentDebugging } from './components/IntelligentDebugging';
 import { LocalStorageAuditTool } from './components/LocalStorageAuditTool';
 import { SandboxTerminal } from './components/SandboxTerminal';
 import { PhaseBcdEfgDashboard } from './components/PhaseBcdEfgDashboard';
+import CapabilityRegistryView from './components/CapabilityRegistryView';
 import { createAuditEntry, verifyAuditHashChain, repairAndResignAuditLedger, downloadAuditLedgerJson, downloadAuditLedgerCsv, type AuditEntry } from './services/auditLedger';
 import { CodeIntelligence } from '../lib/code-intelligence';
 import { evaluateDiagnosticChecks } from '../lib/diagnostics-evaluator.ts';
 import * as d3 from 'd3';
 
-type Page = 'Chat' | 'Projects' | 'Plans' | 'Files' | 'Autonomous Engine' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings';
+type Page = 'Chat' | 'Projects' | 'Plans' | 'Files' | 'Autonomous Engine' | 'Capability Registry' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings';
 type ChatMessage = { id: string; role: 'user' | 'assistant'; content: string; at: string; model?: string; error?: boolean; mode?: ChatMode; streaming?: boolean; incomplete?: string; requiresApproval?: boolean; approved?: boolean; rejected?: boolean };
 type ChatSession = { id: string; title: string; createdAt: string; updatedAt: string; messages: ChatMessage[]; mode: ChatMode };
 type ComposerAttachment = { id: string; name: string; size: number; content: string };
@@ -57,7 +58,7 @@ type InferenceResult = { state: string; model?: string; latencyMs?: number; matc
 
 const NAV: { title: string; items: { id: Page; icon: LucideIcon; label: string; desc?: string }[] }[] = [
   { title: 'WORKSPACE', items: [{ id: 'Chat', icon: MessageSquare, label: 'Chat' }, { id: 'Projects', icon: Boxes, label: 'Projects' }, { id: 'Plans', icon: LayoutDashboard, label: 'Plans' }, { id: 'Files', icon: Files, label: 'Files' }] },
-  { title: 'INTELLIGENCE', items: [{ id: 'Autonomous Engine', icon: Workflow, label: 'Phase B–H Engine', desc: 'Autonomous Multi-Agent Pipeline' }, { id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }, { id: 'Models', icon: Cpu, label: 'Models' }] },
+  { title: 'INTELLIGENCE', items: [{ id: 'Autonomous Engine', icon: Workflow, label: 'Phase B–M Engine', desc: 'Autonomous Multi-Agent Pipeline' }, { id: 'Capability Registry', icon: Layers, label: 'Capability Registry', desc: 'Single Source of Truth' }, { id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }, { id: 'Models', icon: Cpu, label: 'Models' }] },
   { title: 'TRUST & SAFETY', items: [{ id: 'Audit Ledger', icon: ShieldCheck, label: 'Audit Ledger' }, { id: 'Diagnostics', icon: Activity, label: 'Diagnostics' }] },
   { title: 'SYSTEM', items: [{ id: 'Billing', icon: CreditCard, label: 'Billing & Plans' }, { id: 'Settings', icon: Settings, label: 'Settings' }] },
 ];
@@ -66,7 +67,8 @@ const PAGE_COPY: Record<Page, { eyebrow: string; title: string; subtitle: string
   Projects: { eyebrow: 'WORKSPACE / PROJECTS', title: 'Build in context.', subtitle: 'Organize codebases and ideas into dedicated workspaces.' },
   Plans: { eyebrow: 'WORKSPACE / PLANS', title: 'Plan before action.', subtitle: 'Turn a goal into clear steps and track what is actually complete.' },
   Files: { eyebrow: 'WORKSPACE / FILES', title: 'Your project files.', subtitle: 'Review local files before wiring up the secure server-side file gateway.' },
-  'Autonomous Engine': { eyebrow: 'AUTONOMOUS PIPELINE', title: 'Phase B–H Autonomous Engine', subtitle: 'Hybrid Semantic Search, DAG Task Graphs, Continuous Verification, Deterministic WAL Recovery & 9-Agent RBAC.' },
+  'Autonomous Engine': { eyebrow: 'AUTONOMOUS PIPELINE', title: 'Phase B–M Autonomous Engine', subtitle: 'Hybrid Semantic Search, DAG Task Graphs, Continuous Verification, Deterministic WAL Recovery, 9 Agents, L1–L8 & Health Analyzer.' },
+  'Capability Registry': { eyebrow: 'INTELLIGENCE / CAPABILITY REGISTRY', title: 'Capability Registry (Phase L)', subtitle: 'Single source of truth: Live backend telemetry of verified capabilities and honest unavailable states.' },
   'Repository Intelligence': { eyebrow: 'INTELLIGENCE / REPO INTELLIGENCE', title: 'Repository Intelligence Engine', subtitle: 'Map project structure, resolve symbols and exports into JSON context hierarchy.' },
   'Intelligent Debugging': { eyebrow: 'INTELLIGENCE / INTELLIGENT DEBUGGING', title: 'Intelligent Debugging Workflow', subtitle: 'Capture stack traces, fetch workspace code, and rank root cause hypotheses.' },
   'Prompt Forge': { eyebrow: 'INTELLIGENCE / PROMPT FORGE', title: 'Forge, optimize & benchmark prompts.', subtitle: 'Generate production-ready prompts, audit against rubrics, and run test benches.' },
@@ -1050,6 +1052,7 @@ export default function App() {
         {page === 'Plans' && <PlansPage plans={plans} add={() => setNewPlanOpen(true)} toggle={togglePlan} query={query} onAddBulk={addBulkPlans} setToast={setToast}/>}
         {page === 'Files' && <FilesPage files={files} onPick={() => fileInputRef.current?.click()} remove={fileId => setFiles(prev => prev.filter(file => file.id !== fileId))} onViewSnippet={file => setViewingFile(file)} />}
         {page === 'Autonomous Engine' && <PhaseBcdEfgDashboard authHeaders={authHeaders()} setToast={setToast} />}
+        {page === 'Capability Registry' && <CapabilityRegistryView />}
         {page === 'Repository Intelligence' && (
           <RepositoryIntelligence
             authHeaders={authHeaders}

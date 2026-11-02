@@ -283,4 +283,18 @@ export const executionJobs = pgTable("execution_jobs", {
   completedAt: timestamp("completed_at"),
 });
 
+// 22. Checkpoints (Phase K - Deterministic Recovery WAL + PostgreSQL)
+export const checkpoints = pgTable('checkpoints', {
+  jobId: text('job_id').primaryKey(),
+  taskState: text('task_state').notNull(),
+  taskGraph: jsonb('task_graph').notNull(),
+  approvedPlanDigest: text('plan_digest').notNull(),
+  appliedChangeIds: jsonb('change_ids').$type<string[]>().notNull(),
+  verificationResults: jsonb('verification').notNull(),
+  auditRef: text('audit_ref').notNull(),
+  sha256: text('sha256').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+
 
