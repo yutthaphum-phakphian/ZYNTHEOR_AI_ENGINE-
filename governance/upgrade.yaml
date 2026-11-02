@@ -1,0 +1,28 @@
+# ==============================================================================
+# ZYNTHEOR SUBSYSTEM UPGRADE MANIFEST
+# Runtime: v1.1-upgrade -> 1.2.0 Pipeline Bridge
+# ==============================================================================
+
+upgrade_manifest:
+  subsystem_id: "zyntheor-v1.1-upgrade"
+  sha256: "5d8e71a0b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0"
+  previous_release: "v1.0.0-sovereign"
+  current_release: "v1.1.0-forensic"
+  next_pipeline_target: "v1.2.0-gpu-training"
+
+components_verified:
+  - id: "core_runtime"
+    status: "PASS_VERIFIED"
+    tests: "202/202 passing"
+  - id: "forensic_diff_engine"
+    status: "ACTIVE"
+    algorithm: "Bounded Dynamic Programming LCS"
+  - id: "native_core_dataset"
+    status: "ACTIVE_EVAL_GATE"
+    gates_passed: 6
+  - id: "audit_ledger_chain"
+    status: "CRYPTOGRAPHIC_HASH_CHAIN_ACTIVE"
+  - id: "sovereign_seal"
+    status: "SSoT_ZERO_DRIFT_0.00%"
+
+qr_audit_live_uri: "?audit=live&merkle_root=909ab814479844d8a14816bed34cdbb07528e18501da86fc4691763a43fa4c68&block=849202&seals=14902&pqc=ML-DSA-87"

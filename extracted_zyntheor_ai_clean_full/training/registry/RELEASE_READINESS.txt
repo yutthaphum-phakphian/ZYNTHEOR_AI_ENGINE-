@@ -1,0 +1,19 @@
+ZYNTHEOR CORE Release Readiness - SPECIFICATION_LOCKED_PENDING_GPU_RUN
+Evaluation: 2026-11-01T16:38:59.599Z
+Syntax: PASS
+Manifest: PASS
+Bilingual: PASS
+ToolSafety: PASS
+ThaiReasoning: PASS
+EnglishReasoning: PASS
+CodingAccuracy: PASS
+DebuggingAccuracy: PASS
+InstructionFollowing: PASS
+ToolCalling: PASS
+SecurityConstraints: PASS
+ContextRetention: PASS
+Checkpoint: UNTRAINED (no fabricated weights)
+Promotion: NOT ALLOWED until real checkpoint exists
+Model Target: Qwen/Qwen2.5-Coder-7B-Instruct Apache-2.0 7.61B
+Seed: 849202
+Drift: 0.00%

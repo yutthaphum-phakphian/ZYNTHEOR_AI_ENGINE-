@@ -1,0 +1,59 @@
+name: Buffalo 1.2.6 Audit
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: WORKSTREAM 1 - Release Integrity
+        run: |
+          echo "## Git branch/commit/tags" | tee audit.txt
+          git branch --show-current 2>/dev/null | tee -a audit.txt || true
+          git log --oneline -5 2>/dev/null | tee -a audit.txt || true
+          git show-ref --tags 2>/dev/null | grep v1.0.0 | tee -a audit.txt || echo "Tag v1.0.0 not found in local ref" | tee -a audit.txt
+          echo "HEAD=$(git rev-parse HEAD 2>/dev/null || echo 'HEAD')" | tee -a audit.txt
+          TAG_REV=$(git rev-parse v1.0.0 2>/dev/null || echo 'NO_TAG')
+          echo "v1.0.0=$TAG_REV" | tee -a audit.txt
+          [ "$TAG_REV" != "NO_TAG" ] && [ "$(git rev-parse HEAD 2>/dev/null)" = "$TAG_REV" ] && echo "PASS tag->HEAD" | tee -a audit.txt || echo "NOTE: tag not pointing to HEAD or not yet tagged" | tee -a audit.txt
+          ls -lh docs/RELEASE_NOTES_1.0.0.md | tee -a audit.txt
+          cat package.json | grep version | tee -a audit.txt
+          npm run verify 2>&1 | tee -a audit.txt
+          npm run build 2>&1 | tail -20 | tee -a audit.txt
+          cat .gitignore | tee -a audit.txt
+          ! grep -R "AIza" --include="*.ts" src/ server.ts 2>/dev/null && echo "PASS no hardcoded secrets" | tee -a audit.txt || echo "FAIL secret found" | tee -a audit.txt
+          ls | grep -E "500|544" && echo "FAIL log files present" | tee -a audit.txt || echo "PASS no log files" | tee -a audit.txt
+          gh release view v1.0.0 --json tagName,targetCommitish,url 2>&1 | tee -a audit.txt || echo "UNVERIFIED: GitHub Release not found" | tee -a audit.txt
+
+      - name: WORKSTREAM 2 - Production Readiness
+        run: |
+          echo "## Deployment config" | tee -a audit.txt
+          ls -lh vite.config.ts server.ts | tee -a audit.txt
+          echo "## Env vars required (no values)" | tee -a audit.txt
+          grep -ho "process.env.[A-Z_]*" server.ts src/**/*.ts | sort -u | tee -a audit.txt
+          echo "## Auth/RateLimit/LocalOnly/Consent" | tee -a audit.txt
+          grep -n "rateLimit\|verifyToken\|ZYNTHEOR_LOCAL_ONLY\|consent\|health" server.ts src/routes/*.ts | head -50 | tee -a audit.txt
+          cat vite.config.ts | tee -a audit.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FINAL_REPORT_1.2.6
+          path: audit.txt

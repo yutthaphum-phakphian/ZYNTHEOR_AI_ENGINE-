@@ -1,0 +1,7 @@
+{
+  "name": "ZYNTHEOR AI ENGINE",
+  "description": "Local-first engineering intelligence workspace.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

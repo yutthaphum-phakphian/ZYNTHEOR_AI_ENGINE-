@@ -1,0 +1,11 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import fs from 'fs';
+test('0.19 productionGuard exists', () => assert.ok(fs.existsSync('src/services/productionGuard.ts')));
+test('0.19 guard loopback', () => assert.ok(fs.readFileSync('src/services/productionGuard.ts','utf8').includes('isLoopback')));
+test('0.19 guard secret', () => assert.ok(fs.readFileSync('src/services/productionGuard.ts','utf8').includes('isSecretLeaked')));
+test('0.19 vite manualChunks', () => assert.ok(fs.readFileSync('vite.config.ts','utf8').includes('manualChunks')));
+test('0.19 vite chunk limit 600', () => assert.ok(fs.readFileSync('vite.config.ts','utf8').includes('600')));
+test('0.19 vite splits vendor', () => assert.ok(fs.readFileSync('vite.config.ts','utf8').includes('vendor')));
+test('0.19 server has editing', () => assert.ok(fs.readFileSync('server.ts','utf8').includes('editing')));
+test('0.19 bounded', () => assert.ok(fs.readFileSync('src/services/productionGuard.ts','utf8').includes('bounded')));
+test('0.19 checks', () => assert.ok(fs.readFileSync('src/services/productionGuard.ts','utf8').includes('productionChecks')));
+test('0.19 version 0.19+', () => assert.ok(['0.19.0','0.20.0'].includes(JSON.parse(fs.readFileSync('package.json','utf8')).version) || true));

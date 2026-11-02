@@ -1,0 +1,13 @@
+lib/local-ollama-bridge.ts
+src/components/APILogViewer.tsx
+src/components/GpuMemoryStressTest.tsx
+src/components/ModelComparisonTool.tsx
+src/components/ModelPerformanceChart.tsx
+src/components/ModelStatusCodeRollingChart.tsx
+src/components/ModelStatusIndicator.tsx
+src/components/ModelTelemetryChart.tsx
+src/components/ModelUptimeChart.tsx
+src/components/SensorMetricsDashboardWidget.tsx
+src/components/SensorMetricsDashboardWidget.test.ts
+src/tests/benchmarkIntegrity.test.ts
+training/registry/latest_training_log.json
