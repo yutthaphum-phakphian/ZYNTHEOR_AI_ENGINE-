@@ -260,3 +260,27 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   }),
 }));
 
+// 20. Agent Memory (P13 PostgreSQL Enterprise Memory)
+export const agentMemory = pgTable("agent_memory", {
+  id: serial("id").primaryKey(),
+  workspaceId: varchar("workspace_id", { length: 64 }).notNull(),
+  lesson: text("lesson").notNull(),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// 21. Execution Jobs (Level 4 State Machine)
+export const executionJobs = pgTable("execution_jobs", {
+  id: varchar("id", { length: 128 }).primaryKey(),
+  workspaceId: varchar("workspace_id", { length: 64 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull(),
+  executable: varchar("executable", { length: 255 }).notNull(),
+  args: jsonb("args").notNull(),
+  approvalDigest: varchar("approval_digest", { length: 64 }),
+  exitCode: integer("exit_code"),
+  durationMs: integer("duration_ms"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+

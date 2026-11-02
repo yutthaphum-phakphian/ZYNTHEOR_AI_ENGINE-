@@ -38,10 +38,12 @@
       "format": "json",
       "license": "Apache-2.0",
       "sample_count": 15,
+      "dataset_status": "EXPERIMENTAL_DATASET",
+      "format_schema": "ChatML (<|im_start|>system ... <|im_start|>user ... <|im_start|>assistant ... <|im_end|>)",
       "split_distribution": {
-        "train": 9,
+        "train": 8,
         "validation": 3,
-        "test": 3
+        "test": 4
       },
       "language_distribution": {
         "th-en": 9,

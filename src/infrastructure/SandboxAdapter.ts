@@ -68,7 +68,7 @@ export class SandboxAdapter {
         WorkingDir: '/workspace',
         HostConfig: {
           Binds: [`${absoluteWorkspace}:/workspace:${isWritable ? 'rw' : 'ro'}`],
-          NetworkMode: 'none', // Network Isolation
+          NetworkMode: Array.isArray(req.capabilities) && req.capabilities.includes('network_outbound') ? 'bridge' : 'none', // Network Isolation by default
           Memory: 256 * 1024 * 1024,
           MemorySwap: 256 * 1024 * 1024, // Swap disabled (Limit = Memory)
           NanoCpus: 500000000, // 0.5 Core

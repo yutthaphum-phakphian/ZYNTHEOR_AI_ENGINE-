@@ -745,6 +745,7 @@ export class AuditLedger {
   private static lastEntry: AuditEntry | null = null;
   private static entries: AuditEntry[] = [];
   private static initialized = false;
+  private static lockQueue: Promise<void> = Promise.resolve();
 
   private static loadPersisted() {
     if (this.initialized) return;
@@ -764,26 +765,45 @@ export class AuditLedger {
     } catch {}
   }
 
-  static async log(action: string, detail: Record<string, unknown> | string): Promise<AuditEntry> {
-    this.loadPersisted();
-    const detailStr = typeof detail === 'string' ? detail : JSON.stringify(detail);
-    const entry = createAuditEntry(action, detailStr, this.lastEntry);
-    this.lastEntry = entry;
-    this.entries.push(entry);
+  /**
+   * Concurrency-safe audit logging.
+   * Uses serialized lock queue to guarantee strict sequential hash chaining under concurrent loads.
+   */
+  static async log(
+    action: string,
+    detail: Record<string, unknown> | string,
+    context?: { workspaceId?: string; orgId?: string }
+  ): Promise<AuditEntry> {
+    return new Promise<AuditEntry>((resolve, reject) => {
+      this.lockQueue = this.lockQueue.then(async () => {
+        try {
+          this.loadPersisted();
+          const detailStr = typeof detail === 'string' ? detail : JSON.stringify(detail);
+          const entry = createAuditEntry(action, detailStr, this.lastEntry);
+          if (context?.workspaceId) {
+            entry.metadata = { ...(entry.metadata || {}), workspaceId: context.workspaceId, orgId: context.orgId };
+          }
+          this.lastEntry = entry;
+          this.entries.push(entry);
 
-    try {
-      if (typeof window === 'undefined' && AUDIT_FILE) {
-        const fs = (globalThis as any).process?.getBuiltinModule?.('fs') || null;
-        const path = (globalThis as any).process?.getBuiltinModule?.('path') || null;
-        if (fs && path) {
-          const dir = path.dirname(AUDIT_FILE);
-          if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-          fs.writeFileSync(AUDIT_FILE, JSON.stringify(this.entries.slice(-500), null, 2), 'utf-8');
+          try {
+            if (typeof window === 'undefined' && AUDIT_FILE) {
+              const fs = (globalThis as any).process?.getBuiltinModule?.('fs') || null;
+              const path = (globalThis as any).process?.getBuiltinModule?.('path') || null;
+              if (fs && path) {
+                const dir = path.dirname(AUDIT_FILE);
+                if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+                fs.writeFileSync(AUDIT_FILE, JSON.stringify(this.entries.slice(-500), null, 2), 'utf-8');
+              }
+            }
+          } catch {}
+
+          resolve(entry);
+        } catch (err) {
+          reject(err);
         }
-      }
-    } catch {}
-
-    return entry;
+      });
+    });
   }
 
   static getEntries(limit = 100): AuditEntry[] {

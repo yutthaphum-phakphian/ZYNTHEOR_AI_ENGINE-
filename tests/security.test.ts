@@ -93,4 +93,23 @@ describe('P11.1 Security Hardening Tests', () => {
     const chainVerification = AuditLedger.verifyChain();
     expect(chainVerification.isValid).toBe(true);
   });
+
+  // 5. P12 SSRF Protection & URL Validation Tests
+  it('Blocks SSRF attempts to localhost, internal networks, and cloud metadata', async () => {
+    const { SecurityPolicy } = await import('../src/services/ExecutionGateway.ts');
+
+    // Forbidden internal and metadata endpoints
+    expect(SecurityPolicy.validateUrl('http://localhost:3000')).toBe(false);
+    expect(SecurityPolicy.validateUrl('http://127.0.0.1:8080')).toBe(false);
+    expect(SecurityPolicy.validateUrl('http://169.254.169.254/latest/meta-data/')).toBe(false);
+    expect(SecurityPolicy.validateUrl('http://192.168.1.1/admin')).toBe(false);
+    expect(SecurityPolicy.validateUrl('http://10.0.0.5/api')).toBe(false);
+    expect(SecurityPolicy.validateUrl('file:///etc/passwd')).toBe(false);
+    expect(SecurityPolicy.validateUrl('javascript:alert(1)')).toBe(false);
+
+    // Allowed legitimate public endpoints
+    expect(SecurityPolicy.validateUrl('https://example.com')).toBe(true);
+    expect(SecurityPolicy.validateUrl('https://api.github.com/repos')).toBe(true);
+  });
 });
+

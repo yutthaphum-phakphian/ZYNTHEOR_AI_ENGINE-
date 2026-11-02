@@ -20,9 +20,10 @@
       "dataset_provenance": {
         "manifest_name": "zyntheor-core-engineering-v1.2",
         "manifest_version": "1.3.0",
-        "manifest_sha256": "46b94720a7bdc7408add785e108e8cc4e43ab16b089d6ddd09ff19f3ae376d41",
-        "samples_sha256": "427a714f3cd2c4a89966cd623716489a642e9a74e700355374d4d99ed2c15610",
+        "manifest_sha256": "4fcec769760ed2ce05cb80421703c7f5ebefbf94db2b146aba28b7277a8d066a",
+        "samples_sha256": "49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db",
         "samples_count": 15,
+        "dataset_status": "EXPERIMENTAL_DATASET",
         "domains": [
           "software_engineering",
           "agent_reasoning",
@@ -39,9 +40,9 @@
           "th"
         ],
         "splits": {
-          "train": 9,
+          "train": 8,
           "validation": 3,
-          "test": 3
+          "test": 4
         },
         "human_review_status": "REQUIRED_BEFORE_FULL_TRAINING",
         "training_license_claim": "NOT_AUTOMATICALLY_ASSERTED"
@@ -107,7 +108,7 @@
       "dataset_provenance": {
         "manifest_name": "zyntheor-core-engineering-v1.2",
         "manifest_version": "1.3.0",
-        "manifest_sha256": "46b94720a7bdc7408add785e108e8cc4e43ab16b089d6ddd09ff19f3ae376d41",
+        "manifest_sha256": "4fcec769760ed2ce05cb80421703c7f5ebefbf94db2b146aba28b7277a8d066a",
         "genesis_epoch": 849202,
         "baseline_drift": "0.00%",
         "ssot_anchor": "https://yutthaphum-phakphian.github.io/ZYRQUEN-1.2-LTS/?utm_source=chatgpt.com"

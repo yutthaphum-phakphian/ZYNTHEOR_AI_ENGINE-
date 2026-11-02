@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "provenance_id": "zyntheor-base-model-qwen2.5-coder-7b",
+  "name": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "display_name": "Qwen 2.5 Coder 7B Instruct",
+  "parameters": {
+    "total": "7.61B",
+    "exact_params": 7615616512,
+    "active_params": 7615616512
+  },
+  "architecture": "Qwen2ForCausalLM",
+  "context_window": 32768,
+  "tokenizer": "Qwen2Tokenizer",
+  "license": {
+    "type": "Apache-2.0",
+    "spdx_id": "Apache-2.0",
+    "attribution": "Qwen Team / Alibaba Cloud",
+    "commercial_use_allowed": true,
+    "derivatives_allowed": true,
+    "provenance_verified": true
+  },
+  "training_strategy": {
+    "type": "QLoRA / LoRA Parameter-Efficient Fine-Tuning",
+    "base_training_from_scratch": false,
+    "quantization": "BitsAndBytes 4-bit NF4 (Normal Float 4) with Double Quantization",
+    "compute_dtype": "bfloat16",
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "lora_rank": 32,
+    "lora_alpha": 64,
+    "lora_dropout": 0.05,
+    "bias": "none"
+  },
+  "hardware_requirements": {
+    "training": {
+      "minimum_vram_gb": 16.0,
+      "recommended_vram_gb": 24.0,
+      "cuda_compute_capability_min": 8.0,
+      "supported_gpus": [
+        "NVIDIA RTX 4090 (24GB)",
+        "NVIDIA A100 (40GB/80GB)",
+        "NVIDIA H100 (80GB)",
+        "NVIDIA L4 (24GB)"
+      ]
+    },
+    "inference": {
+      "gguf_q4_k_m_ram_gb": 6.0,
+      "cpu_inference_supported": true
+    }
+  },
+  "export_target": {
+    "format": "GGUF",
+    "quantization": "Q4_K_M",
+    "runtime": "llama.cpp / Ollama",
+    "modelfile": "Modelfile_ZYNTHEOR_CORE_0.1"
+  },
+  "sovereign_anchors": {
+    "genesis_seed": 849202,
+    "local_first_telemetry": "ZERO_TELEMETRY",
+    "fail_closed_security": true
+  }
+}
