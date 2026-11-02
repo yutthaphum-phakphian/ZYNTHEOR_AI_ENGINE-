@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+coverage/
+*.zip
+544
+500*
+public/assets/
+*.zip
+workspace_data/
+node_modules/
+workspace_data/
+dist/
+.oryx/
