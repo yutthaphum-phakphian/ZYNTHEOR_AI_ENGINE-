@@ -3,15 +3,15 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai"><img src="https://img.shields.io/badge/Buffalo-Active%20Governance-10B981?style=for-the-badge&logo=shield&logoColor=white" alt="Buffalo Audit" /></a>
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai"><img src="https://img.shields.io/badge/Integrity%20Manifest-SHA--256%20Verified-38BDF8?style=for-the-badge&logo=fingerprint&logoColor=white" alt="Manifest Integrity" /></a>
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai"><img src="https://img.shields.io/badge/Tests-Continuous%20PASS-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Test Verification" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-"><img src="https://img.shields.io/badge/Buffalo-Active%20Governance-10B981?style=for-the-badge&logo=shield&logoColor=white" alt="Buffalo Audit" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-"><img src="https://img.shields.io/badge/Integrity%20Manifest-SHA--256%20Verified-38BDF8?style=for-the-badge&logo=fingerprint&logoColor=white" alt="Manifest Integrity" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-"><img src="https://img.shields.io/badge/Tests-Continuous%20PASS-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Test Verification" /></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE - Dataset & Eval" /></a>
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/audit-1.1.0.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Buffalo Audit" /></a>
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/codeql.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/codeql.yml/badge.svg" alt="CodeQL Advanced" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions"><img src="https://img.shields.io/badge/Build-Passing-10B981?style=flat-square&logo=githubactions&logoColor=white" alt="Build Status" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions"><img src="https://img.shields.io/badge/Native%20Core-Verified-38BDF8?style=flat-square&logo=githubactions&logoColor=white" alt="Native Core" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions"><img src="https://img.shields.io/badge/CodeQL-Passed-10B981?style=flat-square&logo=github&logoColor=white" alt="CodeQL" /></a>
 </p>
 
 <p align="center">
@@ -111,27 +111,28 @@ flowchart LR
 <summary><b>แสดง/ซ่อนรายการโมดูลและหน้าการทำงาน</b></summary>
 
 ### 1. พื้นที่ทำงาน (Workspace)
-- **แชต (Chat)**: ระบบสนทนาวิศวกรรมระดับสูง รองรับโหมด Auto, Plan และ Code มีระบบ Streaming Diff, AST Complexity Preview และ Reasoning Steps
-- **โครงการ (Projects)**: บริหารจัดการโครงการซอฟต์แวร์ ติดตามสถานะ ความคืบหน้า และเกณฑ์การส่งมอบ
-- **แผนงาน (Plans)**: จัดลำดับการพัฒนาซอฟต์แวร์ แยกข้อเท็จจริง (Facts) ออกจากสมมติฐาน (Hypotheses)
-- **ไฟล์ (Files)**: เครื่องมือสำรวจโครงสร้างโค้ดปลอดภัยในรูปแบบ Read-Only
+- **แชต (Chat)**: ระบบสนทนาวิศวกรรมระดับสูง รองรับโหมด Auto, Chat, Reasoning, Coding, Research และ Agent พร้อมสตรีมมิ่งคำตอบ แสดง Diff, การวิเคราะห์เหตุผล (Reasoning Steps), ตรวจจับความซับซ้อนของโค้ด และการอนุมัติก่อนแก้ไขไฟล์จริง (Approval Gate)
+- **โครงการ (Projects)**: บริหารจัดการ Workspace และโปรเจกต์ซอฟต์แวร์หลายโฟลเดอร์ พร้อมระบบ Multi-Workspace Switcher และ Workspace Import/Export
+- **แผนงาน (Plans)**: จัดลำดับการพัฒนาซอฟต์แวร์ Dynamic Replanning และ Dependency-Aware Planning เพื่อแยกข้อเท็จจริง (Facts) ออกจากสมมติฐาน (Hypotheses)
+- **ไฟล์ (Files)**: เครื่องมือสำรวจ ตรวจสอบ และพรีวิวโค้ดใน Workspace ภายใต้ระบบความปลอดภัย Sandbox ป้องกัน Path Traversal
 
 ### 2. ระบบอัจฉริยะ (Intelligence & Models Architecture)
-- **Prompt Forge 0.9 PRO**: เครื่องมือออกแบบและพัฒนาพรอมป์ต์ ประกอบด้วย Prompt Optimizer, Rubrics Analyzer, Few-Shot Builder, Variable Simulator และ Test Bench
-- **โมเดลและการวิเคราะห์สถาปัตยกรรม (Models & Architecture Tab)**:
-  - **Overview**: ตรวจสอบและตั้งค่า AI Model Endpoint ทั้ง Local Ollama และ Google Gemini API
+- **Repository Intelligence**: เครื่องมือทำแผนที่โครงสร้างโปรเจกต์ สกัด Symbol, Class, Function, Interface และ Export วิเคราะห์ความสัมพันธ์ระหว่างไฟล์เป็น JSON Context Hierarchy สำหรับ AI
+- **Intelligent Debugging**: ระบบวิเคราะห์และสืบสวนข้อผิดพลาด จับ Stack Traces, ดึงไฟล์ที่เกี่ยวข้อง และจัดลำดับสมมติฐานสาเหตุที่แท้จริง (Root Cause Hypotheses) พร้อมคำแนะนำแนวทางแก้ไข
+- **Prompt Forge 0.9 PRO**: เครื่องมือออกแบบและพัฒนาพรอมป์ต์ ประกอบด้วย Prompt Optimizer, Rubrics Analyzer, Few-Shot Builder, Variable Simulator และ Test Lab
+- **โมเดลและตัวชี้วัด (Models & Architecture)**:
+  - **Overview**: ตรวจสอบและตั้งค่า AI Model Endpoint ทั้ง Local Ollama และ Google Gemini API (gemini-3.8-flash)
+  - **Model Metrics Rolling Chart**: แผนภูมิแสดงผล Real-Time Rolling 60 นาที ติดตามเวลาแฝง (P50/P95/P99 latency), จำนวน Token (Prompt/Completion) และอัตราความสำเร็จ
   - **Architecture Sub-Tab**: แผนผังความเชื่อมโยงเชิงสถาปัตยกรรมแบบโต้ตอบ (Interactive D3.js Codebase Dependency Map) สร้างขึ้นด้วย `CodeIntelligence.buildDependencyGraph`
-  - **Interactive Module Exploration**: เมื่อคลิกเลือกโมดูล node บนกราฟ จะเน้น (Highlight) สายสัมพันธ์ direct imports และโมดูลที่เกี่ยวข้อง พร้อมแสดงแถบข้าง (Sidebar Panel) ตารางกรองข้อมูล:
-    - *Direct Internal Imports*: โมดูลภายในที่ไฟล์นี้เรียกใช้
-    - *External Dependencies*: NPM Libraries ภายนอกที่ถูกนำเข้า
-    - *Reverse Imports (Imported By)*: รายการไฟล์ภายในที่เรียกใช้งานโมดูลนี้
+  - **Interactive Module Exploration**: คลิกเลือก node บนกราฟเพื่อเน้นความสัมพันธ์ Direct Internal Imports, External Dependencies และ Reverse Imports
 
 ### 3. ความเชื่อมั่นและความปลอดภัย (Trust & Safety)
-- **สมุดบัญชีตรวจสอบ (Audit Ledger)**: แสดงผล Cryptographic Hash Chain ของระบบ สามารถตรวจสอบย้อนหลังได้ทุก Transaction
-- **การวินิจฉัยระบบ (Diagnostics)**: ตรวจสอบสุขภาพของเซิร์ฟเวอร์, GPU Memory, HTTP Latency และทดสอบการประมวลผล Local Inference
+- **สมุดบัญชีตรวจสอบ (Audit Ledger)**: แสดงผล Cryptographic Hash Chain ตรวจสอบความถูกต้อง (Tamper Detection), แสดงกราฟสัดส่วน Event/Action, ตรวจสอบความถูกต้องของ Storage, ส่งออก JSON/CSV และรองรับการ Re-sign ซ่อมแซมสายโซ่
+- **การวินิจฉัยระบบ (Diagnostics)**: ตรวจสอบสุขภาพของเซิร์ฟเวอร์, GPU Memory, HTTP Latency, สถานะระบบข้อผิดพลาด และทดสอบการประมวลผล Local/API Inference
 
-### 4. การตั้งค่า (System Settings)
-- **ตั้งค่า (Settings)**: ควบคุม Local-First Isolation Mode, การยินยอมออนไลน์, API Key Security Proxy และการจัดการสิทธิ์การใช้งาน
+### 4. ระบบและการตั้งค่า (System)
+- **ระบบการชำระเงินและสิทธิ์ (Billing & Plans)**: บริหารจัดการแผนบริการ (Free / Pro / Enterprise), สิทธิ์การใช้งาน (Entitlements), ข้อมูลการเรียกเก็บเงิน ประวัติ Invoice และสถานะสมาชิก
+- **ตั้งค่า (Settings)**: ควบคุม Local-First Isolation Mode, การยินยอมออนไลน์, API Key Security Proxy, การจัดการสิทธิ์การใช้งาน และ Session Management
 
 </details>
 
@@ -174,13 +175,13 @@ npm run dev
 
 ### การตรวจสอบคุณภาพและทดสอบระบบ (Quality Gates & Testing)
 ```bash
-# 1. ตรวจสอบ Static Type Check (TypeScript)
+# 1. ตรวจสอบความพร้อมของสภาพแวดล้อม (Environment Preflight)
+npm run check:env
+
+# 2. ตรวจสอบ Static Type Check (TypeScript)
 npm run typecheck
 
-# 2. ตรวจสอบ Code Integrity Manifest (SHA-256 Hashes)
-node scripts/check-manifest.js
-
-# 3. รัน ชุดการทดสอบ Unit & Governance Tests (Vitest)
+# 3. รันชุดการทดสอบระบบ (Integration & Vitest Suite)
 npm run test
 
 # 4. ทดสอบสร้าง Production Bundle

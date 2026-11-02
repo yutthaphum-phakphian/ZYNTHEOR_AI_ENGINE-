@@ -3,7 +3,7 @@
 // Displays Connected / Degraded / Failed states from observability endpoint
 
 import React from 'react';
-import ModelMetricsRollingChart from './ModelMetricsRollingChart';
+import { ModelMetricsRollingChart } from './ModelMetricsRollingChart';
 
 type ModelStatus = {
   id: string;

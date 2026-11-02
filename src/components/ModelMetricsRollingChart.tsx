@@ -38,6 +38,7 @@ export interface RollingMetricPoint {
 interface ModelMetricsRollingChartProps {
   selectedModel?: string;
   providerId?: string;
+  refreshIntervalMs?: number;
 }
 
 
@@ -516,3 +517,5 @@ export function ModelMetricsRollingChart({
     </div>
   );
 }
+
+export default ModelMetricsRollingChart;

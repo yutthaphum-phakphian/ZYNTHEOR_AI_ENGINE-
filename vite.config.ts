@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
-// GitHub Pages serves the site under /zyntheor-ai/; local dev and normal builds stay at '/'.
-const base = process.env.GITHUB_PAGES === 'true' ? '/zyntheor-ai-fixed/' : '/';
+// GitHub Pages serves the site under repository subpath; local dev and normal builds stay at '/'.
+const base = process.env.GITHUB_PAGES === 'true' ? '/ZYNTHEOR_AI_ENGINE-/' : '/';
 
 export default defineConfig({
   base,
