@@ -1,0 +1,68 @@
+========================================================================
+ZYNTHEOR CORE — Dataset Engineering Report
+Generated: 2026-10-29T04:32:49.904Z
+========================================================================
+
+Overall valid: YES
+Human review required: YES
+
+--- Counts ---
+Total samples: 11
+By split:
+  test                             3
+  train                            6
+  validation                       2
+By language:
+  en                               2
+  th                               2
+  th-en                            7
+By domain:
+  software_engineering             9
+  tool_use_planning                2
+By category:
+  code_explanation                 1
+  code_generation                  3
+  debugging                        2
+  instruction_following            2
+  multi_constraint                 1
+  tool_orchestration               2
+By license:
+  Apache-2.0                      11
+By source:
+  zyntheor-curated-engineering-corpus-v1    11
+
+Characters: 7378
+Est. tokens (~4 chars): 1848
+
+--- Digests (SHA-256) ---
+manifest: 46b94720a7bdc7408add785e108e8cc4e43ab16b089d6ddd09ff19f3ae376d41
+samples:  427a714f3cd2c4a89966cd623716489a642e9a74e700355374d4d99ed2c15610
+
+--- Leakage ---
+passed: true
+train↔val: 0
+train↔test: 0
+val↔test: 0
+
+--- Quality ---
+duplicates: 0
+near-duplicates: 0
+empty fields: 0
+short instructions: 0
+invalid language: 0
+invalid split: 0
+
+--- Provenance ---
+all licensed: true
+all have source: true
+licenses: Apache-2.0
+sources: zyntheor-curated-engineering-corpus-v1
+
+--- Notes ---
+  • Automated checks: schema, exact/near-duplicate instructions, split leakage, digests.
+  • Semantic quality, code correctness, and training license fitness still require human review.
+  • valid:true is not a claim that every sample is production-ready for full model training.
+
+License fitness for training is not automatically asserted.
+Do not treat this report as proof of full training readiness.
+========================================================================
