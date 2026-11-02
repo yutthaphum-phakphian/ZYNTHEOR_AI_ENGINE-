@@ -14,3 +14,19 @@ node_modules/
 workspace_data/
 dist/
 .oryx/
+
+# ZYNTHEOR CORE X - ignore
+__pycache__/
+*.cpython-*.pyc
+*.pyo
+.venv/
+venv/
+node_modules/
+*.npz
+*.bin
+*.pt
+training/scripts/__pycache__/
+native_data/*.npz
+native_data/*.bin
+native_data/checkpoint/
+
