@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: ["main"]
   workflow_dispatch:
+    inputs:
+      confirm_production_deploy:
+        description: "Type true to confirm production deployment from the main branch"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -20,6 +26,7 @@ env:
 
 jobs:
   build-and-test:
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -29,11 +36,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Check TypeScript
         run: npx tsc --noEmit
@@ -50,12 +62,14 @@ jobs:
 
   docker-build-push:
     needs: build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: >
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.confirm_production_deploy == true))
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -88,13 +102,20 @@ jobs:
 
   deploy-to-cloud:
     needs: docker-build-push
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: >
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.confirm_production_deploy == true))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Trigger deployment (Railway)
+        env:
+          RAILWAY_WEBHOOK: ${{ secrets.RAILWAY_DEPLOY_WEBHOOK }}
         run: |
-          if [ -n "${{ secrets.RAILWAY_DEPLOY_WEBHOOK }}" ]; then
-            curl -X POST "${{ secrets.RAILWAY_DEPLOY_WEBHOOK }}"
+          if [ -n "$RAILWAY_WEBHOOK" ]; then
+            curl --fail --silent --show-error -X POST "$RAILWAY_WEBHOOK"
           else
             echo "RAILWAY_DEPLOY_WEBHOOK secret is not set, skipping remote trigger."
           fi
