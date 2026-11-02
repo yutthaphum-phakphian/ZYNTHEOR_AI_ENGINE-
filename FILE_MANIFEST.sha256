@@ -1,5 +1,5 @@
 e2e3a0d157cda3c883ddce328f9dff6db690f43e255cbef76ced367573dcf45d  ./.dockerignore
-550ef9fef0e80c917dbeaaa5857474b5a47afce443116cf0b2bcdeaf4c3f181d  ./.env.example
+e95b0bada1b76e162c63a31a381b3d82acb34ec29c505257690c656f8c271027  ./.env.example
 3383076bef2339a9b2a9d94a577781adc3060605f3782b62a8da75ffc5c36d05  ./.github/workflows/audit-1.1.0.yml
 67c2bf46a47e1c30c1d9e33988c024f5e26b3f97a8ec670d9540a49020c22362  ./.github/workflows/native-core-1.1.0.yml
 fb750761e9d56f8be6808d163ba9dfbfa41f31f25dbff3b9a9d6e19ce1d31c18  ./.gitignore
@@ -162,7 +162,7 @@ f0113b124f76544262c16b5cc0503f41c1347cb465c2021065f4faa77d27c478  ./lib/provider
 2b651aa94ad164558502bd3d31f9db0f57e8a364ce4c5973e53e173f75d4e278  ./lib/providers.ts
 b545ae046550ab18ef6797ac5130e4d58362a1f83be0e7294e9da3b14c2ab287  ./lib/request-observability.mjs
 02820dbeb574ff11bc0a4b774091224c75dce0d109341e8787ec937069911d09  ./metadata.json
-5358c60d2603378d002d63df96d889d6359ff4e386f343888e0c3d9244188b5c  ./package.json
+b9210ebc642336bce757b2a2ebb354aca0d237d814c56aa640dd84126a126f28  ./package.json
 0b427efda29f9323ea43134e509865242a99c802302fab5dfac9763a07cc3abc  ./public/icon.svg
 98d3c0a3a1990f384977de2cc52dd9ec55b7cba19f874296c82ba8e44fd1f449  ./public/manifest.webmanifest
 4558421c058ffd339087505eff2f59c64169ba449d8415d82499c6ac998fc1df  ./public/native-core-mark.svg
@@ -172,8 +172,8 @@ df13fa1c1ab58648e1cd496889c81139011c0d2422b483242de2bdc8643f985b  ./public/nativ
 44602c211897572be3ae4f41d6d9f659f332d2e879f5566ca5928603b359acee  ./render.yaml
 6aefae5d3ed5f1aa84a8e31a044fd991eab40b143d1c2a8da865a7353f0210ba  ./scripts/preflight.mjs
 3d294122c111956b7856f1aae01010296040a3ef5ed6016e1551cb027f7a1f9f  ./scripts/production-start.mjs
-1966f033ce69ec5086767fe6562d1b4c2efbdff90df8e3e52bfd57958a02a692  ./server.ts
-099129de01e104fd646ff2450ec04fc7ce56f691f7458c2851d07356a58d7576  ./src/App.tsx
+f6effd3a937d0a99c4e335285b30b94aac8f5200043219f9e6ffc011f29d4b1d  ./server.ts
+ccd8af413cf88dcbd24dc4662af4a5284f982c43d248cfaadb551811030b4838  ./src/App.tsx
 36c343342dfdd9502236bf7be706e0eddd94f1c26ffe7bc29a9687eec5dd442a  ./src/components/AccountCenterModal.tsx
 d7f6fa7004f9ee1d729c4371dc89230cf2084debbbd819e2cc6ced7a59376e5d  ./src/components/AuditChainVisualizer.tsx
 af4baa1ad9bf3f6f08fa929a19facc0a8585e0f980d834caff2279f7e0e19894  ./src/components/BillingCenter.tsx
@@ -197,7 +197,7 @@ e671210ed78393bc3c390887faa9f849724cff626125e06d7893a82d84c29d52  ./src/componen
 0b41530e468bd1b30ece19f9df7e5776af257939b812893bec7b70793b60c176  ./src/components/TrainingMonitor.tsx
 2a7c2186f7bc928e1207e6126c89b185a48916598b2c189d8cefb5b2f4d7cc8d  ./src/components/WorkspaceProjectsPage.tsx
 5af044353da9e214dbe9d7d6aca2c4938e67ee3901b453a1c2ca93c50366cfca  ./src/db/connection.ts
-971853f9d5e5826cb14c2ec3bc250f94555e571ec185a67f066626dd66353f0a  ./src/db/schema.ts
+3de2a6f4c14c3b93ef8aaadb9a7979101029df414cbdd47bc56a4c7cf4db9808  ./src/db/schema.ts
 b32b4efee48883da41a1de09c28d76bca3449f6f42e6cd17896bf38d29df7826  ./src/main.tsx
 b0dec83b28fd2118842abdeece98d490021036e2458ba39a4044aac0e9be616c  ./src/routes/auth.ts
 a32244006b144053f81ebf4c3f0bd8be7e4e46b347a668a95b9a4c95df3a9bd5  ./src/routes/billing.ts
@@ -301,7 +301,7 @@ fb3f4b77f57413b01d7c37e34e024ebd413083146e2a2d5f0d59ee6ee1814515  ./training/dat
 f8162fd435ff05b7f9914e04a8a6b4f261adcfccc0798076d8c4803d272a7425  ./training/dataset/SHA256SUMS
 4fcec769760ed2ce05cb80421703c7f5ebefbf94db2b146aba28b7277a8d066a  ./training/dataset/manifest.json
 49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db  ./training/dataset/samples.json
-e4e5bc0166758ec06eb923ec842f5c1029e47fe7b492ee57cf95402e24508cbe  ./training/registry/RELEASE_READINESS.txt
+a7f1dd14ffb7665fc210c3453119aecde953755531f21dd9e5821b263dc61ae5  ./training/registry/RELEASE_READINESS.txt
 ec34676cf49ee462e9b007b1ec4093abcae8cce53141d0d0c6cbdb9f467d55ee  ./training/registry/model_registry.json
 9aa0e8a3e09f1124a41ddd0c78bb9a4931039fba082a724800c1cd665ab4ca96  ./training/scripts/dataset_report.mjs
 67ba8bd9aa676adbb171888e9d09e24f6f3c2097547e6c2cc8fcc326ad00c1a1  ./training/scripts/evaluate_baseline.d.mts

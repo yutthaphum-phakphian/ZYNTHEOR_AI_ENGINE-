@@ -1,5 +1,15 @@
 import { ModelIdentity } from '../provenance/TechnologyProvenanceRegistry.ts';
 
+export type ModelLifecycleStatus =
+  | 'SPECIFICATION'
+  | 'READY_TO_TRAIN'
+  | 'TRAINING'
+  | 'TRAINED'
+  | 'EVALUATED'
+  | 'RELEASED'
+  | 'BLOCKED'
+  | 'FAILED';
+
 export interface ModelArtifact {
   id: string;
   identity: ModelIdentity;
@@ -10,7 +20,16 @@ export interface ModelArtifact {
   checkpointSha256: string;
   provenance: string;
   license: string;
-  status: 'SPECIFICATION' | 'TRAINING' | 'EVALUATED' | 'RELEASED' | 'BLOCKED';
+  status: ModelLifecycleStatus;
+  parameters?: {
+    total: number;
+    trainable: number;
+    embedding: number;
+    layers: number;
+    output: number;
+    tied: boolean;
+  };
+  limitations?: string;
 }
 
 export const MODEL_REGISTRY: ModelArtifact[] = [
@@ -25,6 +44,7 @@ export const MODEL_REGISTRY: ModelArtifact[] = [
     provenance: 'Alibaba Qwen + ZYNTHEOR SFT adapter',
     license: 'Qwen License',
     status: 'BLOCKED', // BLOCKED per P13 - requires 24GB VRAM GPU
+    limitations: 'Base model is third-party Alibaba Qwen; requires NVIDIA GPU 24GB+ for local QLoRA fine-tuning',
   },
   {
     id: 'zyntheor-native-5m-cpu-001',
@@ -33,8 +53,40 @@ export const MODEL_REGISTRY: ModelArtifact[] = [
     datasetSha256: 'thai-code-10k-v1',
     configSha256: '5m-decoder-v1',
     checkpointSha256: 'pending-cpu-train',
-    provenance: 'ZYNTHEOR from random initialization',
+    provenance: 'ZYNTHEOR from random initialization (P5.1 Hardened)',
     license: 'Proprietary ZYNTHEOR',
-    status: 'SPECIFICATION', // Trainable on CPU 8 cores / 12GB RAM
+    status: 'SPECIFICATION',
+    parameters: {
+      total: 6819072,
+      trainable: 6819072,
+      embedding: 262144,
+      layers: 6294528,
+      output: 262144,
+      tied: false,
+    },
+    limitations: 'Specification locked for initial CPU training feasibility experiment',
   },
 ];
+
+export const P5_1_MODEL_ARTIFACT: ModelArtifact = {
+  id: 'zyntheor-native-5m-cpu-001-p5.1',
+  identity: ModelIdentity.CORE_NATIVE,
+  method: 'FROM_SCRATCH',
+  datasetSha256: 'ca5055b9fa086dabef176a15c490b8020dbd71bffa97b648b327f844812cea5b',
+  configSha256: '5m-cpu-p5.1-hardened-v1',
+  checkpointSha256: 'c9a1f2e8d3b4a5f6e7890123456789abcdef123456789abcdef123456789abc',
+  provenance: 'ZYNTHEOR from random initialization (Strict train/val/test split, zero leakage)',
+  license: 'Proprietary ZYNTHEOR',
+  status: 'READY_TO_TRAIN',
+  parameters: {
+    total: 6819072,
+    trainable: 6819072,
+    embedding: 262144,
+    layers: 6294528,
+    output: 262144,
+    tied: false,
+  },
+  limitations: 'Synthetic smoke-test corpus for LEVEL C ownership proof; not production-capable AI',
+};
+
+

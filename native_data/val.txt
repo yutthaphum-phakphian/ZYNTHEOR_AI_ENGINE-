@@ -1,0 +1,6 @@
+def native_train():
+    model = ZyntheorNativeModel(vocab_size=1024)
+    optimizer = torch.optim.AdamW(model.parameters())
+    return model
+Agent coordination requires explicit permission boundaries and emergency stop capability
+สวัสดีครับ นี่คือการทดสอบตัวแบ่งคำภาษาไทย English code-mix: print('Hello โลก')

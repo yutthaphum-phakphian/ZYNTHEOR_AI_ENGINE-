@@ -1,0 +1,19 @@
+total_params = sum(p.numel() for p in model.parameters())  # Real count from model
+Future-token invariance: changing future tokens must not affect logits at earlier positions
+ความปลอดภัย: ห้ามเก็บ credential หรือ secret ใน dataset หรือ memory โดยเด็ดขาด
+class RMSNorm(nn.Module):
+    def __init__(self, dim, eps=1e-6):
+        self.weight = nn.Parameter(torch.ones(dim))
+Reasoning requires separating facts, inferences, assumptions, and unknowns with evidence chain
+Evaluation must use held-out test set never used for tokenizer training or checkpoint selection
+mask = torch.full((seq_len, seq_len), float('-inf')).triu(1)
+scores = scores + mask
+Persistent knowledge ต้องแยก tenant isolation และมี provenance tracking ที่ตรวจสอบได้
+Checkpoint integrity requires SHA-256 from actual bytes and reload verification with output comparison
+Tool Gateway enforces permission boundaries L1-L5 and sandbox execution with audit log
+Verification Engine L1-L8 must run real commands with exit codes, not simulated status
+ระบบปัญญาประดิษฐ์อธิปไตยต้องทำงานแบบ Local-Only ได้โดยไม่แอบเรียก Cloud
+ZYNTHEOR is building sovereign AI from scratch with own verifiable weights and training pipeline
+def apply_rotary_emb(xq, xk, freqs_cis):
+    xq_ = torch.view_as_complex(xq.reshape(*xq.shape[:-1], -1, 2))
+    return xq_out

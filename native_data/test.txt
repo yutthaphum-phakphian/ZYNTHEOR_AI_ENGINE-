@@ -1,0 +1,6 @@
+import torch
+class SwiGLU(nn.Module):
+    def forward(self, x):
+        return self.w2(F.silu(self.w1(x)) * self.w3(x))
+ZYNTHEOR เป็นระบบ AI อธิปไตยที่พัฒนาโดยคนไทย ต้องเริ่มจากน้ำหนักของตัวเองที่ตรวจสอบได้
+การฝึกโมเดลจากศูนย์พิสูจน์ว่าเราควบคุมเทคโนโลยีได้จริง ไม่ใช่แค่เรียก API ของคนอื่น

@@ -1,0 +1,16 @@
+{
+  "jobId": "test-klm-1793632722637",
+  "taskState": "VERIFYING",
+  "taskGraph": {
+    "nodes": []
+  },
+  "approvedPlanDigest": "0xabc123",
+  "executionId": "exec-klm-1",
+  "appliedChangeIds": [
+    "package.json"
+  ],
+  "verificationResults": [],
+  "auditRef": "ref-audit-klm",
+  "timestamp": "2026-11-02T15:18:42.639Z",
+  "sha256": "437a2548a034bc635e2f28306622d4a3dacc791670bf427dc374950fd6e33f13"
+}

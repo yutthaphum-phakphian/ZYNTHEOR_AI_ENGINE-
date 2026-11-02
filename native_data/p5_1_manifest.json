@@ -1,0 +1,96 @@
+{
+  "experiment_id": "zyntheor-native-5m-cpu-001-p5.1",
+  "identity": "ZYNTHEOR CORE NATIVE",
+  "method": "FROM_SCRATCH",
+  "initialization": "random",
+  "status": "READY_TO_TRAIN",
+  "dataset": {
+    "id": "zyntheor-smoke-synthetic-v1",
+    "classification": "SYNTHETIC_SMOKE_TEST",
+    "total_original_docs": 20,
+    "train_docs": 14,
+    "val_docs": 3,
+    "test_docs": 3,
+    "train_tokens_bpe_1024": 1000,
+    "val_tokens_bpe_1024": 200,
+    "test_tokens_bpe_1024": 200,
+    "sha256_manifest": "ca5055b9fa086dabef176a15c490b8020dbd71bffa97b648b327f844812cea5b",
+    "leakage_check": "PASS - no cross-split duplicates, split before augmentation",
+    "isolation": "test set never used for tokenizer training, model training, or checkpoint selection"
+  },
+  "tokenizer": {
+    "vocab_size": 1024,
+    "trained_on": "train.txt only",
+    "reload_equivalence": true,
+    "bounds_check": true,
+    "special_tokens": ["<pad>", "<s>", "</s>", "<unk>"]
+  },
+  "architecture": {
+    "type": "decoder-only",
+    "vocab_size": 1024,
+    "d_model": 256,
+    "n_layers": 6,
+    "n_heads": 4,
+    "d_ff": 1024,
+    "max_seq_len": 128,
+    "norm": "RMSNorm",
+    "activation": "SwiGLU",
+    "pos_encoding": "RoPE",
+    "attention": "causal",
+    "tied_embeddings": false,
+    "total_params": 6819072,
+    "trainable_params": 6819072,
+    "breakdown": {
+      "embedding": 262144,
+      "layers": 6294528,
+      "final_norm": 256,
+      "output": 262144,
+      "total": 6819072,
+      "trainable": 6819072,
+      "tied_total": 6556928
+    }
+  },
+  "training_config": {
+    "seed": 42,
+    "epochs": 3,
+    "optimizer": "AdamW",
+    "lr": 0.0003,
+    "batch_size": 4,
+    "seq_len": 64,
+    "grad_clip": 1.0,
+    "nan_inf_detection": true
+  },
+  "checkpoint_policy": {
+    "path": "native_data/p5_1_checkpoint.pt",
+    "sha256_verification": "computed from raw bytes before and after reload",
+    "reload_output_match": "torch.allclose(out_orig, out_new, atol=1e-6)",
+    "finite_params": true,
+    "contains_optimizer_state": true
+  },
+  "evaluation_policy": {
+    "test_split": "isolated held-out test.txt, never seen by tokenizer or training",
+    "comparison": "Random initialization baseline vs Trained model",
+    "metric": "CrossEntropyLoss and Perplexity"
+  },
+  "tests": {
+    "dataset_split_no_overlap": "PASS",
+    "sha256_per_doc": "PASS",
+    "future_token_invariance": "IMPLEMENTED",
+    "rope_stability": "IMPLEMENTED",
+    "gradient_finiteness": "IMPLEMENTED",
+    "forward_shape": "IMPLEMENTED",
+    "param_count": "IMPLEMENTED"
+  },
+  "limitations": "5M model on ~1K tokens is SYNTHETIC_SMOKE_TEST for LEVEL C ownership proof, NOT capable AI",
+  "completion_policy": {
+    "hardware_audit": "IMPLEMENTED (real psutil + torch.cuda detection)",
+    "native_architecture": "IMPLEMENTED (RMSNorm, SwiGLU, RoPE, causal)",
+    "parameter_counting": "VERIFIED (sum(p.numel()) exact formula & breakdown)",
+    "tokenizer": "IMPLEMENTED + VERIFIED logic (train-only, reload, bounds)",
+    "dataset": "VERIFIED (split before aug, SHA per doc, zero overlap, test isolated)",
+    "backpropagation": "IMPLEMENTED (AdamW real)",
+    "checkpoint": "IMPLEMENTED + VERIFIED logic (SHA before/after + output match + finite)",
+    "evaluation": "IMPLEMENTED (isolated test set)",
+    "overall": "READY_TO_TRAIN (pending execution on 8c/12GB target machine with torch)"
+  }
+}

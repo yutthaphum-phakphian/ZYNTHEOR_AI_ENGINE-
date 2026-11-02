@@ -1,0 +1,50 @@
+{
+  "dataset_id": "zyntheor-smoke-synthetic-v1",
+  "classification": "SYNTHETIC_SMOKE_TEST",
+  "total_original_docs": 20,
+  "splits": {
+    "train": {
+      "count": 14,
+      "doc_ids": [
+        "doc_001_8a17d6ed",
+        "doc_004_ad291b19",
+        "doc_005_e4016f72",
+        "doc_006_7879e1ca",
+        "doc_009_a01bc67d",
+        "doc_010_2e6cff9c",
+        "doc_011_e946f668",
+        "doc_012_14f5e272",
+        "doc_013_549a84fd",
+        "doc_014_48cfc16e",
+        "doc_015_bee09099",
+        "doc_017_3c96bb36",
+        "doc_018_af118158",
+        "doc_019_5864e8b2"
+      ],
+      "file_sha256": "6685e56dd352ffbededb615423e8e54b49b392ab9bfa08bb82aa949c385f05d5"
+    },
+    "val": {
+      "count": 3,
+      "doc_ids": [
+        "doc_002_468cff8a",
+        "doc_007_c658635f",
+        "doc_016_4e15fe3c"
+      ],
+      "file_sha256": "c791d834b84df796e15b7a227b0cf3e37126f77b66178fba566de1148137a042"
+    },
+    "test": {
+      "count": 3,
+      "doc_ids": [
+        "doc_000_8b06a722",
+        "doc_003_9dafc225",
+        "doc_008_92328fd9"
+      ],
+      "file_sha256": "a7487bcba0d70ed587d5e805681e41fe3457630574e073bf42754e6114de4b59"
+    }
+  },
+  "provenance": "original proprietary ZYNTHEOR, no external data, MIT/Apache only where applicable",
+  "license": "proprietary-original",
+  "duplicate_check": "SHA-256 per doc, no cross-split duplicates, near-duplicate via hash",
+  "sha256_manifest": "ca5055b9fa086dabef176a15c490b8020dbd71bffa97b648b327f844812cea5b",
+  "isolation": "test set never used for tokenizer training, model training, or checkpoint selection"
+}

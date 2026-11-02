@@ -19,7 +19,13 @@
     "test:real": "ZYNTHEOR_LIVE_INFERENCE=1 node --import tsx --test tests/model-gateway-live.test.mjs",
     "check:env": "node scripts/preflight.mjs",
     "audit:quarantine": "node scripts/audit-quarantine-legacy.mjs",
-    "verify": "npm run check:env && npm run typecheck && npm test && npm run build"
+    "verify": "npm run check:env && npm run typecheck && npm test && npm run build",
+    "native:hardware:audit": "python3 zyntheor_p5_1_hardened.py --phase hardware",
+    "native:tokenizer:train": "python3 zyntheor_p5_1_hardened.py --phase tokenizer",
+    "native:dataset:validate": "python3 zyntheor_p5_1_hardened.py --phase dataset",
+    "native:train:5m:cpu": "python3 zyntheor_p5_1_hardened.py --phase train",
+    "native:eval:5m": "python3 zyntheor_p5_1_hardened.py --phase test",
+    "native:checkpoint:verify": "python3 zyntheor_p5_1_hardened.py --phase test"
   },
   "dependencies": {
     "@google/genai": "^2.31.0",
