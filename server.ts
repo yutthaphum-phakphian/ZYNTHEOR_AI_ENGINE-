@@ -53,6 +53,11 @@ import { globalConsensus } from './lib/governance-consensus.ts';
 import { globalResilience } from './lib/governance-resilience.ts';
 import { globalScalability } from './lib/governance-scalability.ts';
 import { globalFederation } from './lib/governance-federation.ts';
+import { MultiAgentOrchestrator } from './src/server/MultiAgentOrchestrator.ts';
+import { MemoryManager } from './src/server/MemoryManager.ts';
+import { VectorMemory } from './src/services/VectorMemory.ts';
+import { GitHubBot } from './src/services/GitHubBot.ts';
+import { GitHubActivityStore } from './src/services/gitHubActivityStore.ts';
 
 const globalEvidence = new EvidenceManager();
 const globalGovernance = new GovernanceRegistry();
@@ -91,6 +96,138 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   next();
 });
+
+// ==========================================
+// PHASE G: Codebase Semantic Search (RAG) API
+// ==========================================
+app.get('/api/codebase/status', (_req: Request, res: Response) => {
+  const status = VectorMemory.getStatus();
+  return res.json({ ok: true, status });
+});
+
+app.post('/api/codebase/index', rateLimit(5, 60_000), async (_req: Request, res: Response) => {
+  try {
+    const result = await VectorMemory.indexCodebase(['src', 'lib']);
+    addAudit('CODEBASE_INDEXED', `success=${result.success}; indexed=${result.indexedCount}; error=${result.error || 'none'}`);
+    return res.json({ ok: result.success, ...result });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: errorMessage(err) });
+  }
+});
+
+app.post('/api/codebase/search', rateLimit(30, 60_000), async (req: Request, res: Response) => {
+  const query = typeof req.body?.query === 'string' ? req.body.query.trim() : '';
+  const limit = Math.max(1, Math.min(20, Number(req.body?.limit) || 5));
+  if (!query) {
+    return res.status(400).json({ ok: false, error: 'Query string is required' });
+  }
+  try {
+    const matches = await VectorMemory.search(query, limit);
+    return res.json({ ok: true, query, count: matches.length, matches });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: errorMessage(err) });
+  }
+});
+
+// ==========================================
+// PHASE G: GitHub Bot & Webhook API
+// ==========================================
+app.get('/api/github/status', async (_req: Request, res: Response) => {
+  try {
+    const status = await GitHubBot.getStatus();
+    return res.json({ ok: true, ...status });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: errorMessage(err) });
+  }
+});
+
+app.get('/api/github/activities', (_req: Request, res: Response) => {
+  const limit = Math.max(1, Math.min(100, Number(req.query?.limit) || 50));
+  const activities = GitHubActivityStore.getActivities(limit);
+  return res.json({ ok: true, activities, total: GitHubActivityStore.countActivities() });
+});
+
+app.post('/api/github/webhook', async (req: Request, res: Response) => {
+  const event = String(req.headers['x-github-event'] || 'unknown');
+  const signature = typeof req.headers['x-hub-signature-256'] === 'string' ? req.headers['x-hub-signature-256'] : undefined;
+  const rawBody = JSON.stringify(req.body || {});
+
+  const isValid = GitHubBot.verifyWebhookSignature(rawBody, signature);
+  if (!isValid) {
+    return res.status(401).json({ error: 'invalid_signature', message: 'GitHub webhook HMAC signature verification failed.' });
+  }
+
+  try {
+    const result = await GitHubBot.handleWebhook(event, req.body);
+    addAudit('GITHUB_WEBHOOK_PROCESSED', `event=${event}; handled=${result.handled}`);
+    return res.json({ ok: true, ...result });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: errorMessage(err) });
+  }
+});
+
+app.post('/api/github/issue/auto-resolve', rateLimit(10, 60_000), async (req: Request, res: Response) => {
+  const { owner, repo, issueNumber, title, body } = req.body || {};
+  if (!owner || !repo || !issueNumber || !title) {
+    return res.status(400).json({ ok: false, error: 'owner, repo, issueNumber, and title are required.' });
+  }
+  try {
+    const result = await GitHubBot.handleNewIssue({
+      owner: String(owner),
+      repo: String(repo),
+      issueNumber: Number(issueNumber),
+      title: String(title),
+      body: String(body || ''),
+    });
+    addAudit('GITHUB_ISSUE_TRIGGERED', `repo=${owner}/${repo}; issue=${issueNumber}; success=${result.success}`);
+    return res.json({ ok: result.success, ...result });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: errorMessage(err) });
+  }
+});
+
+// ==========================================
+// PHASE G: Unified Control Center Stats API
+// ==========================================
+app.get('/api/stats', async (req: Request, res: Response) => {
+  const user = resolveRequestUser(req);
+  const workspaceId = typeof req.query?.workspaceId === 'string' ? req.query.workspaceId : 'default';
+
+  let taskCount = 0;
+  try {
+    const tasks = await getTaskMemories(workspaceId);
+    taskCount = tasks.length;
+  } catch {}
+
+  const obs = requestObservability.snapshot({ limit: 100, userId: user.id, workspaceId });
+  const codebaseStatus = VectorMemory.getStatus();
+  const ghActivities = GitHubActivityStore.getActivities(5);
+  const ghCount = GitHubActivityStore.countActivities();
+  const ghStatus = await GitHubBot.getStatus();
+  const unhandledErrors = getSystemErrors(workspaceId).filter((e) => !e.resolved);
+
+  return res.json({
+    ok: true,
+    workspaceId,
+    stats: {
+      tasks: taskCount,
+      totalRequests: obs.totals.requests,
+      succeededRequests: obs.totals.succeeded,
+      failedRequests: obs.totals.failed,
+      totalTokens: obs.totals.totalTokens,
+      knownCostTotal: obs.totals.knownCostTotal,
+      indexedFiles: codebaseStatus.indexedFiles,
+      vectorStatus: codebaseStatus.status,
+      githubOperations: ghCount,
+      githubStatus: ghStatus.status,
+      unresolvedErrors: unhandledErrors.length,
+      serverUptimeSeconds: Math.round(process.uptime()),
+    },
+    recentGitHubActivities: ghActivities,
+    vectorMeta: codebaseStatus,
+  });
+});
+
 app.use('/api', (_req: Request, res: Response, next: NextFunction) => {
   res.setHeader('Cache-Control', 'no-store');
   next();
@@ -313,6 +450,22 @@ app.get('/api/intelligence/observability/requests', (req, res) => {
   const workspaceId = String(req.query.workspaceId || 'default').replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 80) || 'default';
   res.setHeader('Cache-Control', 'no-store');
   res.json(requestObservability.snapshot({ limit: Number.isFinite(rawLimit) ? rawLimit : 50, userId: user.id, workspaceId }));
+});
+
+app.post('/api/intelligence/observability/clear', (req, res) => {
+  const user = resolveRequestUser(req);
+  const workspaceId = String(req.body?.workspaceId || req.query?.workspaceId || 'default').replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 80) || 'default';
+  const result = requestObservability.clear({ userId: user.id, workspaceId });
+  addAudit('OBSERVABILITY_REQUESTS_CLEARED', `userId=${user.id}; workspaceId=${workspaceId}`);
+  res.json({ ok: true, ...result });
+});
+
+app.delete('/api/intelligence/observability/requests', (req, res) => {
+  const user = resolveRequestUser(req);
+  const workspaceId = String(req.query?.workspaceId || req.body?.workspaceId || 'default').replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 80) || 'default';
+  const result = requestObservability.clear({ userId: user.id, workspaceId });
+  addAudit('OBSERVABILITY_REQUESTS_CLEARED', `userId=${user.id}; workspaceId=${workspaceId}`);
+  res.json({ ok: true, ...result });
 });
 
 app.get('/api/evidence', (_req, res) => {
@@ -1306,6 +1459,41 @@ app.post('/api/intelligence/agent/stream', async (req, res) => {
     const msg = errorMessage(error).slice(0, 150);
     res.write(`data: ${JSON.stringify({ type: 'error', message: msg })}\n\n`);
     res.end();
+  }
+});
+
+// Human Approval Endpoint for MultiAgentOrchestrator
+app.post('/api/agent/approve', (req: Request, res: Response) => {
+  const sessionId = typeof req.body?.sessionId === 'string' ? req.body.sessionId : '';
+  const approved = Boolean(req.body?.approved);
+  if (!sessionId) {
+    return res.status(400).json({ error: 'missing_session_id', message: 'Session ID is required' });
+  }
+  const handled = MultiAgentOrchestrator.handleApproval(sessionId, approved);
+  addAudit('AGENT_APPROVAL_RESPONDED', `sessionId=${sessionId}; approved=${approved}; resolved=${handled}`);
+  return res.json({ success: true, sessionId, approved, handled });
+});
+
+// Agent Long-Term Memory (Reflexion Lessons) API
+app.get('/api/memory', async (req: Request, res: Response) => {
+  const sessionId = typeof req.query?.sessionId === 'string' ? req.query.sessionId : 'main';
+  try {
+    const memory = await MemoryManager.loadState(`memory_${sessionId}`);
+    const lessons = Array.isArray(memory?.lessons) ? memory.lessons : [];
+    return res.json({ ok: true, sessionId, lessons, count: lessons.length });
+  } catch (error) {
+    return res.json({ ok: false, sessionId, lessons: [], error: String(error) });
+  }
+});
+
+app.get(['/api/agent/memory', '/api/agent/memory/:sessionId'], async (req: Request, res: Response) => {
+  const sessionId = req.params?.sessionId || (typeof req.query?.sessionId === 'string' ? req.query.sessionId : 'main');
+  try {
+    const memory = await MemoryManager.loadState(`memory_${sessionId}`);
+    const lessons = Array.isArray(memory?.lessons) ? memory.lessons : [];
+    return res.json({ ok: true, sessionId, lessons, count: lessons.length });
+  } catch (error) {
+    return res.json({ ok: false, sessionId, lessons: [], error: String(error) });
   }
 });
 

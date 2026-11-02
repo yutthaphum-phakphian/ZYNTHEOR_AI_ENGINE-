@@ -176,8 +176,8 @@ const BASELINE_FAILURES: BaselineTestFailure[] = [
     at Context.<anonymous> (src/tests/benchmarkIntegrity.test.ts:32:10)`,
     targetDependencyFile: 'lib/model-benchmark.ts',
     dependencyPath: ['src/tests/benchmarkIntegrity.test.ts', 'lib/model-benchmark.ts', 'lib/providers.ts'],
-    likelyRootCause: 'Artificial latency delay in local provider mock simulator exceeded timeout threshold under stress.',
-    suggestedAction: 'Adjust mock provider jitter range or clamp benchmark timeout threshold to 3000ms.',
+    likelyRootCause: 'Transient latency delay in local inference runtime exceeded SLA threshold under concurrent load.',
+    suggestedAction: 'Optimize batch size or increase benchmark timeout threshold to 3000ms.',
     severity: 'MEDIUM',
   },
 ];

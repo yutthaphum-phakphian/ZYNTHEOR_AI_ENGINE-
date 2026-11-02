@@ -11,6 +11,8 @@ function safePath(filepath: string) {
   return resolved;
 }
 
+import { VectorMemory } from './VectorMemory.ts';
+
 export class ToolGateway {
   static async writeFile(filepath: string, content: string) {
     const full = safePath(filepath);
@@ -30,4 +32,13 @@ export class ToolGateway {
       return JSON.stringify({ exitCode: 1, stdout: e.stdout || '', stderr: e.stderr || e.message });
     }
   }
+  static async searchCodebase(query: string, limit = 5) {
+    try {
+      const results = await VectorMemory.search(query, limit);
+      return JSON.stringify({ ok: true, count: results.length, matches: results });
+    } catch (e: any) {
+      return JSON.stringify({ ok: false, error: e?.message || 'Codebase search failed' });
+    }
+  }
 }
+

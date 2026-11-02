@@ -8,7 +8,7 @@ export default defineConfig({
   base,
   plugins: [react()],
   test: {
-    include: ['lib/**/*.test.ts', 'src/**/*.test.ts', 'tests/**/*.test.mts'],
+    include: ['lib/**/*.test.ts', 'src/**/*.test.ts', 'src/**/*.test.tsx', 'tests/**/*.test.mts'],
   },
   build: {
     chunkSizeWarningLimit: 600,

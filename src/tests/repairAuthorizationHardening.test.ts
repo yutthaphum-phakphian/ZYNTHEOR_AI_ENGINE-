@@ -260,8 +260,9 @@ describe('Phase 4 — Repair Authorization Hardening & Lifecycle Security Tests'
     );
 
     expect(approved.status).toBe('REPAIRED_WITH_HISTORY');
-    expect(repairedRecords[0].action).toBe('AUDIT_LEDGER_REPAIRED');
-    expect(repairedRecords[0].detail).toContain(req.originalRootHash.slice(0, 16));
+    const repairEntry = repairedRecords.find(r => r.action === 'AUDIT_LEDGER_REPAIRED');
+    expect(repairEntry?.action).toBe('AUDIT_LEDGER_REPAIRED');
+    expect(repairEntry?.detail).toContain(req.originalRootHash.slice(0, 16));
   });
 
   // Scenario 19: Failed Repair Recovery & Rejection

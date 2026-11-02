@@ -94,7 +94,7 @@ describe('TrainingMonitor Component & Job Telemetry Logic', () => {
     const current = mockRunningJob.currentLoss;
     const reductionPercent = Math.round(((initial - current) / initial) * 100);
 
-    expect(reductionPercent).toBe(39); // (2.45 - 1.482) / 2.45 = 39.5% -> rounded to 39 or 40
+    expect(reductionPercent).toBe(40); // (2.45 - 1.482) / 2.45 = 39.51% -> rounded to 40
   });
 
   it('should handle mock job statuses and identify corresponding status labels', () => {

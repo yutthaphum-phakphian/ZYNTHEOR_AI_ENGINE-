@@ -26,7 +26,7 @@ export const ModelsPage: React.FC = () => {
         const json = await res.json();
         setModels(json.models || []);
       } catch {
-        // fallback mock if endpoint not ready — do not block chart
+        // If endpoint not ready or unavailable, maintain unverified empty state
       } finally {
         setLoading(false);
       }

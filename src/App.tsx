@@ -3969,6 +3969,36 @@ function IntelligenceObservabilityPanel() {
   const status = snapshot?.status || 'unknown';
   const statusLabel: Record<string, string> = { healthy: 'พร้อมใช้งาน', degraded: 'ประสิทธิภาพลดลง', unhealthy: 'ขัดข้อง', unknown: 'ยังไม่มีข้อมูล' };
   const statusColor: Record<string, string> = { healthy: '#10b981', degraded: '#f59e0b', unhealthy: '#ef4444', unknown: '#94a3b8' };
+
+  const cleanRecords = useMemo(() => {
+    const raw = requestData?.records || [];
+    return raw.filter((r: any) => {
+      const m = String(r.model || '').toLowerCase();
+      const p = String(r.provider || '').toLowerCase();
+      return !m.includes('mock') && !m.includes('smoke-test') && !m.includes('fake') && !p.includes('mock');
+    });
+  }, [requestData?.records]);
+
+  const cleanTotals = useMemo(() => {
+    return cleanRecords.reduce((acc: any, r: any) => {
+      acc.requests++;
+      if (r.status === 'success') acc.succeeded++;
+      else acc.failed++;
+      if (r.totalTokens != null) { acc.knownTokenRequests++; acc.totalTokens += r.totalTokens; }
+      return acc;
+    }, { requests: 0, succeeded: 0, failed: 0, knownTokenRequests: 0, totalTokens: 0 });
+  }, [cleanRecords]);
+
+  const clearRequests = async () => {
+    try {
+      setLoading(true);
+      await fetch('/api/intelligence/observability/clear', { method: 'POST', headers: authHeaders() });
+      await load();
+    } catch {} finally {
+      setLoading(false);
+    }
+  };
+
   return <section className="panel" style={{ margin: '12px 0 18px', padding: '16px' }} aria-label="Intelligence observability">
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
       <div><div className="eyebrow">INTELLIGENCE OBSERVABILITY</div><h2 style={{ margin: '4px 0' }}>{t('obs.title')}</h2><p className="muted" style={{ margin: 0, fontSize: 12 }}>{t('obs.subtitle')}</p></div>
@@ -3984,16 +4014,32 @@ function IntelligenceObservabilityPanel() {
       <span>สำเร็จล่าสุด: {snapshot?.lastSuccessAt ? timeLabel(snapshot.lastSuccessAt) : 'ยังไม่มีข้อมูล'}</span><span>ผิดพลาดล่าสุด: {snapshot?.lastErrorCode || '—'}</span><span>อัปเดต: {lastUpdated || '—'}</span>
     </div>
     <div style={{ marginTop: 18 }}>
-      <div className="eyebrow">REQUEST TIMELINE</div><h3 style={{ margin: '4px 0 10px' }}>{t('obs.timeline')}</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+        <div>
+          <div className="eyebrow">REQUEST TIMELINE</div>
+          <h3 style={{ margin: '4px 0 0' }}>{t('obs.timeline')}</h3>
+        </div>
+        {cleanRecords.length > 0 && (
+          <button
+            type="button"
+            className="secondary-button"
+            style={{ fontSize: '11px', padding: '4px 8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            onClick={() => void clearRequests()}
+            disabled={loading}
+          >
+            <Trash2 size={12} /> ล้างประวัติคำขอ
+          </button>
+        )}
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(120px,1fr))', gap: 8, marginBottom: 12 }}>
-        <div className="metric-card"><span className="muted">คำขอที่เก็บไว้</span><strong>{requestData?.totals?.requests ?? '—'}</strong></div>
-        <div className="metric-card"><span className="muted">สำเร็จ</span><strong>{requestData?.totals?.succeeded ?? '—'}</strong></div>
-        <div className="metric-card"><span className="muted">ล้มเหลว</span><strong>{requestData?.totals?.failed ?? '—'}</strong></div>
-        <div className="metric-card"><span className="muted">Tokens ที่ทราบ</span><strong>{requestData?.totals?.knownTokenRequests ? requestData.totals.totalTokens.toLocaleString() : t('obs.unavailable')}</strong></div>
+        <div className="metric-card"><span className="muted">คำขอที่เก็บไว้</span><strong>{cleanTotals.requests}</strong></div>
+        <div className="metric-card"><span className="muted">สำเร็จ</span><strong>{cleanTotals.succeeded}</strong></div>
+        <div className="metric-card"><span className="muted">ล้มเหลว</span><strong>{cleanTotals.failed}</strong></div>
+        <div className="metric-card"><span className="muted">Tokens ที่ทราบ</span><strong>{cleanTotals.knownTokenRequests ? cleanTotals.totalTokens.toLocaleString() : t('obs.unavailable')}</strong></div>
       </div>
       <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}><thead><tr><th align="left">{t('obs.time')}</th><th align="left">{t('obs.provider_model')}</th><th align="left">{t('obs.mode')}</th><th align="left">{t('obs.result')}</th><th align="right">Latency</th><th align="right">{t('obs.tokens')}</th></tr></thead><tbody>
-        {(requestData?.records || []).map((r: any) => <tr key={r.id} style={{ borderTop: '1px solid var(--border,rgba(148,163,184,.14))' }}><td>{timeLabel(r.createdAt)}</td><td>{r.provider} / {r.model}</td><td>{r.effectiveMode}</td><td style={{ color: r.status === 'success' ? '#10b981' : '#ef4444' }}>{r.status === 'success' ? 'สำเร็จ' : r.errorCode || 'ล้มเหลว'}</td><td align="right">{r.latencyMs == null ? '—' : `${r.latencyMs} ms`}</td><td align="right">{r.totalTokens == null ? t('obs.unavailable') : r.totalTokens.toLocaleString()}</td></tr>)}
-        {!requestData?.records?.length && <tr><td colSpan={6} className="muted">{t('obs.empty')}</td></tr>}
+        {cleanRecords.map((r: any) => <tr key={r.id} style={{ borderTop: '1px solid var(--border,rgba(148,163,184,.14))' }}><td>{timeLabel(r.createdAt)}</td><td>{r.provider} / {r.model}</td><td>{r.effectiveMode}</td><td style={{ color: r.status === 'success' ? '#10b981' : '#ef4444' }}>{r.status === 'success' ? 'สำเร็จ' : r.errorCode || 'ล้มเหลว'}</td><td align="right">{r.latencyMs == null ? '—' : `${r.latencyMs} ms`}</td><td align="right">{r.totalTokens == null ? t('obs.unavailable') : r.totalTokens.toLocaleString()}</td></tr>)}
+        {!cleanRecords.length && <tr><td colSpan={6} className="muted">{t('obs.empty')}</td></tr>}
       </tbody></table></div>
       <p className="muted" style={{ fontSize: 11 }}>Token usage and cost are shown only when supplied by the provider. · {t('obs.retention')}</p>
     </div>

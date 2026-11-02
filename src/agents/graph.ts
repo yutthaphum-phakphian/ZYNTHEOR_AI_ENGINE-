@@ -11,19 +11,32 @@ export interface ZyntheorState {
 export class ZyntheorGraph {
   private ai: GoogleGenAI;
   private onEvent: (e:any)=>void;
-  constructor(apiKey: string, onEvent: (e:any)=>void) {
+  private sessionId?: string;
+  constructor(apiKey: string, onEvent: (e:any)=>void, sessionId?: string) {
     this.ai = new GoogleGenAI({ apiKey });
     this.onEvent = onEvent;
+    this.sessionId = sessionId;
   }
   private emitTokens(res:any) {
     const u = res.usageMetadata;
     if (u) this.onEvent({ type:'token_usage', inputTokens: u.promptTokenCount, outputTokens: u.candidatesTokenCount, totalTokens: u.totalTokenCount });
   }
   async plannerNode(state: ZyntheorState) {
-    this.onEvent({ type:'agent_start', agent:'PLANNER', content:'Creating architecture plan...' });
+    this.onEvent({ type:'agent_start', agent:'PLANNER', content:'Searching codebase & creating architecture plan...' });
+    let codebaseContext = '';
+    try {
+      const searchRes = await ToolGateway.searchCodebase(state.task, 3);
+      const parsed = JSON.parse(searchRes);
+      if (parsed.ok && Array.isArray(parsed.matches) && parsed.matches.length > 0) {
+        const topMatches = parsed.matches.map((m: any) => `- ${m.relativePath} (score: ${Number(m.score).toFixed(2)})`).join('\n');
+        this.onEvent({ type: 'agent_thought', agent: 'PLANNER', content: `🔍 Codebase Context (RAG):\n${topMatches}` });
+        codebaseContext = `\n[RELEVANT REPO FILES FOUND BY SEMANTIC SEARCH]:\n${topMatches}\n`;
+      }
+    } catch {}
+
     const res = await this.ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: [{ role:'user', parts:[{ text:`Task: ${state.task}\nCreate bullet plan.` }] }],
+      contents: [{ role:'user', parts:[{ text:`Task: ${state.task}${codebaseContext}\nCreate bullet plan.` }] }],
       config: { systemInstruction:'Lead Architect. Output ONLY bulleted plan.' }
     });
     this.emitTokens(res);

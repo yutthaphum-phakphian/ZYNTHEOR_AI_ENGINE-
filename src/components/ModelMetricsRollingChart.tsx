@@ -519,3 +519,5 @@ export function ModelMetricsRollingChart({
 }
 
 export default ModelMetricsRollingChart;
+export { ChatSessionTokenRollingChart, getRecommendedContextLimit, RECOMMENDED_CONTEXT_LIMITS } from './ChatSessionTokenRollingChart';
+export type { ChatSessionTokenRollingChartProps } from './ChatSessionTokenRollingChart';

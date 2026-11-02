@@ -17,5 +17,11 @@ export const toolDefinitions = [
     description: 'Execute shell command in sandbox',
     parameters: z.object({ command: z.string() }),
     schema: { type: 'object', properties: { command: { type: 'string' } }, required: ['command'] }
+  },
+  {
+    name: 'search_codebase',
+    description: 'Search repository codebase semantically using vector embeddings (Gemini)',
+    parameters: z.object({ query: z.string(), limit: z.number().optional() }),
+    schema: { type: 'object', properties: { query: { type: 'string' }, limit: { type: 'number' } }, required: ['query'] }
   }
 ];

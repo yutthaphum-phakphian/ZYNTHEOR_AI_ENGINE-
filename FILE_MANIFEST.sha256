@@ -3,7 +3,7 @@ e95b0bada1b76e162c63a31a381b3d82acb34ec29c505257690c656f8c271027  ./.env.example
 3383076bef2339a9b2a9d94a577781adc3060605f3782b62a8da75ffc5c36d05  ./.github/workflows/audit-1.1.0.yml
 67c2bf46a47e1c30c1d9e33988c024f5e26b3f97a8ec670d9540a49020c22362  ./.github/workflows/native-core-1.1.0.yml
 fb750761e9d56f8be6808d163ba9dfbfa41f31f25dbff3b9a9d6e19ce1d31c18  ./.gitignore
-ac994ee21e4c0021db4c4f3b00e498f3503d1d46f7464df7058303eb79ecf598  ./README.md
+6df69bf131efd0f9841e31cb622eb1e62935933aeab68c095e6171af054b3013  ./README.md
 e2c2f33a43a8ef2812dcd6b2fbda9ebdbb89b22f7e55456812c7a967cb6f10f9  ./database/schema.ts
 0732811b61ca3ae46bf44b4a585d0eeec0d97da9874b771c4b46b7f68075fe4e  ./docs/ADVANCED_REASONING_EVIDENCE_INTEGRITY_TH.md
 0228bdc871bf4f1b2077799c3a37deb6bdc35f2285970e40699737114a1a0d79  ./docs/AI_INTELLIGENCE_QUALITY_UPGRADE_TH.md
@@ -160,9 +160,9 @@ b8f76add959b6803815aad265b3f0f8a9ce295641d8d70d4446e4f65f4495064  ./lib/next-gen
 4d318a26c2b360985b4702aafa442642e186cc23597177093239143279f3a281  ./lib/provider-resilience.d.mts
 f0113b124f76544262c16b5cc0503f41c1347cb465c2021065f4faa77d27c478  ./lib/provider-resilience.mjs
 2b651aa94ad164558502bd3d31f9db0f57e8a364ce4c5973e53e173f75d4e278  ./lib/providers.ts
-ff4bb6a08b9528a54e47583f498eb24ff717a7f9062e460aa63700587420c99c  ./lib/request-observability.mjs
+b545ae046550ab18ef6797ac5130e4d58362a1f83be0e7294e9da3b14c2ab287  ./lib/request-observability.mjs
 02820dbeb574ff11bc0a4b774091224c75dce0d109341e8787ec937069911d09  ./metadata.json
-18827604e6de00ce4d6608721b58f775a6c84cb580b7b6176c941cf7e7337f8f  ./package.json
+e843cf15f569584709e7b891199b565d025e3c40b07d42b446f6fcca6ca0cce4  ./package.json
 0b427efda29f9323ea43134e509865242a99c802302fab5dfac9763a07cc3abc  ./public/icon.svg
 98d3c0a3a1990f384977de2cc52dd9ec55b7cba19f874296c82ba8e44fd1f449  ./public/manifest.webmanifest
 4558421c058ffd339087505eff2f59c64169ba449d8415d82499c6ac998fc1df  ./public/native-core-mark.svg
@@ -172,8 +172,8 @@ df13fa1c1ab58648e1cd496889c81139011c0d2422b483242de2bdc8643f985b  ./public/nativ
 44602c211897572be3ae4f41d6d9f659f332d2e879f5566ca5928603b359acee  ./render.yaml
 6aefae5d3ed5f1aa84a8e31a044fd991eab40b143d1c2a8da865a7353f0210ba  ./scripts/preflight.mjs
 3d294122c111956b7856f1aae01010296040a3ef5ed6016e1551cb027f7a1f9f  ./scripts/production-start.mjs
-2176a4d5fbc8f3b8aa36352ff45d919e903fdc462e2dcf02d73b79dae6f7e1cd  ./server.ts
-b53af0a018f74d9d723c05174164722ac613a4968b6fcc23acf8b2f228fee07d  ./src/App.tsx
+d600d9698f05982a746d9a4706e46da17aae99ac1609b4bd0784a3adacab09f3  ./server.ts
+645f48521a89a49a4d5326d719d9b8914fc3e7966040fea4c5fa614cb940d4c7  ./src/App.tsx
 36c343342dfdd9502236bf7be706e0eddd94f1c26ffe7bc29a9687eec5dd442a  ./src/components/AccountCenterModal.tsx
 d7f6fa7004f9ee1d729c4371dc89230cf2084debbbd819e2cc6ced7a59376e5d  ./src/components/AuditChainVisualizer.tsx
 af4baa1ad9bf3f6f08fa929a19facc0a8585e0f980d834caff2279f7e0e19894  ./src/components/BillingCenter.tsx
@@ -301,7 +301,7 @@ fb3f4b77f57413b01d7c37e34e024ebd413083146e2a2d5f0d59ee6ee1814515  ./training/dat
 697740f5617478c64cffaec446b7085fd746eac19a14329cabfa6ec4955d6dc7  ./training/dataset/SHA256SUMS
 484f5793a8e9315724cad93172ad5cbea74714a6f176f65d4bae5daad6601999  ./training/dataset/manifest.json
 49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db  ./training/dataset/samples.json
-0aa7d90be834afd076a55d550394c8129fb5a12b842dcb3dd67456c266023c51  ./training/registry/RELEASE_READINESS.txt
+7a02cf320b5c36975df274f3f78a482de0a034edd8d2ceb3a2f2cec74542bd31  ./training/registry/RELEASE_READINESS.txt
 d0c6041685750e2437db539412d22fbf8c144e2653f04dfd6a08839d71c1f4e9  ./training/registry/model_registry.json
 9aa0e8a3e09f1124a41ddd0c78bb9a4931039fba082a724800c1cd665ab4ca96  ./training/scripts/dataset_report.mjs
 67ba8bd9aa676adbb171888e9d09e24f6f3c2097547e6c2cc8fcc326ad00c1a1  ./training/scripts/evaluate_baseline.d.mts
@@ -315,4 +315,4 @@ f5494622c588c677e146adfebeddce8b2bde05cba2f008f470a255c226c28f85  ./training/scr
 5f460145decc15697f1020559293fdefaaec61db02eb0d9596b3a0e4f3ffbb98  ./training/scripts/verify_dataset.d.mts
 a75794277da4f6aee7b06c17c19c6caa5dda7d8f395450162fed7db51ae7d534  ./training/scripts/verify_dataset.mjs
 c0c88f0f52e58f915244a628af367da2f5a85cfeebf767e4dd8c46d8f41aa028  ./tsconfig.json
-e1c16511a0b25028b45ca26f4f66ee3a07216b2f466cbd507b8f6099c5fc4a74  ./vite.config.ts
+d94893cddc849c653910e5d2cfa869b9483cd4d9d9b3bebf4bd219260d543f02  ./vite.config.ts
