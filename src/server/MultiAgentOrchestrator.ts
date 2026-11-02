@@ -3,6 +3,11 @@ import { ZyntheorGraph, ZyntheorState } from '../agents/graph';
 import { MemoryManager } from './MemoryManager';
 import { ExecutionGateway } from '../services/ExecutionGateway.ts';
 import { ExecutionRequest, ExecutionStatus, generateRequestDigest } from '../types/execution.ts';
+import { TaskGraph, NodeStatus } from '../core/TaskGraph';
+import { GoalDecomposer } from '../core/GoalDecomposer';
+import { ContextCompiler } from '../core/ContextCompiler';
+import { ContinuousVerificationEngine } from '../core/ContinuousVerificationEngine';
+import { VerificationStatus } from '../core/VerificationTypes';
 
 // Map storing pending approval promises awaiting user action from UI
 const pendingApprovals = new Map<string, (approved: boolean) => void>();
@@ -138,6 +143,52 @@ export class MultiAgentOrchestrator {
           ? `✅ Done in ${state.attempts} steps!`
           : `❌ Execution stopped after ${state.attempts} attempts.`,
     });
+  }
+
+  async runForGitHub(workspaceDir: string, objective: string, onEvent: (e: any) => void) {
+    const compiler = new ContextCompiler(workspaceDir);
+    await compiler.initialize();
+    const context = await compiler.compile(objective);
+    onEvent({ type: 'context_ready', context });
+
+    const decomposer = new GoalDecomposer();
+    const graph = await decomposer.decompose(context);
+    onEvent({ type: 'graph_generated', tasks: Array.from(graph.nodes.values()) });
+
+    // Graph Execution Loop with Verification
+    let maxLoops = 20;
+    while (maxLoops-- > 0) {
+      const ready = graph.getReadyNodes();
+      const all = Array.from(graph.nodes.values());
+      if (all.every((n) => n.status === NodeStatus.COMPLETED)) break;
+      if (all.some((n) => n.status === NodeStatus.FAILED)) throw new Error('Graph failed');
+      if (ready.length === 0) {
+        await new Promise((r) => setTimeout(r, 200));
+        continue;
+      }
+
+      await Promise.all(
+        ready.map(async (node) => {
+          node.status = NodeStatus.RUNNING;
+          onEvent({ type: 'task_started', task: node });
+          try {
+            const report = await ContinuousVerificationEngine.verifyTask(node.id, workspaceDir);
+            onEvent({ type: 'verification_done', report });
+            if (report.overallStatus === VerificationStatus.PASSED) {
+              node.status = NodeStatus.COMPLETED;
+              onEvent({ type: 'task_completed', task: node });
+            } else {
+              node.status = NodeStatus.FAILED;
+              onEvent({ type: 'task_failed', task: node, report });
+            }
+          } catch (e: any) {
+            node.status = NodeStatus.FAILED;
+            onEvent({ type: 'task_failed', task: node, error: e.message });
+          }
+        })
+      );
+    }
+    onEvent({ type: 'final', content: 'Completed' });
   }
 
   /**
