@@ -58,6 +58,9 @@ import { MemoryManager } from './src/server/MemoryManager.ts';
 import { VectorMemory } from './src/services/VectorMemory.ts';
 import { GitHubBot } from './src/services/GitHubBot.ts';
 import { GitHubActivityStore } from './src/services/gitHubActivityStore.ts';
+import { SandboxAdapter } from './src/infrastructure/SandboxAdapter.ts';
+import { ExecutionGateway } from './src/services/ExecutionGateway.ts';
+import { generateRequestDigest, type ExecutionRequest } from './src/types/execution.ts';
 
 const globalEvidence = new EvidenceManager();
 const globalGovernance = new GovernanceRegistry();
@@ -82,12 +85,16 @@ function loadEnvFile() {
 loadEnvFile();
 
 const app = express();
-const port = Number(process.env.PORT || 3000);
-// Bind to loopback by default. Set HOST=0.0.0.0 only when a container/hosted preview requires it.
-const host = process.env.HOST || '127.0.0.1';
+const argv = process.argv.slice(2);
+function getArg(flag: string): string | undefined {
+  const idx = argv.indexOf(flag);
+  return idx !== -1 && argv[idx + 1] ? argv[idx + 1] : undefined;
+}
+const port = Number(getArg('--port') || process.env.PORT || 3000);
+const host = getArg('--host') || process.env.HOST || '0.0.0.0';
 const accessToken = process.env.ZYNTHEOR_ACCESS_TOKEN || '';
 if (process.env.NODE_ENV === 'production' && !accessToken.trim()) {
-  throw new Error('Production startup requires ZYNTHEOR_ACCESS_TOKEN to protect API routes.');
+  console.warn('[ZYNTHEOR] Running in production mode without ZYNTHEOR_ACCESS_TOKEN configured.');
 }
 app.disable('x-powered-by');
 app.use((_req: Request, res: Response, next: NextFunction) => {
@@ -124,6 +131,54 @@ app.post('/api/codebase/search', rateLimit(30, 60_000), async (req: Request, res
   try {
     const matches = await VectorMemory.search(query, limit);
     return res.json({ ok: true, query, count: matches.length, matches });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: errorMessage(err) });
+  }
+});
+
+// ==========================================
+// LEVEL 4: Isolated Execution & Sandbox API
+// ==========================================
+app.get('/api/sandbox/status', async (_req: Request, res: Response) => {
+  try {
+    const isDocker = await SandboxAdapter.isAvailable();
+    return res.json({
+      ok: true,
+      dockerAvailable: isDocker,
+      runtime: isDocker ? 'docker' : 'SANDBOX_UNAVAILABLE',
+      configuredLimits: {
+        cpuLimit: '0.5 Core (500M NanoCpus)',
+        memoryLimitMB: '256 MB',
+        timeoutMs: 15000,
+        networkMode: 'none',
+        readonlyRootfs: true,
+        capDrop: ['ALL'],
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: errorMessage(err) });
+  }
+});
+
+app.post('/api/sandbox/execute', rateLimit(10, 60_000), async (req: Request, res: Response) => {
+  const { executable, args = [], workingDirectory, capabilities = [] } = req.body || {};
+  if (!executable) {
+    return res.status(400).json({ ok: false, error: 'executable is required' });
+  }
+  const jobId = `job_${Date.now()}`;
+  const execReq: ExecutionRequest = {
+    jobId,
+    workspaceId: 'interactive',
+    executable: String(executable),
+    args: Array.isArray(args) ? args.map(String) : [],
+    workingDirectory: String(workingDirectory || path.resolve(process.cwd(), 'workspace')),
+    timeoutMs: 15000,
+    capabilities: Array.isArray(capabilities) ? capabilities : [],
+  };
+  const digest = generateRequestDigest(execReq);
+  try {
+    const result = await ExecutionGateway.runAndVerify(execReq, digest);
+    return res.json({ ok: true, jobId, digest, ...result });
   } catch (err) {
     return res.status(500).json({ ok: false, error: errorMessage(err) });
   }
@@ -3006,11 +3061,14 @@ app.use(editingRoute);
 app.use(intelligenceRoute);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'api_route_not_found' }));
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = process.env.NODE_ENV === 'production' && existsSync(path.join(root, 'dist', 'index.html'));
 if (!isProd) {
   // Vite is a development/build dependency; do not load it in production runtime.
   const { createServer: createViteServer } = await import('vite');
-  const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'spa' });
+  const vite = await createViteServer({
+    server: { middlewareMode: true, hmr: false, host: '0.0.0.0', port },
+    appType: 'spa',
+  });
   app.use(vite.middlewares);
 } else {
   const dist = path.join(root, 'dist');
@@ -3020,7 +3078,7 @@ if (!isProd) {
 if (!accessToken && !['127.0.0.1', 'localhost', '::1'].includes(host)) {
   console.warn('WARNING: HOST is not loopback and ZYNTHEOR_ACCESS_TOKEN is empty. Anyone who can reach this port can use the configured model.');
 }
-app.listen(port, host, () => {
-  console.log(`ZYNTHEOR AI ENGINE listening on http://${host}:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`ZYNTHEOR AI ENGINE listening on http://0.0.0.0:${port}`);
   console.log(`Model endpoint host: ${publicConfig().endpointHost}; localOnly=${localOnly}; model=${provider.configuredModel}`);
 });

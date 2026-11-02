@@ -739,4 +739,63 @@ export function downloadAuditLedgerCsv(records: AuditEntry[]): void {
   URL.revokeObjectURL(url);
 }
 
+const AUDIT_FILE = typeof process !== 'undefined' && process.cwd ? `${process.cwd()}/workspace_data/audit_ledger.json` : '';
+
+export class AuditLedger {
+  private static lastEntry: AuditEntry | null = null;
+  private static entries: AuditEntry[] = [];
+  private static initialized = false;
+
+  private static loadPersisted() {
+    if (this.initialized) return;
+    this.initialized = true;
+    try {
+      if (typeof window === 'undefined' && AUDIT_FILE) {
+        const fs = (globalThis as any).process?.getBuiltinModule?.('fs') || null;
+        if (fs && fs.existsSync(AUDIT_FILE)) {
+          const raw = fs.readFileSync(AUDIT_FILE, 'utf-8');
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            this.entries = parsed;
+            this.lastEntry = parsed[parsed.length - 1] || null;
+          }
+        }
+      }
+    } catch {}
+  }
+
+  static async log(action: string, detail: Record<string, unknown> | string): Promise<AuditEntry> {
+    this.loadPersisted();
+    const detailStr = typeof detail === 'string' ? detail : JSON.stringify(detail);
+    const entry = createAuditEntry(action, detailStr, this.lastEntry);
+    this.lastEntry = entry;
+    this.entries.push(entry);
+
+    try {
+      if (typeof window === 'undefined' && AUDIT_FILE) {
+        const fs = (globalThis as any).process?.getBuiltinModule?.('fs') || null;
+        const path = (globalThis as any).process?.getBuiltinModule?.('path') || null;
+        if (fs && path) {
+          const dir = path.dirname(AUDIT_FILE);
+          if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+          fs.writeFileSync(AUDIT_FILE, JSON.stringify(this.entries.slice(-500), null, 2), 'utf-8');
+        }
+      }
+    } catch {}
+
+    return entry;
+  }
+
+  static getEntries(limit = 100): AuditEntry[] {
+    this.loadPersisted();
+    return this.entries.slice(-limit);
+  }
+
+  static verifyChain(): HashChainVerificationResult {
+    this.loadPersisted();
+    return verifyAuditHashChain([...this.entries].reverse());
+  }
+}
+
+
 

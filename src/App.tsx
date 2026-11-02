@@ -33,6 +33,7 @@ import { GovernanceObservabilityPanels } from './components/GovernanceObservabil
 import { RepositoryIntelligence } from './components/RepositoryIntelligence';
 import { IntelligentDebugging } from './components/IntelligentDebugging';
 import { LocalStorageAuditTool } from './components/LocalStorageAuditTool';
+import { SandboxTerminal } from './components/SandboxTerminal';
 import { createAuditEntry, verifyAuditHashChain, repairAndResignAuditLedger, downloadAuditLedgerJson, downloadAuditLedgerCsv, type AuditEntry } from './services/auditLedger';
 import { CodeIntelligence } from '../lib/code-intelligence';
 import { evaluateDiagnosticChecks } from '../lib/diagnostics-evaluator.ts';
@@ -4048,7 +4049,7 @@ function IntelligenceObservabilityPanel() {
 }
 
 function DiagnosticsPage({ health, settings, models, loading, refresh, inferenceResult, testingInference, runInference }: {health:Health|null;settings:SettingsData|null;models:ModelResult|null;loading:boolean;refresh:()=>void;inferenceResult:InferenceResult|null;testingInference:boolean;runInference:()=>void}) {
-  const [diagTab, setDiagTab] = useState<'overview' | 'errors' | 'storage'>('overview');
+  const [diagTab, setDiagTab] = useState<'overview' | 'errors' | 'storage' | 'sandbox'>('overview');
   const [systemErrors, setSystemErrors] = useState<SystemErrorRecord[]>([]);
   const [errorLevel, setErrorLevel] = useState<string>('all');
   const [errorCategory, setErrorCategory] = useState<string>('all');
@@ -4057,6 +4058,61 @@ function DiagnosticsPage({ health, settings, models, loading, refresh, inference
   const [unresolvedCount, setUnresolvedCount] = useState<number>(0);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [smartDiag, setSmartDiag] = useState<any>(null);
+
+  // Level 4 Isolated Sandbox states
+  const [sandboxStatus, setSandboxStatus] = useState<any>(null);
+  const [sandboxLoading, setSandboxLoading] = useState(false);
+  const [sandboxExecutable, setSandboxExecutable] = useState('node');
+  const [sandboxArgs, setSandboxArgs] = useState('-e "console.log(process.version)"');
+  const [sandboxApproved, setSandboxApproved] = useState(false);
+  const [sandboxRunning, setSandboxRunning] = useState(false);
+  const [sandboxExecResult, setSandboxExecResult] = useState<any>(null);
+
+  const fetchSandboxStatus = useCallback(async () => {
+    try {
+      setSandboxLoading(true);
+      const res = await fetch('/api/sandbox/status', { headers: authHeaders() });
+      const data = await res.json();
+      if (data.ok) setSandboxStatus(data);
+    } catch {} finally {
+      setSandboxLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (diagTab === 'sandbox') {
+      fetchSandboxStatus();
+    }
+  }, [diagTab, fetchSandboxStatus]);
+
+  async function handleExecuteSandbox() {
+    if (!sandboxApproved) return;
+    setSandboxRunning(true);
+    try {
+      const parsedArgs = sandboxArgs.match(/(?:[^\s"]+|"[^"]*")+/g)?.map(s => s.replace(/^"|"$/g, '')) || [];
+      const res = await fetch('/api/sandbox/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({
+          executable: sandboxExecutable,
+          args: parsedArgs,
+          workingDirectory: 'workspace',
+          capabilities: ['fs:read'],
+        }),
+      });
+      const data = await res.json();
+      setSandboxExecResult(data);
+    } catch (err: any) {
+      setSandboxExecResult({
+        status: 'FAILED',
+        stderr: err?.message || 'Failed to trigger sandbox execution',
+        stdout: '',
+        durationMs: 0,
+      });
+    } finally {
+      setSandboxRunning(false);
+    }
+  }
 
   const fetchSmartDiag = useCallback(async () => {
     try {
@@ -4204,6 +4260,13 @@ function DiagnosticsPage({ health, settings, models, loading, refresh, inference
             </span>
           )}
         </button>
+        <button
+          type="button"
+          className={`forge-tab ${diagTab === 'sandbox' ? 'active' : ''}`}
+          onClick={() => setDiagTab('sandbox')}
+        >
+          <SquareTerminal size={14} /> Isolated Sandbox (Level 4)
+        </button>
       </div>
 
       {diagTab === 'overview' ? (
@@ -4339,6 +4402,114 @@ function DiagnosticsPage({ health, settings, models, loading, refresh, inference
       ) : diagTab === 'storage' ? (
         /* STORAGE SCHEMA AUDIT TAB */
         <LocalStorageAuditTool />
+      ) : diagTab === 'sandbox' ? (
+        /* LEVEL 4 ISOLATED SANDBOX TAB */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <div>
+              <div className="eyebrow">LEVEL 4 SECURE ISOLATED EXECUTION</div>
+              <h2 style={{ margin: '4px 0', fontSize: '18px' }}>Docker Isolated Sandbox & Execution Gateway</h2>
+              <p className="muted" style={{ margin: 0, fontSize: '12px' }}>
+                Structured execution environment with zero-network isolation, read-only root filesystem, drop capabilities, and cryptographic approval binding.
+              </p>
+            </div>
+            <button className="secondary-button" onClick={fetchSandboxStatus} disabled={sandboxLoading}>
+              <RefreshCw size={13} className={sandboxLoading ? 'spin' : ''} /> Check Runtime
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+            <div className="metric-card" style={{ borderLeft: `3px solid ${sandboxStatus?.dockerAvailable ? '#10b981' : '#f59e0b'}` }}>
+              <span className="muted">Sandbox Runtime:</span>
+              <strong style={{ color: sandboxStatus?.dockerAvailable ? '#34d399' : '#f59e0b', fontSize: '13px' }}>
+                {sandboxStatus?.dockerAvailable ? 'DOCKER ACTIVE' : 'SANDBOX_UNAVAILABLE'}
+              </strong>
+              <small style={{ color: '#94a3b8', fontSize: '10px', marginTop: '4px' }}>
+                {sandboxStatus?.dockerAvailable ? 'Docker daemon reachable via socket' : 'No local Docker daemon connected'}
+              </small>
+            </div>
+
+            <div className="metric-card" style={{ borderLeft: '3px solid #38bdf8' }}>
+              <span className="muted">Resource Boundary:</span>
+              <strong style={{ fontSize: '13px' }}>0.5 Core / 256 MB RAM</strong>
+              <small style={{ color: '#94a3b8', fontSize: '10px', marginTop: '4px' }}>
+                CapDrop: ALL · Swap: Disabled · Pids: 50
+              </small>
+            </div>
+
+            <div className="metric-card" style={{ borderLeft: '3px solid #ef4444' }}>
+              <span className="muted">Network Policy:</span>
+              <strong style={{ color: '#f87171', fontSize: '13px' }}>DISABLED (none)</strong>
+              <small style={{ color: '#94a3b8', fontSize: '10px', marginTop: '4px' }}>
+                Zero outbound / Ingress blocked
+              </small>
+            </div>
+          </div>
+
+          {/* Execution Gateway Interactive Probe */}
+          <div className="panel" style={{ padding: '16px', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '12px', border: '1px solid #1e293b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <ShieldCheck size={18} style={{ color: '#2dd4bf' }} />
+              <b style={{ fontSize: '13px', color: '#f8fafc' }}>Execution Gateway & Human Approval Probe</b>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', color: '#94a3b8', marginBottom: '4px' }}>Allowlisted Executable:</label>
+                <select
+                  value={sandboxExecutable}
+                  onChange={e => setSandboxExecutable(e.target.value)}
+                  style={{ width: '100%', background: '#020617', border: '1px solid #334155', borderRadius: '6px', color: '#f8fafc', padding: '6px 8px', fontSize: '11px' }}
+                >
+                  <option value="node">node (Node.js 20)</option>
+                  <option value="echo">echo</option>
+                  <option value="ls">ls</option>
+                  <option value="cat">cat</option>
+                  <option value="ping">ping (tests network rejection)</option>
+                </select>
+              </div>
+
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={{ display: 'block', fontSize: '10px', color: '#94a3b8', marginBottom: '4px' }}>Arguments (Structured):</label>
+                <input
+                  type="text"
+                  value={sandboxArgs}
+                  onChange={e => setSandboxArgs(e.target.value)}
+                  style={{ width: '100%', background: '#020617', border: '1px solid #334155', borderRadius: '6px', color: '#f8fafc', padding: '6px 8px', fontSize: '11px', fontFamily: 'monospace' }}
+                  placeholder='-e "console.log(process.version)"'
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, borderTop: '1px solid #1e293b', paddingTop: '12px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '11px', color: '#e2e8f0' }}>
+                <input
+                  type="checkbox"
+                  checked={sandboxApproved}
+                  onChange={e => setSandboxApproved(e.target.checked)}
+                  style={{ accentColor: '#14b8a6', width: 16, height: 16 }}
+                />
+                <b>Human Approval Granted (Required for Execution Gateway)</b>
+              </label>
+
+              <button
+                className="primary-button"
+                onClick={handleExecuteSandbox}
+                disabled={!sandboxApproved || sandboxRunning}
+                style={{ fontSize: '11px', padding: '6px 14px' }}
+              >
+                <SquareTerminal size={14} className={sandboxRunning ? 'spin' : ''} />
+                {sandboxRunning ? 'Running in Sandbox…' : 'Execute in Isolated Sandbox'}
+              </button>
+            </div>
+          </div>
+
+          {/* Sandbox Live Output Terminal */}
+          <div>
+            <div className="eyebrow" style={{ marginBottom: '6px' }}>ISOLATED EXECUTION TELEMETRY</div>
+            <SandboxTerminal execResult={sandboxExecResult} onClear={() => setSandboxExecResult(null)} />
+          </div>
+        </div>
       ) : (
         /* SYSTEM ERRORS TAB */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>

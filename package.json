@@ -24,6 +24,7 @@
   "dependencies": {
     "@google/genai": "^2.31.0",
     "d3": "^7.9.0",
+    "dockerode": "^5.0.1",
     "drizzle-orm": "^0.45.4",
     "express": "^5.1.0",
     "lucide-react": "^0.468.0",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",
+    "@types/dockerode": "^4.0.2",
     "@types/express": "^5.0.3",
     "@types/node": "^22.15.30",
     "@types/prismjs": "^1.26.6",
