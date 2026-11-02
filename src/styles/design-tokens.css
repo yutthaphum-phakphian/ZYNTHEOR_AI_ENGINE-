@@ -1,0 +1,12 @@
+:root{
+  --bg-main:#080D18; --bg-sidebar:#111827; --bg-panel:#172235; --bg-elevated:#202C38;
+  --primary-cyan:#22D3EE; --primary-cyan-hover:#06B6D4; --intelligence-violet:#8B7CFF;
+  --text-primary:#EAF2FF; --text-secondary:#94A3B8;
+  --success:#34D399; --warning:#FBBF24; --error:#F87171; --border:#293744;
+}
+body{background:var(--bg-main); color:var(--text-primary);}
+.sidebar{background:var(--bg-sidebar); border-right:1px solid var(--border);}
+.panel{background:var(--bg-panel); border:1px solid var(--border);}
+.btn-primary{background:var(--primary-cyan); color:var(--bg-main);}
+.intelligence{color:var(--intelligence-violet);}
+.status-verified{color:var(--success);} .status-pending{color:var(--warning);} .status-blocked{color:var(--error);}
