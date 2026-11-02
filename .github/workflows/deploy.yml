@@ -1,0 +1,94 @@
+name: ZYNTHEOR CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # 🧪 Job 1: ตรวจสอบโค้ดและ Build (CI)
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Check TypeScript (Zero Errors)
+        run: npx tsc --noEmit
+
+      - name: 🏗️ Build Frontend & Backend
+        run: npm run build
+        env:
+          # ใส่ Env ปลอมเพื่อให้ Build ผ่าน (ไม่ใช้ Key จริง)
+          GEMINI_API_KEY: "dummy_key_for_build"
+
+      - name: 🩺 Health Check Agent
+        run: npm run test:agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+  # 🐳 Job 2: สร้าง Docker Image และ Push ขึ้น Registry (CD Step 1)
+  docker-build-push:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: 🚀 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ☁️ Job 3: สั่ง Deploy ขึ้น Cloud (CD Step 2)
+  deploy-to-cloud:
+    needs: docker-build-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Trigger Deployment (Railway)
+        run: |
+          if [ -n "${{ secrets.RAILWAY_DEPLOY_WEBHOOK }}" ]; then
+            curl -X POST ${{ secrets.RAILWAY_DEPLOY_WEBHOOK }}
+          else
+            echo "RAILWAY_DEPLOY_WEBHOOK secret is not set, skipping remote trigger."
+          fi

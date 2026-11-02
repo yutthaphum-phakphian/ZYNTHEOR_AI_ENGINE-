@@ -172,8 +172,9 @@ export class VectorMemory {
         contents: text.slice(0, 8000), // Protect against token limits
       });
 
-      if (response && response.embedding && Array.isArray(response.embedding.values)) {
-        return response.embedding.values;
+      const values = (response as any)?.embedding?.values ?? (response as any)?.embeddings?.[0]?.values;
+      if (Array.isArray(values)) {
+        return values;
       }
       return null;
     } catch (err: any) {
@@ -270,7 +271,7 @@ export class VectorMemory {
       return { success: true, indexedCount: this.records.length };
     } catch (e: any) {
       this.lastError = e?.message || String(e);
-      return { success: false, indexedCount: 0, error: this.lastError };
+      return { success: false, indexedCount: 0, error: this.lastError || undefined };
     } finally {
       this.isIndexing = false;
     }

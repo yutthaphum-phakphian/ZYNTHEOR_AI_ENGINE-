@@ -1,6 +1,53 @@
 import crypto from 'crypto';
-import { Octokit } from '@octokit/rest';
 import { GitHubActivityStore, GitHubActivity } from './gitHubActivityStore.ts';
+
+// Embedded lightweight GitHub REST client (no external @octokit/rest dependency needed)
+class Octokit {
+  private auth?: string;
+  constructor(options?: { auth?: string }) {
+    this.auth = options?.auth;
+  }
+  private async request(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const res = await fetch(`https://api.github.com${endpoint}`, {
+      ...options,
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'Zyntheor-Bot',
+        ...(this.auth ? { Authorization: `Bearer ${this.auth}` } : {}),
+        ...options.headers,
+      },
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`GitHub API error ${res.status}: ${errText}`);
+    }
+    return { data: await res.json() };
+  }
+  users = {
+    getAuthenticated: () => this.request('/user'),
+  };
+  issues = {
+    createComment: ({ owner, repo, issue_number, body }: { owner: string; repo: string; issue_number: number; body: string }) =>
+      this.request(`/repos/${owner}/${repo}/issues/${issue_number}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body }),
+      }),
+  };
+  repos = {
+    get: ({ owner, repo }: { owner: string; repo: string }) => this.request(`/repos/${owner}/${repo}`),
+  };
+  git = {
+    getRef: ({ owner, repo, ref }: { owner: string; repo: string; ref: string }) =>
+      this.request(`/repos/${owner}/${repo}/git/ref/${ref}`),
+    createRef: ({ owner, repo, ref, sha }: { owner: string; repo: string; ref: string; sha: string }) =>
+      this.request(`/repos/${owner}/${repo}/git/refs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref: ref.startsWith('refs/') ? ref : `refs/${ref}`, sha }),
+      }),
+  };
+}
 
 export interface GitHubBotStatus {
   configured: boolean;

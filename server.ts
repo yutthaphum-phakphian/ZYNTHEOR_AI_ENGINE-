@@ -141,7 +141,7 @@ app.get('/api/github/status', async (_req: Request, res: Response) => {
   }
 });
 
-app.get('/api/github/activities', (_req: Request, res: Response) => {
+app.get('/api/github/activities', (req: Request, res: Response) => {
   const limit = Math.max(1, Math.min(100, Number(req.query?.limit) || 50));
   const activities = GitHubActivityStore.getActivities(limit);
   return res.json({ ok: true, activities, total: GitHubActivityStore.countActivities() });
@@ -204,7 +204,8 @@ app.get('/api/stats', async (req: Request, res: Response) => {
   const ghActivities = GitHubActivityStore.getActivities(5);
   const ghCount = GitHubActivityStore.countActivities();
   const ghStatus = await GitHubBot.getStatus();
-  const unhandledErrors = getSystemErrors(workspaceId).filter((e) => !e.resolved);
+  const systemErrorsData = getSystemErrors();
+  const unhandledErrors = systemErrorsData.errors.filter((e) => !e.resolved);
 
   return res.json({
     ok: true,
