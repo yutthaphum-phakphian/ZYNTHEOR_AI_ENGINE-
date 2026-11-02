@@ -1,72 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { readChatStream, type ChatMode } from './chat-core.mjs';
 
-
-/** Stable provider error codes for OpenAI-compatible / Ollama paths (ZERO FAKE). */
-export type ProviderErrorCode =
-  | 'OLLAMA_UNAVAILABLE'
-  | 'INVALID_RESPONSE'
-  | 'MODEL_NOT_FOUND'
-  | 'PROVIDER_REQUEST_FAILED';
-
-export class ProviderRequestError extends Error {
-  readonly code: ProviderErrorCode;
-  readonly httpStatus: number | null;
-  constructor(code: ProviderErrorCode, message: string, httpStatus: number | null = null) {
-    super(message);
-    this.name = 'ProviderRequestError';
-    this.code = code;
-    this.httpStatus = httpStatus;
-  }
-}
-
-function classifyOpenAICompatibleFetchError(err: unknown, baseUrl: string): ProviderRequestError {
-  const msg = err instanceof Error ? err.message : String(err);
-  const lower = msg.toLowerCase();
-  // Connection-level failures
-  if (
-    lower.includes('econnrefused') ||
-    lower.includes('enotfound') ||
-    lower.includes('econnreset') ||
-    lower.includes('fetch failed') ||
-    lower.includes('network') ||
-    lower.includes('connection refused') ||
-    (err as any)?.cause?.code === 'ECONNREFUSED'
-  ) {
-    return new ProviderRequestError(
-      'OLLAMA_UNAVAILABLE',
-      `Cannot connect to model endpoint at ${baseUrl}. If you intend to use Ollama, start it with: ollama serve`,
-      null
-    );
-  }
-  if (lower.includes('abort') || lower.includes('timeout') || lower.includes('timed out')) {
-    return new ProviderRequestError(
-      'OLLAMA_UNAVAILABLE',
-      `Model endpoint timed out at ${baseUrl}. Verify the server is running and reachable.`,
-      null
-    );
-  }
-  return new ProviderRequestError('PROVIDER_REQUEST_FAILED', msg.slice(0, 300), null);
-}
-
-function throwForOpenAICompatibleHttp(status: number, body: any, baseUrl: string, path: string): never {
-  const upstream = body?.error?.message || body?.message || body?.error || '';
-  const detail = typeof upstream === 'string' ? upstream.slice(0, 200) : '';
-  if (status === 404) {
-    throw new ProviderRequestError(
-      'MODEL_NOT_FOUND',
-      detail || `Endpoint route not found (HTTP 404) at ${baseUrl}${path}. Check ZYNTHEOR_MODEL_BASE_URL and model name.`,
-      404
-    );
-  }
-  throw new ProviderRequestError(
-    'PROVIDER_REQUEST_FAILED',
-    detail || `Model endpoint returned HTTP ${status} for ${baseUrl}${path}`,
-    status
-  );
-}
-
-
 export interface ModelMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -402,36 +336,23 @@ export class OpenAICompatibleProvider implements ModelProvider {
   }
 
   async listModels(signal?: AbortSignal): Promise<string[]> {
-    let response: Response;
-    try {
-      response = await fetch(`${this.baseUrl}/models`, {
-        headers: this.headers(),
-        signal: signal || AbortSignal.timeout(5000),
-      });
-    } catch (err) {
-      throw classifyOpenAICompatibleFetchError(err, this.baseUrl);
-    }
+    const response = await fetch(`${this.baseUrl}/models`, {
+      headers: this.headers(),
+      signal: signal || AbortSignal.timeout(5000),
+    });
     const contentType = response.headers.get('content-type') || '';
     const text = await response.text();
     if (contentType.includes('text/html') || text.trim().startsWith('<')) {
-      throw new ProviderRequestError(
-        'INVALID_RESPONSE',
-        `Model endpoint ${this.baseUrl}/models returned HTML instead of JSON API response.`,
-        response.status
-      );
+      throw new Error(`Model endpoint ${this.baseUrl}/models returned HTML instead of JSON API response. Ensure local AI server (e.g. Ollama) is running.`);
     }
     let body: any = {};
     try {
       body = JSON.parse(text);
     } catch {
-      throw new ProviderRequestError(
-        'INVALID_RESPONSE',
-        `Model endpoint ${this.baseUrl}/models returned invalid non-JSON output.`,
-        response.status
-      );
+      throw new Error(`Model endpoint ${this.baseUrl}/models returned invalid non-JSON output.`);
     }
     if (!response.ok) {
-      throwForOpenAICompatibleHttp(response.status, body, this.baseUrl, '/models');
+      throw new Error(body.error?.message || `Model endpoint returned HTTP ${response.status}`);
     }
     return body.data?.map((item: any) => item.id).filter(Boolean) as string[] ||
       body.models?.map((item: any) => item.name || item.model).filter(Boolean) as string[] ||
@@ -439,45 +360,32 @@ export class OpenAICompatibleProvider implements ModelProvider {
   }
 
   async chat(options: ChatOptions): Promise<{ reply: string; model: string; provider: string }> {
-    let response: Response;
-    try {
-      response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: this.headers(),
-        body: JSON.stringify({
-          model: this.configuredModel,
-          messages: options.messages,
-          stream: false,
-        }),
-        signal: options.signal || AbortSignal.timeout(90000),
-      });
-    } catch (err) {
-      throw classifyOpenAICompatibleFetchError(err, this.baseUrl);
-    }
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: this.headers(),
+      body: JSON.stringify({
+        model: this.configuredModel,
+        messages: options.messages,
+        stream: false,
+      }),
+      signal: options.signal || AbortSignal.timeout(90000),
+    });
 
     const contentType = response.headers.get('content-type') || '';
     const text = await response.text();
     if (contentType.includes('text/html') || text.trim().startsWith('<')) {
-      throw new ProviderRequestError(
-        'INVALID_RESPONSE',
-        `Model endpoint ${this.baseUrl}/chat/completions returned HTML instead of JSON API response.`,
-        response.status
-      );
+      throw new Error(`Model endpoint ${this.baseUrl}/chat/completions returned HTML instead of JSON API response.`);
     }
 
     let data: any = {};
     try {
       data = JSON.parse(text);
     } catch {
-      throw new ProviderRequestError(
-        'INVALID_RESPONSE',
-        `Model endpoint ${this.baseUrl}/chat/completions returned invalid non-JSON output.`,
-        response.status
-      );
+      throw new Error(`Model endpoint ${this.baseUrl}/chat/completions returned invalid non-JSON output.`);
     }
 
     if (!response.ok) {
-      throwForOpenAICompatibleHttp(response.status, data, this.baseUrl, '/chat/completions');
+      throw new Error(data.error?.message || data.message || `Model endpoint returned HTTP ${response.status}`);
     }
 
     const content = data.choices?.[0]?.message?.content;
@@ -495,27 +403,22 @@ export class OpenAICompatibleProvider implements ModelProvider {
   }
 
   async *chatStream(options: ChatOptions): AsyncIterable<StreamItem> {
-    let response: Response;
-    try {
-      response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: this.headers(),
-        body: JSON.stringify({
-          model: this.configuredModel,
-          messages: options.messages,
-          stream: true,
-        }),
-        signal: options.signal,
-      });
-    } catch (err) {
-      throw classifyOpenAICompatibleFetchError(err, this.baseUrl);
-    }
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: this.headers(),
+      body: JSON.stringify({
+        model: this.configuredModel,
+        messages: options.messages,
+        stream: true,
+      }),
+      signal: options.signal,
+    });
 
     if (!response.ok || !response.body) {
       const text = await response.text().catch(() => '');
       let data: any = {};
       try { data = JSON.parse(text); } catch { /* ignore */ }
-      throwForOpenAICompatibleHttp(response.status, data, this.baseUrl, '/chat/completions');
+      throw new Error(data.error?.message || data.message || `Model endpoint returned HTTP ${response.status}`);
     }
 
     let chars = 0;
@@ -686,25 +589,11 @@ export function createProvider(env: Record<string, string | undefined> = process
     });
   }
 
-  // Default: Ollama / OpenAI-compatible — require explicit base URL (ZERO FAKE: no silent synthetic bridge).
-  // Real Ollama users must set ZYNTHEOR_MODEL_BASE_URL=http://127.0.0.1:11434/v1 (or equivalent).
-  const ollamaBase = env.ZYNTHEOR_MODEL_BASE_URL || env.OPENAI_API_BASE || '';
-  if (!ollamaBase.trim()) {
-    // Provide a provider instance that will fail with OLLAMA_UNAVAILABLE on first use
-    // rather than inventing responses. Default URL is the conventional Ollama port only
-    // when the operator has not configured anything; readiness must still be proven by a live server.
-    return new OpenAICompatibleProvider({
-      id: rawProvider || 'ollama',
-      name: rawProvider === 'ollama' ? 'Ollama' : 'OpenAI-Compatible',
-      baseUrl: 'http://127.0.0.1:11434/v1',
-      model: env.ZYNTHEOR_MODEL_NAME || env.MODEL_NAME || 'qwen2.5-coder:7b',
-      apiKey: env.ZYNTHEOR_MODEL_API_KEY || '',
-    });
-  }
+  // Default: Ollama / OpenAI-compatible local or configured endpoint
   return new OpenAICompatibleProvider({
     id: rawProvider || 'ollama',
     name: rawProvider === 'ollama' ? 'Ollama' : 'OpenAI-Compatible',
-    baseUrl: ollamaBase,
+    baseUrl: env.ZYNTHEOR_MODEL_BASE_URL || env.OPENAI_API_BASE || 'http://127.0.0.1:11434/v1',
     model: env.ZYNTHEOR_MODEL_NAME || env.MODEL_NAME || 'qwen2.5-coder:7b',
     apiKey: env.ZYNTHEOR_MODEL_API_KEY || '',
   });

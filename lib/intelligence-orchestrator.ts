@@ -213,22 +213,18 @@ export class ModelRouter {
       return { provider: configuredProvider, policyNotes };
     }
 
-    // ZERO FAKE: do not invent a synthetic local bridge provider.
-    // Use process env / configured local endpoint only. If none is usable, fail closed.
-    const localEnv = {
-      ZYNTHEOR_PROVIDER: process.env.ZYNTHEOR_PROVIDER || 'ollama',
-      ZYNTHEOR_MODEL_BASE_URL: process.env.ZYNTHEOR_MODEL_BASE_URL || process.env.OPENAI_API_BASE || 'http://127.0.0.1:11434/v1',
-      ZYNTHEOR_MODEL_NAME: process.env.ZYNTHEOR_MODEL_NAME || process.env.MODEL_NAME || 'qwen2.5-coder:7b',
-      ZYNTHEOR_LOCAL_ONLY: 'true',
-    };
-    const provider = createProvider(localEnv);
+    const provider = createProvider({
+      ZYNTHEOR_PROVIDER: 'ollama',
+      ZYNTHEOR_MODEL_BASE_URL: 'http://127.0.0.1:11434/v1',
+      ZYNTHEOR_MODEL_NAME: 'qwen2.5-coder:7b',
+    });
     if (!provider.isLocal) {
       throw new Error('local_provider_unavailable_by_policy');
     }
 
     policyNotes.push(options.localOnly
-      ? 'External provider blocked by Local-only mode; attempting configured local provider only (no synthetic bridge).'
-      : 'External provider blocked because explicit online consent is absent; attempting configured local provider only (no synthetic bridge).');
+      ? 'External provider blocked by Local-only mode; using the local provider.'
+      : 'External provider blocked because explicit online consent is absent; using the local provider.');
 
     return { provider, policyNotes };
   }

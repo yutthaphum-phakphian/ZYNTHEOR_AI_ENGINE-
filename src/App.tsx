@@ -987,19 +987,7 @@ export default function App() {
       </header>
       <div className="page-scroll"><div className="page-wrap">
         {page === 'Chat' && (
-          <div className="agent-command-grid">
-            <aside className="agent-workspace-rail" aria-label="Workspace explorer">
-              <div className="agent-panel-heading"><span>WORKSPACE EXPLORER</span><span className="agent-panel-kicker">NAVIGATION</span></div>
-              <div className="agent-workspace-current"><div className="agent-folder-mark">⌘</div><div><b>{activeWorkspace?.name || 'Main Engine'}</b><small>Active workspace</small></div></div>
-              <button type="button" className="agent-nav-item" onClick={() => choosePage('Projects')}><span>▰</span><span><b>Projects</b><small>Workspace projects</small></span><ChevronRight size={14}/></button>
-              <button type="button" className="agent-nav-item" onClick={() => choosePage('Files')}><span>▤</span><span><b>Files</b><small>Browse project files</small></span><ChevronRight size={14}/></button>
-              <button type="button" className="agent-nav-item" onClick={() => choosePage('Repository Intelligence')}><span>⌘</span><span><b>Repository map</b><small>Inspect code structure</small></span><ChevronRight size={14}/></button>
-              <button type="button" className="agent-nav-item" onClick={() => choosePage('Intelligent Debugging')}><span>⌕</span><span><b>Debugging</b><small>Analyze failures</small></span><ChevronRight size={14}/></button>
-              <div className="agent-rail-note"><ShieldCheck size={15}/><span>File operations remain subject to workspace and server-side authorization.</span></div>
-            </aside>
-            <section className="agent-center-panel" aria-label="Agent command center">
-              <div className="agent-panel-heading agent-center-heading"><div><span>AGENT COMMAND CENTER</span><small>Chat and task control</small></div><span className={`agent-live-state ${sending ? 'is-running' : ''}`}><i/> {sending ? 'WORKING' : 'READY'}</span></div>
-              <ChatPage
+          <ChatPage
             messages={messages}
             draft={draft}
             setDraft={setDraft}
@@ -1033,18 +1021,7 @@ export default function App() {
             recordAudit={recordAudit}
             setToast={setToast}
             serverSession={serverSession}
-              />
-            </section>
-            <aside className="agent-verify-rail" aria-label="Execution and verification">
-              <div className="agent-panel-heading"><span>EXECUTION &amp; VERIFY</span><span className="agent-panel-kicker">LIVE STATUS</span></div>
-              <div className="agent-status-card"><div className="agent-status-line"><span>Backend runtime</span><b className={health?.ok ? 'is-good' : 'is-unknown'}>{health?.ok ? 'CONNECTED' : 'UNKNOWN'}</b></div><small>{health?.service || 'Server health has not been confirmed'}</small></div>
-              <div className="agent-status-card"><div className="agent-status-line"><span>AI provider</span><b>{settings?.provider || 'Not configured'}</b></div><small>{settings?.model || 'No model selected'}</small></div>
-              <div className="agent-status-card"><div className="agent-status-line"><span>Inference verification</span><b className={settings?.inferenceVerified ? 'is-good' : 'is-unknown'}>{settings?.inferenceVerified ? 'VERIFIED' : 'NOT VERIFIED'}</b></div><small>{inferenceResult?.state || 'No verified live inference result in this session'}</small></div>
-              <div className="agent-terminal-card"><div className="agent-terminal-title"><span>▣</span> EXECUTION CONSOLE</div><p>{sending ? 'Agent request is being processed…' : 'No live sandbox process is attached to this view.'}</p><small>Terminal output will appear here only when a real execution tool is connected.</small></div>
-              <div className="agent-security-card"><ShieldCheck size={16}/><div><b>Security boundary</b><small>Workspace permissions and backend controls apply. Sandbox status is not assumed.</small></div></div>
-              <button type="button" className="agent-audit-link" onClick={() => choosePage('Audit Ledger')}>Open security audit ledger <ArrowUpRight size={13}/></button>
-            </aside>
-          </div>
+          />
         )}
         {/* ProjectsPage keyboard navigation contract (delegated to WorkspaceProjectsPage): ArrowRight, ArrowDown, cardRefs, selectedProject, setSelectedProject, aria-selected */}
         {page === 'Projects' && (

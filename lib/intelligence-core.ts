@@ -33,7 +33,6 @@ import {
 } from './truth-kernel.ts';
 
 import { PromptTestLab } from './prompt-studio/test-lab.ts';
-import { resolveExistingWorkspacePath } from './workspace-path-security.ts';
 
 export {
   TruthKernel,
@@ -819,16 +818,13 @@ export class ToolGateway {
       },
       execute: async (args: { directory?: string }) => {
         const rootDir = process.cwd();
-        const targetDir = resolveExistingWorkspacePath(rootDir, args?.directory || '.', 'directory');
-        const entries = fs.readdirSync(targetDir, { withFileTypes: true });
+        const targetDir = path.resolve(rootDir, args?.directory || '');
+        if (!targetDir.startsWith(rootDir)) {
+          throw new Error('Access denied: directory outside workspace root');
+        }
+        const entries = fs.existsSync(targetDir) ? fs.readdirSync(targetDir, { withFileTypes: true }) : [];
         const safeFiles = entries
-          .filter(e => !e.name.startsWith('.') && e.name !== 'node_modules' && e.name !== '.git')
-          .filter(e => {
-            try {
-              const candidate = resolveExistingWorkspacePath(targetDir, e.name, 'either');
-              return fs.lstatSync(candidate).isFile() || fs.lstatSync(candidate).isDirectory();
-            } catch { return false; }
-          })
+          .filter(e => !e.name.startsWith('.') && e.name !== 'node_modules')
           .map(e => ({ name: e.name, isDirectory: e.isDirectory() }))
           .slice(0, 100);
         return {
@@ -860,7 +856,13 @@ export class ToolGateway {
       execute: async (args: { path?: string; filePath?: string }) => {
         const targetRel = (args.filePath || args.path || '').trim();
         const rootDir = process.cwd();
-        const targetPath = resolveExistingWorkspacePath(rootDir, targetRel, 'file');
+        const targetPath = path.resolve(rootDir, targetRel);
+        if (!targetPath.startsWith(rootDir)) {
+          throw new Error('Access denied: file outside workspace root');
+        }
+        if (!fs.existsSync(targetPath)) {
+          throw new Error(`File not found: ${targetRel}`);
+        }
         const stat = fs.statSync(targetPath);
         if (stat.size > 100000) {
           throw new Error('File too large (exceeds 100KB bounded inspection limit)');

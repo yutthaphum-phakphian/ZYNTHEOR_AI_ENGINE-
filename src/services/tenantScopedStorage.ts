@@ -1,16 +1,16 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { authorizeOperation } from './authorizationService';
-import type { AuthenticatedUser } from './authService';
+import { authorizeOperation } from './authorizationService.js';
+import type { AuthenticatedUser } from './authService.js';
 import {
   getProjects,
   saveProject,
   deleteProject,
   getGitStatus,
   type WorkspaceProject,
-} from './workspaceManager';
-import { createAuditEntry } from './auditLedger';
+} from './workspaceManager.js';
+import { createAuditEntry } from './auditLedger.js';
 
 export interface TenantScopedResult<T> {
   success: boolean;
