@@ -57,13 +57,21 @@ type ModelResult = { state: string; source?: 'live' | 'fallback'; configuredMode
 type InferenceResult = { state: string; model?: string; latencyMs?: number; matchedExpectedText?: boolean; responsePreview?: string; error?: string; message?: string; modelStatus?: string };
 
 const NAV: { title: string; items: { id: Page; icon: LucideIcon; label: string; desc?: string }[] }[] = [
-  { title: 'WORKSPACE', items: [{ id: 'Chat', icon: MessageSquare, label: 'Chat' }, { id: 'Projects', icon: Boxes, label: 'Projects' }, { id: 'Plans', icon: LayoutDashboard, label: 'Plans' }, { id: 'Files', icon: Files, label: 'Files' }] },
-  { title: 'INTELLIGENCE', items: [{ id: 'Autonomous Engine', icon: Workflow, label: 'Phase B–M Engine', desc: 'Autonomous Multi-Agent Pipeline' }, { id: 'Capability Registry', icon: Layers, label: 'Capability Registry', desc: 'Single Source of Truth' }, { id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }, { id: 'Models', icon: Cpu, label: 'Models' }] },
-  { title: 'TRUST & SAFETY', items: [{ id: 'Audit Ledger', icon: ShieldCheck, label: 'Audit Ledger' }, { id: 'Diagnostics', icon: Activity, label: 'Diagnostics' }] },
-  { title: 'SYSTEM', items: [{ id: 'Billing', icon: CreditCard, label: 'Billing & Plans' }, { id: 'Settings', icon: Settings, label: 'Settings' }] },
+  { title: 'CORE', items: [
+    { id: 'Chat', icon: Sparkles, label: 'Intelligence', desc: 'Primary reasoning workspace' },
+    { id: 'Projects', icon: Boxes, label: 'Workspace', desc: 'Projects, plans and files' },
+    { id: 'Autonomous Engine', icon: Bot, label: 'Agents', desc: 'Verified agent execution states' },
+    { id: 'Models', icon: Cpu, label: 'Model Studio', desc: 'Model identity and provenance' },
+    { id: 'Diagnostics', icon: ClipboardCheck, label: 'Evaluation Lab', desc: 'Evidence-backed evaluation records' },
+    { id: 'Settings', icon: Settings, label: 'Settings', desc: 'Runtime and safety boundaries' },
+  ] },
+  { title: 'WORKSPACE', items: [{ id: 'Plans', icon: LayoutDashboard, label: 'Plans' }, { id: 'Files', icon: Files, label: 'Files' }] },
+  { title: 'INTELLIGENCE', items: [{ id: 'Capability Registry', icon: Layers, label: 'Capability Registry', desc: 'Single Source of Truth' }, { id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }] },
+  { title: 'TRUST & SAFETY', items: [{ id: 'Audit Ledger', icon: ShieldCheck, label: 'Audit Ledger' }] },
+  { title: 'SYSTEM', items: [{ id: 'Billing', icon: CreditCard, label: 'Billing & Plans' }] },
 ];
 const PAGE_COPY: Record<Page, { eyebrow: string; title: string; subtitle: string }> = {
-  Chat: { eyebrow: 'ZYNTHEOR INTELLIGENCE', title: 'Your thinking workspace', subtitle: 'Ask, build, debug and reason — with visible system status.' },
+  Chat: { eyebrow: 'ZYNTHEOR CORE X / INTELLIGENCE', title: 'Your intelligence workspace', subtitle: 'Ask, build, debug and reason — with visible system status.' },
   Projects: { eyebrow: 'WORKSPACE / PROJECTS', title: 'Build in context.', subtitle: 'Organize codebases and ideas into dedicated workspaces.' },
   Plans: { eyebrow: 'WORKSPACE / PLANS', title: 'Plan before action.', subtitle: 'Turn a goal into clear steps and track what is actually complete.' },
   Files: { eyebrow: 'WORKSPACE / FILES', title: 'Your project files.', subtitle: 'Review local files before wiring up the secure server-side file gateway.' },
@@ -943,7 +951,7 @@ export default function App() {
         collapsed={collapsed}
       />
       <button className="new-chat-button" onClick={() => { choosePage('Chat'); createNewChatSession(); }}><Plus size={17}/>{!collapsed && <><span>{t('common.new_chat')}</span><kbd>⌘ K</kbd></>}</button>
-      <nav className="navigation">{NAV.map(group => <div className="nav-group" key={group.title}><div className="nav-group-label">{!collapsed && (t('nav.' + group.title.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')) || group.title)}</div>{group.items.map(item => { const itemLabel = t('nav.' + item.id.toLowerCase().replace(/ /g, '_')) || item.label; return <button key={item.id} onClick={() => choosePage(item.id)} className={`nav-item ${page === item.id ? 'active' : ''}`} title={collapsed ? itemLabel : undefined}><item.icon size={18}/>{!collapsed && <span>{itemLabel}</span>}{!collapsed && item.id === 'Audit Ledger' && audit.length > 0 && <small className="nav-count">{audit.length > 99 ? '99+' : audit.length}</small>}</button>; })}</div>)}</nav>
+      <nav className="navigation">{NAV.map(group => { const groupKey = 'nav.' + group.title.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_'); const groupLabel = t(groupKey) === groupKey ? group.title : t(groupKey); return <div className="nav-group" key={group.title}><div className="nav-group-label">{!collapsed && groupLabel}</div>{group.items.map(item => { const itemKey = 'nav.' + item.id.toLowerCase().replace(/ /g, '_'); const translatedLabel = t(itemKey); const itemLabel = group.title === 'CORE' || translatedLabel === itemKey ? item.label : translatedLabel; return <button key={item.id} onClick={() => choosePage(item.id)} className={`nav-item ${page === item.id ? 'active' : ''}`} title={collapsed ? itemLabel : undefined}><item.icon size={18}/>{!collapsed && <span>{itemLabel}</span>}{!collapsed && item.id === 'Audit Ledger' && audit.length > 0 && <small className="nav-count">{audit.length > 99 ? '99+' : audit.length}</small>}</button>; })}</div>; })}</nav>
       {!collapsed && <div className="sidebar-bottom"><div className="local-mode-card"><div className="local-card-icon"><LockKeyhole size={16}/></div><div><b>{settings?.localOnly ?? true ? t('common.status_local') : t('common.status_remote')}</b><span>{settings?.localOnly ?? true ? 'External calls restricted' : settings?.onlineConsent ? 'Explicit consent recorded' : 'Consent not confirmed'}</span></div><span className={`status-led ${settings?.localOnly ?? true ? 'green' : 'amber'}`}/></div><div className="user-workspace"><div className="workspace-avatar">Z</div><div className="workspace-user"><b>Owner workspace</b><span>Personal environment</span></div><button className="icon-button" onClick={() => choosePage('Settings')} aria-label="Open settings"><MoreHorizontal size={18}/></button></div></div>}
     </aside>
     <main className="main-area">
