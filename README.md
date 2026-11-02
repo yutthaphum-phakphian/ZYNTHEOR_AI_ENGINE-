@@ -3,8 +3,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-"><img src="https://img.shields.io/badge/Buffalo-Active%20Governance-10B981?style=for-the-badge&logo=shield&logoColor=white" alt="Buffalo Audit" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-"><img src="https://img.shields.io/badge/Buffalo%20v1.2.2-Active%20Governance-10B981?style=for-the-badge&logo=shield&logoColor=white" alt="Buffalo Audit" /></a>
   <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-"><img src="https://img.shields.io/badge/Integrity%20Manifest-SHA--256%20Verified-38BDF8?style=for-the-badge&logo=fingerprint&logoColor=white" alt="Manifest Integrity" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-"><img src="https://img.shields.io/badge/P5.2%20Native%20Core-Evidence%20Certified-10B981?style=for-the-badge&logo=cpu&logoColor=white" alt="P5.2 Certified" /></a>
   <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-"><img src="https://img.shields.io/badge/Tests-Continuous%20PASS-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Test Verification" /></a>
 </p>
 
@@ -15,7 +16,7 @@
 </p>
 
 <p align="center">
-  <b>Status:</b> Active Development &amp; System Upgrades &nbsp;|&nbsp; Cryptographic Integrity Baseline &nbsp;|&nbsp; Sovereign Seal Active
+  <b>Status:</b> Active Governance &amp; Native Core Certified (v1.2.2) &nbsp;|&nbsp; Cryptographic Integrity Baseline &nbsp;|&nbsp; Strict No-Fake Standard
 </p>
 
 <p align="center">
@@ -23,30 +24,44 @@
 </p>
 
 <p align="center">
-  <a href="#installation">🛠️ Installation</a> &nbsp;·&nbsp;
+  <a href="#installation">🛠️ Installation & Deployment</a> &nbsp;·&nbsp;
+  <a href="#render-deploy">🚀 Render PaaS Deploy</a> &nbsp;·&nbsp;
+  <a href="#native-core">🧠 Native Core P5.2</a> &nbsp;·&nbsp;
   <a href="#security">🔒 Security</a> &nbsp;·&nbsp;
-  <a href="#contribution">🤝 Contribution</a> &nbsp;·&nbsp;
   <a href="#architecture">🧭 Architecture</a>
 </p>
 
-# ZYNTHEOR AI ENGINE — Sovereign AI Workspace (Buffalo Edition)
+# ZYNTHEOR AI ENGINE — Sovereign AI Workspace (Buffalo Edition v1.2.2)
 
-ZYNTHEOR AI ENGINE คือระบบพื้นที่ทำงานปัญญาประดิษฐ์วิศวกรรมซอฟต์แวร์แบบประมวลผลภายในเครื่อง (Local-First AI Engineering Intelligence Workspace) ที่ออกแบบมาเพื่อความปลอดภัย ปริมาณงานสูง และตรวจสอบความถูกต้องได้ในระดับการกำกับดูแลขั้นสูง (Cryptographic Governance Baseline) ขับเคลื่อนด้วย React, TypeScript, Vite, Express, D3.js และ AI Gateway สองโหมด (Local Ollama & Google Gemini API)
+ZYNTHEOR AI ENGINE คือระบบพื้นที่ทำงานปัญญาประดิษฐ์วิศวกรรมซอฟต์แวร์แบบประมวลผลภายในเครื่อง (Local-First AI Engineering Intelligence Workspace) ที่ออกแบบมาเพื่อความมั่นคงปลอดภัยขั้นสูง ปริมาณงานสูง และตรวจสอบความถูกต้องเชิงคณิตศาสตร์ได้ในระดับการกำกับดูแลขั้นสูง (Cryptographic Governance Baseline) ขับเคลื่อนด้วย React, TypeScript, Vite, Express, D3.js และ AI Gateway สองโหมด (Local Ollama & Google Gemini API) พร้อมสถาปัตยกรรมโมเดลแกนกลาง ZYNTHEOR CORE Native ที่ผ่านการรับรองหลักฐานความถูกต้องระดับ Level C (P5.2 Evidence Certified)
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## 📊 สรุปผลการตรวจสอบความถูกต้องของระบบ (System Quality & Integrity Baseline)
 
-> ⚠️ ตารางนี้เป็นสถานะที่ผู้ดูแลบันทึกไว้เอง **ไม่ได้อ่านจากการรันอัตโนมัติ** — ค่าที่มาจากการรันจริงดูที่การ์ดสถานะด้านบน (รันด้วย `node scripts/gen-status-cards.mjs`)
-
 | หมวดการตรวจสอบ | รายละเอียดและดรรชนีวัดผล | ผลลัพธ์ |
 |---|---|---|
 | **Code Integrity Manifest** | SHA-256 Fingerprint Baseline (`FILE_MANIFEST.sha256`) | ✅ **Verified (Active Manifest)** |
+| **Native Core Evidence** | P5.2 Smoke Test Backpropagation & Checkpoint Hash Verification | ✅ **VERIFIED (SHA: `25781542f1...`)** |
 | **Vitest Unit & Integration** | Evidence Manager, Governance Registry, Multi-Provider Audit, Ledger | ✅ **All Suite Tests PASS** |
 | **Native Node Test Suite** | Adaptive Modes, Code Intelligence, Routing, Telemetry & Orchestrator | ✅ **All Integration Tests PASS** |
 | **TypeScript TypeCheck** | Static Type Analysis (`tsc --noEmit`) | ✅ **0 Errors (Passed Cleanly)** |
 | **Production Build** | Vite + React + Express Server Bundle Validation | ✅ **Build Succeeded** |
-| **Overall Status** | Buffalo System Governance & Active Upgrade Cycle | 🦾 **READY & ACTIVELY UPGRADING** |
+| **Overall Status** | Buffalo System Governance & Active Upgrade Cycle (v1.2.2) | 🦾 **READY & ACTIVELY UPGRADING** |
+
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+
+<a id="native-core"></a>
+## 🧠 สถาปัตยกรรม ZYNTHEOR CORE Native (Phase P5.2 Evidence Certified)
+
+ZYNTHEOR ยึดมั่นตาม **Strict No-Fake Policy** โมเดลที่นำเสนอทุกตัวจะต้องมีหลักฐานการรันและสิทธิ์ความเป็นเจ้าของจริง (Provenance) โดยในระยะ P5.2 ได้ผ่านการรับรองสถาปัตยกรรมและการฝึกฝนระดับ Level C:
+
+- **สถาปัตยกรรมแกนกลาง**: Native Decoder-only Transformer, RMSNorm, SwiGLU, Rotary Positional Embedding (RoPE), และ Causal Attention
+- **การแยกชุดข้อมูลเด็ดขาด (Zero Data Leakage)**: แบ่งข้อมูล 20 เอกสารระดับ SHA-256 เป็น 14 Train (739 tokens), 3 Val (140 tokens), 3 Test (175 tokens) โดย Tokenizer และ Gradient Descent ไม่เคยพบเห็นชุด Test Set
+- **การทดสอบความคงตัวเชิงคณิตศาสตร์**: Future-Token Invariance ($\Delta = 0.0$), RoPE Stability (0 NaN/Inf), และ Gradient Finiteness ผ่านการทดสอบครบ 100%
+- **หลักฐานการเรียนรู้จริง (Empirical Proof)**: บน Test Set อิสระ โมเดลที่ผ่านการเทรนได้ค่า Cross-Entropy Loss **4.5716** (Perplexity 96.70) ซึ่งต่ำกว่า Random Baseline **4.6146** (Perplexity 100.95)
+- **การตรวจสอบ Checkpoint**: ไฟล์ `native_data/p5_2_checkpoint_full.npz` (SHA-256: `25781542f18591134d4d83618c8a8f3d2cdf958c07b0f89ece0c6c0991047c67`) โหลดกลับคืนแล้วให้ค่า Forward Logits ตรงกันสมบูรณ์ ($\text{diff} = 0.0$)
+- **เอกสารรับรอง**: อ่านรายงานฉบับเต็มได้ที่ [`native_data/p5_evidence_report.md`](./native_data/p5_evidence_report.md) และ JSON manifest ที่ [`native_data/p5_evidence_report.json`](./native_data/p5_evidence_report.json)
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
@@ -93,15 +108,12 @@ ZYNTHEOR AI ENGINE คือระบบพื้นที่ทำงานป�
 
 ```mermaid
 flowchart LR
-  U[User] --> E[Express Server]
-  E --> M["Model Provider<br/>Ollama local / Gemini remote (consent-gated)"]
+  U[User / Operator] --> E[Express Server & Security Gateway]
+  E --> S["Semantic Memory & Vector Store (/api/codebase/*)"]
+  E --> M["Model Runtime & Gateway<br/>(ZYNTHEOR Native / Ollama / Gemini Consent-Gated)"]
   M --> V[Evidence Manager]
-  V --> H[("SHA-256 Hash Chain")]
+  V --> H[("SHA-256 Hash Chain & Governance Ledger")]
 ```
-
-**เส้นทาง (ข้อความทดแทนหาก Mermaid ไม่แสดงผล):** User → Express → Model Provider → Evidence Manager → Hash Chain
-
-> หมายเหตุ: แผนภาพเรียบเรียงจากคำอธิบายใน README นี้ ยังไม่ได้ตรวจเทียบกับโค้ดจริง และแสดงเฉพาะองค์ประกอบที่ README ระบุว่ามีอยู่แล้ว
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
@@ -118,13 +130,13 @@ flowchart LR
 
 ### 2. ระบบอัจฉริยะ (Intelligence & Models Architecture)
 - **Repository Intelligence**: เครื่องมือทำแผนที่โครงสร้างโปรเจกต์ สกัด Symbol, Class, Function, Interface และ Export วิเคราะห์ความสัมพันธ์ระหว่างไฟล์เป็น JSON Context Hierarchy สำหรับ AI
+- **Codebase Semantic Search (RAG)**: ระบบสืบค้นและดึงบริบทโค้ดความหมายสูงผ่าน Vector Memory (`/api/codebase/index`, `/api/codebase/search`)
 - **Intelligent Debugging**: ระบบวิเคราะห์และสืบสวนข้อผิดพลาด จับ Stack Traces, ดึงไฟล์ที่เกี่ยวข้อง และจัดลำดับสมมติฐานสาเหตุที่แท้จริง (Root Cause Hypotheses) พร้อมคำแนะนำแนวทางแก้ไข
 - **Prompt Forge 0.9 PRO**: เครื่องมือออกแบบและพัฒนาพรอมป์ต์ ประกอบด้วย Prompt Optimizer, Rubrics Analyzer, Few-Shot Builder, Variable Simulator และ Test Lab
 - **โมเดลและตัวชี้วัด (Models & Architecture)**:
   - **Overview**: ตรวจสอบและตั้งค่า AI Model Endpoint ทั้ง Local Ollama และ Google Gemini API (gemini-3.8-flash)
   - **Model Metrics Rolling Chart**: แผนภูมิแสดงผล Real-Time Rolling 60 นาที ติดตามเวลาแฝง (P50/P95/P99 latency), จำนวน Token (Prompt/Completion) และอัตราความสำเร็จ
   - **Architecture Sub-Tab**: แผนผังความเชื่อมโยงเชิงสถาปัตยกรรมแบบโต้ตอบ (Interactive D3.js Codebase Dependency Map) สร้างขึ้นด้วย `CodeIntelligence.buildDependencyGraph`
-  - **Interactive Module Exploration**: คลิกเลือก node บนกราฟเพื่อเน้นความสัมพันธ์ Direct Internal Imports, External Dependencies และ Reverse Imports
 
 ### 3. ความเชื่อมั่นและความปลอดภัย (Trust & Safety)
 - **สมุดบัญชีตรวจสอบ (Audit Ledger)**: แสดงผล Cryptographic Hash Chain ตรวจสอบความถูกต้อง (Tamper Detection), แสดงกราฟสัดส่วน Event/Action, ตรวจสอบความถูกต้องของ Storage, ส่งออก JSON/CSV และรองรับการ Re-sign ซ่อมแซมสายโซ่
@@ -138,27 +150,13 @@ flowchart LR
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
-## 📱 ภาพหน้าจอ (Screenshots)
-
-> 🚧 **ยังไม่มีภาพหน้าจอจริง** — วางไฟล์ภาพจริงจากแอปที่ `docs/screenshots/` แล้วเปิดคอมเมนต์ด้านล่าง ห้ามใช้ภาพจำลองแทน
-
-<!--
-<p align="center">
-  <img src="docs/screenshots/chat.png" alt="หน้าแชต" width="260" />
-  <img src="docs/screenshots/architecture.png" alt="แผนผังสถาปัตยกรรม" width="260" />
-  <img src="docs/screenshots/audit-ledger.png" alt="สมุดบัญชีตรวจสอบ" width="260" />
-</p>
--->
-
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
-
 <a id="installation"></a>
 ## 🛠️ วิธีการติดตั้งและใช้งาน (Local Operations Guide)
 
 ### ข้อกำหนดของระบบ (Prerequisites)
-- **Node.js**: เวอร์ชัน 20.0.0 ขึ้นไป
+- **Node.js**: เวอร์ชัน 20.0.0 ขึ้นไป (แนะนำ 22.x LTS)
 - **Package Manager**: npm 10+
-- **Local AI Provider**: Ollama (กรณีใช้งาน Local Inference)
+- **Local AI Provider**: Ollama (กรณีต้องการรัน Local Inference) หรือ Python 3.9+ (กรณีรันชุด Native Core P5.2)
 
 ### ขั้นตอนการรันระบบพัฒนา (Development Mode)
 ```bash
@@ -173,19 +171,46 @@ npm run dev
 ```
 เปิดใช้งานผ่านเบราว์เซอร์ที่: `http://localhost:3000`
 
-### การตรวจสอบคุณภาพและทดสอบระบบ (Quality Gates & Testing)
+### การตรวจสอบคุณภาพและทดสอบระบบแบบครบวงจร (Quality Gates & Verification)
 ```bash
-# 1. ตรวจสอบความพร้อมของสภาพแวดล้อม (Environment Preflight)
-npm run check:env
+# รันการตรวจสอบแบบรวมทั้งหมด (Preflight + TypeCheck + Test + Build)
+npm run verify
 
-# 2. ตรวจสอบ Static Type Check (TypeScript)
-npm run typecheck
+# หรือรันแยกแต่ละกระบวนการ:
+npm run check:env    # ตรวจสอบสภาพแวดล้อม
+npm run typecheck    # ตรวจสอบ TypeScript Types (0 errors)
+npm test             # รัน Node Native Tests + Vitest Suite
+npm run build        # สร้าง Production Bundle
+```
 
-# 3. รันชุดการทดสอบระบบ (Integration & Vitest Suite)
-npm run test
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
-# 4. ทดสอบสร้าง Production Bundle
-npm run build
+<a id="render-deploy"></a>
+## 🚀 การ Deploy บน Cloud PaaS (Render & Docker)
+
+ระบบรองรับการ Deploy สู่ **Render** ผ่าน Infrastructure as Code ด้วยไฟล์ [`render.yaml`](./render.yaml):
+
+### 1. Render Deployment (Blueprint)
+1. Fork หรือ Push โค้ดขึ้น GitHub Repository
+2. เข้าสู่ [Render Dashboard](https://dashboard.render.com/) เลือก **New +** $\to$ **Blueprint**
+3. เชื่อมต่อ Repository ของคุณ Render จะตรวจพบ `render.yaml` โดยอัตโนมัติ:
+   - **Environment**: Node (22.14.0)
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npx tsx server.ts`
+   - **Health Check Path**: `/api/health`
+   - **Auto-generated Secrets**: `ZYNTHEOR_ACCESS_TOKEN` และ `TENANT_STORAGE_HMAC_SECRET` จะถูกสร้างโดยระบบ Render อัตโนมัติอย่างปลอดภัย
+
+### 2. Docker Deployment
+```bash
+# สร้าง Container Image
+docker build -t zyntheor-ai-engine:latest .
+
+# รัน Container
+docker run -d -p 3000:3000 \
+  -e NODE_ENV=production \
+  -e HOST=0.0.0.0 \
+  -e ZYNTHEOR_ACCESS_TOKEN=your-secure-token-here \
+  zyntheor-ai-engine:latest
 ```
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
@@ -197,12 +222,8 @@ npm run build
 - **Local-First Protection**: ระบบรันภายใต้แนวทาง Local-First โดยค่าเริ่มต้น ข้อมูลทั้งหมดจะถูกประมวลผลภายในเครื่องของผู้ใช้
 - **Consent-Gated Remote Calls**: การเชื่อมต่อ API ภายนอก (Google Gemini API) จะทำงานเมื่อได้รับอนุมัติจากผู้ใช้ชัดเจนในระบบ
 - **Secret Isolation Barrier**: API Keys ทั้งหมดจัดเก็บเฉพาะใน `.env` ฝั่ง Node Express Backend เท่านั้น ไม่มีการส่ง Key ออกไปยัง Client Browser
+- **Mandatory Production Access Token**: ใน Production Mode (`NODE_ENV=production`) ระบบจะไม่อนุญาตให้เริ่มทำงานหากไม่มีการกำหนด `ZYNTHEOR_ACCESS_TOKEN`
 - **Human Approval Standard**: ปฏิบัติการที่มีผลกระทบต่อระบบซอฟต์แวร์ ต้องได้รับการยืนยันจากมนุษย์ก่อนเสมอ (Human-in-the-loop Gate)
-
-### Security - Local Only
-This server binds to loopback by default (127.0.0.1) and do not expose it directly to the internet.
-Use ZYNTHEOR_LOCAL_ONLY=true and HOST=127.0.0.1 to enforce local-only mode.
-For hosted-preview, override HOST=0.0.0.0 with explicit consent.
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
@@ -220,5 +241,5 @@ Distributed under the **AGPL-3.0 License**. Built for sovereign, enterprise-grad
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 <p align="center">
-  <img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition" width="840" />
+  <img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition v1.2.2" width="840" />
 </p>

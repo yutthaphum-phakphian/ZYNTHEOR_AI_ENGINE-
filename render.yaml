@@ -1,22 +1,26 @@
 services:
   - type: web
-    name: zyntheor-buffalo-110
+    name: zyntheor-ai-engine
     env: node
     region: singapore
     plan: free
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npm run build
     startCommand: npx tsx server.ts
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: 22.14.0
       - key: HOST
         value: 0.0.0.0
-      - key: PORT
-        value: 3000
       - key: ZYNTHEOR_LOCAL_ONLY
-        value: true
+        value: "true"
       - key: ZYNTHEOR_ACCESS_TOKEN
-        sync: false
+        generateValue: true
+      - key: TENANT_STORAGE_HMAC_SECRET
+        generateValue: true
       - key: GEMINI_API_KEY
+        sync: false
+      - key: ZYNTHEOR_MODEL_API_KEY
         sync: false
     healthCheckPath: /api/health

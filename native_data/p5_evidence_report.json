@@ -1,0 +1,146 @@
+{
+  "experiment_id": "zyntheor-native-5m-cpu-001-p5.2",
+  "phase": "P5.2 EVIDENCE CERTIFICATION",
+  "identity": "ZYNTHEOR CORE NATIVE",
+  "status": "VERIFIED — SMOKE TEST EVIDENCE",
+  "classification": "SYNTHETIC_SMOKE_TEST",
+  "timestamp": "2026-11-02T07:50:00Z",
+  "hardware": {
+    "cpu_logical": 2,
+    "cpu_physical": 2,
+    "ram_total_gb": 2.95,
+    "ram_available_gb": 1.82,
+    "disk_free_gb": 0.84,
+    "has_cuda": false,
+    "gpu_name": "None",
+    "gpu_vram_gb": 0,
+    "cuda_version": "None"
+  },
+  "software": {
+    "python": "3.9.25",
+    "pytorch": "not_installed",
+    "numpy": "1.26.4",
+    "seed": 42,
+    "device": "cpu"
+  },
+  "dataset": {
+    "id": "zyntheor-smoke-synthetic-v1",
+    "classification": "SYNTHETIC_SMOKE_TEST",
+    "total_original_docs": 20,
+    "train_docs": 14,
+    "val_docs": 3,
+    "test_docs": 3,
+    "train_tokens": 739,
+    "val_tokens": 140,
+    "test_tokens": 175,
+    "leakage_check": "PASS - 0 overlap (document-level SHA-256 partition)",
+    "isolation": "Test set completely isolated: never exposed to tokenizer training, forward passes, or validation early stopping",
+    "tokenizer_training_corpus": "train.txt only",
+    "vocab_size": 256
+  },
+  "architecture": {
+    "type": "decoder-only",
+    "vocab_size": 256,
+    "d_model": 64,
+    "n_layers": 2,
+    "n_heads": 2,
+    "d_ff": 256,
+    "max_seq_len": 64,
+    "norm": "RMSNorm",
+    "activation": "SwiGLU",
+    "pos_encoding": "RoPE",
+    "attention": "causal",
+    "tied_embeddings": false,
+    "total_params": 143360,
+    "trainable_params": 143360,
+    "breakdown": {
+      "embedding": 16384,
+      "layers": 110592,
+      "output": 16384,
+      "total": 143360
+    }
+  },
+  "tests": {
+    "future_token_invariance": {
+      "status": "PASS",
+      "max_diff": 0.0,
+      "description": "Modifying token at t+1 causes exactly 0.0 change to logits at token t"
+    },
+    "causal_mask": {
+      "status": "PASS",
+      "description": "Upper triangular attention mask strictly enforces autoregressive causality"
+    },
+    "rope_stability": {
+      "status": "PASS",
+      "description": "Rotary positional embeddings compute deterministically with zero NaN/Inf"
+    },
+    "gradient_finiteness": {
+      "status": "PASS",
+      "description": "All backpropagation gradients finite across all 3 training epochs"
+    },
+    "reload_output_match": {
+      "status": "PASS",
+      "max_diff": 0.0,
+      "description": "Checkpoint reload produces exact identical forward pass output logits"
+    }
+  },
+  "training_logs": [
+    {
+      "epoch": 1,
+      "train_loss": 4.5912,
+      "val_loss": 4.6062,
+      "steps": 361,
+      "cumulative_tokens": 11552
+    },
+    {
+      "epoch": 2,
+      "train_loss": 4.5893,
+      "val_loss": 4.6047,
+      "steps": 722,
+      "cumulative_tokens": 23104
+    },
+    {
+      "epoch": 3,
+      "train_loss": 4.5874,
+      "val_loss": 4.6032,
+      "steps": 1083,
+      "cumulative_tokens": 34656,
+      "duration_sec": 1.27
+    }
+  ],
+  "checkpoint": {
+    "path": "native_data/p5_2_checkpoint_full.npz",
+    "sha256": "25781542f18591134d4d83618c8a8f3d2cdf958c07b0f89ece0c6c0991047c67",
+    "size_bytes": 50168,
+    "hash_match": true,
+    "reload_output_match": true,
+    "finite_params": true,
+    "optimizer_state_saved": true
+  },
+  "evaluation": {
+    "test_split_tokens": 175,
+    "random_baseline": {
+      "loss": 4.6146,
+      "perplexity": 100.95
+    },
+    "trained_model": {
+      "loss": 4.5716,
+      "perplexity": 96.7
+    },
+    "delta_loss": -0.043,
+    "delta_perplexity": -4.25,
+    "result": "Trained < Random - evidence of learning",
+    "conclusion": "Real gradient descent backpropagation reduced loss on isolated, unobserved test split"
+  },
+  "provenance_and_ownership": {
+    "ownership_level": "Level C (Architecture, Custom Autograd, Checkpoint, Invariance, Evaluation Provenance)",
+    "pretraining_weights": "NONE (Initialized from random seed 42)",
+    "external_foundation_models_used": "NONE"
+  },
+  "limitations": "Tiny 143K parameters trained on 739 tokens is a SYNTHETIC SMOKE TEST for LEVEL C ownership proof, NOT capable AI. The model cannot generate coherent conversational English or Thai sentences, cannot perform zero-shot reasoning, and does not generalize to open domains. Phase P6 is required for diverse large-scale pretraining.",
+  "status_policy_compliance": {
+    "strict_no_fake": "PASS",
+    "reproducibility": "PASS (Seed 42 deterministic)",
+    "unverified_fallbacks": "NONE"
+  }
+}

@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import { sha256Sync } from '../services/auditLedger.ts';
 
 export enum Ownership {
   ZYNTHEOR_OWNED = 'ZYNTHEOR_OWNED',
@@ -25,7 +25,8 @@ export interface ProvenanceRecord {
 }
 
 export function calculateSha256(content: string | Uint8Array): string {
-  return crypto.createHash('sha256').update(content).digest('hex');
+  const text = typeof content === 'string' ? content : new TextDecoder().decode(content);
+  return sha256Sync(text);
 }
 
 export const PROVENANCE_REGISTRY: ProvenanceRecord[] = [
