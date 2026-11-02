@@ -48,30 +48,49 @@ interface TelemetryPoint {
 export function GpuTelemetryWidget({
   autoPoll = true,
   pollIntervalMs = 2500,
-  lang = 'th'
+  lang = 'th',
+  overrideData,
 }: {
   autoPoll?: boolean;
   pollIntervalMs?: number;
   lang?: 'th' | 'en';
+  overrideData?: GpuTelemetryData | null;
 }) {
-  const [telemetry, setTelemetry] = useState<GpuTelemetryData | null>(null);
+  const [telemetry, setTelemetry] = useState<GpuTelemetryData | null>(overrideData || null);
   const [history, setHistory] = useState<TelemetryPoint[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(!overrideData);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [isLive, setIsLive] = useState<boolean>(autoPoll);
+  const [isLive, setIsLive] = useState<boolean>(autoPoll && !overrideData);
 
   const fetchTelemetry = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/training/hardware');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.ok && data.hardware?.gpu) {
-        const gpu = data.hardware.gpu;
-        const readinessStatus = data.hardware.readiness?.status || 'CPU_ONLY_SMOKE_MODE';
-        const readinessLabel = data.hardware.readiness?.statusLabel || 'CPU Smoke Test Mode';
+      let data: any = null;
+      try {
+        const res = await fetch('/api/diagnostics/gpu-telemetry');
+        if (res.ok) data = await res.json();
+      } catch {}
+
+      if (!data?.gpu) {
+        const res2 = await fetch('/api/training/hardware');
+        if (res2.ok) {
+          const hwData = await res2.json();
+          if (hwData.ok && hwData.hardware) {
+            data = {
+              ok: true,
+              gpu: hwData.hardware.gpu,
+              readiness: hwData.hardware.readiness,
+            };
+          }
+        }
+      }
+
+      if (data?.ok && data.gpu) {
+        const gpu = data.gpu;
+        const readinessStatus = data.readiness?.status || 'CPU_ONLY_SMOKE_MODE';
+        const readinessLabel = data.readiness?.statusLabel || 'CPU Smoke Test Mode';
         
         // Base model allocations calculation
         const total = gpu.totalVramGb || 0;
@@ -80,15 +99,22 @@ export function GpuTelemetryWidget({
         const kvCache = Math.max(0, Math.round((used - baseWeights) * 10) / 10);
         const free = Math.max(0, Math.round((total - used) * 10) / 10);
 
+        const powerUsage = typeof gpu.powerUsageWatts === 'number' && gpu.powerUsageWatts > 0
+          ? gpu.powerUsageWatts
+          : (gpu.detected ? Math.round(40 + (gpu.gpuUtilizationPct || 0) * 2.8) : 0);
+        const powerLimit = typeof gpu.powerLimitWatts === 'number' && gpu.powerLimitWatts > 0
+          ? gpu.powerLimitWatts
+          : (gpu.detected ? 350 : 0);
+
         const newTelemetry: GpuTelemetryData = {
           ...gpu,
           readinessStatus,
           readinessLabel,
-          memoryBandwidthGbs: gpu.detected ? 900 : 0,
-          powerUsageWatts: gpu.detected ? Math.round(40 + (gpu.gpuUtilizationPct || 0) * 2.8) : 0,
-          powerLimitWatts: gpu.detected ? 350 : 0,
-          fanSpeedPct: gpu.detected ? Math.round(30 + (gpu.temperatureC || 40) * 0.5) : 0,
-          allocations: {
+          memoryBandwidthGbs: gpu.memoryBandwidthGbs || (gpu.detected ? 900 : 0),
+          powerUsageWatts: powerUsage,
+          powerLimitWatts: powerLimit,
+          fanSpeedPct: gpu.fanSpeedPct || (gpu.detected ? Math.round(30 + (gpu.temperatureC || 40) * 0.5) : 0),
+          allocations: gpu.allocations || {
             baseModelWeightsGb: baseWeights,
             kvCacheAndActivationsGb: kvCache,
             headroomGb: free,
@@ -120,12 +146,29 @@ export function GpuTelemetryWidget({
   }, []);
 
   useEffect(() => {
+    if (overrideData) {
+      setTelemetry(overrideData);
+      const timeStr = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      setLastUpdated(timeStr);
+      setHistory(prev => {
+        const point: TelemetryPoint = {
+          time: timeStr,
+          gpuPct: overrideData.gpuUtilizationPct || 0,
+          vramPct: overrideData.vramUsagePct || 0,
+          tempC: overrideData.temperatureC || 0,
+        };
+        return [...prev, point].slice(-20);
+      });
+      setLoading(false);
+      return;
+    }
+
     fetchTelemetry(false);
     if (isLive) {
       const interval = setInterval(() => fetchTelemetry(true), pollIntervalMs);
       return () => clearInterval(interval);
     }
-  }, [fetchTelemetry, isLive, pollIntervalMs]);
+  }, [overrideData, fetchTelemetry, isLive, pollIntervalMs]);
 
   const isGpu = Boolean(telemetry?.detected && (telemetry?.totalVramGb ?? 0) > 0);
   const isThai = lang === 'th';

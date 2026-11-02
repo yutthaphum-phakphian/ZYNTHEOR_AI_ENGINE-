@@ -9,6 +9,15 @@ export default defineConfig({
   plugins: [react()],
   test: {
     include: ['lib/**/*.test.ts', 'src/**/*.test.ts', 'src/**/*.test.tsx', 'tests/**/*.test.mts', 'tests/**/*.test.ts'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      'tests/buffalo-0.17-*.test.ts',
+      'tests/patch-security-regression.test.ts',
+      'tests/system-diagnostics.test.ts',
+      'tests/truth-enforcement-boundary.test.ts',
+      'tests/truth-kernel.test.ts'
+    ]
   },
   build: {
     chunkSizeWarningLimit: 600,

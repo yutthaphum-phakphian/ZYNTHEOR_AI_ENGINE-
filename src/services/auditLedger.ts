@@ -20,10 +20,12 @@ export interface AuditEntry {
 
 export interface HashChainVerificationResult {
   isValid: boolean;
+  valid?: boolean;
   brokenIndex?: number;
   brokenRecordId?: string;
   reason?: string;
   verifiedCount: number;
+  entriesChecked?: number;
   rootHash?: string;
   genesisHash?: string;
 }
@@ -170,9 +172,24 @@ export function canonicalAuditPayload(entry: {
   return `${entry.id}|${entry.at}|${entry.action}|${entry.detail}|${entry.prevHash}`;
 }
 
+export interface AuditEntryOptions {
+  eventType?: string;
+  action?: string;
+  actor?: string;
+  details?: any;
+  detail?: any;
+  metadata?: any;
+  prevRecord?: { hash?: string } | null;
+  customId?: string;
+  customAt?: string;
+  customNanoAt?: string;
+  keyId?: string;
+  algorithm?: string;
+}
+
 export function createAuditEntry(
-  action: string,
-  detail: string,
+  actionOrOptions: string | AuditEntryOptions,
+  detail?: string,
   prevRecord?: { hash?: string } | null,
   customId?: string,
   customAt?: string,
@@ -180,11 +197,42 @@ export function createAuditEntry(
   keyId?: string,
   algorithm?: string
 ): AuditEntry {
-  const id = customId || (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const at = customAt || new Date().toISOString();
-  const nanoAt = customNanoAt || getNanosecondTimestamp();
-  const prevHash = prevRecord && prevRecord.hash ? prevRecord.hash : 'GENESIS';
-  const payload = canonicalAuditPayload({ id, at, nanoAt, action, detail, prevHash });
+  let action: string;
+  let resolvedDetail: string;
+  let resolvedPrevRecord = prevRecord;
+  let resolvedId = customId;
+  let resolvedAt = customAt;
+  let resolvedNanoAt = customNanoAt;
+  let resolvedKeyId = keyId;
+  let resolvedAlgorithm = algorithm;
+  let metadata: any = undefined;
+
+  if (typeof actionOrOptions === 'object' && actionOrOptions !== null) {
+    action = actionOrOptions.action || actionOrOptions.eventType || 'UNKNOWN_ACTION';
+    if (typeof actionOrOptions.detail === 'string') {
+      resolvedDetail = actionOrOptions.detail;
+    } else if (actionOrOptions.details !== undefined) {
+      resolvedDetail = typeof actionOrOptions.details === 'string' ? actionOrOptions.details : JSON.stringify(actionOrOptions.details);
+    } else {
+      resolvedDetail = JSON.stringify(actionOrOptions);
+    }
+    resolvedPrevRecord = actionOrOptions.prevRecord ?? prevRecord;
+    resolvedId = actionOrOptions.customId ?? customId;
+    resolvedAt = actionOrOptions.customAt ?? customAt;
+    resolvedNanoAt = actionOrOptions.customNanoAt ?? customNanoAt;
+    resolvedKeyId = actionOrOptions.keyId || actionOrOptions.actor || keyId;
+    resolvedAlgorithm = actionOrOptions.algorithm ?? algorithm;
+    metadata = actionOrOptions.metadata || actionOrOptions.details;
+  } else {
+    action = String(actionOrOptions || 'UNKNOWN_ACTION');
+    resolvedDetail = detail || '';
+  }
+
+  const id = resolvedId || (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const at = resolvedAt || new Date().toISOString();
+  const nanoAt = resolvedNanoAt || getNanosecondTimestamp();
+  const prevHash = resolvedPrevRecord && resolvedPrevRecord.hash ? resolvedPrevRecord.hash : 'GENESIS';
+  const payload = canonicalAuditPayload({ id, at, nanoAt, action, detail: resolvedDetail, prevHash });
   const hash = sha256Sync(payload);
 
   return {
@@ -192,11 +240,13 @@ export function createAuditEntry(
     at,
     nanoAt,
     action,
-    detail,
+    detail: resolvedDetail,
     prevHash,
     hash,
-    keyId: keyId || undefined,
-    algorithm: algorithm || undefined,
+    actor: resolvedKeyId || undefined,
+    keyId: resolvedKeyId || undefined,
+    algorithm: resolvedAlgorithm || undefined,
+    metadata,
   };
 }
 
@@ -204,11 +254,13 @@ export function createAuditEntry(
  * Validates the sequential hash chain of audit records.
  * Records are expected in newest-first order (as stored in App state).
  */
-export function verifyAuditHashChain(records: AuditEntry[]): HashChainVerificationResult {
+export function verifyAuditHashChain(records: AuditEntry[] = []): HashChainVerificationResult {
   if (!Array.isArray(records) || records.length === 0) {
     return {
       isValid: true,
+      valid: true,
       verifiedCount: 0,
+      entriesChecked: 0,
       rootHash: 'GENESIS',
       genesisHash: 'GENESIS',
     };
@@ -234,10 +286,12 @@ export function verifyAuditHashChain(records: AuditEntry[]): HashChainVerificati
       if (current.prevHash && current.prevHash !== previous.hash) {
         return {
           isValid: false,
+          valid: false,
           brokenIndex: originalIndex,
           brokenRecordId: current.id,
           reason: `Hash pointer mismatch: Record points to ${current.prevHash.slice(0, 10)}… but previous entry hash is ${previous.hash.slice(0, 10)}…`,
           verifiedCount: i,
+          entriesChecked: i,
           rootHash: records[0]?.hash,
         };
       }
@@ -262,10 +316,12 @@ export function verifyAuditHashChain(records: AuditEntry[]): HashChainVerificati
       if (current.hash !== legacyCalculated) {
         return {
           isValid: false,
+          valid: false,
           brokenIndex: originalIndex,
           brokenRecordId: current.id,
           reason: `Content signature mismatch: Record #${originalIndex} has been modified since it was fingerprinted.`,
           verifiedCount: i,
+          entriesChecked: i,
           rootHash: records[0]?.hash,
         };
       }
@@ -274,7 +330,9 @@ export function verifyAuditHashChain(records: AuditEntry[]): HashChainVerificati
 
   return {
     isValid: true,
+    valid: true,
     verifiedCount: records.length,
+    entriesChecked: records.length,
     rootHash: records[0]?.hash || 'GENESIS',
     genesisHash: chronological[0]?.prevHash || 'GENESIS',
   };

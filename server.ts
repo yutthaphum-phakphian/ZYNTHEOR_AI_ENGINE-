@@ -91,10 +91,11 @@ function getArg(flag: string): string | undefined {
   return idx !== -1 && argv[idx + 1] ? argv[idx + 1] : undefined;
 }
 const port = Number(getArg('--port') || process.env.PORT || 3000);
-const host = getArg('--host') || process.env.HOST || '0.0.0.0';
+const host = getArg('--host') || process.env.HOST || '127.0.0.1';
 const accessToken = process.env.ZYNTHEOR_ACCESS_TOKEN || '';
 if (process.env.NODE_ENV === 'production' && !accessToken.trim()) {
-  console.warn('[ZYNTHEOR] Running in production mode without ZYNTHEOR_ACCESS_TOKEN configured.');
+  console.error('Production startup requires ZYNTHEOR_ACCESS_TOKEN to be configured.');
+  process.exit(1);
 }
 app.disable('x-powered-by');
 app.use((_req: Request, res: Response, next: NextFunction) => {
@@ -2065,10 +2066,12 @@ function getSystemHardware(): SystemHardwareInfo {
     vramUsagePct: 0,
     temperatureC: 0,
     gpuUtilizationPct: 0,
+    powerUsageWatts: 0,
+    powerLimitWatts: 0,
   };
 
   try {
-    const smiOut = execSync('nvidia-smi --query-gpu=name,memory.total,memory.used,memory.free,driver_version,temperature.gpu,utilization.gpu --format=csv,noheader,nounits', {
+    const smiOut = execSync('nvidia-smi --query-gpu=name,memory.total,memory.used,memory.free,driver_version,temperature.gpu,utilization.gpu,power.draw,power.limit --format=csv,noheader,nounits', {
       timeout: 1500,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'ignore'],
@@ -2082,6 +2085,8 @@ function getSystemHardware(): SystemHardwareInfo {
         const totalGb = Math.round((totalMb / 1024) * 10) / 10;
         const usedGb = Math.round((usedMb / 1024) * 10) / 10;
         const freeGb = Math.round((freeMb / 1024) * 10) / 10;
+        const pUsage = parts[7] ? parseFloat(parts[7]) : NaN;
+        const pLimit = parts[8] ? parseFloat(parts[8]) : NaN;
         gpu = {
           detected: true,
           name: parts[0] || 'NVIDIA Accelerator',
@@ -2093,6 +2098,8 @@ function getSystemHardware(): SystemHardwareInfo {
           vramUsagePct: totalGb > 0 ? Math.min(100, Math.round((usedGb / totalGb) * 100)) : 0,
           temperatureC: Number.isFinite(parseFloat(parts[5])) ? parseFloat(parts[5]) : 0,
           gpuUtilizationPct: parseFloat(parts[6]) || 0,
+          powerUsageWatts: Number.isFinite(pUsage) ? Math.round(pUsage) : 0,
+          powerLimitWatts: Number.isFinite(pLimit) ? Math.round(pLimit) : 0,
         };
       }
     }

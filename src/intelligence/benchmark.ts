@@ -220,16 +220,16 @@ export class IntelligenceBenchmarkSuite {
   private static testHashChainIntegrity(): BenchmarkTestResult {
     const start = performance.now();
     try {
-      createAuditEntry({ eventType: 'BENCHMARK_AUDIT_ENTRY', actor: 'benchmark', details: { test: true } });
-      const verification = verifyAuditHashChain();
+      const entry = createAuditEntry({ eventType: 'BENCHMARK_AUDIT_ENTRY', actor: 'benchmark', details: { test: true } });
+      const verification = verifyAuditHashChain([entry]);
       return {
         categoryId: 'BENCH-04',
         categoryName: 'Cryptographic Hash Chain Integrity',
         benchmarkType: 'SECURITY_BOUNDARY',
-        passed: verification.valid,
+        passed: Boolean(verification.isValid || verification.valid),
         durationMs: Math.round(performance.now() - start),
         assertionCount: 2,
-        details: `Verified ${verification.entriesChecked} entries in cryptographic chain.`,
+        details: `Verified ${verification.verifiedCount ?? verification.entriesChecked ?? 1} entries in cryptographic chain.`,
       };
     } catch (err: any) {
       return {

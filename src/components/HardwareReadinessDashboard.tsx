@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Zap
 } from 'lucide-react';
+import { GpuTelemetryWidget } from './GpuTelemetryWidget';
 
 export interface HardwareTier {
   name: string;
@@ -286,6 +287,38 @@ export function HardwareReadinessDashboard({
           <AlertCircle size={15} /> {error}
         </div>
       )}
+
+      {/* GPU Telemetry Widget - dynamically monitors active GPU usage, VRAM temperature, and power consumption */}
+      <GpuTelemetryWidget
+        autoPoll={autoPoll}
+        pollIntervalMs={pollIntervalMs}
+        lang="en"
+        overrideData={
+          simulationMode && activeHardware?.gpu ? {
+            detected: true,
+            name: activeHardware.gpu.name,
+            cudaAvailable: activeHardware.gpu.cudaAvailable,
+            driverVersion: activeHardware.gpu.driverVersion,
+            totalVramGb: activeHardware.gpu.totalVramGb,
+            usedVramGb: activeHardware.gpu.usedVramGb,
+            freeVramGb: activeHardware.gpu.freeVramGb,
+            vramUsagePct: activeHardware.gpu.vramUsagePct,
+            temperatureC: activeHardware.gpu.temperatureC,
+            gpuUtilizationPct: activeHardware.gpu.gpuUtilizationPct,
+            powerUsageWatts: 185,
+            powerLimitWatts: 450,
+            fanSpeedPct: 52,
+            memoryBandwidthGbs: 1008,
+            readinessStatus: activeHardware.readiness?.status,
+            readinessLabel: activeHardware.readiness?.statusLabel,
+            allocations: {
+              baseModelWeightsGb: 10.8,
+              kvCacheAndActivationsGb: 3.2,
+              headroomGb: 10.0,
+            }
+          } : undefined
+        }
+      />
 
       {/* Main Hardware Telemetry Gauges */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '18px' }}>

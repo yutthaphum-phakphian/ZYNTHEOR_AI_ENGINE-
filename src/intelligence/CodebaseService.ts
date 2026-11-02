@@ -194,7 +194,7 @@ export class CodebaseService {
           exports.push({ name: node.name.text, isDefault: false, isTypeOnly: false });
         }
       } else if (ts.isVariableStatement(node)) {
-        const exported = (ts.getCombinedModifierFlags(node) & ts.ModifierFlags.Export) !== 0;
+        const exported = Boolean(node.modifiers?.some(m => m.kind === ts.SyntaxKind.ExportKeyword));
         for (const decl of node.declarationList.declarations) {
           if (ts.isIdentifier(decl.name)) {
             const { line, character } = sourceFile.getLineAndCharacterOfPosition(decl.getStart());

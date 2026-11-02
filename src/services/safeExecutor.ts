@@ -36,3 +36,13 @@ export interface SafeExecResult {
 export async function safeExec(_cmd: string, _timeoutMs = 30_000): Promise<SafeExecResult> {
   throw new Error('SECURITY_DENIED: Command execution is disabled until a trusted execution and approval boundary is implemented.');
 }
+
+export function sanitizeExecutionArgs(args: string[]): string[] {
+  const dangerousPattern = /[;&|`$<>(){}[\]\\]/;
+  for (const arg of args) {
+    if (dangerousPattern.test(arg)) {
+      throw new Error(`SECURITY_DENIED: Unsafe execution argument detected: ${arg}`);
+    }
+  }
+  return args;
+}
