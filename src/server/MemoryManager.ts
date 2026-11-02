@@ -7,9 +7,7 @@ export class MemoryManager {
     await fs.writeFile(path.join(MEMORY_DIR, `${sessionId}.json`), JSON.stringify(state, null, 2));
   }
   static async loadState(sessionId: string) {
-    try {
-      const data = await fs.readFile(path.join(MEMORY_DIR, `${sessionId}.json`), 'utf-8');
-      return JSON.parse(data);
-    } catch { return null; }
+    try { return JSON.parse(await fs.readFile(path.join(MEMORY_DIR, `${sessionId}.json`), 'utf-8')); }
+    catch { return null; }
   }
 }
