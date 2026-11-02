@@ -1,6 +1,6 @@
 import { AgentRole, AgentMessage, ToolName } from './types';
 import { AGENT_DEFINITIONS, canApprove } from './definitions';
-import crypto from 'crypto';
+import { sha256Sync } from '../services/auditLedger';
 
 export class AgentCoordinator {
   private tasks = new Map<
@@ -16,7 +16,7 @@ export class AgentCoordinator {
     idempotencyKey?: string
   ): Promise<{ action: 'ASSIGNED' | 'DUPLICATE_PREVENTED'; role?: AgentRole; key?: string }> {
     const key =
-      idempotencyKey || crypto.createHash('sha256').update(`${taskId}:${role}`).digest('hex');
+      idempotencyKey || sha256Sync(`${taskId}:${role}`);
 
     // Idempotency: prevent duplicate execution
     if (this.tasks.has(taskId) && this.tasks.get(taskId)?.idempotencyKey === key) {

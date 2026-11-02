@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { sha256Sync } from '../services/auditLedger';
 
 export interface ExecutionRequest {
   jobId: string;
@@ -50,5 +50,5 @@ export function generateRequestDigest(req: ExecutionRequest): string {
     workingDirectory: req.workingDirectory,
     capabilities: req.capabilities,
   });
-  return crypto.createHash('sha256').update(canonical).digest('hex');
+  return sha256Sync(canonical);
 }

@@ -12,10 +12,39 @@
  * 7. Automatic Audit Ledger Synchronization via createAuditEntry
  */
 
-import crypto from 'node:crypto';
-import fs from 'node:fs';
-import path from 'node:path';
 import { createAuditEntry, sha256Sync, type AuditEntry } from '../src/services/auditLedger.ts';
+
+const isNode = typeof window === 'undefined' && typeof process !== 'undefined' && Boolean(process.versions?.node);
+
+let nodeFs: any = null;
+let nodePath: any = null;
+
+function getNodeModules() {
+  if (isNode && !nodeFs) {
+    try {
+      if (typeof process !== 'undefined' && typeof (process as any).getBuiltinModule === 'function') {
+        nodeFs = (process as any).getBuiltinModule('node:fs');
+        nodePath = (process as any).getBuiltinModule('node:path');
+      }
+    } catch {}
+  }
+  return { fs: nodeFs, path: nodePath };
+}
+
+function safeResolvePath(base: string, ...segments: string[]): string {
+  const { path: nPath } = getNodeModules();
+  if (isNode && nPath && typeof nPath.resolve === 'function') {
+    try {
+      return nPath.resolve(base, ...segments);
+    } catch {}
+  }
+  let combined = (base || '/').replace(/\\/g, '/');
+  for (const seg of segments) {
+    if (!seg) continue;
+    combined = `${combined.replace(/\/+$/, '')}/${seg.replace(/\\/g, '/').replace(/^\/+/, '')}`;
+  }
+  return combined;
+}
 
 // ==========================================
 // 1. Evidence States, Types & Claim Categories
@@ -174,23 +203,24 @@ export class RepositoryTruthGate {
         resolvedRoot = '/';
       }
     }
-    this.rootDir = path.resolve(resolvedRoot || '/');
+    this.rootDir = safeResolvePath(resolvedRoot || '/');
   }
 
   verifyFileExists(relativePath: string): { exists: boolean; fullPath?: string; sizeBytes?: number } {
     try {
-      if (typeof fs === 'undefined' || !fs || typeof fs.existsSync !== 'function') {
+      const { fs: nFs } = getNodeModules();
+      if (!isNode || !nFs || typeof nFs.existsSync !== 'function') {
         return { exists: false };
       }
       const cleanRel = relativePath.trim().replace(/^['"`]|['"`]$/g, '').replace(/^\/+/, '');
-      const fullPath = path.resolve(this.rootDir, cleanRel);
+      const fullPath = safeResolvePath(this.rootDir, cleanRel);
 
       if (!fullPath.startsWith(this.rootDir)) {
         return { exists: false };
       }
 
-      if (fs.existsSync(fullPath)) {
-        const stat = fs.statSync(fullPath);
+      if (nFs.existsSync(fullPath)) {
+        const stat = nFs.statSync(fullPath);
         if (stat.isFile() || stat.isDirectory()) {
           return { exists: true, fullPath, sizeBytes: stat.size };
         }
@@ -208,10 +238,11 @@ export class RepositoryTruthGate {
     }
 
     try {
-      if (typeof fs === 'undefined' || !fs || typeof fs.readFileSync !== 'function') {
+      const { fs: nFs } = getNodeModules();
+      if (!isNode || !nFs || typeof nFs.readFileSync !== 'function') {
         return { exists: false };
       }
-      const content = fs.readFileSync(fileRes.fullPath, 'utf8');
+      const content = nFs.readFileSync(fileRes.fullPath, 'utf8');
       const lines = content.split('\n');
       const regex = new RegExp(`\\b(function|const|class|let|var|type|interface|export)\\s+${symbolName}\\b`);
 
@@ -339,7 +370,7 @@ export class TruthKernel {
       isProposal?: boolean;
     }
   ): DetailedEvidenceRecord {
-    const uuid = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2, 10);
+    const uuid = typeof globalThis !== 'undefined' && globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function' ? globalThis.crypto.randomUUID() : Math.random().toString(36).slice(2, 10);
     const claimId = `claim-${uuid.slice(0, 8)}`;
     const timestamp = new Date().toISOString();
     const prevHash = this.lastHash;

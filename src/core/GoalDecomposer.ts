@@ -1,5 +1,5 @@
 import { TaskGraph, NodeStatus } from './TaskGraph';
-import { ContextPackage } from './ContextCompiler';
+import type { ContextPackage } from './ContextCompiler';
 
 export class GoalDecomposer {
   async decompose(context: ContextPackage): Promise<TaskGraph> {

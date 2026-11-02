@@ -1,0 +1,16 @@
+{
+  "jobId": "test-efg-1793633728468",
+  "taskState": "RUNNING",
+  "taskGraph": {
+    "nodes": []
+  },
+  "approvedPlanDigest": "plan-sha256-digest-abc",
+  "executionId": "exec-phase-e-1",
+  "appliedChangeIds": [
+    "package.json"
+  ],
+  "verificationResults": [],
+  "auditRef": "audit-ref-1",
+  "timestamp": "2026-11-02T15:35:28.469Z",
+  "sha256": "13e5fa9eb74a94a94163fe4de38f0364a268a804ef3e78e234041adb5fb956d7"
+}

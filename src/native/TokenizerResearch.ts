@@ -3,6 +3,7 @@ export interface TokenizerEvaluationResult {
   vocabSize: number;
   tokensPerChar: number;
   thaiEfficiency: number;
+  measuredThaiCompression?: number;
   englishEfficiency: number;
   codeEfficiency: number;
   unknownTokenRate: number;

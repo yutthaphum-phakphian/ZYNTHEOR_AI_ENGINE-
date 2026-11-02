@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { sha256Sync } from '../services/auditLedger';
 
 export enum MemoryCategory {
   PROJECT_ARCHITECTURE = 'PROJECT_ARCHITECTURE',
@@ -44,7 +44,7 @@ export class EngineeringMemory {
     }
 
     const timestamp = new Date().toISOString();
-    const sha256 = crypto.createHash('sha256').update(record.content).digest('hex');
+    const sha256 = sha256Sync(record.content);
     const full: MemoryRecord = { ...record, timestamp, sha256 };
 
     // Only VERIFIED may enter trusted memory for VERIFIED_SOLUTIONS
