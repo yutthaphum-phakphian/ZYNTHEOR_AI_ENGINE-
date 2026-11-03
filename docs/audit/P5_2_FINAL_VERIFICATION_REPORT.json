@@ -1,0 +1,163 @@
+{
+  "artifact_identity": {
+    "checkpoint_path": null,
+    "checkpoint_sha256": null,
+    "param_count": null
+  },
+  "evidence_identities": {
+    "dataset": {},
+    "evaluation": {
+      "benchmark": "isolated_test_set",
+      "ppl_random": null,
+      "ppl_trained": null,
+      "test_loss_random": 6.645,
+      "test_loss_trained": 6.4812,
+      "version": "v1"
+    },
+    "smoke_test": {},
+    "training_run": {
+      "loss_history": [],
+      "run_id": "zyntheor-native-5m-cpu-001-p5.1"
+    }
+  },
+  "final_status": "FAIL",
+  "gates": [
+    {
+      "error_code": "DATASET_PATH_MISSING",
+      "evidence": {},
+      "gate": "dataset_integrity",
+      "reason": "Dataset path missing",
+      "status": "NOT_VERIFIED"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "loss_history": [],
+        "run_id": "zyntheor-native-5m-cpu-001-p5.1"
+      },
+      "gate": "training_evidence",
+      "reason": "Training evidence verified run_id=zyntheor-native-5m-cpu-001-p5.1",
+      "status": "PASS"
+    },
+    {
+      "error_code": "CORRUPTED_ARTIFACT",
+      "evidence": {},
+      "gate": "checkpoint_integrity",
+      "reason": "Corrupted checkpoint cannot load: No module named 'numpy'",
+      "status": "FAIL"
+    },
+    {
+      "error_code": "TRUST_STORE_UNAVAILABLE",
+      "evidence": {},
+      "gate": "signature_verification",
+      "reason": "Trust store not available: BLOCKED",
+      "status": "BLOCKED"
+    },
+    {
+      "error_code": "RUNTIME_MISSING",
+      "evidence": {},
+      "gate": "fresh_reload",
+      "reason": "Runtime missing: No module named 'torch'",
+      "status": "BLOCKED"
+    },
+    {
+      "error_code": "SMOKE_MISSING",
+      "evidence": {},
+      "gate": "smoke_test",
+      "reason": "Smoke test evidence missing",
+      "status": "NOT_VERIFIED"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "benchmark": "isolated_test_set",
+        "ppl_random": null,
+        "ppl_trained": null,
+        "test_loss_random": 6.645,
+        "test_loss_trained": 6.4812,
+        "version": "v1"
+      },
+      "gate": "model_evaluation",
+      "reason": "Eval: trained 6.4812 vs random 6.645 benchmark=isolated_test_set",
+      "status": "PASS"
+    },
+    {
+      "error_code": "P5_FAIL",
+      "evidence": {
+        "fail_gates": [
+          "dataset_integrity=NOT_VERIFIED",
+          "checkpoint_integrity=FAIL",
+          "signature_verification=BLOCKED",
+          "fresh_reload=BLOCKED",
+          "smoke_test=NOT_VERIFIED"
+        ],
+        "gate_statuses": {
+          "checkpoint_integrity": "FAIL",
+          "dataset_integrity": "NOT_VERIFIED",
+          "fresh_reload": "BLOCKED",
+          "model_evaluation": "PASS",
+          "signature_verification": "BLOCKED",
+          "smoke_test": "NOT_VERIFIED",
+          "training_evidence": "PASS"
+        }
+      },
+      "gate": "p5_readiness",
+      "reason": "P5 readiness FAIL due to: dataset_integrity=NOT_VERIFIED, checkpoint_integrity=FAIL, signature_verification=BLOCKED, fresh_reload=BLOCKED, smoke_test=NOT_VERIFIED",
+      "status": "FAIL"
+    },
+    {
+      "error_code": "P5_FAIL",
+      "evidence": {
+        "p5_status": "FAIL",
+        "reason": "P5 readiness FAIL due to: dataset_integrity=NOT_VERIFIED, checkpoint_integrity=FAIL, signature_verification=BLOCKED, fresh_reload=BLOCKED, smoke_test=NOT_VERIFIED"
+      },
+      "gate": "p6_gate",
+      "reason": "P6 BLOCKED because P5 FAIL",
+      "status": "BLOCKED"
+    }
+  ],
+  "manifest_path": "native_data/p5_1_manifest.json",
+  "p5_readiness": {
+    "error_code": "P5_FAIL",
+    "evidence": {
+      "fail_gates": [
+        "dataset_integrity=NOT_VERIFIED",
+        "checkpoint_integrity=FAIL",
+        "signature_verification=BLOCKED",
+        "fresh_reload=BLOCKED",
+        "smoke_test=NOT_VERIFIED"
+      ],
+      "gate_statuses": {
+        "checkpoint_integrity": "FAIL",
+        "dataset_integrity": "NOT_VERIFIED",
+        "fresh_reload": "BLOCKED",
+        "model_evaluation": "PASS",
+        "signature_verification": "BLOCKED",
+        "smoke_test": "NOT_VERIFIED",
+        "training_evidence": "PASS"
+      }
+    },
+    "gate": "p5_readiness",
+    "reason": "P5 readiness FAIL due to: dataset_integrity=NOT_VERIFIED, checkpoint_integrity=FAIL, signature_verification=BLOCKED, fresh_reload=BLOCKED, smoke_test=NOT_VERIFIED",
+    "status": "FAIL"
+  },
+  "p6_gate": {
+    "error_code": "P5_FAIL",
+    "evidence": {
+      "p5_status": "FAIL",
+      "reason": "P5 readiness FAIL due to: dataset_integrity=NOT_VERIFIED, checkpoint_integrity=FAIL, signature_verification=BLOCKED, fresh_reload=BLOCKED, smoke_test=NOT_VERIFIED"
+    },
+    "gate": "p6_gate",
+    "reason": "P6 BLOCKED because P5 FAIL",
+    "status": "BLOCKED"
+  },
+  "timestamp": "2026-11-03T05:24:40.873503+00:00",
+  "trust_store_path": "/tmp/outside/trust_store.json",
+  "trusted_provenance": {
+    "trust_store_error": "WORLD_WRITABLE_TRUST_STORE",
+    "trust_store_keys": [],
+    "trust_store_schema": null,
+    "trust_store_status": "BLOCKED"
+  },
+  "verifier_version": "1.0"
+}
