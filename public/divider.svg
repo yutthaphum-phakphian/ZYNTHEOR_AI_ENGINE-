@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 14" width="840" height="14" role="presentation" aria-hidden="true">
+  <defs>
+    <linearGradient id="div-pulse" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0" />
+      <stop offset="25%" stop-color="#14B8A6" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#38BDF8" stop-opacity="1" />
+      <stop offset="75%" stop-color="#2DD4BF" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0" />
+    </linearGradient>
+
+    <filter id="div-glow">
+      <feGaussianBlur stdDeviation="1.5" result="b" />
+      <feMerge>
+        <feMergeNode in="b" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <style>
+    @keyframes div-run {
+      0% { transform: translateX(-240px); }
+      100% { transform: translateX(840px); }
+    }
+    .div-laser {
+      animation: div-run 5s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .div-laser { animation: none; transform: translateX(300px); }
+    }
+  </style>
+
+  <!-- Baseline track -->
+  <line x1="0" y1="7" x2="840" y2="7" stroke="#12273E" stroke-width="1.2" />
+
+  <!-- Center Diamond Anchor -->
+  <g transform="translate(420, 7)">
+    <polygon points="0,-4 4,0 0,4 -4,0" fill="#14B8A6" />
+    <circle cx="0" cy="0" r="1.5" fill="#38BDF8" />
+  </g>
+
+  <!-- Animated Glowing Laser Runner -->
+  <rect class="div-laser" x="0" y="5.5" width="240" height="3" rx="1.5" fill="url(#div-pulse)" filter="url(#div-glow)" />
+</svg>
