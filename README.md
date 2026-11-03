@@ -2,291 +2,219 @@
   <img src="public/zyntheor-header.svg" alt="ZYNTHEOR AI ENGINE" width="840" />
 </p>
 
-
-
 <p align="center">
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE - Dataset &amp; Eval" /></a>
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/pages.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/pages.yml/badge.svg" alt="Deploy ZYNTHEOR Pages" /></a>
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/dependabot/dependabot-updates"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/dependabot/dependabot-updates/badge.svg" alt="Dependabot Updates" /></a>
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml/badge.svg" alt="CodeQL Advanced" /></a>
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Buffalo 1.2.6 Audit" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE checks" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/pages.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/pages.yml/badge.svg" alt="Pages workflow" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml/badge.svg" alt="CodeQL" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Audit workflow" /></a>
 </p>
 
-<p align="center">
-  <b>Status:</b> Active Development &amp; System Upgrades &nbsp;|&nbsp; Cryptographic Integrity Baseline &nbsp;|&nbsp; Sovereign Seal Active
-</p>
+<p align="center"><b>Active Development</b> · Evidence-Based Engineering · Security-First Architecture</p>
+
+<p align="center"><img src="public/status-cards.svg" alt="Local status cards. Values depend on the latest status generation run; UNVERIFIED means evidence is unavailable." width="840" /></p>
+
+<p align="center"><img src="public/zyntheor-features.svg" alt="ZYNTHEOR AI ENGINE engineering pillars" width="840" /></p>
 
 <p align="center">
-  <img src="public/status-cards.svg" alt="Local check status cards: tests, type errors, build, manifest. Values come from the last local run of scripts/gen-status-cards.mjs; UNVERIFIED means it has not been run." width="840" />
-</p>
-
-<p align="center">
-  <img src="public/zyntheor-features.svg" alt="ZYNTHEOR AI ENGINE 4 Core Engineering Pillars" width="840" />
-</p>
-
-<p align="center">
-  <a href="#installation">🛠️ Installation</a> &nbsp;·&nbsp;
-  <a href="#security">🔒 Security</a> &nbsp;·&nbsp;
-  <a href="#contribution">🤝 Contribution</a> &nbsp;·&nbsp;
-  <a href="#architecture">🧭 Architecture</a> &nbsp;·&nbsp;
-  <a href="#team-governance">👥 Team Governance</a>
+  <a href="#installation--testing">Installation &amp; Testing</a> ·
+  <a href="#security--governance">Security</a> ·
+  <a href="#architecture-matrix">Architecture</a> ·
+  <a href="#team-management">Team Management</a> ·
+  <a href="#core-x-vision">CORE X Vision</a>
 </p>
 
 # ZYNTHEOR AI ENGINE — Sovereign AI Workspace (Buffalo Edition)
 
-ZYNTHEOR AI ENGINE คือระบบพื้นที่ทำงานปัญญาประดิษฐ์วิศวกรรมซอฟต์แวร์แบบประมวลผลภายในเครื่อง (Local-First AI Engineering Intelligence Workspace) ที่ออกแบบมาเพื่อความปลอดภัย ปริมาณงานสูง และตรวจสอบความถูกต้องได้ในระดับการกำกับดูแลขั้นสูง (Cryptographic Governance Baseline) ขับเคลื่อนด้วย React 19, TypeScript, Vite, Express 5, Recharts, D3.js และ AI Gateway สองโหมด (Local Ollama & Google Gemini API)
+ZYNTHEOR AI ENGINE is a local-first AI engineering workspace for software development, code analysis, AI provider routing, and governed workflows. The application uses React 19, TypeScript, Vite, and an Express 5 backend. It can connect to a configured local Ollama runtime and to Google Gemini when remote use is configured and permitted.
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+> Engineering principle: real implementation, no fabricated evidence, fail-closed gates, human approval for consequential actions, and explicit separation of implemented foundations from accepted capabilities.
 
-## 📊 สถานะการตรวจสอบจริง (Evidence-Based Status)
+---
 
-> สถานะด้านล่างสะท้อนการตรวจสอบ Source Code รอบส่งมอบวันที่ 3 พฤศจิกายน 2026 ไม่ใช่การรับรอง Production Readiness
+## Evidence-Based Status
 
-| ส่วนประกอบ | สถานะปัจจุบัน | ขอบเขตที่ยืนยันได้ |
+**Inspection snapshot:** 2026-11-03 · **Repository commit inspected:** [`07c1d50556b3602e5dbbde067cd8dfe8fd9dcb09`](https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/commit/07c1d50556b3602e5dbbde067cd8dfe8fd9dcb09). This identifies the inspected repository snapshot; it does not prove that every separately reported test result was run against that exact tree.
+
+The current evidence-derived P11–P20 integration status is `BLOCKED`; `releaseApproved` is `false`. Source files and test fixtures alone are not acceptance evidence. See [the status snapshot](docs/audit/P11_P20_INTEGRATION_STATUS.json), [the implementation report](docs/audit/P16_P20_IMPLEMENTATION_REPORT.md), and [the audit evidence index](docs/audit/README.md).
+
+| Area | Status | Verified boundary / limitation |
 |---|---|---|
-| P11 Cognitive Reasoning | `NOT_VERIFIED` | มีฐานระบบเดิม; ยังไม่มีผล End-to-End Acceptance รอบนี้ |
-| P12 Persistent Memory | `PARTIAL / TESTED` | เพิ่ม tenant boundary, corruption fail-closed, atomic write/lock และ legacy-path collision guard; PostgreSQL/Cloud SQL ยังไม่ยืนยัน |
-| P13 Multi-Agent | `PARTIAL / TESTED` | มี bounded DAG coordinator, idempotency checks และ human approval gate; durable cross-restart adapter ยังไม่ยืนยัน |
-| P14 Evaluation | `PARTIAL / TESTED` | แก้ empty-history scoring; benchmark ระดับโมเดลยังไม่ผ่านการรับรอง |
-| P15 Governed Improvement | `NOT_VERIFIED` | มี proposal/approval foundations; end-to-end rollback acceptance ยังไม่ยืนยัน |
-| P16 Native Training | `BLOCKED` | มี training loop จริงและ dataset validation 15 samples (8/3/4); provenance และ human review ยังไม่ได้รับอนุมัติ จึงไม่มี checkpoint |
-| P17 Native Inference | `BLOCKED` | มี local load/generation runtime; ยังไม่มี checkpoint ที่ตรวจสอบได้ |
-| P18 Model Lifecycle | `PARTIAL / TESTED` | มี hash-chained ledger และ promotion/rollback gates; ยังไม่มี model promotion |
-| P19 Sovereign Infrastructure | `PARTIAL / TESTED` | มี Local-Only policy และ backup/restore verification; air-gap และ hardened isolation ยังไม่ยืนยัน |
-| P20 Integrated Release Gate | `BLOCKED` | มี evidence-derived release gate; release approval ยังปิดอยู่ |
+| P11 Cognitive Reasoning | `NOT_VERIFIED` | Source foundations exist; current end-to-end and security acceptance evidence is not attached. |
+| P12 Persistent Memory | `NOT_VERIFIED` in the current P11–P20 gate | Earlier focused implementation report describes tenant-boundary and storage hardening; current end-to-end acceptance and PostgreSQL runtime integration are not verified. |
+| P13 Multi-Agent | `NOT_VERIFIED` in the current P11–P20 gate | Coordinator foundations and focused tests are reported; durable cross-restart storage is not established by the default in-memory store. |
+| P14 Evaluation | `NOT_VERIFIED` in the current P11–P20 gate | Evaluation foundations exist; acceptance-grade model benchmark evidence is unavailable. |
+| P15 Governed Improvement | `NOT_VERIFIED` | End-to-end governed improvement and rollback acceptance are not established. |
+| P16 Native Training | `BLOCKED` | Training was not executed; dataset source/license review is incomplete and no checkpoint was created. |
+| P17 Native Inference | `BLOCKED` | A local runtime foundation exists, but no approved trained checkpoint or accepted live inference is evidenced. |
+| P18 Model Lifecycle | `NOT_VERIFIED` in the current gate | Lifecycle code exists; no model promotion has been established. |
+| P19 Sovereign Infrastructure | `BLOCKED` | Local-only policy and backup/restore foundations exist; air-gap and hardened isolation are unverified. |
+| P20 Integrated Release Gate | `BLOCKED` | Upstream evidence is incomplete; release approval remains false. |
+| PostgreSQL runtime integration | `BLOCKED / NOT_VERIFIED` | No live PostgreSQL connection or accepted runtime integration evidence is attached to the inspected audit. |
 
-### การทดสอบในรอบนี้
+### Test evidence and provenance
 
-- Targeted Node tests: 33/33 PASS (Memory/Evaluation/No-Simulation 19, Agent/Lifecycle/Platform/Gateway 14).
-- Native CPU/Inference Python tests: 12/12 PASS.
-- Sovereign backup/restore Python tests: 3/3 PASS.
-- Full npm/Vite build และ project-wide test suite: `NOT_VERIFIED` เพราะไม่มี `node_modules` ในสภาพแวดล้อมนี้; ไม่มีการติดตั้ง dependencies เพิ่ม
-- Native model training: `BLOCKED` ตาม governance gate; ไม่ได้สร้างหรืออ้างว่าได้ฝึกโมเดลแล้ว
+These are distinct evidence sources and must not be added together as if they were one test run.
 
-คำสั่งดูสถานะล่าสุด: `npm run corex:p20:status` (สถานะ release ที่คาดหวังคือ BLOCKED จนกว่าจะมีหลักฐานครบทุก gate)
+| Source / date | Test runner or check | Reported result | Provenance and limits |
+|---|---|---|---|
+| P16–P20 implementation report, dated 2026-11-03; baseline named `ZYNTHEOR_AI_ENGINE_P16_NATIVE_CPU_PATCHED.zip` | Targeted Node regression tests | 33 passed; 0 failed implied by the report; skipped count not reported | Reported totals: 19 P12/P14/no-simulation and 14 P13/P17/P18/P20. The report does not identify this repository commit as the tested source revision. |
+| Same report | Python native CPU and P17 runtime tests | 12 passed; 0 failed implied; skipped count not reported | Focused tests only. |
+| Same report | Python P19 backup/restore tests | 3 passed; 0 failed implied; skipped count not reported | Test fixtures; not a production deployment drill. |
+| Same report | Full npm/Vite project-wide test/build | `NOT_VERIFIED` | Dependencies were unavailable; no installation was performed. |
+| User-supplied result with no raw logs, source revision, or run date | Vitest | 35 files / 294 tests passed; failed/skipped counts not supplied | `NOT_VERIFIED` for this repository snapshot; not represented as a current-tree test result. |
+| User-supplied result with no raw logs, source revision, or run date | TypeScript | 0 errors | `NOT_VERIFIED` for this repository snapshot. |
+| User-supplied result with no raw logs, source revision, or run date | Production build | `PASS` | `NOT_VERIFIED` for this repository snapshot. |
+| Current integration status / audit | PostgreSQL runtime integration | `BLOCKED / NOT_VERIFIED` | No live database connection evidence. |
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+The implementation report records 15 dataset records (8 train / 3 validation / 4 test), but also says training was blocked by source/license verification and human-review gates. **No training run or checkpoint creation is claimed.** Run `npm run corex:p20:status` to inspect the current release gate; `BLOCKED` is the documented outcome while required evidence is missing.
 
-## 🎨 สถาปัตยกรรม UI & ระบบการแสดงผล (Midnight Teal & Thai-First)
+---
 
-<details>
-<summary><b>แสดง/ซ่อนรายละเอียด UI & Typography</b></summary>
+## Engineering Highlights
 
-### 1. Visual Identity — Midnight Teal System
-- **Primary Color Palette**: Deep Navy (`#080F1B`), Midnight Teal (`#0D1828` / `#111F32`), Emerald Glow (`#10B981`), Cyan Highlights (`#38BDF8`), และ Teal Accent (`#14B8A6` / `#2DD4BF`)
-- **Zero-Purple Discipline**: กำจัดสีม่วง/ไวโอเลตออกจาก UI ทุกจุดอย่างเด็ดขาด (Headers, Cards, Buttons, Badges, Graphs, Micro-Interactions)
-- **Glassmorphic Surface**: พื้นผิวแบบกระจกโปร่งแสง ระดับความคมชัดของขอบสม่ำเสมอ พร้อมองค์ประกอบระดับมืออาชีพ
+- React/TypeScript workspace with an Express gateway, code intelligence, model-provider settings, and team-oriented UI components.
+- Evidence and governance foundations include hash-chained records, model lifecycle gates, and a fail-closed P11–P20 status aggregator. Hash chaining is tamper-evident; it is not, by itself, proof of immutable storage.
+- Persistent-memory and native CPU training/inference code exists, but its presence is not acceptance, a trained model, or production approval.
+- **Midnight Teal / Zero-Purple is a design specification, not a verified audit of every UI surface.** The current `TeamRoleDistributionChart` source still assigns Developer the indigo color `#818cf8`; the desired specification color is Teal `#0d9488`. No claim is made that the UI itself has been corrected by this documentation change.
 
-### 2. Thai-First Localization & Typography
-- **Default Language**: ภาษาไทย (`th-TH`) เป็นภาษาหลักในการสื่อสารและแสดงผลระบบ
-- **Typography Anti-Clipping**: ใช้ฟอนต์ **Noto Sans Thai** พร้อมกำหนด `line-height: 1.75 - 1.8` และ `letter-spacing: 0.015em` เพื่อป้องกันปัญหาวรรณยุกต์และสระภาษาไทยลอยหรือถูกตัดขอบ
-- **Dynamic Language Toggle**: สลับภาษาไทย (TH) และอังกฤษ (EN) ได้แบบเรียลไทม์โดยไม่ต้อง Reload หน้าเว็บ พร้อมบันทึกการตั้งค่าใน `localStorage`
+---
 
-</details>
+## CORE X Vision — First-Party AI Independence
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+CORE X is a **long-term roadmap**, not a statement that first-party AI capabilities are complete. Model identity must remain explicit:
 
-## 🛡️ แกนหลักของระบบ Evidence & Cryptographic Governance (Buffalo Edition)
+- **`CORE_ADAPTED`** — a model adapted from a pretrained base model; disclose its upstream lineage and applicable licenses.
+- **`CORE_NATIVE`** — intended for a model initialized from random weights and trained through an evidenced ZYNTHEOR process. The identity requires initialization, training lineage, dataset provenance, and checkpoint-integrity evidence; source code or a registry entry alone is insufficient.
+- **`CORE_DISTILLED`** — a model produced through a documented knowledge-distillation process, with teacher lineage and data/provenance requirements recorded.
 
-### 1. Evidence Manager Engine
-- **SHA-256 Hash Chaining**: เชื่อมโยงทุกเหตุการณ์ Rationale, AST Analysis และ Tool Execution เข้าด้วยกันในสาย Hash Matrix เพื่อตรวจจับการดัดแปลง (Tamper Detection)
-- **Automatic Rationale Tracker (`autorationale`)**: บันทึกเหตุผลของ AI ในการเลือก Mode และเลือกใช้ Tool อย่างเป็นระบบ
-- **Code Intelligence Evidence (`codeimpact`)**: บันทึกโครงสร้างการเปลี่ยนแปลงข้ามไฟล์ และประเมินความซับซ้อน AST แบบ Real-Time
-- **Tool Integrity Verification (`tool_verification`)**: ตรวจสอบ Schema และคำสั่งของเครื่องมือก่อนรันจริง
+Long-term capability objectives (none of these headings imply completion):
 
-### 2. Cryptographic Governance Registry
-- **Multi-Provider Audit Linkage (`lib/multi-provider-audit.ts`)**: บันทึกการสลับผู้ให้บริการโมเดล AI (Ollama <-> Gemini) พร้อมตรวจสอบลายเซ็น SHA-256 เพื่อความโปร่งใส
-- **Governance Ledger (`lib/governance-ledger.ts`)**: สมุดบัญชีการกำกับดูแลที่ไม่สามารถแก้ไขย้อนหลังได้ (Immutable Audit Trail)
-- **Governance Registry Gate (`lib/governance-registry.ts`)**: ตรวจสอบระดับความพร้อมของระบบและการตัดสินใจระดับนโยบายความปลอดภัย
+1. Native Tokenizer — develop and validate tokenization for Thai, English, and source code.
+2. Native Dataset & Provenance — establish source, license, review, and reproducible validation for every admitted dataset.
+3. Native Model Architecture — define and maintain first-party model architecture and verifiable model identity.
+4. Random-Initialization Training — execute governed training from random initialization with reviewed data and reproducible evidence.
+5. Native Inference Runtime — load and run approved native checkpoints without unapproved downloads or provider fallback.
+6. Native Intelligence — build and evaluate reasoning, planning, memory, tool execution, and agent orchestration against repeatable acceptance criteria.
+7. Model Lifecycle & Governance — govern evaluation, checkpoint versioning, human-approved promotion, monitoring, and rollback.
 
-### 3. Real-Time Observability Center
-- เปิดใช้งาน endpoint `/api/evidence` สำหรับส่งออกรายการหลักฐาน (Evidence Records) และสถานะ Hash Chain แบบ Streaming Real-Time
-- หน้าจอแสดงผล Telemetry Monitor สำหรับ GPU/VRAM, Network Latency, Tokens per Second และ Trace Log
+Current P16 evidence says training has not been run, no checkpoint exists, and the model is not inference-ready or production-approved. CORE X independence remains a goal, not a completed capability.
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
-<a id="architecture"></a>
-## 🧭 สถาปัตยกรรมภาพรวม (System Architecture Matrix)
+## Architecture Matrix
 
-<p align="center">
-  <img src="public/zyntheor-architecture.svg" alt="ZYNTHEOR AI ENGINE Multi-Tier Sovereign Architecture" width="840" />
-</p>
+![ZYNTHEOR AI ENGINE multi-tier architecture](public/zyntheor-architecture.svg)
 
-### โครงสร้างสถาปัตยกรรม 4 ระดับ (4-Tier Sovereign Engineering Matrix)
+1. **Client workspace UI:** React 19, Vite, TypeScript, Tailwind, Recharts, and D3.js. The repository includes workspace, code-intelligence, and team UI components; feature acceptance varies by surface.
+2. **Backend gateway:** Express 5 and Node.js handle API requests, identity/session resolution, authorization, consent and local-only policy checks, and protected operations. The exact protection depends on route and configuration.
+3. **AI provider and tool gateway:** Local Ollama is an optional local inference provider. Google Gemini is a remote provider and requires configuration/consent. Local inference does not imply the whole application has no network access.
+4. **Evidence and storage:** Includes evidence/lifecycle foundations, local storage paths, and backup/restore verification code. PostgreSQL runtime integration and production-grade multi-instance storage acceptance remain unverified.
 
-1. **Tier 1: Client Workspace UI (React 19 + Vite + Tailwind + Recharts + D3.js)**
-   - **Team Governance & Role Distribution**: แผนภูมิ Recharts (Donut & Bar) วิเคราะห์สัดส่วนบทบาทสมาชิก (Owner, Admin, Developer, Viewer) ภายใน Tenant ปัจจุบัน
-   - **Code Intelligence**: แผนผัง AST Dependency Graph เชิงโต้ตอบ พัฒนาด้วย D3.js แสดงการเชื่อมโยง Direct Imports, NPM Dependencies และ Reverse References
-   - **Prompt Forge 0.9 PRO**: สตูดิโอออกแบบพรอมป์ต์ขั้นสูง พร้อม Prompt Optimizer, Few-Shot Builder, Variable Simulator และ Test Bench
-   - **Chat & Diff View**: สนทนาวิศวกรรมแบบสตรีมมิ่ง โค้ด Diff แบบเทียบเคียง (Side-by-Side / Unified) พร้อมมาตรวัดความซับซ้อน AST แบบเรียลไทม์
+### Network and execution terminology
 
-2. **Tier 2: Sovereign Security Barrier (Express 5 Node Gateway)**
-   - **Loopback Isolation**: ล็อกการ Bind เฉพาะ Loopback Interface (`HOST=127.0.0.1`, `ZYNTHEOR_LOCAL_ONLY=true`) ป้องกันการเข้าถึงที่ไม่ได้รับอนุญาต
-   - **Secret Isolation Barrier**: กุญแจ API Keys (รวมถึง Gemini API) จัดเก็บเฉพาะในเซิร์ฟเวอร์หลังบ้าน ไม่ส่งออกไปยังไคลเอนต์เบราว์เซอร์
-   - **Same-Origin & CSRF Protection**: ควบคุมการเข้าถึงด้วย HttpOnly/Bearer Token ร่วมกับ Double-Submit Cookie CSRF Token
-   - **Human-in-the-Loop Approval Gate**: มาตรการยืนยันการกระทำที่มีผลกระทบสูง (High-Impact Actions) โดยมนุษย์ก่อนเสมอ
+- **Local inference:** model computation is performed by a local runtime such as Ollama. This describes inference location, not all application traffic.
+- **Local-Only Mode:** an application policy/configuration intended to restrict provider or application behavior to local operation. A flag or loopback bind alone does not establish that all egress is blocked.
+- **Network-Isolated Environment:** an environment with network paths restricted and independently verified by an isolation/egress test. Such evidence is not currently established here.
+- **Air-Gapped Environment:** a stronger, verified absence of external network connectivity for the defined system boundary. The repository does not claim an air gap or “100% offline” operation.
 
-3. **Tier 3: AI Inference Core & Gateway Router**
-   - **Local Ollama LLM Runtime**: ทำงานแบบออฟไลน์ 100% ไม่พึ่งพาการเชื่อมต่อภายนอก (Air-Gap Ready)
-   - **Google Gemini Cloud Gateway**: เชื่อมต่อคลาวด์เฉพาะเมื่อผู้ใช้ให้ความยินยอมชัดเจนล่วงหน้า (Consent-Gated Remote Calls)
-   - **AST & Tool Verifier**: ตรวจสอบความถูกต้องของคำสั่ง Tool และวิเคราะห์ Syntax Tree ก่อนส่งให้ระบบประมวลผลจริง
+---
 
-4. **Tier 4: Cryptographic Governance & Storage Layer**
-   - **Evidence Ledger (`/api/evidence`)**: บันทึกหลักฐานต่อเนื่องด้วย SHA-256 Hash Chaining ตรวจสอบการดัดแปลงข้อมูลได้ทันที (Tamper-Evident)
-   - **Code Integrity Manifest (`FILE_MANIFEST.sha256`)**: บันทึกและตรวจสอบ Checksum ทุกไฟล์สำคัญในโปรเจกต์
-   - **Tenant-Segregated Atomic Storage**: จัดเก็บข้อมูลแยกตาม Tenant ด้วยกลไก Atomic Write และ File Lock ป้องกัน Race Condition
+## Intelligence & Models
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+The project includes AI provider configuration for local Ollama and Google Gemini, prompt/workspace interfaces, code-intelligence foundations, and native CPU training/inference source paths. Provider availability and behavior depend on local configuration, model availability, dependencies, and applicable consent controls.
 
-## 🧩 โครงสร้างโมดูลและหน้าการทำงาน (System Pages & Components)
+Native pipeline status is **blocked** pending dataset governance and human review. The current audit does not establish an accepted native checkpoint, checkpoint-based benchmark, or model promotion. See [the native training report](docs/audit/P16_TRAINING_REPORT.json), [native architecture audit](docs/audit/P16_ARCHITECTURE_AUDIT.md), and [model evaluation status](docs/audit/P16_NATIVE_MODEL_EVALUATION.json).
 
-<details>
-<summary><b>แสดง/ซ่อนรายการโมดูลและหน้าการทำงาน</b></summary>
+---
 
-### 1. พื้นที่ทำงาน (Workspace)
-- **แชต (Chat)**: ระบบสนทนาวิศวกรรมระดับสูง รองรับโหมด Auto, Plan และ Code มีระบบ Streaming Diff, AST Complexity Preview และ Reasoning Steps
-- **โครงการ (Projects)**: บริหารจัดการโครงการซอฟต์แวร์ ติดตามสถานะ ความคืบหน้า และเกณฑ์การส่งมอบ
-- **แผนงาน (Plans)**: จัดลำดับการพัฒนาซอฟต์แวร์ แยกข้อเท็จจริง (Facts) ออกจากสมมติฐาน (Hypotheses)
-- **ไฟล์ (Files)**: เครื่องมือสำรวจโครงสร้างโค้ดปลอดภัยในรูปแบบ Read-Only
+## Security & Governance
 
-### 2. ระบบอัจฉริยะ (Intelligence & Models Architecture)
-- **Prompt Forge 0.9 PRO**: เครื่องมือออกแบบและพัฒนาพรอมป์ต์ ประกอบด้วย Prompt Optimizer, Rubrics Analyzer, Few-Shot Builder, Variable Simulator และ Test Bench
-- **โมเดลและการวิเคราะห์สถาปัตยกรรม (Models & Architecture Tab)**:
-  - **Overview**: ตรวจสอบและตั้งค่า AI Model Endpoint ทั้ง Local Ollama และ Google Gemini API
-  - **Architecture Sub-Tab**: แผนผังความเชื่อมโยงเชิงสถาปัตยกรรมแบบโต้ตอบ (Interactive D3.js Codebase Dependency Map) สร้างขึ้นด้วย `CodeIntelligence.buildDependencyGraph`
-  - **Interactive Module Exploration**: เมื่อคลิกเลือกโมดูล node บนกราฟ จะเน้น (Highlight) สายสัมพันธ์ direct imports และโมดูลที่เกี่ยวข้อง พร้อมแสดงแถบข้าง (Sidebar Panel) ตารางกรองข้อมูล:
-    - *Direct Internal Imports*: โมดูลภายในที่ไฟล์นี้เรียกใช้
-    - *External Dependencies*: NPM Libraries ภายนอกที่ถูกนำเข้า
-    - *Reverse Imports (Imported By)*: รายการไฟล์ภายในที่เรียกใช้งานโมดูลนี้
+- See [`SECURITY.md`](SECURITY.md) for security reporting and policy details.
+- Local-first behavior is a design preference; remote Gemini calls are possible when configured. Treat provider selection and consent as explicit runtime conditions.
+- `HOST=127.0.0.1` binds a server to loopback; it does not prove that the process or host has no external network access. The current package `dev` script declares `HOST=0.0.0.0`, so check the effective runtime configuration rather than assuming loopback defaults.
+- `ZYNTHEOR_LOCAL_ONLY` is a policy input. Its presence does not certify network isolation or an air gap.
+- The backend should derive identity and authorization from server-verified sessions/tokens, not caller-supplied role headers. Role mapping and authorization are described below.
+- High-impact actions and model lifecycle operations are subject to approval/evidence gates where implemented. No blanket production-security certification is claimed.
+- The identity/storage audit calls out remaining requirements, including live PostgreSQL/ACID migration, multi-instance tests, browser token handling, and dependency-backed integration/E2E validation. See [the audit](docs/audit/IDENTITY_STORAGE_HARDENING_2026-11-03.md).
 
-### 3. ความเชื่อมั่นและความปลอดภัย (Trust & Safety)
-- **สมุดบัญชีตรวจสอบ (Audit Ledger)**: แสดงผล Cryptographic Hash Chain ของระบบ สามารถตรวจสอบย้อนหลังได้ทุก Transaction
-- **การวินิจฉัยระบบ (Diagnostics)**: ตรวจสอบสุขภาพของเซิร์ฟเวอร์, GPU Memory, HTTP Latency และทดสอบการประมวลผล Local Inference
+---
 
-### 4. การตั้งค่า (System Settings)
-- **ตั้งค่า (Settings)**: ควบคุม Local-First Isolation Mode, การยินยอมออนไลน์, API Key Security Proxy และการจัดการสิทธิ์การใช้งาน
+## Team Management
 
-</details>
+The repository has two role representations. They must not be conflated:
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+| Database/account role | Workspace/session role mapping | Role chart display behavior |
+|---|---|---|
+| `OWNER` | `admin` | No separate Owner bucket in the chart's counted roles; chart input `OWNER` is not counted by its current four-bucket configuration. |
+| `ADMIN` | `admin` | Displayed as Admin. |
+| `DEVELOPER` | `engineer` | Displayed in the Developer bucket. |
+| `MEMBER` | `engineer` | The chart currently groups `MEMBER` records into the Developer display bucket. This is a presentation aggregation, **not** evidence that `MEMBER` equals `DEVELOPER` in the account/database role model. |
+| `VIEWER` | `viewer` | Displayed as Viewer. |
 
-## 📱 ภาพหน้าจอ (Screenshots)
+The account-role authorization matrix distinguishes `DEVELOPER` from `MEMBER` and grants them different permissions. Workspace roles (`admin`, `engineer`, `viewer`) are a separate coarser authorization representation; for example, both `DEVELOPER` and `MEMBER` map to `engineer` in the current session mapping. Effective permissions should be determined by the server authorization policy, not inferred from a chart label.
 
-> 🚧 **ยังไม่มีภาพหน้าจอจริง** — วางไฟล์ภาพจริงจากแอปที่ `docs/screenshots/` แล้วเปิดคอมเมนต์ด้านล่าง ห้ามใช้ภาพจำลองแทน
+The chart source currently defines four display buckets (Owner is not a bucket) and has a Developer color of `#818cf8`. The requested Zero-Purple Teal value `#0d9488` is documented as a **design specification only**; UI-wide compliance has not been verified. See [`TeamRoleDistributionChart.tsx`](src/components/TeamRoleDistributionChart.tsx), [`authService.ts`](src/services/authService.ts), and [`authorizationService.ts`](src/services/authorizationService.ts).
 
-<!--
-<p align="center">
-  <img src="docs/screenshots/chat.png" alt="หน้าแชต" width="260" />
-  <img src="docs/screenshots/architecture.png" alt="แผนผังสถาปัตยกรรม" width="260" />
-  <img src="docs/screenshots/audit-ledger.png" alt="สมุดบัญชีตรวจสอบ" width="260" />
-</p>
--->
+---
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+## Installation & Testing
 
-<a id="installation"></a>
-## 🛠️ วิธีการติดตั้งและใช้งาน (Local Operations Guide)
+### Prerequisites
 
-### ข้อกำหนดของระบบ (Prerequisites)
-- **Node.js**: เวอร์ชัน 20.0.0 ขึ้นไป
-- **Package Manager**: npm 10+
-- **Local AI Provider**: Ollama (กรณีใช้งาน Local Inference)
+- **Node.js 22.x recommended for the documented verification environment.** The package metadata declares `node >=20`, while repository workflows have used both Node 20 and Node 22. This README does not claim Node 20 compatibility as tested support; use Node 22.x unless a current, reproducible compatibility run establishes otherwise.
+- npm (the package workflows use npm).
+- Ollama only if using a configured local inference workflow.
 
-### ขั้นตอนการรันระบบพัฒนา (Development Mode)
+### Development
+
 ```bash
-# 1. ติดตั้ง Dependencies ทั้งหมด
 npm install
-
-# 2. คัดลอกและตั้งค่า Environment Variable
 cp .env.example .env
-
-# 3. รัน Development Server (Port 3000)
 npm run dev
 ```
-เปิดใช้งานผ่านเบราว์เซอร์ที่: `http://localhost:3000`
 
-### การตรวจสอบคุณภาพและทดสอบระบบ (Quality Gates & Testing)
+Review `.env` before use and do not commit secrets. The package's `dev` command sets `HOST=0.0.0.0`; do not assume it is loopback-only. Verify the effective host, port, authentication, and network policy before exposing the service. The command declares port 3000.
+
+### Quality checks
+
 ```bash
-# 1. ตรวจสอบ Static Type Check (TypeScript)
 npm run typecheck
-
-# 2. ตรวจสอบ Code Integrity Manifest (SHA-256 Hashes)
 node scripts/check-manifest.js
-
-# 3. รัน ชุดการทดสอบ Unit & Governance Tests (Vitest)
-npm run test
-
-# 4. ทดสอบสร้าง Production Bundle
+npm test
 npm run build
 ```
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+These are commands to run, not a guarantee of success. Test evidence above is scoped to its stated report/source version; user-provided aggregate figures without raw logs and a source SHA remain `NOT_VERIFIED` for the repository snapshot.
 
-<a id="security"></a>
-## 🔒 นโยบายความปลอดภัยและการจำกัดขอบเขต (Security & Governance Policy)
+---
 
-- **Security Details**: อ่านรายละเอียดฉบับเต็มได้ที่ [`SECURITY.md`](./SECURITY.md)
-- **Local-First Protection**: ระบบรันภายใต้แนวทาง Local-First โดยค่าเริ่มต้น ข้อมูลทั้งหมดจะถูกประมวลผลภายในเครื่องของผู้ใช้
-- **Consent-Gated Remote Calls**: การเชื่อมต่อ API ภายนอก (Google Gemini API) จะทำงานเมื่อได้รับอนุมัติจากผู้ใช้ชัดเจนในระบบ
-- **Secret Isolation Barrier**: API Keys ทั้งหมดจัดเก็บเฉพาะใน `.env` ฝั่ง Node Express Backend เท่านั้น ไม่มีการส่ง Key ออกไปยัง Client Browser
-- **Human Approval Standard**: ปฏิบัติการที่มีผลกระทบต่อระบบซอฟต์แวร์ ต้องได้รับการยืนยันจากมนุษย์ก่อนเสมอ (Human-in-the-loop Gate)
+## P4–P20 Roadmap
 
-### Security - Local Only
-This server binds to loopback by default (127.0.0.1) and do not expose it directly to the internet.
-Use ZYNTHEOR_LOCAL_ONLY=true and HOST=127.0.0.1 to enforce local-only mode.
-For hosted-preview, override HOST=0.0.0.0 with explicit consent.
+The existing roadmap/audit materials cover P4–P10 and P11–P20. Their status must be read with the source version and evidence limitations in each report. The current P11–P20 integration snapshot is `BLOCKED`; its release approval is false. P4–P10 audit also reports blocked or dependency-blocked phases and does not approve production release.
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+- [P4–P10 audit and execution plan](docs/roadmap/ZYNTHEOR_CORE_X_P4_P10_AUDIT_AND_PLAN.md)
+- [P11–P20 integration status](docs/audit/P11_P20_INTEGRATION_STATUS.json)
+- [P16–P20 implementation report](docs/audit/P16_P20_IMPLEMENTATION_REPORT.md)
+- [Audit evidence index and interpretation](docs/audit/README.md)
 
-<a id="contribution"></a>
-## 🤝 การมีส่วนร่วมและการพัฒนาต่อยอด (Contributing Guidelines)
+A successful documentation update does not change any engineering phase gate and does not imply production readiness.
 
-คำแนะนำขั้นตอนการพัฒนา, เกณฑ์คุณภาพ (Quality Gates), และระเบียบข้อบังคับ Zero-Purple Discipline สามารถอ่านได้ที่ [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+---
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+## Screenshots
 
-## 📄 License & Attribution
+No verified application screenshots are included here. Add genuine captures from the running application under `docs/screenshots/` before embedding them; do not use mockups as evidence of implemented UI.
 
-Distributed under the **AGPL-3.0 License**. Built for sovereign, enterprise-grade local-first AI software engineering environments.
+---
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+## Contribution
 
-<a id="team-governance"></a>
-## 👥 การบริหารจัดการทีมและการกำกับสิทธิ์ (Team Governance & Access Control)
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development guidance. Contributions should include scoped changes, relevant tests, security/tenant-boundary consideration, and evidence for claims made in documentation. Keep design specifications distinct from verified UI behavior.
 
-ระบบจัดการทีม (Team Management) ของ ZYNTHEOR ยกระดับจากการจัดการบัญชีทั่วไปสู่ **Access Governance Dashboard** ที่ตรวจสอบสิทธิ์ได้โปร่งใสและปลอดภัย:
+---
 
-### 1. การแสดงผลบทบาทสมาชิกด้วย Recharts (`TeamRoleDistributionChart`)
-- **Donut & Bar Chart Mode**: สลับมุมมองระหว่างกราฟโดนัท (Donut Chart) และกราฟแท่ง (Bar Chart) ได้ทันที
-- **Role Breakdown**: จำแนกตาม 4 บทบาทหลัก:
-  - **Owner (`#14b8a6`)**: อำนาจสูงสุดของ Workspace กำกับดูแลนโยบาย Sovereign AI
-  - **Admin (`#38bdf8`)**: จัดการสมาชิกและความปลอดภัยของ Tenant
-  - **Developer (`#818cf8`)**: วิพัฒนาการเชื่อมต่อ Model Pipeline และระบบวิศวกรรม
-  - **Viewer (`#94a3b8`)**: สิทธิ์อ่านและตรวจสอบ Forensic Audit เท่านั้น
-- **Interactive Tooltips & Zero-State**: แสดงสถิติจำนวนคนและสัดส่วนเปอร์เซ็นต์อย่างถูกต้อง พร้อมรับมือกรณีที่ไม่มีสมาชิก (Zero-State) โดยไม่เกิดข้อผิดพลาด
+## License & Attribution
 
-### 2. บัตรสรุปสถิติบทบาท (Role Summary Breakdown Cards)
-- แสดงจำนวนสมาชิกจริงจำแนกตามแต่ละ Role (Owner, Admin, Developer, Viewer)
-- สรุปจำนวนสมาชิกรวมใน Workspace ปัจจุบัน พร้อมแสดงบทบาทของผู้ใช้ที่เข้าสู่ระบบ
-- แยกขอบเขต Tenant ชัดเจน (Tenant-Isolated) ไม่ปะปนข้อมูลข้ามองค์กร
+Distributed under the **AGPL-3.0 License**. Third-party libraries, pretrained model bases, datasets, and external components retain their applicable attribution, license, and provenance requirements. First-party AI independence is a long-term objective and does not reclassify current third-party components as first-party technology.
 
-### 3. มาตรการความปลอดภัยของ Session ฝั่งเซิร์ฟเวอร์
-- การดึงรายชื่อสมาชิกและการปรับสิทธิ์จะถูกบังคับใช้ผ่าน Server-Side Session (`/api/auth/members` และ `PATCH /api/auth/members/:id/role`)
-- ป้องกันการปลอมแปลง Role Header จากเบราว์เซอร์ พร้อมระบบป้องกัน CSRF
-- บันทึกประวัติการปรับสิทธิ์ลงใน Cryptographic Audit Ledger อย่างต่อเนื่อง
-
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
-
-## 📋 แผนงานและผลการตรวจสอบสถาปัตยกรรม (P4–P10 Audit & Roadmap)
-
-เอกสารการตรวจสอบอิสระและแผนงานระยะยาวฉบับสมบูรณ์:
-- **Audit Basis**: ตรวจสอบตามผลส่งมอบและสัญญาเชิงสถาปัตยกรรม (P4 Evaluation, P5 Self-Improvement, P6 Native Training, P7 Inference, P8 Evolution, P9 Sovereign Infra, P10 Platform Gate)
-- **Source of Truth**: [`docs/roadmap/ZYNTHEOR_CORE_X_P4_P10_AUDIT_AND_PLAN.md`](./docs/roadmap/ZYNTHEOR_CORE_X_P4_P10_AUDIT_AND_PLAN.md)
-- **Security Hardening**: [`docs/audit/IDENTITY_STORAGE_HARDENING_2026-11-03.md`](./docs/audit/IDENTITY_STORAGE_HARDENING_2026-11-03.md)
-
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
-
-<p align="center">
-  <img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition" width="840" />
-</p>
-
+<p align="center"><img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition" width="840" /></p>
