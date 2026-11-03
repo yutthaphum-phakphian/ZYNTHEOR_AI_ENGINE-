@@ -1,6 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { getPool, withTransaction } from '../db/connection.ts';
+import { normalizeActivityRows, type MemberActivityEvent } from './memberActivity.ts';
 import { hashPassword, verifyPassword, needsPasswordUpgrade } from './passwordSecurity.ts';
 
 export type IdentityRole = 'OWNER' | 'ADMIN' | 'DEVELOPER' | 'MEMBER' | 'VIEWER';
@@ -139,6 +140,38 @@ export class PostgresIdentityService {
        FROM organization_members m JOIN users u ON u.id=m.user_id WHERE m.org_id=$1 ORDER BY m.created_at,m.id`, [tenantId],
     );
     return rows.map(r => ({ id: String(r.legacy_id ?? r.id), userId: Number(r.user_id), email: r.email, name: r.name, role: r.role as IdentityRole, createdAt: new Date(r.created_at).toISOString() }));
+  }
+
+  /**
+   * Read-only, tenant-scoped activity for one member, built only from persisted tables
+   * (sessions, ownership_transfer_audit). Returns null when the target is not a member of the tenant.
+   */
+  async getMemberActivity(tenantId: string, targetUserId: number, limit: number): Promise<{ events: MemberActivityEvent[]; truncated: boolean } | null> {
+    const pool = await this.ready();
+    const member = await pool.query('SELECT 1 FROM organization_members WHERE org_id=$1 AND user_id=$2', [tenantId, targetUserId]);
+    if (!member.rowCount) return null;
+    const { rows } = await pool.query(
+      `SELECT id, type, occurred_at, ip_address, user_agent, detail FROM (
+         SELECT 'sess_start_' || s.id AS id, 'SESSION_STARTED'::text AS type, s.created_at AS occurred_at,
+                s.ip_address::text AS ip_address, s.user_agent::text AS user_agent, NULL::text AS detail
+           FROM sessions s WHERE s.tenant_id=$1 AND s.user_id=$2
+         UNION ALL
+         SELECT 'sess_end_' || s.id, 'SESSION_REVOKED'::text, s.revoked_at,
+                s.ip_address::text, s.user_agent::text, NULL::text
+           FROM sessions s WHERE s.tenant_id=$1 AND s.user_id=$2 AND s.revoked_at IS NOT NULL
+         UNION ALL
+         SELECT 'own_' || t.id,
+                (CASE WHEN t.to_user_id=$2 THEN 'OWNERSHIP_RECEIVED'
+                      WHEN t.from_user_id=$2 THEN 'OWNERSHIP_TRANSFERRED'
+                      ELSE 'OWNERSHIP_INITIATED' END)::text,
+                t.created_at, NULL::text, NULL::text, t.reason::text
+           FROM ownership_transfer_audit t
+          WHERE t.org_id=$1 AND (t.from_user_id=$2 OR t.to_user_id=$2 OR t.initiated_by=$2)
+       ) e ORDER BY occurred_at DESC, id DESC LIMIT $3`,
+      [tenantId, targetUserId, limit + 1],
+    );
+    const events = normalizeActivityRows(rows);
+    return { events: events.slice(0, limit), truncated: rows.length > limit };
   }
 
   async updateMemberRole(tenantId: string, targetUserId: number, newRole: IdentityRole): Promise<boolean> {

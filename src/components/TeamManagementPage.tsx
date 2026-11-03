@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { csrfHeaders } from '../services/authClient';
 import {
   RefreshCw,
@@ -16,8 +16,10 @@ import {
   X,
   Mail,
   CheckCircle2,
+  Activity,
 } from 'lucide-react';
 import { TeamRoleDistributionChart } from './TeamRoleDistributionChart';
+import { MemberActivityModal } from './MemberActivityModal';
 
 export type Member = {
   id: string;
@@ -36,11 +38,23 @@ type Props = {
 
 const ROLES = ['ADMIN', 'DEVELOPER', 'MEMBER', 'VIEWER'] as const;
 
+// Short role descriptions shown in the badge tooltip. Wording mirrors the invite form and the
+// server-enforced rules in routes/auth.ts (only OWNER/ADMIN invite or change roles; ownership moves via transfer only).
+export const ROLE_DESCRIPTIONS: Record<string, { title: string; text: string }> = {
+  OWNER: { title: 'Owner — เจ้าของ Workspace', text: 'ควบคุมได้ทั้งหมด เชิญสมาชิก เปลี่ยนบทบาท และเป็นผู้เดียวที่โอนความเป็นเจ้าของได้ บทบาทนี้ถูกป้องกันไม่ให้ถูกเปลี่ยนจากหน้านี้' },
+  ADMIN: { title: 'Admin — ผู้ดูแลระบบ', text: 'ดูแลระบบและจัดการสมาชิก: เชิญสมาชิกใหม่และปรับบทบาทของสมาชิกอื่นได้ (ยกเว้น Owner)' },
+  DEVELOPER: { title: 'Developer — นักพัฒนา', text: 'เข้าถึงโมเดลและเครื่องมือพัฒนาใน Workspace แต่ไม่สามารถเชิญสมาชิกหรือเปลี่ยนบทบาทได้' },
+  MEMBER: { title: 'Member — สมาชิกทั่วไป', text: 'สมาชิกทั่วไปใน Workspace ไม่มีสิทธิ์จัดการสมาชิกหรือบทบาท' },
+  VIEWER: { title: 'Viewer — ผู้ชม', text: 'สิทธิ์อ่านอย่างเดียว (Read-only) ไม่สามารถแก้ไขหรือจัดการสมาชิกได้' },
+};
+
 export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props) {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [activityMember, setActivityMember] = useState<Member | null>(null);
+  const activityTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -102,6 +116,15 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
       return name.includes(q) || email.includes(q) || role.includes(q) || idStr.includes(q);
     });
   }, [members, searchQuery]);
+
+  // Changes only when the set of visible rows changes, so the fade-in replays on load/filter
+  // without re-animating on keystrokes that leave the visible rows unchanged.
+  const visibleSetKey = useMemo(() => filteredMembers.map((m) => m.id).join('|'), [filteredMembers]);
+
+  const closeActivity = useCallback(() => {
+    setActivityMember(null);
+    activityTriggerRef.current?.focus();
+  }, []);
 
   async function changeRole(member: Member, role: string) {
     if (!canManage || role === member.role || saving !== null) return;
@@ -489,39 +512,73 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
             </button>
           </div>
         ) : (
-          filteredMembers.map((m) => (
-            <div className="team-row" key={m.id}>
-              <div className="team-member">
-                <div className="team-avatar">
-                  <UserCog size={17} />
+          <div className="team-rows" key={visibleSetKey}>
+            {filteredMembers.map((m, i) => {
+              const roleKey = String(m.role || '').toUpperCase();
+              const desc = ROLE_DESCRIPTIONS[roleKey];
+              const tipId = `role-tip-${m.id}`;
+              return (
+                <div className="team-row" key={m.id} style={{ ['--row-i' as string]: Math.min(i, 8) }}>
+                  <div className="team-member">
+                    <div className="team-avatar">
+                      <UserCog size={17} />
+                    </div>
+                    <div>
+                      <b>{m.name || `User ${m.userId}`}</b>
+                      <small>{m.email || 'บัญชีสมาชิก'}</small>
+                    </div>
+                  </div>
+                  <code>#{m.userId}</code>
+                  <span className="role-tip-wrap">
+                    <span
+                      className={`role-badge role-${roleKey.toLowerCase()}`}
+                      tabIndex={desc ? 0 : undefined}
+                      aria-describedby={desc ? tipId : undefined}
+                    >
+                      {m.role}
+                    </span>
+                    {desc && (
+                      <span role="tooltip" id={tipId} className="role-tip">
+                        <b>{desc.title}</b>
+                        {desc.text}
+                      </span>
+                    )}
+                  </span>
+                  <div className="team-row-actions">
+                    {m.role === 'OWNER' ? (
+                      <span className="owner-lock">Owner protected</span>
+                    ) : (
+                      <select
+                        aria-label={`เปลี่ยนบทบาทสมาชิก ${m.userId}`}
+                        value={m.role}
+                        disabled={!canManage || saving === m.userId}
+                        onChange={(e) => void changeRole(m, e.target.value)}
+                      >
+                        {ROLES.map((role) => (
+                          <option key={role} value={role}>
+                            {role}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {canManage && (
+                      <button
+                        type="button"
+                        className="team-activity-btn"
+                        onClick={(e) => {
+                          activityTriggerRef.current = e.currentTarget;
+                          setActivityMember(m);
+                        }}
+                        aria-label={`ดูกิจกรรมของสมาชิก ${m.name || m.userId}`}
+                      >
+                        <Activity size={12} /> ดูกิจกรรม
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <b>{m.name || `User ${m.userId}`}</b>
-                  <small>{m.email || 'บัญชีสมาชิก'}</small>
-                </div>
-              </div>
-              <code>#{m.userId}</code>
-              <span className={`role-badge role-${m.role.toLowerCase()}`}>{m.role}</span>
-              <div>
-                {m.role === 'OWNER' ? (
-                  <span className="owner-lock">Owner protected</span>
-                ) : (
-                  <select
-                    aria-label={`เปลี่ยนบทบาทสมาชิก ${m.userId}`}
-                    value={m.role}
-                    disabled={!canManage || saving === m.userId}
-                    onChange={(e) => void changeRole(m, e.target.value)}
-                  >
-                    {ROLES.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            </div>
-          ))
+              );
+            })}
+          </div>
         )}
       </div>
 
@@ -529,6 +586,7 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
         <ShieldCheck size={16} />
         <span>การเปลี่ยน Role และคำเชิญจะถูกตรวจสอบจาก Session ฝั่งเซิร์ฟเวอร์ ไม่เชื่อถือ Role ที่ส่งมาจากเบราว์เซอร์</span>
       </div>
+      {activityMember && <MemberActivityModal member={activityMember} onClose={closeActivity} />}
     </section>
   );
 }

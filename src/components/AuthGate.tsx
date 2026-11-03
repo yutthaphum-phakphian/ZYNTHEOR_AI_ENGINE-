@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { csrfHeaders } from '../services/authClient';
+import { csrfHeaders, readJsonResponse } from '../services/authClient';
 import { ArrowRight, Eye, EyeOff, KeyRound, LockKeyhole, Mail, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
 
 type AuthMode = 'login' | 'register';
@@ -39,7 +39,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
         method: 'POST', credentials: 'same-origin', headers: await csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ email: email.trim(), password, ...(mode === 'register' ? { name: name.trim() } : {}) }),
       });
-      const data = await response.json() as AuthResponse;
+      const data = await readJsonResponse<AuthResponse>(response);
       if (!response.ok || !data.ok) throw new Error(data.message || 'ไม่สามารถยืนยันตัวตนได้');
       setAuthenticated(true); setPassword('');
     } catch (err) { setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ'); }

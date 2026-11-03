@@ -3,6 +3,7 @@ import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { postgresIdentityService, type IdentityRole } from '../services/postgresIdentityService.ts';
 import { entitlementEngine } from '../services/entitlementEngine.ts';
 import { usageMeteringService } from '../services/usageMetering.ts';
+import { clampActivityLimit, MEMBER_ACTIVITY_SOURCES } from '../services/memberActivity.ts';
 
 export type PermissionAction = 'org:manage' | 'workspace:write' | 'workspace:read';
 const router = Router();
@@ -145,6 +146,24 @@ router.patch('/api/auth/members/:userId/role', csrfGuard, async (req: Request, r
     if (error?.message === 'OWNERSHIP_TRANSFER_REQUIRED') return res.status(409).json({ ok: false, error: 'ownership_transfer_required' });
     return dbFailure(res);
   }
+});
+router.get('/api/auth/members/:userId/activity', async (req: Request, res: Response) => {
+  try {
+    const info = await resolveUserSession(req);
+    if (!info.authenticated || !info.session) return res.status(401).json({ ok: false, error: 'unauthorized' });
+    const tenantId = info.session.tenantId;
+    if (!await postgresIdentityService.isTenantMember(info.session.userId, tenantId)) return res.status(403).json({ ok: false, error: 'tenant_access_denied' });
+    const members = await postgresIdentityService.getOrganizationMembers(tenantId);
+    const caller = members.find(m => m.userId === info.session!.userId);
+    if (!caller || !['OWNER', 'ADMIN'].includes(caller.role)) return res.status(403).json({ ok: false, error: 'forbidden' });
+    const targetUserId = Number(req.params.userId);
+    if (!/^\d+$/.test(String(req.params.userId)) || !Number.isSafeInteger(targetUserId)) return res.status(400).json({ ok: false, error: 'invalid_user_id' });
+    const limit = clampActivityLimit(req.query.limit);
+    const activity = await postgresIdentityService.getMemberActivity(tenantId, targetUserId, limit);
+    if (!activity) return res.status(404).json({ ok: false, error: 'member_not_found' });
+    res.setHeader('Cache-Control', 'no-store');
+    return res.json({ ok: true, tenantId, userId: targetUserId, count: activity.events.length, truncated: activity.truncated, sources: MEMBER_ACTIVITY_SOURCES, events: activity.events });
+  } catch { return dbFailure(res); }
 });
 router.post('/api/auth/members/invite', csrfGuard, async (req: Request, res: Response) => {
   try {
