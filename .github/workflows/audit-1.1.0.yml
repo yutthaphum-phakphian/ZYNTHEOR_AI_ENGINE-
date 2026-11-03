@@ -14,7 +14,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
+      - name: Update npm (avoids arborist 'edgesOut' crash in older npm 10.x)
+        run: npm install -g npm@latest && npm -v
 
       - name: Install dependencies
         run: |

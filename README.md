@@ -5,9 +5,9 @@
 
 
 <p align="center">
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE - Dataset & Eval" /></a>
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/audit-1.1.0.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Buffalo Audit" /></a>
-  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/codeql.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/codeql.yml/badge.svg" alt="CodeQL Advanced" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE - Dataset & Eval" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Buffalo Audit" /></a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml/badge.svg" alt="CodeQL Advanced" /></a>
 </p>
 
 <p align="center">
