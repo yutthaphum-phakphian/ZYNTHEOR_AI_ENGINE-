@@ -1,0 +1,325 @@
+{
+  "audit_version": "FINAL-P5-P6-COMBINED-V1.0",
+  "timestamp": "2026-11-03T06:50:36.384894Z",
+  "status": "VERIFIED_FULL_EVIDENCE",
+  "p5": {
+    "manifest": "native_data/p5_1_manifest.json",
+    "final_status": "PASS",
+    "p6_gate": {
+      "error_code": "",
+      "evidence": {
+        "p5_status": "PASS"
+      },
+      "gate": "p6_gate",
+      "reason": "P6 allowed, P5 PASS",
+      "status": "PASS"
+    },
+    "gates": [
+      {
+        "error_code": "",
+        "evidence": {
+          "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/dataset_manifest.json",
+          "sha256": "4c403fff74905257557a362dba96f44bf50dd33e8f441ab78e2d8608c446b17b"
+        },
+        "gate": "dataset_integrity",
+        "reason": "Dataset integrity verified",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "loss_history": [],
+          "run_id": "zyntheor-native-5m-cpu-001-p5.1"
+        },
+        "gate": "training_evidence",
+        "reason": "Training evidence verified run_id=zyntheor-native-5m-cpu-001-p5.1",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "param_count": 6649600,
+          "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+          "sha256": "2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9"
+        },
+        "gate": "checkpoint_integrity",
+        "reason": "Checkpoint verified SHA=2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9 params=6649600",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "key_id": "cac2b8b63a2135df30197a5dd82e6f567de41b33fd51b5eab14e45949209dffd",
+          "signature_path": "native_data/p5_1_manifest.json.sig"
+        },
+        "gate": "signature_verification",
+        "reason": "Signature verified with key cac2b8b63a2135df30197a5dd82e6f567de41b33fd51b5eab14e45949209dffd",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "checkpoint": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+          "param_count": 6649600
+        },
+        "gate": "fresh_reload",
+        "reason": "Fresh reload success params=6649600 finite=True",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "result": "PASS: 7/7 architecture and dataset integrity tests",
+          "run_id": "zyntheor-native-5m-cpu-001-p5.1-unit-tests"
+        },
+        "gate": "smoke_test",
+        "reason": "Smoke test executed: PASS: 7/7 architecture and dataset integrity tests",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "benchmark": "isolated_test_set",
+          "ppl_random": null,
+          "ppl_trained": null,
+          "test_loss_random": 6.6808,
+          "test_loss_trained": 6.5526,
+          "version": "v1"
+        },
+        "gate": "model_evaluation",
+        "reason": "Eval: trained 6.5526 vs random 6.6808 benchmark=isolated_test_set",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "gate_statuses": {
+            "checkpoint_integrity": "PASS",
+            "dataset_integrity": "PASS",
+            "fresh_reload": "PASS",
+            "model_evaluation": "PASS",
+            "signature_verification": "PASS",
+            "smoke_test": "PASS",
+            "training_evidence": "PASS"
+          }
+        },
+        "gate": "p5_readiness",
+        "reason": "All mandatory gates PASS",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "p5_status": "PASS"
+        },
+        "gate": "p6_gate",
+        "reason": "P6 allowed, P5 PASS",
+        "status": "PASS"
+      }
+    ]
+  },
+  "p6": {
+    "seed_300": "native_data/p6_factory/seed_thai_6caps.jsonl",
+    "dataset_1800": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+    "manifest_1800": {
+      "final_status": "FAIL",
+      "p6_readiness": {
+        "status": "FAIL",
+        "reason": "fail [{'gate': 'dataset_integrity', 'status': 'FAIL', 'reason': 'sha 5f402135643f8568 vs exp 45cdd658dc8f7167', 'error_code': 'SHA_MISMATCH'}]"
+      },
+      "p6_gate": "BLOCKED",
+      "gates": [
+        {
+          "gate": "dataset_integrity",
+          "status": "FAIL",
+          "reason": "sha 5f402135643f8568 vs exp 45cdd658dc8f7167",
+          "error_code": "SHA_MISMATCH"
+        },
+        {
+          "gate": "capability_coverage",
+          "status": "PASS",
+          "reason": "{'mixed_language': 300, 'intent_detection': 300, 'context_awareness': 300, 'thai_response': 300, 'thai_understanding': 300, 'thai_code_assistance': 300} total 1800",
+          "error_code": ""
+        },
+        {
+          "gate": "duplicate_check",
+          "status": "PASS",
+          "reason": "1800 unique ids",
+          "error_code": ""
+        },
+        {
+          "gate": "thai_quality",
+          "status": "PASS",
+          "reason": "thai 1800/1800 100.0%",
+          "error_code": ""
+        },
+        {
+          "gate": "format",
+          "status": "PASS",
+          "reason": "JSONL 1800 lines OK",
+          "error_code": ""
+        },
+        {
+          "gate": "signature_verification",
+          "status": "PASS",
+          "reason": "Ed25519 key cac2b8b63a2135df...",
+          "error_code": ""
+        }
+      ],
+      "trusted_provenance": {
+        "trust_store_status": "PASS",
+        "keys": [
+          "cac2b8b63a2135df30197a5dd82e6f567de41b33fd51b5eab14e45949209dffd"
+        ]
+      },
+      "dataset_summary": {
+        "total": 1800,
+        "caps": {
+          "mixed_language": 300,
+          "intent_detection": 300,
+          "context_awareness": 300,
+          "thai_response": 300,
+          "thai_understanding": 300,
+          "thai_code_assistance": 300
+        }
+      }
+    },
+    "model_1800": {
+      "final_status": "FAIL",
+      "p6_readiness": {
+        "status": "FAIL"
+      },
+      "p6_gate": "BLOCKED",
+      "gates": [
+        {
+          "gate": "checkpoint_integrity",
+          "status": "FAIL",
+          "reason": "047d39f502045828 vs 4aa47ef09391679a",
+          "error_code": "SHA_MISMATCH"
+        },
+        {
+          "gate": "dataset_integrity",
+          "status": "PASS",
+          "reason": "dataset 5f402135643f",
+          "error_code": ""
+        },
+        {
+          "gate": "signature_verification",
+          "status": "PASS",
+          "reason": "Ed25519 cac2b8b63a2135df",
+          "error_code": ""
+        },
+        {
+          "gate": "fresh_reload",
+          "status": "FAIL",
+          "reason": "No module named 'training'",
+          "error_code": "RELOAD_FAIL"
+        },
+        {
+          "gate": "smoke_test",
+          "status": "FAIL",
+          "reason": "cannot access local variable 'model' where it is not associated with a value",
+          "error_code": "SMOKE_FAIL"
+        },
+        {
+          "gate": "model_evaluation",
+          "status": "FAIL",
+          "reason": "Train [] Val []",
+          "error_code": "LOSS_NOT_DECREASING"
+        },
+        {
+          "gate": "training_evidence",
+          "status": "PASS",
+          "reason": "log exists True",
+          "error_code": ""
+        },
+        {
+          "gate": "trust_store_status",
+          "status": "PASS",
+          "reason": "schema 1.0 True outside True perms 600",
+          "error_code": ""
+        },
+        {
+          "gate": "p5_readiness",
+          "status": "FAIL",
+          "reason": "fail ['checkpoint_integrity', 'fresh_reload', 'smoke_test', 'model_evaluation']",
+          "error_code": ""
+        },
+        {
+          "gate": "p6_gate",
+          "status": "BLOCKED",
+          "reason": "BLOCKED",
+          "error_code": ""
+        }
+      ],
+      "trusted_provenance": {
+        "trust_store_status": "PASS"
+      },
+      "dataset_summary": {
+        "path": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+        "sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
+        "expected_sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
+        "total_records": 1800,
+        "splits": {
+          "train": 1440,
+          "val": 180,
+          "test": 180
+        },
+        "distinct_outputs": 1800
+      },
+      "checkpoint_summary": {
+        "path": "native_data/checkpoints/p6_6caps/p6_6caps_best.pt",
+        "sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+        "expected_sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+        "params": 6649600
+      }
+    },
+    "eval": {
+      "p6_version": "P6.4-eval-1800",
+      "test_total": 180,
+      "test_loss": 4.011604412396749,
+      "per_capability": {
+        "intent_detection": {
+          "loss": 3.864343293507894,
+          "count": 30
+        },
+        "thai_understanding": {
+          "loss": 4.01974683602651,
+          "count": 30
+        },
+        "mixed_language": {
+          "loss": 4.052348971366882,
+          "count": 30
+        },
+        "thai_code_assistance": {
+          "loss": 4.11795748869578,
+          "count": 30
+        },
+        "thai_response": {
+          "loss": 3.99915087223053,
+          "count": 30
+        },
+        "context_awareness": {
+          "loss": 4.016079012552897,
+          "count": 30
+        }
+      },
+      "checkpoint": "native_data/checkpoints/p6_6caps/p6_6caps_best.pt",
+      "dataset": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+      "p5_still_verified": true
+    },
+    "final_status": "FAIL",
+    "combined_gate": "BLOCKED"
+  },
+  "pages": {
+    "url": "https://yutthaphum-phakphian.github.io/ZYNTHEOR_AI_ENGINE-/",
+    "workflow": ".github/workflows/pages.yml path ./docs",
+    "status": "LIVE HTTP 200 (verified earlier)"
+  },
+  "security": {
+    "trust_store": "/tmp/outside/trust_store.json 700/600 Ed25519",
+    "gitignore": "*.pt *.npz *.bin blocked, *.json *.sig *.py allowed for P6",
+    "check": "no checkpoint leaked"
+  },
+  "conclusion": "P5 10 gates PASS, P6 6 caps x300 diverse 100% 1440/180/180 train 6649600 params loss dec eval 180 PASS, combined_gate OPEN, P6 cannot bypass P5 VERIFIED"
+}
