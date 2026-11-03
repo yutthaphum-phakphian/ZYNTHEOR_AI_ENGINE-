@@ -1,0 +1,49 @@
+/* P14 UI Monitoring Enhancement - 300ms ease - No Business Logic Change */
+:root {
+  --transition-duration: 300ms;
+  --transition-timing: ease;
+  --color-verified: #10b981;
+  --color-experimental: #f59e0b;
+  --color-unavailable: #ef4444;
+  --color-bg: #0b0d12;
+  --color-surface: #151821;
+  --color-border: #232634;
+}
+* {
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
+  transition-duration: var(--transition-duration);
+  transition-timing-function: var(--transition-timing);
+}
+.status-led {
+  width: 12px; height: 12px; border-radius: 50%; display: inline-block; position: relative;
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+.status-led::before {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%; opacity: 0;
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+.status-led.verified { background: var(--color-verified); box-shadow: 0 0 8px var(--color-verified); }
+.status-led.verified::before { background: var(--color-verified); opacity: 0.2; animation: pulse-verified 2s infinite; }
+.status-led.experimental { background: var(--color-experimental); box-shadow: 0 0 8px var(--color-experimental); }
+.status-led.unavailable { background: var(--color-unavailable); box-shadow: 0 0 8px var(--color-unavailable); }
+.status-led.fail { background: var(--color-unavailable); animation: blink-fail 1s infinite; }
+@keyframes pulse-verified { 0% { transform: scale(1); opacity: 0.2; } 50% { transform: scale(1.4); opacity: 0.1; } 100% { transform: scale(1.8); opacity: 0; } }
+@keyframes blink-fail { 0%,90%,100% { opacity: 1; } 95% { opacity: 0.5; } }
+.evaluation-card {
+  background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 16px;
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+.evaluation-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.evaluation-card.verified { border-left: 4px solid var(--color-verified); }
+.evaluation-card.experimental { border-left: 4px solid var(--color-experimental); }
+.evaluation-card.unavailable { border-left: 4px solid var(--color-unavailable); }
+.latency-badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; font-family: monospace;
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+.latency-badge.ok { color: #10b981; border: 1px solid #10b981; background: rgba(16,185,129,0.1); }
+.latency-badge.warn { color: #f59e0b; border: 1px solid #f59e0b; background: rgba(245,158,11,0.1); }
+.latency-badge.error { color: #ef4444; border: 1px solid #ef4444; background: rgba(239,68,68,0.15); }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+@media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr !important; } }
