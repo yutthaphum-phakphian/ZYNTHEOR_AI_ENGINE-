@@ -30,3 +30,6 @@ native_data/*.npz
 native_data/*.bin
 native_data/checkpoint/
 
+.venv_p5/
+__pycache__/
+*.pyc
