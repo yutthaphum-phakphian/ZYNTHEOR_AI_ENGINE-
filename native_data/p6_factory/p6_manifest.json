@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "p6_version": "P6.1-seed-300",
+  "status": "SEED_300",
+  "dataset": {
+    "path": "native_data/p6_factory/seed_thai_6caps.jsonl",
+    "sha256": "bed3d28e985b47fd6d129ad6be430c79d5e7396d10b83bf3c442c20a4cccc618",
+    "expected_sha256": "bed3d28e985b47fd6d129ad6be430c79d5e7396d10b83bf3c442c20a4cccc618",
+    "total_records": 300,
+    "capabilities": {
+      "thai_code_assistance": 50,
+      "mixed_language": 50,
+      "thai_understanding": 50,
+      "intent_detection": 50,
+      "context_awareness": 50,
+      "thai_response": 50
+    },
+    "splits": {
+      "train": 235,
+      "val": 36,
+      "test": 29
+    },
+    "thai_ratio_target": ">60%",
+    "format": "JSONL 1 line = 1 JSON, id unique, 6 caps x 50"
+  },
+  "isolation": {
+    "p5_test_overlap": "checked - no overlap with P5 14/3/3",
+    "note": "seed from hand-curated, not machine translation"
+  },
+  "source": "hand-curated Thai 6 caps, split 40/5/5 per cap"
+}
