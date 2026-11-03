@@ -1,0 +1,17 @@
+{
+  "status": "VERIFIED_SMOKE_TEST",
+  "p5_status": "VERIFIED_SMOKE_TEST",
+  "p6_start_permission": "BLOCKED_BY_P5_EVIDENCE",
+  "p6_gate": "BLOCKED",
+  "evidence": {
+    "checkpoint_path": "native_data/p5_1_checkpoint.pt",
+    "size_bytes_real": 79865159,
+    "sha256_fresh": "b61bdc4830a7c4c84f7b32bbd498e8d705fab053cd300316f3baa17b9b80e8c0",
+    "sha_manifest": "b61bdc4830a7c4c84f7b32bbd498e8d705fab053cd300316f3baa17b9b80e8c0",
+    "param_count_real": 6649600,
+    "old_verifier_preserved": false
+  },
+  "policy": {
+    "no_auto_git_add_f_npz": true
+  }
+}
