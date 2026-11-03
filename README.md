@@ -19,15 +19,20 @@
 </p>
 
 <p align="center">
+  <img src="public/zyntheor-features.svg" alt="ZYNTHEOR AI ENGINE 4 Core Engineering Pillars" width="840" />
+</p>
+
+<p align="center">
   <a href="#installation">🛠️ Installation</a> &nbsp;·&nbsp;
   <a href="#security">🔒 Security</a> &nbsp;·&nbsp;
   <a href="#contribution">🤝 Contribution</a> &nbsp;·&nbsp;
-  <a href="#architecture">🧭 Architecture</a>
+  <a href="#architecture">🧭 Architecture</a> &nbsp;·&nbsp;
+  <a href="#team-governance">👥 Team Governance</a>
 </p>
 
 # ZYNTHEOR AI ENGINE — Sovereign AI Workspace (Buffalo Edition)
 
-ZYNTHEOR AI ENGINE คือระบบพื้นที่ทำงานปัญญาประดิษฐ์วิศวกรรมซอฟต์แวร์แบบประมวลผลภายในเครื่อง (Local-First AI Engineering Intelligence Workspace) ที่ออกแบบมาเพื่อความปลอดภัย ปริมาณงานสูง และตรวจสอบความถูกต้องได้ในระดับการกำกับดูแลขั้นสูง (Cryptographic Governance Baseline) ขับเคลื่อนด้วย React, TypeScript, Vite, Express, D3.js และ AI Gateway สองโหมด (Local Ollama & Google Gemini API)
+ZYNTHEOR AI ENGINE คือระบบพื้นที่ทำงานปัญญาประดิษฐ์วิศวกรรมซอฟต์แวร์แบบประมวลผลภายในเครื่อง (Local-First AI Engineering Intelligence Workspace) ที่ออกแบบมาเพื่อความปลอดภัย ปริมาณงานสูง และตรวจสอบความถูกต้องได้ในระดับการกำกับดูแลขั้นสูง (Cryptographic Governance Baseline) ขับเคลื่อนด้วย React 19, TypeScript, Vite, Express 5, Recharts, D3.js และ AI Gateway สองโหมด (Local Ollama & Google Gemini API)
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
@@ -99,19 +104,35 @@ ZYNTHEOR AI ENGINE คือระบบพื้นที่ทำงานป�
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 <a id="architecture"></a>
-## 🧭 สถาปัตยกรรมภาพรวม (Architecture)
+## 🧭 สถาปัตยกรรมภาพรวม (System Architecture Matrix)
 
-```mermaid
-flowchart LR
-  U[User] --> E[Express Server]
-  E --> M["Model Provider<br/>Ollama local / Gemini remote (consent-gated)"]
-  M --> V[Evidence Manager]
-  V --> H[("SHA-256 Hash Chain")]
-```
+<p align="center">
+  <img src="public/zyntheor-architecture.svg" alt="ZYNTHEOR AI ENGINE Multi-Tier Sovereign Architecture" width="840" />
+</p>
 
-**เส้นทาง (ข้อความทดแทนหาก Mermaid ไม่แสดงผล):** User → Express → Model Provider → Evidence Manager → Hash Chain
+### โครงสร้างสถาปัตยกรรม 4 ระดับ (4-Tier Sovereign Engineering Matrix)
 
-> หมายเหตุ: แผนภาพเรียบเรียงจากคำอธิบายใน README นี้ ยังไม่ได้ตรวจเทียบกับโค้ดจริง และแสดงเฉพาะองค์ประกอบที่ README ระบุว่ามีอยู่แล้ว
+1. **Tier 1: Client Workspace UI (React 19 + Vite + Tailwind + Recharts + D3.js)**
+   - **Team Governance & Role Distribution**: แผนภูมิ Recharts (Donut & Bar) วิเคราะห์สัดส่วนบทบาทสมาชิก (Owner, Admin, Developer, Viewer) ภายใน Tenant ปัจจุบัน
+   - **Code Intelligence**: แผนผัง AST Dependency Graph เชิงโต้ตอบ พัฒนาด้วย D3.js แสดงการเชื่อมโยง Direct Imports, NPM Dependencies และ Reverse References
+   - **Prompt Forge 0.9 PRO**: สตูดิโอออกแบบพรอมป์ต์ขั้นสูง พร้อม Prompt Optimizer, Few-Shot Builder, Variable Simulator และ Test Bench
+   - **Chat & Diff View**: สนทนาวิศวกรรมแบบสตรีมมิ่ง โค้ด Diff แบบเทียบเคียง (Side-by-Side / Unified) พร้อมมาตรวัดความซับซ้อน AST แบบเรียลไทม์
+
+2. **Tier 2: Sovereign Security Barrier (Express 5 Node Gateway)**
+   - **Loopback Isolation**: ล็อกการ Bind เฉพาะ Loopback Interface (`HOST=127.0.0.1`, `ZYNTHEOR_LOCAL_ONLY=true`) ป้องกันการเข้าถึงที่ไม่ได้รับอนุญาต
+   - **Secret Isolation Barrier**: กุญแจ API Keys (รวมถึง Gemini API) จัดเก็บเฉพาะในเซิร์ฟเวอร์หลังบ้าน ไม่ส่งออกไปยังไคลเอนต์เบราว์เซอร์
+   - **Same-Origin & CSRF Protection**: ควบคุมการเข้าถึงด้วย HttpOnly/Bearer Token ร่วมกับ Double-Submit Cookie CSRF Token
+   - **Human-in-the-Loop Approval Gate**: มาตรการยืนยันการกระทำที่มีผลกระทบสูง (High-Impact Actions) โดยมนุษย์ก่อนเสมอ
+
+3. **Tier 3: AI Inference Core & Gateway Router**
+   - **Local Ollama LLM Runtime**: ทำงานแบบออฟไลน์ 100% ไม่พึ่งพาการเชื่อมต่อภายนอก (Air-Gap Ready)
+   - **Google Gemini Cloud Gateway**: เชื่อมต่อคลาวด์เฉพาะเมื่อผู้ใช้ให้ความยินยอมชัดเจนล่วงหน้า (Consent-Gated Remote Calls)
+   - **AST & Tool Verifier**: ตรวจสอบความถูกต้องของคำสั่ง Tool และวิเคราะห์ Syntax Tree ก่อนส่งให้ระบบประมวลผลจริง
+
+4. **Tier 4: Cryptographic Governance & Storage Layer**
+   - **Evidence Ledger (`/api/evidence`)**: บันทึกหลักฐานต่อเนื่องด้วย SHA-256 Hash Chaining ตรวจสอบการดัดแปลงข้อมูลได้ทันที (Tamper-Evident)
+   - **Code Integrity Manifest (`FILE_MANIFEST.sha256`)**: บันทึกและตรวจสอบ Checksum ทุกไฟล์สำคัญในโปรเจกต์
+   - **Tenant-Segregated Atomic Storage**: จัดเก็บข้อมูลแยกตาม Tenant ด้วยกลไก Atomic Write และ File Lock ป้องกัน Race Condition
 
 <p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
@@ -233,11 +254,42 @@ Distributed under the **AGPL-3.0 License**. Built for sovereign, enterprise-grad
 </p>
 
 
-## Account access and workspace administration
+<a id="team-governance"></a>
+## 👥 การบริหารจัดการทีมและการกำกับสิทธิ์ (Team Governance & Access Control)
 
-The current UI includes a login/registration gate and a Team & Access page. Account sessions are validated against `/api/auth/me`; member listing and role changes use the existing server-side tenant membership checks. See `docs/audit/ACCOUNT_AND_UI_UPGRADE_REPORT.md` for implementation scope and verification limits.
+ระบบจัดการทีม (Team Management) ของ ZYNTHEOR ยกระดับจากการจัดการบัญชีทั่วไปสู่ **Access Governance Dashboard** ที่ตรวจสอบสิทธิ์ได้โปร่งใสและปลอดภัย:
 
+### 1. การแสดงผลบทบาทสมาชิกด้วย Recharts (`TeamRoleDistributionChart`)
+- **Donut & Bar Chart Mode**: สลับมุมมองระหว่างกราฟโดนัท (Donut Chart) และกราฟแท่ง (Bar Chart) ได้ทันที
+- **Role Breakdown**: จำแนกตาม 4 บทบาทหลัก:
+  - **Owner (`#14b8a6`)**: อำนาจสูงสุดของ Workspace กำกับดูแลนโยบาย Sovereign AI
+  - **Admin (`#38bdf8`)**: จัดการสมาชิกและความปลอดภัยของ Tenant
+  - **Developer (`#818cf8`)**: วิพัฒนาการเชื่อมต่อ Model Pipeline และระบบวิศวกรรม
+  - **Viewer (`#94a3b8`)**: สิทธิ์อ่านและตรวจสอบ Forensic Audit เท่านั้น
+- **Interactive Tooltips & Zero-State**: แสดงสถิติจำนวนคนและสัดส่วนเปอร์เซ็นต์อย่างถูกต้อง พร้อมรับมือกรณีที่ไม่มีสมาชิก (Zero-State) โดยไม่เกิดข้อผิดพลาด
 
-### Identity storage hardening (2026-11-03)
+### 2. บัตรสรุปสถิติบทบาท (Role Summary Breakdown Cards)
+- แสดงจำนวนสมาชิกจริงจำแนกตามแต่ละ Role (Owner, Admin, Developer, Viewer)
+- สรุปจำนวนสมาชิกรวมใน Workspace ปัจจุบัน พร้อมแสดงบทบาทของผู้ใช้ที่เข้าสู่ระบบ
+- แยกขอบเขต Tenant ชัดเจน (Tenant-Isolated) ไม่ปะปนข้อมูลข้ามองค์กร
 
-Identity persistence now fails closed on malformed state, writes each JSON file through a restrictive atomic replacement, upgrades legacy PBKDF2-SHA512 password hashes after successful login, and avoids trusting caller-supplied forwarding headers for auth throttling. This is an incremental hardening step only: the JSON store is not an ACID multi-file database, and production still requires PostgreSQL transactions, HttpOnly cookie sessions with CSRF protection, shared rate limiting, and full integration verification. See [`docs/audit/IDENTITY_STORAGE_HARDENING_2026-11-03.md`](./docs/audit/IDENTITY_STORAGE_HARDENING_2026-11-03.md).
+### 3. มาตรการความปลอดภัยของ Session ฝั่งเซิร์ฟเวอร์
+- การดึงรายชื่อสมาชิกและการปรับสิทธิ์จะถูกบังคับใช้ผ่าน Server-Side Session (`/api/auth/members` และ `PATCH /api/auth/members/:id/role`)
+- ป้องกันการปลอมแปลง Role Header จากเบราว์เซอร์ พร้อมระบบป้องกัน CSRF
+- บันทึกประวัติการปรับสิทธิ์ลงใน Cryptographic Audit Ledger อย่างต่อเนื่อง
+
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+
+## 📋 แผนงานและผลการตรวจสอบสถาปัตยกรรม (P4–P10 Audit & Roadmap)
+
+เอกสารการตรวจสอบอิสระและแผนงานระยะยาวฉบับสมบูรณ์:
+- **Audit Basis**: ตรวจสอบตามผลส่งมอบและสัญญาเชิงสถาปัตยกรรม (P4 Evaluation, P5 Self-Improvement, P6 Native Training, P7 Inference, P8 Evolution, P9 Sovereign Infra, P10 Platform Gate)
+- **Source of Truth**: [`docs/roadmap/ZYNTHEOR_CORE_X_P4_P10_AUDIT_AND_PLAN.md`](./docs/roadmap/ZYNTHEOR_CORE_X_P4_P10_AUDIT_AND_PLAN.md)
+- **Security Hardening**: [`docs/audit/IDENTITY_STORAGE_HARDENING_2026-11-03.md`](./docs/audit/IDENTITY_STORAGE_HARDENING_2026-11-03.md)
+
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+
+<p align="center">
+  <img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition" width="840" />
+</p>
+

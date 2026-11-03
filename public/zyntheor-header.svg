@@ -1,59 +1,188 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 260" width="840" height="260" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpiZDI5OTg5MC0zMTc1LTQzYmYtYjA5Ni0xY2U0N2ViYjRhNTAAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaIbh4511uNnx8Se4PHFybJAAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDpmZjljMWJmMS1kYTk1LTQxNTctYmFhNi0zMjZkM2NjODMwY2RscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoc+53znqN37dznFoF0WZ6EwAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggc2jU9DT6tOqaHBWf+kDe6CJxc0x2eI5Z/RjbjBhgaAKkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaE784RdvEBWW31tE+mQsF9IAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCAZpMK77FCs/8OkBZYEYeIw75U7sPTTBXRTkkHBJDKZrWRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBiWZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmJkMjk5ODkwLTMxNzUtNDNiZi1iMDk2LTFjZTQ3ZWJiNGE1MC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjJkOWNmZjFhLTJlODgtNDNlZS1iOTUzLWU0MDhjOWEzNTRiZXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCBzaNT0NPq06pocFZ/6QN7oInFzTHZ4jln9GNuMGGBoAqJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFgg0q3jh6bJ2bpR1LYCG2vqbGTre4BhR856bB0socKzsTSiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggIFSO0p9VP/OheSrqU6XMKMsmrbGgCNKVB2WfQjG2x0J0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQHUVqXZ707CFjQf1y4BAfWEW7tHgkWJUWCxc1Yn9orUSq6KKRSMGo2T5TQasOZ2Wy86K0m3of6otNoLhdH487aA=</c2pa:manifest></metadata>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 280" width="840" height="280" role="img" aria-label="ZYNTHEOR AI ENGINE - Sovereign Local-First Intelligence &amp; Autonomous Engineering Core">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#080F1B"/><stop offset="1" stop-color="#0D1828"/>
+    <!-- Background Gradient -->
+    <linearGradient id="hdr-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#060C16" />
+      <stop offset="45%" stop-color="#0A1424" />
+      <stop offset="100%" stop-color="#080F1B" />
     </linearGradient>
-    <linearGradient id="run" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#10B981"/><stop offset=".5" stop-color="#38BDF8"/><stop offset="1" stop-color="#2DD4BF"/>
+
+    <!-- Glowing Accent Gradients -->
+    <linearGradient id="teal-cyan-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#14B8A6" />
+      <stop offset="100%" stop-color="#38BDF8" />
     </linearGradient>
-    <linearGradient id="ttl" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#10B981"/><stop offset="1" stop-color="#38BDF8"/>
+
+    <linearGradient id="text-title-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="40%" stop-color="#2DD4BF" />
+      <stop offset="80%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#60A5FA" />
     </linearGradient>
-    <linearGradient id="wv" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#10B981" stop-opacity=".35"/><stop offset="1" stop-color="#38BDF8" stop-opacity=".35"/>
+
+    <linearGradient id="badge-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F2438" />
+      <stop offset="100%" stop-color="#0A1624" />
     </linearGradient>
-    <clipPath id="c"><rect x="4" y="4" width="832" height="252" rx="20"/></clipPath>
-    <filter id="g" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+
+    <!-- Cyber Matrix Grid Pattern -->
+    <pattern id="hdr-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#132338" stroke-width="0.8" stroke-opacity="0.45" />
+      <circle cx="0" cy="0" r="1" fill="#14B8A6" fill-opacity="0.3" />
+    </pattern>
+
+    <!-- Laser & Glow Filters -->
+    <filter id="hdr-neon" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
+
+    <filter id="hdr-subtle-glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <clipPath id="hdr-clip">
+      <rect x="4" y="4" width="832" height="272" rx="18" />
+    </clipPath>
   </defs>
 
-  <rect x="4" y="4" width="832" height="252" rx="20" fill="url(#bg)" stroke="#16324a" stroke-width="1.5"/>
+  <style>
+    @keyframes scan-track {
+      0% { stroke-dashoffset: 400; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes core-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
+    @keyframes node-blink {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.95; }
+    }
+    @keyframes wave-float {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-420px); }
+    }
+    .track-anim {
+      stroke-dasharray: 60 340;
+      animation: scan-track 7s linear infinite;
+    }
+    .track-anim-rev {
+      stroke-dasharray: 40 360;
+      animation: scan-track 9s linear infinite reverse;
+    }
+    .pulse-node {
+      animation: node-blink 3s ease-in-out infinite;
+    }
+    .wave-slide {
+      animation: wave-float 14s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .track-anim, .track-anim-rev, .pulse-node, .wave-slide {
+        animation: none;
+      }
+    }
+  </style>
 
-  <g clip-path="url(#c)">
-    <path fill="url(#wv)" d="M0 215 Q105 190 210 215 T420 215 T630 215 T840 215 T1050 215 T1260 215 T1470 215 T1680 215 V260 H0 Z">
-      <animateTransform attributeName="transform" type="translate" from="0 0" to="-420 0" dur="8s" repeatCount="indefinite"/>
-    </path>
-    <path fill="url(#wv)" opacity=".7" d="M0 228 Q105 248 210 228 T420 228 T630 228 T840 228 T1050 228 T1260 228 T1470 228 T1680 228 V260 H0 Z">
-      <animateTransform attributeName="transform" type="translate" from="-420 0" to="0 0" dur="11s" repeatCount="indefinite"/>
-    </path>
+  <!-- Card Background Container -->
+  <rect x="4" y="4" width="832" height="272" rx="18" fill="url(#hdr-bg)" stroke="#162E48" stroke-width="1.5" />
+
+  <!-- Clipped Interior with Grid and Geometric Waves -->
+  <g clip-path="url(#hdr-clip)">
+    <!-- Circuit Grid -->
+    <rect x="4" y="4" width="832" height="272" fill="url(#hdr-grid)" />
+
+    <!-- Ambient Glow Orbs -->
+    <circle cx="210" cy="50" r="140" fill="#14B8A6" fill-opacity="0.06" filter="url(#hdr-neon)" />
+    <circle cx="630" cy="70" r="160" fill="#38BDF8" fill-opacity="0.05" filter="url(#hdr-neon)" />
+    <circle cx="420" cy="140" r="180" fill="#10B981" fill-opacity="0.04" filter="url(#hdr-neon)" />
+
+    <!-- Isometric Circuit Traces Left -->
+    <path d="M 30 50 L 120 50 L 160 90 L 220 90" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
+    <circle cx="30" cy="50" r="2.5" fill="#38BDF8" />
+    <circle cx="220" cy="90" r="3" fill="#10B981" class="pulse-node" />
+
+    <path d="M 60 190 L 140 190 L 170 160 L 210 160" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
+    <circle cx="60" cy="190" r="2.5" fill="#14B8A6" />
+    <circle cx="210" cy="160" r="3" fill="#38BDF8" class="pulse-node" />
+
+    <!-- Isometric Circuit Traces Right -->
+    <path d="M 810 50 L 720 50 L 680 90 L 620 90" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
+    <circle cx="810" cy="50" r="2.5" fill="#10B981" />
+    <circle cx="620" cy="90" r="3" fill="#38BDF8" class="pulse-node" />
+
+    <path d="M 780 190 L 700 190 L 670 160 L 630 160" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
+    <circle cx="780" cy="190" r="2.5" fill="#38BDF8" />
+    <circle cx="630" cy="160" r="3" fill="#14B8A6" class="pulse-node" />
+
+    <!-- Wave Horizon Bottom -->
+    <g class="wave-slide" fill="none" stroke="#14B8A6" stroke-opacity="0.18" stroke-width="1.5">
+      <path d="M 0 255 Q 105 235 210 255 T 420 255 T 630 255 T 840 255 T 1050 255 T 1260 255 V 280 H 0 Z" fill="#10B981" fill-opacity="0.04" />
+    </g>
   </g>
 
-  <g fill="#38BDF8" opacity=".55">
-    <circle cx="90" cy="60" r="2"><animate attributeName="cy" values="60;48;60" dur="3s" repeatCount="indefinite"/></circle>
-    <circle cx="760" cy="90" r="2.5"><animate attributeName="cy" values="90;78;90" dur="4s" repeatCount="indefinite"/></circle>
-    <circle cx="690" cy="50" r="1.8"><animate attributeName="opacity" values=".2;1;.2" dur="2.5s" repeatCount="indefinite"/></circle>
-    <circle cx="140" cy="150" r="1.8"><animate attributeName="opacity" values="1;.2;1" dur="3.2s" repeatCount="indefinite"/></circle>
+  <!-- Central Hexagonal Neural Shield Icon -->
+  <g transform="translate(420, 52)">
+    <!-- Hexagon Outer Ring -->
+    <polygon points="0,-26 22.5,-13 22.5,13 0,26 -22.5,13 -22.5,-13" fill="#0C1B2E" stroke="#14B8A6" stroke-width="1.8" filter="url(#hdr-subtle-glow)" />
+    <!-- Hexagon Inner Lattice -->
+    <polygon points="0,-17 14.7,-8.5 14.7,8.5 0,17 -14.7,8.5 -14.7,-8.5" fill="#081422" stroke="#38BDF8" stroke-width="1.2" />
+    <!-- Center Core Dot & Sparks -->
+    <circle cx="0" cy="0" r="4.5" fill="#10B981" filter="url(#hdr-neon)" />
+    <line x1="0" y1="-17" x2="0" y2="17" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
+    <line x1="-14.7" y1="-8.5" x2="14.7" y2="8.5" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
+    <line x1="-14.7" y1="8.5" x2="14.7" y2="-8.5" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
   </g>
 
-  <text x="420" y="105" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',Arial,sans-serif" font-size="58" font-weight="800" letter-spacing="7" fill="url(#ttl)">ZYNTHEOR</text>
-  <text x="420" y="145" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',Arial,sans-serif" font-size="22" font-weight="600" letter-spacing="12" fill="#E2E8F0">AI ENGINE</text>
+  <!-- Main Title: ZYNTHEOR -->
+  <text x="420" y="128" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="52" font-weight="900" letter-spacing="8" fill="url(#text-title-grad)" filter="url(#hdr-subtle-glow)">ZYNTHEOR</text>
 
-  <g font-family="'Noto Sans Thai','Segoe UI',Arial,sans-serif" font-size="15" letter-spacing="2" fill="#2DD4BF" text-anchor="middle">
-    <text x="420" y="185" opacity="0">Local-First AI Engineering Workspace
-      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.05;.22;.27;1" dur="12s" begin="0s" repeatCount="indefinite"/></text>
-    <text x="420" y="185" opacity="0">Cryptographic Governance · SHA-256 Hash Chain
-      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.05;.22;.27;1" dur="12s" begin="3s" repeatCount="indefinite"/></text>
-    <text x="420" y="185" opacity="0">Ollama ⇄ Gemini · Human-in-the-loop
-      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.05;.22;.27;1" dur="12s" begin="6s" repeatCount="indefinite"/></text>
-    <text x="420" y="185" opacity="0">Sovereign AI Workspace · Buffalo Edition
-      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.05;.22;.27;1" dur="12s" begin="9s" repeatCount="indefinite"/></text>
+  <!-- Subtitle: AI ENGINE -->
+  <text x="420" y="160" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="16" font-weight="700" letter-spacing="14" fill="#E2E8F0">AI ENGINE</text>
+
+  <!-- Tagline: Sovereign Intelligence -->
+  <text x="420" y="186" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="12" font-weight="500" letter-spacing="2.5" fill="#2DD4BF">SOVEREIGN LOCAL-FIRST INTELLIGENCE &amp; AUTONOMOUS ENGINEERING CORE</text>
+
+  <!-- Bottom Cyber Badges Row -->
+  <g transform="translate(68, 212)">
+    <!-- Badge 1: Local Loopback -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="162" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
+      <circle cx="16" cy="15" r="4" fill="#10B981" />
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">LOCAL-ONLY (127.0.0.1)</text>
+    </g>
+
+    <!-- Badge 2: Cryptographic Ledger -->
+    <g transform="translate(180, 0)">
+      <rect x="0" y="0" width="168" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
+      <circle cx="16" cy="15" r="4" fill="#38BDF8" />
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">SHA-256 HASH CHAIN</text>
+    </g>
+
+    <!-- Badge 3: Visual Analytics -->
+    <g transform="translate(366, 0)">
+      <rect x="0" y="0" width="162" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
+      <circle cx="16" cy="15" r="4" fill="#14B8A6" />
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">RECHARTS &amp; D3 AST MAP</text>
+    </g>
+
+    <!-- Badge 4: Dual AI Gateway -->
+    <g transform="translate(546, 0)">
+      <rect x="0" y="0" width="158" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
+      <circle cx="16" cy="15" r="4" fill="#34D399" />
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">OLLAMA ⇄ GEMINI CORE</text>
+    </g>
   </g>
 
-  <rect x="4" y="4" width="832" height="252" rx="20" fill="none" stroke="url(#run)" stroke-width="3.5" stroke-linecap="round" pathLength="100" stroke-dasharray="14 86" filter="url(#g)">
-    <animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite"/>
-  </rect>
-  <rect x="4" y="4" width="832" height="252" rx="20" fill="none" stroke="#2DD4BF" stroke-width="3.5" stroke-linecap="round" pathLength="100" stroke-dasharray="8 92" filter="url(#g)">
-    <animate attributeName="stroke-dashoffset" from="50" to="-50" dur="5s" repeatCount="indefinite"/>
-  </rect>
+  <!-- Outer Animated Cyber Laser Borders -->
+  <rect x="4" y="4" width="832" height="272" rx="18" fill="none" stroke="url(#teal-cyan-glow)" stroke-width="2.5" stroke-linecap="round" pathLength="400" class="track-anim" filter="url(#hdr-neon)" />
+  <rect x="4" y="4" width="832" height="272" rx="18" fill="none" stroke="#38BDF8" stroke-width="1.8" stroke-linecap="round" pathLength="400" class="track-anim-rev" filter="url(#hdr-neon)" />
 </svg>
