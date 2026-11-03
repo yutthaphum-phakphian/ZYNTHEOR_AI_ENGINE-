@@ -1,30 +1,19 @@
 {
   "schema_version": "1.0",
-  "p6_version": "P6.3-6caps-1800-train",
-  "status": "TRAINED_6CAPS",
+  "p6_version": "P6.3-6caps-1800",
   "checkpoint": {
     "path": "native_data/checkpoints/p6_6caps/p6_6caps_best.pt",
-    "sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
-    "expected_sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+    "sha256": "025b74c43d12fade5bc296fd5e704536cc3e433642716dba857ef0d5d6fc82df",
     "params": 6649600
   },
-  "dataset": {
-    "path": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
-    "sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
-    "expected_sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
-    "total_records": 1800,
-    "splits": {
-      "train": 1440,
-      "val": 180,
-      "test": 180
-    },
-    "distinct_outputs": 1800
+  "dataset": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+  "splits": {
+    "train": 1440,
+    "val": 180,
+    "test": 180
   },
-  "training": {
-    "log_path": "/tmp/p6_train_1800_v2.log",
-    "epochs": 3
-  },
-  "isolation": {
-    "p5_overlap": "checked"
+  "loss_history": {
+    "train": "from /tmp/p6_train_1800.log",
+    "val": "from /tmp/p6_train_1800.log"
   }
 }

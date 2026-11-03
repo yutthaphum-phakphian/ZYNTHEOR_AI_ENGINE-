@@ -529,7 +529,7 @@ if TORCH_AVAILABLE:
             y = torch.from_numpy(chunk[1:].astype(np.int64))
             return x, y
 
-    def run_training_p5_1():
+    def run_training_p5_1(run_evaluation=False):
         print("\n🧪 [P5.1] Running Architecture Unit Tests...")
         suite = unittest.TestLoader().loadTestsFromTestCase(TestNativeArchitecture)
         suite2 = unittest.TestLoader().loadTestsFromTestCase(TestDatasetIntegrity)
@@ -686,39 +686,51 @@ if TORCH_AVAILABLE:
         print(f"   SHA before: {hash_before[:16]}... | SHA after: {hash_after[:16]}... | Match: {hash_match}")
         print(f"   Reload output match: {reload_match} | Finite params: {finite_params}")
 
-        print("\n📊 [PHASE 8] Evaluation on Isolated Test Set")
-        test_loader = torch.utils.data.DataLoader(NativeDataset("native_data/test.bin", seq_len=64), batch_size=4, shuffle=False)
-        
-        def eval_loader(loader, m):
-            m.eval()
-            total = 0
-            with torch.no_grad():
-                for x, y in loader:
-                    x, y = x.to(DEVICE), y.to(DEVICE)
-                    logits = m(x)
-                    total += criterion(logits.view(-1, vocab_size), y.view(-1)).item()
-            return total / max(1, len(loader))
+        evaluation = {"status": "NOT_RUN", "reason": "Run --phase evaluate to score the isolated test set"}
+        if run_evaluation:
+            print("\n📊 [PHASE 8] Evaluation on Isolated Test Set")
+            test_loader = torch.utils.data.DataLoader(NativeDataset("native_data/test.bin", seq_len=64), batch_size=4, shuffle=False)
 
-        random_model = ZyntheorNativeModel(vocab_size=vocab_size, dim=256, n_layers=6, n_heads=4, max_seq_len=128).to(DEVICE)
-        test_loss_random = eval_loader(test_loader, random_model)
-        test_loss_trained = eval_loader(test_loader, new_model)
-        
-        def perplexity(loss):
-            try:
-                import math
-                return math.exp(loss) if loss < 20 else float('inf')
-            except:
-                return float('inf')
-        
-        print(f"   🎲 Test Loss Random: {test_loss_random:.4f} | PPL {perplexity(test_loss_random):.2f}")
-        print(f"   🏆 Test Loss Trained: {test_loss_trained:.4f} | PPL {perplexity(test_loss_trained):.2f}")
+            def eval_loader(loader, m):
+                m.eval()
+                total = 0
+                with torch.no_grad():
+                    for x, y in loader:
+                        x, y = x.to(DEVICE), y.to(DEVICE)
+                        logits = m(x)
+                        total += criterion(logits.view(-1, vocab_size), y.view(-1)).item()
+                return total / max(1, len(loader))
+
+            random_model = ZyntheorNativeModel(vocab_size=vocab_size, dim=256, n_layers=6, n_heads=4, max_seq_len=128).to(DEVICE)
+            test_loss_random = eval_loader(test_loader, random_model)
+            test_loss_trained = eval_loader(test_loader, new_model)
+
+            def perplexity(loss):
+                try:
+                    import math
+                    return math.exp(loss) if loss < 20 else float('inf')
+                except:
+                    return float('inf')
+
+            print(f"   🎲 Test Loss Random: {test_loss_random:.4f} | PPL {perplexity(test_loss_random):.2f}")
+            print(f"   🏆 Test Loss Trained: {test_loss_trained:.4f} | PPL {perplexity(test_loss_trained):.2f}")
+            evaluation = {
+                "test_split": "isolated, never used for tokenizer/train/selection",
+                "test_loss_random": round(test_loss_random,4),
+                "test_loss_trained": round(test_loss_trained,4),
+                "test_perplexity_random": round(perplexity(test_loss_random),2),
+                "test_perplexity_trained": round(perplexity(test_loss_trained),2),
+                "test_tokens": test_tokens,
+                "eval_seed": SEED,
+                "result": "Trained < Random" if test_loss_trained < test_loss_random else "Inconclusive/Failed"
+            }
 
         final_manifest = {
             "experiment_id": "zyntheor-native-5m-cpu-001-p5.1",
             "identity": "ZYNTHEOR CORE NATIVE",
             "method": "FROM_SCRATCH",
             "initialization": "random",
-            "status": "VERIFIED" if (hash_match and reload_match and finite_params) else "FAILED",
+            "status": ("VERIFIED" if run_evaluation else "TRAINED") if (hash_match and reload_match and finite_params) else "FAILED",
             "dataset": {
                 "id": manifest["dataset_id"],
                 "classification": manifest["classification"],
@@ -771,16 +783,7 @@ if TORCH_AVAILABLE:
                 "finite_params": finite_params,
                 "contains_optimizer_state": True
             },
-            "evaluation": {
-                "test_split": "isolated, never used for tokenizer/train/selection",
-                "test_loss_random": round(test_loss_random,4),
-                "test_loss_trained": round(test_loss_trained,4),
-                "test_perplexity_random": round(perplexity(test_loss_random),2),
-                "test_perplexity_trained": round(perplexity(test_loss_trained),2),
-                "test_tokens": test_tokens,
-                "eval_seed": SEED,
-                "result": "Trained < Random" if test_loss_trained < test_loss_random else "Inconclusive/Failed"
-            },
+            "evaluation": evaluation,
             "tests": {
                 "future_token_invariance": "PASS",
                 "rope_stability": "PASS",
@@ -802,11 +805,61 @@ if TORCH_AVAILABLE:
         print(f"🏁 FINAL STATUS: {final_manifest['status']}")
         return final_manifest
 
+    def run_evaluation_p5_1():
+        manifest_path = Path("native_data/p5_1_manifest.json")
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        checkpoint_path = Path(manifest["checkpoint"]["path"])
+        if calculate_sha256(str(checkpoint_path)) != manifest["checkpoint"]["sha256_after"]:
+            raise ValueError(f"Checkpoint SHA-256 mismatch: {checkpoint_path}")
+        checkpoint = torch.load(checkpoint_path, map_location=DEVICE)
+        vocab_size = checkpoint["vocab_size"]
+        model = ZyntheorNativeModel(vocab_size=vocab_size, dim=256, n_layers=6, n_heads=4, max_seq_len=128).to(DEVICE)
+        model.load_state_dict(checkpoint["model_state"])
+        test_loader = torch.utils.data.DataLoader(NativeDataset("native_data/test.bin", seq_len=64), batch_size=4, shuffle=False)
+        criterion = nn.CrossEntropyLoss()
+
+        def eval_loader(target_model):
+            target_model.eval()
+            total = 0
+            with torch.no_grad():
+                for x, y in test_loader:
+                    logits = target_model(x.to(DEVICE))
+                    total += criterion(logits.view(-1, vocab_size), y.to(DEVICE).view(-1)).item()
+            return total / max(1, len(test_loader))
+
+        def perplexity(loss):
+            import math
+            return math.exp(loss) if loss < 20 else float("inf")
+
+        set_all_seeds(SEED)
+        random_model = ZyntheorNativeModel(vocab_size=vocab_size, dim=256, n_layers=6, n_heads=4, max_seq_len=128).to(DEVICE)
+        test_loss_random = eval_loader(random_model)
+        test_loss_trained = eval_loader(model)
+        manifest["evaluation"] = {
+            "test_split": "isolated, never used for tokenizer/train/selection",
+            "test_loss_random": round(test_loss_random, 4),
+            "test_loss_trained": round(test_loss_trained, 4),
+            "test_perplexity_random": round(perplexity(test_loss_random), 2),
+            "test_perplexity_trained": round(perplexity(test_loss_trained), 2),
+            "test_tokens": manifest["dataset"]["test_tokens"],
+            "eval_seed": SEED,
+            "result": "Trained < Random" if test_loss_trained < test_loss_random else "Inconclusive/Failed"
+        }
+        manifest["status"] = "VERIFIED" if all(
+            manifest["checkpoint"].get(key) is True
+            for key in ("hash_match", "reload_output_match", "finite_params")
+        ) else "FAILED"
+        manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"   🎲 Test Loss Random: {test_loss_random:.4f} | PPL {perplexity(test_loss_random):.2f}")
+        print(f"   🏆 Test Loss Trained: {test_loss_trained:.4f} | PPL {perplexity(test_loss_trained):.2f}")
+        print(f"🏁 FINAL STATUS: {manifest['status']}")
+        return manifest
+
 # CLI
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="ZYNTHEOR P5.1 Hardened Experiment")
-    parser.add_argument("--phase", choices=["hardware","dataset","tokenizer","test","train","all"], default="all")
+    parser.add_argument("--phase", choices=["hardware","dataset","tokenizer","test","train","evaluate","all"], default="all")
     args = parser.parse_args()
 
     if args.phase in ["hardware","all"]:
@@ -825,4 +878,9 @@ if __name__ == "__main__":
             print("❌ PyTorch not available in current environment — training BLOCKED")
             print("   (Dataset, Hardware Audit, and Non-Torch Tests remain fully functional)")
         else:
-            run_training_p5_1()
+            run_training_p5_1(run_evaluation=args.phase == "all")
+    if args.phase == "evaluate":
+        if not TORCH_AVAILABLE:
+            print("❌ PyTorch not available in current environment — evaluation BLOCKED")
+        else:
+            run_evaluation_p5_1()
