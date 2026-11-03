@@ -146,6 +146,29 @@ router.patch('/api/auth/members/:userId/role', csrfGuard, async (req: Request, r
     return dbFailure(res);
   }
 });
+router.post('/api/auth/members/invite', csrfGuard, async (req: Request, res: Response) => {
+  try {
+    const info = await resolveUserSession(req);
+    if (!info.authenticated || !info.session) return res.status(401).json({ ok: false, error: 'unauthorized' });
+    const tenantId = info.session.tenantId;
+    if (!await postgresIdentityService.isTenantMember(info.session.userId, tenantId)) return res.status(403).json({ ok: false, error: 'tenant_access_denied' });
+    const members = await postgresIdentityService.getOrganizationMembers(tenantId);
+    const caller = members.find(m => m.userId === info.session!.userId);
+    if (!caller || !['OWNER', 'ADMIN'].includes(caller.role)) return res.status(403).json({ ok: false, error: 'forbidden' });
+    const { email, role } = req.body || {};
+    if (!validEmail(email)) return res.status(400).json({ ok: false, error: 'invalid_email', message: 'รูปแบบอีเมลไม่ถูกต้อง' });
+    const normalizedRole = String(role || '').toUpperCase() as IdentityRole;
+    if (!['ADMIN', 'DEVELOPER', 'MEMBER', 'VIEWER'].includes(normalizedRole)) return res.status(400).json({ ok: false, error: 'invalid_role', message: 'บทบาทไม่ถูกต้อง' });
+    const existing = members.find(m => m.email.toLowerCase() === email.trim().toLowerCase());
+    if (existing) return res.status(409).json({ ok: false, error: 'already_member', message: 'ผู้ใช้นี้เป็นสมาชิกใน Workspace อยู่แล้ว' });
+    const member = await postgresIdentityService.inviteMember(tenantId, info.session.userId, email.trim().toLowerCase(), normalizedRole);
+    return res.status(201).json({ ok: true, message: `เชิญ ${email.trim()} เข้าร่วม Workspace เรียบร้อยแล้ว`, member });
+  } catch (error: any) {
+    if (error?.message === 'ALREADY_MEMBER') return res.status(409).json({ ok: false, error: 'already_member', message: 'ผู้ใช้นี้เป็นสมาชิกใน Workspace อยู่แล้ว' });
+    if (error?.message === 'INVALID_ROLE') return res.status(400).json({ ok: false, error: 'invalid_role', message: 'บทบาทไม่ถูกต้อง' });
+    return dbFailure(res);
+  }
+});
 router.post('/api/auth/ownership-transfer', csrfGuard, async (req: Request, res: Response) => {
   try {
     const info = await resolveUserSession(req);

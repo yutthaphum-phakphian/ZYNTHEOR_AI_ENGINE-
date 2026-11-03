@@ -154,6 +154,50 @@ export class PostgresIdentityService {
     });
   }
 
+  async inviteMember(tenantId: string, inviterUserId: number, email: string, role: IdentityRole): Promise<{ id: string; userId: number; email: string; name: string; role: IdentityRole; createdAt: string }> {
+    if (!VALID_ROLES.has(role) || role === 'OWNER') throw new Error('INVALID_ROLE');
+    const cleanEmail = email.trim().toLowerCase();
+    return withTransaction(async client => {
+      let userRes = await client.query('SELECT id, email, name, status FROM users WHERE email = $1', [cleanEmail]);
+      let targetUserId: number;
+      let name: string;
+      if (userRes.rowCount === 0) {
+        const { hash, salt } = hashPassword(randomBytes(16).toString('hex'));
+        name = cleanEmail.split('@')[0];
+        const inserted = await client.query(
+          `INSERT INTO users(email, password_hash, salt, name, auth_provider, status)
+           VALUES($1, $2, $3, $4, 'local', 'active') RETURNING id, email, name`,
+          [cleanEmail, hash, salt, name],
+        );
+        targetUserId = Number(inserted.rows[0].id);
+      } else {
+        targetUserId = Number(userRes.rows[0].id);
+        name = userRes.rows[0].name;
+      }
+
+      const memCheck = await client.query('SELECT 1 FROM organization_members WHERE org_id = $1 AND user_id = $2', [tenantId, targetUserId]);
+      if (memCheck.rowCount && memCheck.rowCount > 0) {
+        throw new Error('ALREADY_MEMBER');
+      }
+
+      const memRes = await client.query(
+        `INSERT INTO organization_members(org_id, user_id, role)
+         VALUES($1, $2, $3) RETURNING id, created_at`,
+        [tenantId, targetUserId, role],
+      );
+
+      const mem = memRes.rows[0];
+      return {
+        id: String(mem.id),
+        userId: targetUserId,
+        email: cleanEmail,
+        name,
+        role,
+        createdAt: new Date(mem.created_at).toISOString(),
+      };
+    });
+  }
+
   async transferOwnership(params: { tenantId: string; currentOwnerId: number; targetUserId: number; reason: string }): Promise<void> {
     const reason = params.reason.trim();
     if (!reason || reason.length > 1000 || params.currentOwnerId === params.targetUserId) throw new Error('INVALID_TRANSFER');

@@ -10,6 +10,12 @@ import {
   Shield,
   Code,
   Eye,
+  Download,
+  UserPlus,
+  Search,
+  X,
+  Mail,
+  CheckCircle2,
 } from 'lucide-react';
 import { TeamRoleDistributionChart } from './TeamRoleDistributionChart';
 
@@ -35,6 +41,17 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<number | null>(null);
   const [error, setError] = useState('');
+
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Member Invitation Form state
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState<'ADMIN' | 'DEVELOPER' | 'MEMBER' | 'VIEWER'>('DEVELOPER');
+  const [inviting, setInviting] = useState(false);
+  const [inviteError, setInviteError] = useState('');
+  const [inviteSuccess, setInviteSuccess] = useState('');
 
   const canManage = ['OWNER', 'ADMIN'].includes(String(currentRole || '').toUpperCase());
 
@@ -73,6 +90,19 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
     return counts;
   }, [members]);
 
+  // Filtered members by search query (name, email, or role)
+  const filteredMembers = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return members;
+    return members.filter((m) => {
+      const name = (m.name || `User ${m.userId}`).toLowerCase();
+      const email = (m.email || '').toLowerCase();
+      const role = (m.role || '').toLowerCase();
+      const idStr = String(m.userId);
+      return name.includes(q) || email.includes(q) || role.includes(q) || idStr.includes(q);
+    });
+  }, [members, searchQuery]);
+
   async function changeRole(member: Member, role: string) {
     if (!canManage || role === member.role || saving !== null) return;
     if (!confirm(`ยืนยันเปลี่ยนสิทธิ์สมาชิก #${member.userId} เป็น ${role}?`)) return;
@@ -95,6 +125,104 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
     }
   }
 
+  // Browser-side CSV export implementation with UTF-8 BOM
+  function exportMembersCsv() {
+    if (members.length === 0) {
+      setToast('ไม่มีข้อมูลสมาชิกสำหรับส่งออก');
+      return;
+    }
+    const headers = ['Member ID', 'User ID', 'Name', 'Email', 'Role', 'Workspace Status', 'Joined Date'];
+    const rows = members.map((m) => {
+      const status = m.role === 'OWNER' ? 'Active (Owner Protected)' : 'Active';
+      return [
+        m.id,
+        m.userId,
+        m.name || `User ${m.userId}`,
+        m.email || 'N/A',
+        m.role,
+        status,
+        m.createdAt || 'N/A',
+      ];
+    });
+
+    const escapeCsv = (val: unknown) => {
+      const str = String(val ?? '');
+      return /[",\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    };
+
+    const csvContent =
+      '\uFEFF' +
+      [headers.map(escapeCsv).join(','), ...rows.map((row) => row.map(escapeCsv).join(','))].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `zyntheor-team-members-${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setToast(`ส่งออกข้อมูล ${members.length} สมาชิกเป็นไฟล์ CSV สำเร็จแล้ว`);
+  }
+
+  // Member invitation form submission with client-side validation
+  async function handleInviteSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canManage) {
+      setInviteError('เฉพาะ OWNER หรือ ADMIN เท่านั้นที่สามารถเชิญสมาชิกได้');
+      return;
+    }
+
+    const emailTrimmed = inviteEmail.trim().toLowerCase();
+    setInviteError('');
+    setInviteSuccess('');
+
+    // Format validation
+    if (!emailTrimmed) {
+      setInviteError('กรุณากรอกที่อยู่อีเมลที่ต้องการเชิญ');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/;
+    if (!emailRegex.test(emailTrimmed) || emailTrimmed.length > 254) {
+      setInviteError('รูปแบบอีเมลไม่ถูกต้อง กรุณาใช้อีเมลที่สมบูรณ์ เช่น user@example.com');
+      return;
+    }
+
+    // Check duplicate membership
+    const isAlreadyMember = members.some((m) => (m.email || '').toLowerCase() === emailTrimmed);
+    if (isAlreadyMember) {
+      setInviteError(`อีเมล ${emailTrimmed} เป็นสมาชิกใน Workspace นี้อยู่แล้ว`);
+      return;
+    }
+
+    setInviting(true);
+    try {
+      const res = await fetch('/api/auth/members/invite', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: await csrfHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ email: emailTrimmed, role: inviteRole }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || data.error || `HTTP ${res.status}`);
+      }
+
+      setInviteSuccess(data.message || `ส่งคำเชิญไปยัง ${emailTrimmed} สำเร็จแล้ว`);
+      setToast(`เชิญ ${emailTrimmed} ในบทบาท ${inviteRole} สำเร็จ`);
+      setInviteEmail('');
+      await load();
+    } catch (err) {
+      setInviteError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการส่งคำเชิญ');
+    } finally {
+      setInviting(false);
+    }
+  }
+
   return (
     <section className="team-page">
       <div className="page-heading">
@@ -103,9 +231,32 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
           <h1>จัดการสมาชิกและสิทธิ์</h1>
           <p>ควบคุมผู้ใช้ภายใน Tenant ปัจจุบันด้วย Role-Based Access Control</p>
         </div>
-        <button className="secondary-button" onClick={() => void load()} disabled={loading}>
-          <RefreshCw size={15} /> รีเฟรช
-        </button>
+        <div className="team-header-actions">
+          <button
+            className="secondary-button"
+            onClick={exportMembersCsv}
+            disabled={loading || members.length === 0}
+            title="ส่งออกรายชื่อสมาชิกเป็นไฟล์ CSV"
+          >
+            <Download size={15} /> ส่งออก CSV
+          </button>
+          {canManage && (
+            <button
+              className={`secondary-button ${showInviteForm ? 'active-toggle' : ''}`}
+              onClick={() => {
+                setShowInviteForm(!showInviteForm);
+                setInviteError('');
+                setInviteSuccess('');
+              }}
+              title="เปิดฟอร์มเชิญสมาชิกใหม่"
+            >
+              <UserPlus size={15} /> {showInviteForm ? 'ปิดฟอร์มเชิญ' : 'เชิญสมาชิก'}
+            </button>
+          )}
+          <button className="secondary-button" onClick={() => void load()} disabled={loading}>
+            <RefreshCw size={15} className={loading ? 'spin' : ''} /> รีเฟรช
+          </button>
+        </div>
       </div>
 
       {/* Enhanced Team Overview & Role Counts Summary */}
@@ -172,10 +323,107 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
       {/* Visual Role Distribution Chart (Owner, Admin, Developer, Viewer via Recharts) */}
       <TeamRoleDistributionChart members={members} />
 
+      {/* Member Invitation Form Section */}
+      {showInviteForm && (
+        <div className="team-invite-card">
+          <div className="team-invite-header">
+            <div className="team-invite-title">
+              <div className="team-invite-badge">
+                <UserPlus size={16} />
+              </div>
+              <div>
+                <h3>เชิญสมาชิกใหม่เข้าร่วม Workspace</h3>
+                <p>กำหนดสิทธิ์และส่งคำเชิญเข้าร่วมองค์กรด้วย Role-Based Access Control</p>
+              </div>
+            </div>
+            <button
+              className="icon-button-subtle"
+              onClick={() => setShowInviteForm(false)}
+              aria-label="ปิดฟอร์ม"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          <form onSubmit={handleInviteSubmit} className="team-invite-form">
+            <div className="team-invite-grid">
+              <div className="team-field-group">
+                <label htmlFor="invite-email">อีเมลสมาชิก (Email Address)</label>
+                <div className="team-input-wrap">
+                  <Mail size={16} className="team-input-icon" />
+                  <input
+                    id="invite-email"
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={inviteEmail}
+                    onChange={(e) => {
+                      setInviteEmail(e.target.value);
+                      if (inviteError) setInviteError('');
+                    }}
+                    disabled={inviting}
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+
+              <div className="team-field-group">
+                <label htmlFor="invite-role">บทบาทในระบบ (Role)</label>
+                <div className="team-select-wrap">
+                  <select
+                    id="invite-role"
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value as any)}
+                    disabled={inviting}
+                  >
+                    <option value="DEVELOPER">Developer — เข้าถึงโมเดลและเครื่องมือพัฒนา</option>
+                    <option value="ADMIN">Admin — ดูแลระบบและจัดการสมาชิก</option>
+                    <option value="MEMBER">Member — สมาชิกทั่วไปใน Workspace</option>
+                    <option value="VIEWER">Viewer — สิทธิ์อ่านอย่างเดียว (Read-only)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="team-invite-btn-wrap">
+                <button
+                  type="submit"
+                  className="primary-button team-invite-submit"
+                  disabled={inviting || !inviteEmail.trim()}
+                >
+                  {inviting ? (
+                    <>
+                      <RefreshCw size={14} className="spin" /> กำลังส่งคำเชิญ…
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus size={14} /> ส่งคำเชิญ
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {inviteError && (
+              <div className="team-form-error" role="alert">
+                <AlertTriangle size={15} />
+                <span>{inviteError}</span>
+              </div>
+            )}
+
+            {inviteSuccess && (
+              <div className="team-form-success" role="status">
+                <CheckCircle2 size={15} />
+                <span>{inviteSuccess}</span>
+              </div>
+            )}
+          </form>
+        </div>
+      )}
+
       {!canManage && (
         <div className="info-note">
           <AlertTriangle size={16} />
-          <span>บัญชีนี้ดูรายชื่อสมาชิกได้ แต่ไม่มีสิทธิ์เปลี่ยนบทบาท ต้องใช้ OWNER หรือ ADMIN</span>
+          <span>บัญชีนี้ดูรายชื่อสมาชิกได้ แต่ไม่มีสิทธิ์เปลี่ยนบทบาทหรือเชิญสมาชิก ต้องใช้ OWNER หรือ ADMIN</span>
         </div>
       )}
 
@@ -185,6 +433,38 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
           {error}
         </div>
       )}
+
+      {/* Search and Filter Controls */}
+      <div className="team-filter-bar">
+        <div className="team-search-box">
+          <Search size={16} className="team-search-icon" />
+          <input
+            type="text"
+            placeholder="ค้นหาสมาชิกด้วยชื่อ, อีเมล หรือบทบาท..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="ค้นหาสมาชิก"
+          />
+          {searchQuery && (
+            <button
+              className="team-search-clear"
+              onClick={() => setSearchQuery('')}
+              aria-label="ล้างคำค้นหา"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+        <div className="team-search-stats">
+          {searchQuery ? (
+            <span>
+              พบ <b>{filteredMembers.length}</b> จาก {members.length} สมาชิก
+            </span>
+          ) : (
+            <span>ทั้งหมด {members.length} สมาชิก</span>
+          )}
+        </div>
+      </div>
 
       <div className="team-table-wrap">
         <div className="team-table-head">
@@ -197,8 +477,19 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
           <div className="team-empty">กำลังโหลดข้อมูลสมาชิก…</div>
         ) : members.length === 0 ? (
           <div className="team-empty">ยังไม่มีข้อมูลสมาชิกใน Tenant นี้</div>
+        ) : filteredMembers.length === 0 ? (
+          <div className="team-empty-search">
+            <Search size={24} className="team-empty-search-icon" />
+            <div className="team-empty-search-title">ไม่พบสมาชิกที่ตรงกับคำค้นหา</div>
+            <div className="team-empty-search-sub">
+              ไม่พบผลลัพธ์สำหรับ &quot;{searchQuery}&quot; ลองตรวจสอบการสะกดหรือค้นหาคำอื่น
+            </div>
+            <button className="secondary-button" onClick={() => setSearchQuery('')}>
+              ล้างคำค้นหา
+            </button>
+          </div>
         ) : (
-          members.map((m) => (
+          filteredMembers.map((m) => (
             <div className="team-row" key={m.id}>
               <div className="team-member">
                 <div className="team-avatar">
@@ -236,7 +527,7 @@ export function TeamManagementPage({ authHeaders, currentRole, setToast }: Props
 
       <div className="info-note">
         <ShieldCheck size={16} />
-        <span>การเปลี่ยน Role จะถูกตรวจสอบจาก Session ฝั่งเซิร์ฟเวอร์ ไม่เชื่อถือ Role ที่ส่งมาจากเบราว์เซอร์</span>
+        <span>การเปลี่ยน Role และคำเชิญจะถูกตรวจสอบจาก Session ฝั่งเซิร์ฟเวอร์ ไม่เชื่อถือ Role ที่ส่งมาจากเบราว์เซอร์</span>
       </div>
     </section>
   );

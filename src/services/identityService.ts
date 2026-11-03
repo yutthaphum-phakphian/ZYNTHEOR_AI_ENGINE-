@@ -394,6 +394,50 @@ export class IdentityService {
     }
     return false;
   }
+
+  public inviteMember(orgId: string, email: string, role: UserRole): { id: string; userId: number; email: string; name: string; role: UserRole; createdAt: string } {
+    const cleanEmail = email.trim().toLowerCase();
+    let user = this.users.find(u => u.email === cleanEmail);
+    if (!user) {
+      const userId = this.users.reduce((max, u) => Math.max(max, u.id), 0) + 1;
+      const { hash, salt } = hashPassword(randomBytes(16).toString('hex'));
+      const now = new Date().toISOString();
+      user = {
+        id: userId,
+        email: cleanEmail,
+        passwordHash: hash,
+        salt,
+        name: cleanEmail.split('@')[0],
+        authProvider: 'local',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.users.push(user);
+    }
+    const existingMem = this.members.find(m => m.orgId === orgId && m.userId === user!.id);
+    if (existingMem) {
+      throw new Error('ALREADY_MEMBER');
+    }
+    const createdAt = new Date().toISOString();
+    const memberRecord: OrganizationMemberRecord = {
+      id: `mem-${user.id}-${orgId}-${Date.now().toString(36)}`,
+      orgId,
+      userId: user.id,
+      role,
+      createdAt,
+    };
+    this.members.push(memberRecord);
+    this.persist();
+    return {
+      id: memberRecord.id,
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: memberRecord.role,
+      createdAt,
+    };
+  }
 }
 
 export const identityService = new IdentityService();
