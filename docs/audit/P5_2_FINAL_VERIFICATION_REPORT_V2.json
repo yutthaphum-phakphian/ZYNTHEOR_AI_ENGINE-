@@ -1,0 +1,129 @@
+{
+  "p5_audit_version": "1.0",
+  "timestamp": "2026-11-03T06:50:36.384894Z",
+  "status": "VERIFIED_FULL_EVIDENCE",
+  "final_status": "PASS",
+  "p6_gate": {
+    "error_code": "",
+    "evidence": {
+      "p5_status": "PASS"
+    },
+    "gate": "p6_gate",
+    "reason": "P6 allowed, P5 PASS",
+    "status": "PASS"
+  },
+  "gates": [
+    {
+      "error_code": "",
+      "evidence": {
+        "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/dataset_manifest.json",
+        "sha256": "4c403fff74905257557a362dba96f44bf50dd33e8f441ab78e2d8608c446b17b"
+      },
+      "gate": "dataset_integrity",
+      "reason": "Dataset integrity verified",
+      "status": "PASS"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "loss_history": [],
+        "run_id": "zyntheor-native-5m-cpu-001-p5.1"
+      },
+      "gate": "training_evidence",
+      "reason": "Training evidence verified run_id=zyntheor-native-5m-cpu-001-p5.1",
+      "status": "PASS"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "param_count": 6649600,
+        "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+        "sha256": "2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9"
+      },
+      "gate": "checkpoint_integrity",
+      "reason": "Checkpoint verified SHA=2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9 params=6649600",
+      "status": "PASS"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "key_id": "cac2b8b63a2135df30197a5dd82e6f567de41b33fd51b5eab14e45949209dffd",
+        "signature_path": "native_data/p5_1_manifest.json.sig"
+      },
+      "gate": "signature_verification",
+      "reason": "Signature verified with key cac2b8b63a2135df30197a5dd82e6f567de41b33fd51b5eab14e45949209dffd",
+      "status": "PASS"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "checkpoint": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+        "param_count": 6649600
+      },
+      "gate": "fresh_reload",
+      "reason": "Fresh reload success params=6649600 finite=True",
+      "status": "PASS"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "result": "PASS: 7/7 architecture and dataset integrity tests",
+        "run_id": "zyntheor-native-5m-cpu-001-p5.1-unit-tests"
+      },
+      "gate": "smoke_test",
+      "reason": "Smoke test executed: PASS: 7/7 architecture and dataset integrity tests",
+      "status": "PASS"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "benchmark": "isolated_test_set",
+        "ppl_random": null,
+        "ppl_trained": null,
+        "test_loss_random": 6.6808,
+        "test_loss_trained": 6.5526,
+        "version": "v1"
+      },
+      "gate": "model_evaluation",
+      "reason": "Eval: trained 6.5526 vs random 6.6808 benchmark=isolated_test_set",
+      "status": "PASS"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "gate_statuses": {
+          "checkpoint_integrity": "PASS",
+          "dataset_integrity": "PASS",
+          "fresh_reload": "PASS",
+          "model_evaluation": "PASS",
+          "signature_verification": "PASS",
+          "smoke_test": "PASS",
+          "training_evidence": "PASS"
+        }
+      },
+      "gate": "p5_readiness",
+      "reason": "All mandatory gates PASS",
+      "status": "PASS"
+    },
+    {
+      "error_code": "",
+      "evidence": {
+        "p5_status": "PASS"
+      },
+      "gate": "p6_gate",
+      "reason": "P6 allowed, P5 PASS",
+      "status": "PASS"
+    }
+  ],
+  "checkpoint": {},
+  "dataset": {},
+  "trusted_provenance": {
+    "trust_store_error": "",
+    "trust_store_keys": [
+      "cac2b8b63a2135df30197a5dd82e6f567de41b33fd51b5eab14e45949209dffd"
+    ],
+    "trust_store_schema": "1.0",
+    "trust_store_status": "PASS"
+  },
+  "note": "Recreated after /tmp/outside restart - re-signed Ed25519 new key, same 6649600 params, loss dec verified"
+}
