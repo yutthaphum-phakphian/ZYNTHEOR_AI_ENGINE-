@@ -37,3 +37,7 @@ __pycache__/
 
 # Allow Pages workflow
 !.github/workflows/pages.yml
+
+# P6 dataset source and verifier only; model artifacts remain ignored above
+!native_data/p6_factory/*.jsonl
+!native_data/p6_verifier_v1.py

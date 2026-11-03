@@ -1,0 +1,201 @@
+{
+  "p6_audit_version": "1.0",
+  "timestamp": "2026-11-03T06:33:47.895866+00:00",
+  "p6_version": "P6.2-1800",
+  "status": "NOT_VERIFIED",
+  "status_reason": "The current verifier passes its implemented gates, but the dataset does not satisfy the declared quality and split requirements; see findings.",
+  "dataset": {
+    "path": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+    "sha256": "45cdd658dc8f7167fb8d3fd613b5b2f80e13e2e49b9bdfe27f67c8ed1158f518",
+    "expected_sha256": "45cdd658dc8f7167fb8d3fd613b5b2f80e13e2e49b9bdfe27f67c8ed1158f518",
+    "total_records": 1800,
+    "capabilities": {
+      "thai_code_assistance": 300,
+      "mixed_language": 300,
+      "thai_understanding": 300,
+      "intent_detection": 300,
+      "context_awareness": 300,
+      "thai_response": 300
+    },
+    "splits": {
+      "train": 1410,
+      "val": 216,
+      "test": 174
+    },
+    "augment": "thai_paraphrase x5 + บง",
+    "actual_sha256": "45cdd658dc8f7167fb8d3fd613b5b2f80e13e2e49b9bdfe27f67c8ed1158f518",
+    "records": 1800,
+    "unique_ids": 1800,
+    "per_capability_splits": {
+      "context_awareness": {
+        "train": 240,
+        "val": 30,
+        "test": 30
+      },
+      "intent_detection": {
+        "train": 234,
+        "val": 48,
+        "test": 18
+      },
+      "mixed_language": {
+        "train": 216,
+        "test": 36,
+        "val": 48
+      },
+      "thai_code_assistance": {
+        "train": 234,
+        "val": 48,
+        "test": 18
+      },
+      "thai_response": {
+        "train": 240,
+        "val": 18,
+        "test": 42
+      },
+      "thai_understanding": {
+        "train": 246,
+        "test": 30,
+        "val": 24
+      }
+    },
+    "per_capability_unique_outputs": {
+      "context_awareness": 1,
+      "intent_detection": 1,
+      "mixed_language": 1,
+      "thai_code_assistance": 2,
+      "thai_response": 1,
+      "thai_understanding": 1
+    }
+  },
+  "verification": {
+    "final_status": "PASS",
+    "p6_readiness": {
+      "status": "PASS",
+      "reason": "All mandatory gates PASS"
+    },
+    "p6_gate": "OPEN",
+    "gates": [
+      {
+        "gate": "dataset_integrity",
+        "status": "PASS",
+        "reason": "sha 45cdd658dc8f7167 vs exp 45cdd658dc8f7167",
+        "error_code": ""
+      },
+      {
+        "gate": "capability_coverage",
+        "status": "PASS",
+        "reason": "{'thai_code_assistance': 300, 'mixed_language': 300, 'thai_understanding': 300, 'intent_detection': 300, 'context_awareness': 300, 'thai_response': 300} total 1800",
+        "error_code": ""
+      },
+      {
+        "gate": "duplicate_check",
+        "status": "PASS",
+        "reason": "1800 unique ids",
+        "error_code": ""
+      },
+      {
+        "gate": "thai_quality",
+        "status": "PASS",
+        "reason": "thai 1800/1800 100.0%",
+        "error_code": ""
+      },
+      {
+        "gate": "format",
+        "status": "PASS",
+        "reason": "JSONL 1800 lines OK",
+        "error_code": ""
+      },
+      {
+        "gate": "signature_verification",
+        "status": "PASS",
+        "reason": "Ed25519 key 33ae97461c5e5960...",
+        "error_code": ""
+      }
+    ],
+    "trusted_provenance": {
+      "trust_store_status": "PASS",
+      "keys": [
+        "33ae97461c5e59608cadd2daa1c271d6078fda820e8ff6f9b47d1cc5960e3f8f"
+      ]
+    },
+    "dataset_summary": {
+      "total": 1800,
+      "caps": {
+        "thai_code_assistance": 300,
+        "mixed_language": 300,
+        "thai_understanding": 300,
+        "intent_detection": 300,
+        "context_awareness": 300,
+        "thai_response": 300
+      }
+    }
+  },
+  "implemented_verifier_status": "PASS",
+  "independent_assessment": {
+    "status": "NOT_VERIFIED",
+    "findings": [
+      "Verifier reports PASS, but its thai_quality gate only counts records containing at least one Thai-range character; it does not calculate the >60% Thai-language ratio or establish authentic/non-translated quality.",
+      "Per-capability split counts differ from the specified 80/10/10 target (240/30/30 for 300 records per capability).",
+      "Each capability has only 1-2 distinct output strings across 300 records; augmentation repeats the seed output while appending suffixes to inputs, so these rows are not 300 independently authored examples.",
+      "No semantic or near-duplicate leakage analysis was performed; exact record IDs are unique, but that alone does not establish split isolation."
+    ],
+    "p5_test_exact_line_overlap_check": {
+      "checked": true,
+      "overlapping_records": 0,
+      "scope": "Exact whole-line equality against native_data/test.txt only; does not establish semantic/non-exact isolation or all P5 split isolation."
+    },
+    "manifest_signature": "PASS",
+    "signature_key_id": "33ae97461c5e59608cadd2daa1c271d6078fda820e8ff6f9b47d1cc5960e3f8f",
+    "trust_store_schema": "1.0"
+  },
+  "gates": [
+    {
+      "gate": "dataset_integrity",
+      "status": "PASS",
+      "reason": "sha 45cdd658dc8f7167 vs exp 45cdd658dc8f7167",
+      "error_code": ""
+    },
+    {
+      "gate": "capability_coverage",
+      "status": "PASS",
+      "reason": "{'thai_code_assistance': 300, 'mixed_language': 300, 'thai_understanding': 300, 'intent_detection': 300, 'context_awareness': 300, 'thai_response': 300} total 1800",
+      "error_code": ""
+    },
+    {
+      "gate": "duplicate_check",
+      "status": "PASS",
+      "reason": "1800 unique ids",
+      "error_code": ""
+    },
+    {
+      "gate": "thai_quality",
+      "status": "PASS",
+      "reason": "thai 1800/1800 100.0%",
+      "error_code": ""
+    },
+    {
+      "gate": "format",
+      "status": "PASS",
+      "reason": "JSONL 1800 lines OK",
+      "error_code": ""
+    },
+    {
+      "gate": "signature_verification",
+      "status": "PASS",
+      "reason": "Ed25519 key 33ae97461c5e5960...",
+      "error_code": ""
+    }
+  ],
+  "final_status": "NOT_VERIFIED",
+  "p6_gate": "BLOCKED_PENDING_DATASET_QUALITY_AND_SPLIT_VALIDATION",
+  "p6_readiness": {
+    "status": "NOT_VERIFIED",
+    "reason": "Verifier gate PASS is insufficient due to the independent findings above."
+  },
+  "provenance": {
+    "trust_store_path": "/tmp/outside/trust_store.json",
+    "key_id": "33ae97461c5e59608cadd2daa1c271d6078fda820e8ff6f9b47d1cc5960e3f8f",
+    "manifest_sha256": "add53b4a88d107edc8839576558281b8fffade025ccd9017af4bc905d6c646a5",
+    "manifest_sig_path": "native_data/p6_factory/p6_manifest_v1_1800.json.sig"
+  }
+}

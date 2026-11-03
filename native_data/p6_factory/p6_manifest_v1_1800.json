@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "p6_version": "P6.2-1800",
+  "status": "AUGMENTED_1800",
+  "dataset": {
+    "path": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+    "sha256": "45cdd658dc8f7167fb8d3fd613b5b2f80e13e2e49b9bdfe27f67c8ed1158f518",
+    "expected_sha256": "45cdd658dc8f7167fb8d3fd613b5b2f80e13e2e49b9bdfe27f67c8ed1158f518",
+    "total_records": 1800,
+    "capabilities": {
+      "thai_code_assistance": 300,
+      "mixed_language": 300,
+      "thai_understanding": 300,
+      "intent_detection": 300,
+      "context_awareness": 300,
+      "thai_response": 300
+    },
+    "splits": {
+      "train": 1410,
+      "val": 216,
+      "test": 174
+    },
+    "augment": "thai_paraphrase x5 + บง"
+  },
+  "isolation": {
+    "p5_overlap": "no",
+    "parent_id_traceable": true
+  },
+  "limitations": "Augmentation repeats each seed output and adds a randomly selected suffix; this is not independently authored data or P6 readiness evidence."
+}
