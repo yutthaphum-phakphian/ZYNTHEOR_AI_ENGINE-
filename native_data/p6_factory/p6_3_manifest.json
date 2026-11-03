@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "p6_version": "P6.3-6caps-1800-train",
+  "status": "TRAINED_6CAPS",
+  "checkpoint": {
+    "path": "native_data/checkpoints/p6_6caps/p6_6caps_best.pt",
+    "sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+    "expected_sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+    "params": 6649600
+  },
+  "dataset": {
+    "path": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+    "sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
+    "expected_sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
+    "total_records": 1800,
+    "splits": {
+      "train": 1440,
+      "val": 180,
+      "test": 180
+    },
+    "distinct_outputs": 1800
+  },
+  "training": {
+    "log_path": "/tmp/p6_train_1800_v2.log",
+    "epochs": 3
+  },
+  "isolation": {
+    "p5_overlap": "checked"
+  }
+}

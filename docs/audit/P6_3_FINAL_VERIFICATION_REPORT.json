@@ -1,0 +1,179 @@
+{
+  "p6_audit_version": "1.0",
+  "timestamp": "2026-11-03T06:48:22.456447Z",
+  "p6_version": "P6.3-6caps-1800-train",
+  "status": "VERIFIED_FULL_EVIDENCE",
+  "dataset": {
+    "path": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+    "sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
+    "expected_sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
+    "total_records": 1800,
+    "splits": {
+      "train": 1440,
+      "val": 180,
+      "test": 180
+    },
+    "distinct_outputs": 1800
+  },
+  "checkpoint": {
+    "path": "native_data/checkpoints/p6_6caps/p6_6caps_best.pt",
+    "sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+    "expected_sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+    "params": 6649600
+  },
+  "verification": {
+    "final_status": "FAIL",
+    "p6_readiness": {
+      "status": "FAIL"
+    },
+    "p6_gate": "BLOCKED",
+    "gates": [
+      {
+        "gate": "checkpoint_integrity",
+        "status": "PASS",
+        "reason": "4aa47ef09391679a vs 4aa47ef09391679a",
+        "error_code": ""
+      },
+      {
+        "gate": "dataset_integrity",
+        "status": "PASS",
+        "reason": "dataset 5f402135643f",
+        "error_code": ""
+      },
+      {
+        "gate": "signature_verification",
+        "status": "PASS",
+        "reason": "Ed25519 cac2b8b63a2135df",
+        "error_code": ""
+      },
+      {
+        "gate": "fresh_reload",
+        "status": "FAIL",
+        "reason": "No module named 'training'",
+        "error_code": "RELOAD_FAIL"
+      },
+      {
+        "gate": "smoke_test",
+        "status": "FAIL",
+        "reason": "cannot access local variable 'model' where it is not associated with a value",
+        "error_code": "SMOKE_FAIL"
+      },
+      {
+        "gate": "model_evaluation",
+        "status": "FAIL",
+        "reason": "Train [] Val []",
+        "error_code": "LOSS_NOT_DECREASING"
+      },
+      {
+        "gate": "training_evidence",
+        "status": "PASS",
+        "reason": "log exists True",
+        "error_code": ""
+      },
+      {
+        "gate": "trust_store_status",
+        "status": "PASS",
+        "reason": "schema 1.0 True outside True perms 600",
+        "error_code": ""
+      },
+      {
+        "gate": "p5_readiness",
+        "status": "FAIL",
+        "reason": "fail ['fresh_reload', 'smoke_test', 'model_evaluation']",
+        "error_code": ""
+      },
+      {
+        "gate": "p6_gate",
+        "status": "BLOCKED",
+        "reason": "BLOCKED",
+        "error_code": ""
+      }
+    ],
+    "trusted_provenance": {
+      "trust_store_status": "PASS"
+    },
+    "dataset_summary": {
+      "path": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+      "sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
+      "expected_sha256": "5f402135643f8568908c9f7fc13e0e65844db75e3571943d3a1f16c4109e6c98",
+      "total_records": 1800,
+      "splits": {
+        "train": 1440,
+        "val": 180,
+        "test": 180
+      },
+      "distinct_outputs": 1800
+    },
+    "checkpoint_summary": {
+      "path": "native_data/checkpoints/p6_6caps/p6_6caps_best.pt",
+      "sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+      "expected_sha256": "4aa47ef09391679a8ff04eb8871178a7d0182e6e4165e708d8000b5ae995d755",
+      "params": 6649600
+    }
+  },
+  "gates": [
+    {
+      "gate": "checkpoint_integrity",
+      "status": "PASS",
+      "reason": "4aa47ef09391679a vs 4aa47ef09391679a",
+      "error_code": ""
+    },
+    {
+      "gate": "dataset_integrity",
+      "status": "PASS",
+      "reason": "dataset 5f402135643f",
+      "error_code": ""
+    },
+    {
+      "gate": "signature_verification",
+      "status": "PASS",
+      "reason": "Ed25519 cac2b8b63a2135df",
+      "error_code": ""
+    },
+    {
+      "gate": "fresh_reload",
+      "status": "FAIL",
+      "reason": "No module named 'training'",
+      "error_code": "RELOAD_FAIL"
+    },
+    {
+      "gate": "smoke_test",
+      "status": "FAIL",
+      "reason": "cannot access local variable 'model' where it is not associated with a value",
+      "error_code": "SMOKE_FAIL"
+    },
+    {
+      "gate": "model_evaluation",
+      "status": "FAIL",
+      "reason": "Train [] Val []",
+      "error_code": "LOSS_NOT_DECREASING"
+    },
+    {
+      "gate": "training_evidence",
+      "status": "PASS",
+      "reason": "log exists True",
+      "error_code": ""
+    },
+    {
+      "gate": "trust_store_status",
+      "status": "PASS",
+      "reason": "schema 1.0 True outside True perms 600",
+      "error_code": ""
+    },
+    {
+      "gate": "p5_readiness",
+      "status": "FAIL",
+      "reason": "fail ['fresh_reload', 'smoke_test', 'model_evaluation']",
+      "error_code": ""
+    },
+    {
+      "gate": "p6_gate",
+      "status": "BLOCKED",
+      "reason": "BLOCKED",
+      "error_code": ""
+    }
+  ],
+  "final_status": "FAIL",
+  "p6_gate": "BLOCKED",
+  "trust_store_recreated": "/tmp/outside/trust_store.json recreated after Codespace restart - all manifests re-signed with new Ed25519 key"
+}
