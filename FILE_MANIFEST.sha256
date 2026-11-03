@@ -1,11 +1,11 @@
 bb48aa059b9359f030909da2dadad3b50755344d10ff4a5adb79fdac09f3b273  ./.aistudio/artifacts/brain/31cbfce4-696f-4250-aeaa-cd11ab4cb9a2/implementation_plan.md
 f161a88bb9abacd3af6e64ff50df376bcee57d397b9e0f258feae459b743f80c  ./.aistudio/artifacts/brain/31cbfce4-696f-4250-aeaa-cd11ab4cb9a2/implementation_plan.md.metadata.json
 8a541c9da01906cfac15d3b8e72ff56daa37dd4be1b0278da64e340d72f2cc38  ./.dockerignore
-08fd065b191906cc46697d0e5b4e5bed4c86ff170be863ee503a84bbe281a2cd  ./.env.example
+aeba2c39a3cb8432f4a36dddeb2b57f5ee76ca5cef614605135a2eca1ec6bb3b  ./.env.example
 3383076bef2339a9b2a9d94a577781adc3060605f3782b62a8da75ffc5c36d05  ./.github/workflows/audit-1.1.0.yml
 e8eeb29013b18709bec9571f1319480699b692d3fb0c43555da0c4b3710f4392  ./.github/workflows/codeql.yml
 67c2bf46a47e1c30c1d9e33988c024f5e26b3f97a8ec670d9540a49020c22362  ./.github/workflows/native-core-1.1.0.yml
-9a73a03421136f5eb5859b9954228095891e5445283316b2fe938e40804a3f00  ./.github/workflows/pages.yml
+063f9ffb3d3d9abc7d98763c91041994442be250fefa8aa9767372fed0f0ba0a  ./.github/workflows/pages.yml
 872ea16fde800a243a8d15c3145954742cfe044ebc37018432af39f59edffc7a  ./.gitignore
 a08abccd791e80280f899cfa18510f90f4b85ae02ef127e78c992b733f936f7b  ./AGENT_COMMAND_CENTER_UPGRADE_REPORT.md
 35afce4b9662df726301353e2c696de346c6b8e0596b6242fecbf3459a68ffd4  ./CONTRIBUTING.md
@@ -893,7 +893,7 @@ c7835375db80ca4ecfa0bbcacc5e7cd52f0290e781c9d141d870e6e164309b62  ./tests/p8-cor
 176dabebd7020e594c47b44c51e1cf3f6917c1a5be7a8bca1fdc38f7678d9832  ./tests/patch-security-regression.test.ts
 7536d67eadbeecf191621a0f6ba0c65c09b2b2d72e93036b8c6152618cd41343  ./tests/postgres-foundation.test.mjs
 2f867662bb2ba2a732ae511fa01280cf8f72aa5c4c0161b542ce30967a5535be  ./tests/postgres-identity-p2.test.mjs
-aa2e176b285e27f74b9274e34a41751ddb9ae83b29dd59b156165640657e2609  ./tests/postgres-p3-preflight.test.mjs
+0469dd3b190f73d2567b5a2e8569a99a494476e1be99119df9ba610d0fe2c247  ./tests/postgres-p3-preflight.test.mjs
 0d904d8b4fa98577aa92df2df2d8fcea15e81d661ca9714adc43fdf6266b58e0  ./tests/preflight.test.mjs
 bf6f45526ba8878da8c2089569753be6b781b9cd85abfe29f370b34601233fe9  ./tests/production-config-lock.test.mjs
 1566dc3c7279b7120eae1e87495cd32d30781ac43312944b153bd4142e76384d  ./tests/prompt-forge.test.mjs
@@ -928,7 +928,7 @@ a497cef3c632479487cd5cda7308fce746e62b0621f5673d0519690dc308fb71  ./training/nat
 9528eca239099b2dbcc01cef1c0883be635447ec0adc321ec142822b8488ad15  ./training/native_cpu/native_cpu_model.py
 d0ec35d66ac7fa771c009fde463684d6a0e1dcfa377221888f8a2c270e120c0d  ./training/native_cpu/native_runtime.py
 23d4b27f4d048f0aec1504d1dfd3f1cfce24933e51b837962f57b865fa2b5f8a  ./training/native_cpu/train_native_cpu.py
-a3efd976cd8cc52a7e46066530f1f72df36aba031b5ebe716ca36f77201696bf  ./training/registry/RELEASE_READINESS.txt
+fcbaf24a0812a65199dbe24af2744ad00557b2a7c34ec9b12980000ce57e9510  ./training/registry/RELEASE_READINESS.txt
 d6fb57246d53b8db2ed3c75b36a9512ce27daf52da498efb53906d20e382acf9  ./training/registry/latest_training_log.json
 3b8dab8ac4d1628eef7cc4f3451e08191943fd40d04b7f18919a563546f8e3f4  ./training/registry/model_registry.json
 3c48fa45ec6a9d1ceba7775203e300dcc555dc2325bc5f7111fcaa2f685c956f  ./training/registry/native_model_identity.json

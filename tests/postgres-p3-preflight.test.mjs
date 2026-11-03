@@ -1,18 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { runPostgresPreflight } from '../scripts/postgres-preflight.mjs';
 import { loadIdentityImportProjection } from '../scripts/identity-import-projection.mjs';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 const identityFiles = ['users.json', 'organizations.json', 'organization_members.json', 'sessions.json'];
+const hasPreflightData = existsSync(new URL('../workspace_data/identity/users.json', import.meta.url));
 const sourceHashes = async () => Object.fromEntries(await Promise.all(identityFiles.map(async file => [
   file,
   createHash('sha256').update(await readFile(new URL(`../workspace_data/identity/${file}`, import.meta.url))).digest('hex'),
 ])));
 
-test('approved owner override changes only the import projection and is bound to immutable source hashes', async () => {
+test('approved owner override changes only the import projection and is bound to immutable source hashes', { skip: !hasPreflightData }, async () => {
   const before = await sourceHashes();
   const projection = await loadIdentityImportProjection(new URL('../workspace_data/identity', import.meta.url).pathname);
   const rawMember = projection.sourceData['organization_members.json'].find(row => row.id === 'mem-3-org-usr-3');
@@ -26,7 +28,7 @@ test('approved owner override changes only the import projection and is bound to
   assert.deepEqual(await sourceHashes(), before);
 });
 
-test('P3 preflight reports connection/source blockers without connecting or writing when no endpoint is supplied', async () => {
+test('P3 preflight reports connection/source blockers without connecting or writing when no endpoint is supplied', { skip: !hasPreflightData }, async () => {
   const report = await runPostgresPreflight({ databaseUrl: '' });
   assert.equal(report.writesPerformed, false);
   assert.equal(report.database.configured, false);
