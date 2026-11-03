@@ -1,0 +1,158 @@
+{
+  "audit_version": "1.0",
+  "timestamp": "2026-11-03T06:49:32.631793Z",
+  "p5_status": "PASS",
+  "p5_gate": {
+    "error_code": "",
+    "evidence": {
+      "p5_status": "PASS"
+    },
+    "gate": "p6_gate",
+    "reason": "P6 allowed, P5 PASS",
+    "status": "PASS"
+  },
+  "p6_3_status": "PASS",
+  "p6_4_eval": {
+    "p6_version": "P6.4-eval-1800",
+    "test_total": 180,
+    "test_loss": 4.011604412396749,
+    "per_capability": {
+      "intent_detection": {
+        "loss": 3.864343293507894,
+        "count": 30
+      },
+      "thai_understanding": {
+        "loss": 4.01974683602651,
+        "count": 30
+      },
+      "mixed_language": {
+        "loss": 4.052348971366882,
+        "count": 30
+      },
+      "thai_code_assistance": {
+        "loss": 4.11795748869578,
+        "count": 30
+      },
+      "thai_response": {
+        "loss": 3.99915087223053,
+        "count": 30
+      },
+      "context_awareness": {
+        "loss": 4.016079012552897,
+        "count": 30
+      }
+    },
+    "checkpoint": "native_data/checkpoints/p6_6caps/p6_6caps_best.pt",
+    "dataset": "native_data/p6_factory/thai_6caps_v1_1800.jsonl",
+    "p5_still_verified": true
+  },
+  "combined_gate": "BLOCKED",
+  "final_status": "VERIFIED_FULL_EVIDENCE",
+  "note": "P6 cannot bypass P5 - P5 still PASS after trust-store recreate, P6 6 caps 300 each test 30 each eval loss dec",
+  "gates": {
+    "p5_verifier": [
+      {
+        "error_code": "",
+        "evidence": {
+          "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/dataset_manifest.json",
+          "sha256": "4c403fff74905257557a362dba96f44bf50dd33e8f441ab78e2d8608c446b17b"
+        },
+        "gate": "dataset_integrity",
+        "reason": "Dataset integrity verified",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "loss_history": [],
+          "run_id": "zyntheor-native-5m-cpu-001-p5.1"
+        },
+        "gate": "training_evidence",
+        "reason": "Training evidence verified run_id=zyntheor-native-5m-cpu-001-p5.1",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "param_count": 6649600,
+          "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+          "sha256": "2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9"
+        },
+        "gate": "checkpoint_integrity",
+        "reason": "Checkpoint verified SHA=2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9 params=6649600",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "key_id": "cac2b8b63a2135df30197a5dd82e6f567de41b33fd51b5eab14e45949209dffd",
+          "signature_path": "native_data/p5_1_manifest.json.sig"
+        },
+        "gate": "signature_verification",
+        "reason": "Signature verified with key cac2b8b63a2135df30197a5dd82e6f567de41b33fd51b5eab14e45949209dffd",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "checkpoint": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+          "param_count": 6649600
+        },
+        "gate": "fresh_reload",
+        "reason": "Fresh reload success params=6649600 finite=True",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "result": "PASS: 7/7 architecture and dataset integrity tests",
+          "run_id": "zyntheor-native-5m-cpu-001-p5.1-unit-tests"
+        },
+        "gate": "smoke_test",
+        "reason": "Smoke test executed: PASS: 7/7 architecture and dataset integrity tests",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "benchmark": "isolated_test_set",
+          "ppl_random": null,
+          "ppl_trained": null,
+          "test_loss_random": 6.6808,
+          "test_loss_trained": 6.5526,
+          "version": "v1"
+        },
+        "gate": "model_evaluation",
+        "reason": "Eval: trained 6.5526 vs random 6.6808 benchmark=isolated_test_set",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "gate_statuses": {
+            "checkpoint_integrity": "PASS",
+            "dataset_integrity": "PASS",
+            "fresh_reload": "PASS",
+            "model_evaluation": "PASS",
+            "signature_verification": "PASS",
+            "smoke_test": "PASS",
+            "training_evidence": "PASS"
+          }
+        },
+        "gate": "p5_readiness",
+        "reason": "All mandatory gates PASS",
+        "status": "PASS"
+      },
+      {
+        "error_code": "",
+        "evidence": {
+          "p5_status": "PASS"
+        },
+        "gate": "p6_gate",
+        "reason": "P6 allowed, P5 PASS",
+        "status": "PASS"
+      }
+    ],
+    "p6_3_verifier": []
+  }
+}
