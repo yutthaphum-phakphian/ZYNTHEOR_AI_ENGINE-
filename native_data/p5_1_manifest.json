@@ -50,14 +50,14 @@
   "hardware": {
     "cpu_logical": 2,
     "cpu_physical": 1,
-    "ram_total_gb": 7.76,
-    "ram_available_gb": 5.66,
-    "disk_free_gb": 16.52,
+    "ram_total_gb": 8.0,
+    "ram_available_gb": 4.0,
+    "disk_free_gb": 20.0,
     "cuda_available": false,
     "gpu_name": "None",
     "gpu_vram_gb": 0,
     "cuda_version": "None",
-    "python": "3.14.2",
+    "python": "3.12.3",
     "pytorch": "2.15.0+cpu",
     "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.39",
     "seed": 42,
@@ -66,7 +66,7 @@
     "can_train_7b_qlora": false
   },
   "software": {
-    "python": "3.14.2",
+    "python": "3.12.3",
     "pytorch": "2.15.0+cpu",
     "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.39",
     "seed": 42,
@@ -78,17 +78,17 @@
     "steps": 6,
     "tokens_processed": 960,
     "train_losses": [
-      6.6763,
-      5.8286,
-      5.2893
+      6.6893,
+      5.9306,
+      5.2913
     ],
     "val_losses": [
-      6.5726,
-      6.5107,
-      6.4577
+      6.6628,
+      6.6021,
+      6.5495
     ],
-    "best_val_loss": 6.4577,
-    "duration_sec": 1.56,
+    "best_val_loss": 6.5495,
+    "duration_sec": 3.85,
     "optimizer": "AdamW",
     "lr": 0.0003,
     "batch": 4,
@@ -97,8 +97,8 @@
   },
   "checkpoint": {
     "path": "native_data/p5_1_checkpoint.pt",
-    "sha256_before": "b61bdc4830a7c4c84f7b32bbd498e8d705fab053cd300316f3baa17b9b80e8c0",
-    "sha256_after": "b61bdc4830a7c4c84f7b32bbd498e8d705fab053cd300316f3baa17b9b80e8c0",
+    "sha256_before": "7d7e7e391b12173b6fc3ab51dedbd1122b83b7f9a9119e98da4aabef582fdffe",
+    "sha256_after": "7d7e7e391b12173b6fc3ab51dedbd1122b83b7f9a9119e98da4aabef582fdffe",
     "hash_match": true,
     "reload_output_match": true,
     "finite_params": true,
@@ -106,10 +106,10 @@
   },
   "evaluation": {
     "test_split": "isolated, never used for tokenizer/train/selection",
-    "test_loss_random": 6.645,
-    "test_loss_trained": 6.4812,
-    "test_perplexity_random": 768.92,
-    "test_perplexity_trained": 652.76,
+    "test_loss_random": 6.6808,
+    "test_loss_trained": 6.5526,
+    "test_perplexity_random": 796.92,
+    "test_perplexity_trained": 701.09,
     "test_tokens": 227,
     "eval_seed": 42,
     "result": "Trained < Random"
@@ -123,7 +123,7 @@
   },
   "limitations": "5M model on ~1K tokens is SYNTHETIC_SMOKE_TEST for LEVEL C ownership proof, NOT capable AI",
   "timestamps": {
-    "start": 1793681473.7635586,
-    "end": 1793681475.3194542
+    "start": 1793686253.709127,
+    "end": 1793686257.5547717
   }
 }
