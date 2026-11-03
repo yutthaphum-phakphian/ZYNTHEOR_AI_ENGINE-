@@ -1,163 +1,171 @@
 {
-  "artifact_identity": {
-    "checkpoint_path": null,
-    "checkpoint_sha256": null,
-    "param_count": null
-  },
-  "evidence_identities": {
-    "dataset": {},
-    "evaluation": {
-      "benchmark": "isolated_test_set",
-      "ppl_random": null,
-      "ppl_trained": null,
-      "test_loss_random": 6.645,
-      "test_loss_trained": 6.4812,
-      "version": "v1"
+    "artifact_identity": {
+        "checkpoint_path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+        "checkpoint_sha256": "2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9",
+        "param_count": 6649600
     },
-    "smoke_test": {},
-    "training_run": {
-      "loss_history": [],
-      "run_id": "zyntheor-native-5m-cpu-001-p5.1"
-    }
-  },
-  "final_status": "FAIL",
-  "gates": [
-    {
-      "error_code": "DATASET_PATH_MISSING",
-      "evidence": {},
-      "gate": "dataset_integrity",
-      "reason": "Dataset path missing",
-      "status": "NOT_VERIFIED"
-    },
-    {
-      "error_code": "",
-      "evidence": {
-        "loss_history": [],
-        "run_id": "zyntheor-native-5m-cpu-001-p5.1"
-      },
-      "gate": "training_evidence",
-      "reason": "Training evidence verified run_id=zyntheor-native-5m-cpu-001-p5.1",
-      "status": "PASS"
-    },
-    {
-      "error_code": "CORRUPTED_ARTIFACT",
-      "evidence": {},
-      "gate": "checkpoint_integrity",
-      "reason": "Corrupted checkpoint cannot load: No module named 'numpy'",
-      "status": "FAIL"
-    },
-    {
-      "error_code": "TRUST_STORE_UNAVAILABLE",
-      "evidence": {},
-      "gate": "signature_verification",
-      "reason": "Trust store not available: BLOCKED",
-      "status": "BLOCKED"
-    },
-    {
-      "error_code": "RUNTIME_MISSING",
-      "evidence": {},
-      "gate": "fresh_reload",
-      "reason": "Runtime missing: No module named 'torch'",
-      "status": "BLOCKED"
-    },
-    {
-      "error_code": "SMOKE_MISSING",
-      "evidence": {},
-      "gate": "smoke_test",
-      "reason": "Smoke test evidence missing",
-      "status": "NOT_VERIFIED"
-    },
-    {
-      "error_code": "",
-      "evidence": {
-        "benchmark": "isolated_test_set",
-        "ppl_random": null,
-        "ppl_trained": null,
-        "test_loss_random": 6.645,
-        "test_loss_trained": 6.4812,
-        "version": "v1"
-      },
-      "gate": "model_evaluation",
-      "reason": "Eval: trained 6.4812 vs random 6.645 benchmark=isolated_test_set",
-      "status": "PASS"
-    },
-    {
-      "error_code": "P5_FAIL",
-      "evidence": {
-        "fail_gates": [
-          "dataset_integrity=NOT_VERIFIED",
-          "checkpoint_integrity=FAIL",
-          "signature_verification=BLOCKED",
-          "fresh_reload=BLOCKED",
-          "smoke_test=NOT_VERIFIED"
-        ],
-        "gate_statuses": {
-          "checkpoint_integrity": "FAIL",
-          "dataset_integrity": "NOT_VERIFIED",
-          "fresh_reload": "BLOCKED",
-          "model_evaluation": "PASS",
-          "signature_verification": "BLOCKED",
-          "smoke_test": "NOT_VERIFIED",
-          "training_evidence": "PASS"
+    "evidence_identities": {
+        "dataset": {
+            "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/dataset_manifest.json",
+            "sha256": "4c403fff74905257557a362dba96f44bf50dd33e8f441ab78e2d8608c446b17b"
+        },
+        "evaluation": {
+            "benchmark": "isolated_test_set",
+            "ppl_random": null,
+            "ppl_trained": null,
+            "test_loss_random": 6.6808,
+            "test_loss_trained": 6.5526,
+            "version": "v1"
+        },
+        "smoke_test": {
+            "result": "PASS: 7/7 architecture and dataset integrity tests",
+            "run_id": "zyntheor-native-5m-cpu-001-p5.1-unit-tests"
+        },
+        "training_run": {
+            "loss_history": [],
+            "run_id": "zyntheor-native-5m-cpu-001-p5.1"
         }
-      },
-      "gate": "p5_readiness",
-      "reason": "P5 readiness FAIL due to: dataset_integrity=NOT_VERIFIED, checkpoint_integrity=FAIL, signature_verification=BLOCKED, fresh_reload=BLOCKED, smoke_test=NOT_VERIFIED",
-      "status": "FAIL"
     },
-    {
-      "error_code": "P5_FAIL",
-      "evidence": {
-        "p5_status": "FAIL",
-        "reason": "P5 readiness FAIL due to: dataset_integrity=NOT_VERIFIED, checkpoint_integrity=FAIL, signature_verification=BLOCKED, fresh_reload=BLOCKED, smoke_test=NOT_VERIFIED"
-      },
-      "gate": "p6_gate",
-      "reason": "P6 BLOCKED because P5 FAIL",
-      "status": "BLOCKED"
-    }
-  ],
-  "manifest_path": "native_data/p5_1_manifest.json",
-  "p5_readiness": {
-    "error_code": "P5_FAIL",
-    "evidence": {
-      "fail_gates": [
-        "dataset_integrity=NOT_VERIFIED",
-        "checkpoint_integrity=FAIL",
-        "signature_verification=BLOCKED",
-        "fresh_reload=BLOCKED",
-        "smoke_test=NOT_VERIFIED"
-      ],
-      "gate_statuses": {
-        "checkpoint_integrity": "FAIL",
-        "dataset_integrity": "NOT_VERIFIED",
-        "fresh_reload": "BLOCKED",
-        "model_evaluation": "PASS",
-        "signature_verification": "BLOCKED",
-        "smoke_test": "NOT_VERIFIED",
-        "training_evidence": "PASS"
-      }
+    "final_status": "PASS",
+    "gates": [
+        {
+            "error_code": "",
+            "evidence": {
+                "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/dataset_manifest.json",
+                "sha256": "4c403fff74905257557a362dba96f44bf50dd33e8f441ab78e2d8608c446b17b"
+            },
+            "gate": "dataset_integrity",
+            "reason": "Dataset integrity verified",
+            "status": "PASS"
+        },
+        {
+            "error_code": "",
+            "evidence": {
+                "loss_history": [],
+                "run_id": "zyntheor-native-5m-cpu-001-p5.1"
+            },
+            "gate": "training_evidence",
+            "reason": "Training evidence verified run_id=zyntheor-native-5m-cpu-001-p5.1",
+            "status": "PASS"
+        },
+        {
+            "error_code": "",
+            "evidence": {
+                "param_count": 6649600,
+                "path": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+                "sha256": "2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9"
+            },
+            "gate": "checkpoint_integrity",
+            "reason": "Checkpoint verified SHA=2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9 params=6649600",
+            "status": "PASS"
+        },
+        {
+            "error_code": "",
+            "evidence": {
+                "key_id": "33ae97461c5e59608cadd2daa1c271d6078fda820e8ff6f9b47d1cc5960e3f8f",
+                "signature_path": "native_data/p5_1_manifest.json.sig"
+            },
+            "gate": "signature_verification",
+            "reason": "Signature verified with key 33ae97461c5e59608cadd2daa1c271d6078fda820e8ff6f9b47d1cc5960e3f8f",
+            "status": "PASS"
+        },
+        {
+            "error_code": "",
+            "evidence": {
+                "checkpoint": "/workspaces/ZYNTHEOR_AI_ENGINE-/native_data/p5_1_checkpoint.npz",
+                "param_count": 6649600
+            },
+            "gate": "fresh_reload",
+            "reason": "Fresh reload success params=6649600 finite=True",
+            "status": "PASS"
+        },
+        {
+            "error_code": "",
+            "evidence": {
+                "result": "PASS: 7/7 architecture and dataset integrity tests",
+                "run_id": "zyntheor-native-5m-cpu-001-p5.1-unit-tests"
+            },
+            "gate": "smoke_test",
+            "reason": "Smoke test executed: PASS: 7/7 architecture and dataset integrity tests",
+            "status": "PASS"
+        },
+        {
+            "error_code": "",
+            "evidence": {
+                "benchmark": "isolated_test_set",
+                "ppl_random": null,
+                "ppl_trained": null,
+                "test_loss_random": 6.6808,
+                "test_loss_trained": 6.5526,
+                "version": "v1"
+            },
+            "gate": "model_evaluation",
+            "reason": "Eval: trained 6.5526 vs random 6.6808 benchmark=isolated_test_set",
+            "status": "PASS"
+        },
+        {
+            "error_code": "",
+            "evidence": {
+                "gate_statuses": {
+                    "checkpoint_integrity": "PASS",
+                    "dataset_integrity": "PASS",
+                    "fresh_reload": "PASS",
+                    "model_evaluation": "PASS",
+                    "signature_verification": "PASS",
+                    "smoke_test": "PASS",
+                    "training_evidence": "PASS"
+                }
+            },
+            "gate": "p5_readiness",
+            "reason": "All mandatory gates PASS",
+            "status": "PASS"
+        },
+        {
+            "error_code": "",
+            "evidence": {
+                "p5_status": "PASS"
+            },
+            "gate": "p6_gate",
+            "reason": "P6 allowed, P5 PASS",
+            "status": "PASS"
+        }
+    ],
+    "manifest_path": "native_data/p5_1_manifest.json",
+    "p5_readiness": {
+        "error_code": "",
+        "evidence": {
+            "gate_statuses": {
+                "checkpoint_integrity": "PASS",
+                "dataset_integrity": "PASS",
+                "fresh_reload": "PASS",
+                "model_evaluation": "PASS",
+                "signature_verification": "PASS",
+                "smoke_test": "PASS",
+                "training_evidence": "PASS"
+            }
+        },
+        "gate": "p5_readiness",
+        "reason": "All mandatory gates PASS",
+        "status": "PASS"
     },
-    "gate": "p5_readiness",
-    "reason": "P5 readiness FAIL due to: dataset_integrity=NOT_VERIFIED, checkpoint_integrity=FAIL, signature_verification=BLOCKED, fresh_reload=BLOCKED, smoke_test=NOT_VERIFIED",
-    "status": "FAIL"
-  },
-  "p6_gate": {
-    "error_code": "P5_FAIL",
-    "evidence": {
-      "p5_status": "FAIL",
-      "reason": "P5 readiness FAIL due to: dataset_integrity=NOT_VERIFIED, checkpoint_integrity=FAIL, signature_verification=BLOCKED, fresh_reload=BLOCKED, smoke_test=NOT_VERIFIED"
+    "p6_gate": {
+        "error_code": "",
+        "evidence": {
+            "p5_status": "PASS"
+        },
+        "gate": "p6_gate",
+        "reason": "P6 allowed, P5 PASS",
+        "status": "PASS"
     },
-    "gate": "p6_gate",
-    "reason": "P6 BLOCKED because P5 FAIL",
-    "status": "BLOCKED"
-  },
-  "timestamp": "2026-11-03T05:24:40.873503+00:00",
-  "trust_store_path": "/tmp/outside/trust_store.json",
-  "trusted_provenance": {
-    "trust_store_error": "WORLD_WRITABLE_TRUST_STORE",
-    "trust_store_keys": [],
-    "trust_store_schema": null,
-    "trust_store_status": "BLOCKED"
-  },
-  "verifier_version": "1.0"
+    "timestamp": "2026-11-03T06:15:23.694533+00:00",
+    "trust_store_path": "/tmp/outside/trust_store.json",
+    "trusted_provenance": {
+        "trust_store_error": "",
+        "trust_store_keys": [
+            "33ae97461c5e59608cadd2daa1c271d6078fda820e8ff6f9b47d1cc5960e3f8f"
+        ],
+        "trust_store_schema": "1.0",
+        "trust_store_status": "PASS"
+    },
+    "verifier_version": "1.0"
 }

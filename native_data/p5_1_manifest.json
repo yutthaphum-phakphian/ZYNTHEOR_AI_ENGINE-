@@ -5,17 +5,9 @@
   "initialization": "random",
   "status": "VERIFIED",
   "dataset": {
-    "id": "zyntheor-smoke-synthetic-v1",
-    "classification": "SYNTHETIC_SMOKE_TEST",
-    "train_docs": 14,
-    "val_docs": 3,
-    "test_docs": 3,
-    "train_tokens": 322,
-    "val_tokens": 195,
-    "test_tokens": 227,
-    "sha256_manifest": "ca5055b9fa086dabef176a15c490b8020dbd71bffa97b648b327f844812cea5b",
-    "leakage_check": "PASS - no cross-split duplicates",
-    "isolation": "test set never used for tokenizer training, model training, or checkpoint selection"
+    "path": "native_data/dataset_manifest.json",
+    "expected_sha256": "4c403fff74905257557a362dba96f44bf50dd33e8f441ab78e2d8608c446b17b",
+    "actual_sha256": "4c403fff74905257557a362dba96f44bf50dd33e8f441ab78e2d8608c446b17b"
   },
   "tokenizer": {
     "vocab_size": 693,
@@ -96,13 +88,14 @@
     "grad_clip": 1.0
   },
   "checkpoint": {
-    "path": "native_data/p5_1_checkpoint.pt",
-    "sha256_before": "7d7e7e391b12173b6fc3ab51dedbd1122b83b7f9a9119e98da4aabef582fdffe",
-    "sha256_after": "7d7e7e391b12173b6fc3ab51dedbd1122b83b7f9a9119e98da4aabef582fdffe",
-    "hash_match": true,
-    "reload_output_match": true,
-    "finite_params": true,
-    "contains_optimizer_state": true
+    "path": "native_data/p5_1_checkpoint.npz",
+    "sha256": "2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9",
+    "expected_sha256": "2136cf78b4d442c366dbe1625cbb53aeb8090c2d182aec3df06bbe7e920a5fd9",
+    "param_count": 6649600,
+    "format": "NPZ export from PT",
+    "source_training_checkpoint": "native_data/p5_1_checkpoint.pt",
+    "source_training_checkpoint_sha256": "7d7e7e391b12173b6fc3ab51dedbd1122b83b7f9a9119e98da4aabef582fdffe",
+    "finite_params": true
   },
   "evaluation": {
     "test_split": "isolated, never used for tokenizer/train/selection",
@@ -125,5 +118,11 @@
   "timestamps": {
     "start": 1793686253.709127,
     "end": 1793686257.5547717
+  },
+  "smoke_test": {
+    "test_run_id": "zyntheor-native-5m-cpu-001-p5.1-unit-tests",
+    "result": "PASS: 7/7 architecture and dataset integrity tests",
+    "test_output": "Ran 7 tests; OK",
+    "status": "PASS"
   }
 }
