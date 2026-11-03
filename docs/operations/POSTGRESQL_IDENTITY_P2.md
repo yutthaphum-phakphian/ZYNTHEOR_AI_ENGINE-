@@ -1,0 +1,38 @@
+# PostgreSQL Foundation — P2 Identity & Authentication Migration
+
+**Delivery status:** `BLOCKED_PENDING_DATABASE_CONNECTION` (source and offline test work completed; no live PostgreSQL integration claim). The raw JSON owner mismatch remains in the immutable source, but the authorized, hash-bound P3 import projection now resolves it without editing the original files.
+
+## Implemented in the existing workspace
+
+- Added `src/services/postgresIdentityService.ts`, a PostgreSQL-only identity service for registration, login, session creation/validation/revocation, current membership/role lookup, tenant-scoped member management, and audited ownership transfer. Database transaction helpers are used for registration, role changes, and ownership transfer; there is no JSON/mock fallback in these runtime methods.
+- Replaced `src/routes/auth.ts` authentication handlers with async PostgreSQL-backed register/login/logout/me/entitlement/member routes. Session credentials are returned only as an `HttpOnly; SameSite=Strict` cookie (Secure in production/configured deployments), not in JSON. Mutations require double-submit CSRF proof and same-host Origin validation when an Origin is supplied.
+- Updated runtime session middleware to validate `zyntheor_sess_*` bearer sessions or the session cookie against PostgreSQL, derive roles from the live membership row, and return 503 on database failure. It does not validate these runtime sessions through the JSON store.
+- Added P2 SQL up/down migrations for tenant-bound sessions, unique legacy membership IDs, a deferrable owner-membership FK, audited ownership transfers, and the content-digest import ledger. Existing unattributed P1 sessions deliberately stop the schema upgrade rather than receive a guessed tenant assignment.
+- The P2 down migration refuses to strip authentication metadata while imported identity rows, P2 sessions, or ownership-audit records exist; a reviewed data-preserving rollback is required after cutover.
+- Added `scripts/migrate-identity-json.mjs`: private copy-before-import backup, offline integrity checks, source/database duplicate checks, dry-run, advisory lock, digest-ledger retry, SERIALIZABLE transaction, count comparison, FK/owner checks, sequence repair, and rollback-on-error. JSON originals are never removed or rewritten by this script.
+- Updated existing auth UI components to use same-origin cookies and fetch CSRF tokens. Removed fabricated user identity from the legacy task route; it now requires a PostgreSQL-validated session and real database access.
+- Added P1/P2 test scripts and updated the existing implementation roadmap and delivery manifest. Expanded the repository scanner's bounded context ceiling from 2 MiB to 3 MiB because the additional source caused its prior cap to reject the repository's own HTTP regression scan.
+
+## Migration preflight and data preservation
+
+`npm run db:identity:dry-run` takes a private backup and never writes to the database in dry-run mode. Source counts are 7 users, 7 organizations, 7 memberships, and 8 sessions. The raw JSON still records `org-usr-3.ownerId=3` while `mem-3-org-usr-3` for user 3 has role `ADMIN`; there is no `OWNER` membership. On 2026-11-04, the user self-attested as authorized and approved an import-only projection changing that membership role to `OWNER`, preserving `ownerId=3` and every original JSON byte. The decision is recorded as `chat-p3-owner-override-org-usr-3-2026-11-04-0019` in the private, SHA-256-bound override. The projection is rejected if any source hash or expected row value changes.
+
+The run-specific backup created during verification is under `workspace_data/identity/backups/`. During the first full regression run, older file-backed `IdentityService` tests wrote generated test accounts into the real JSON files. I restored all four files byte-for-byte from the pre-test backup `p2-preflight-20261103T162348Z`; the verified source counts returned to 7 users, 7 organizations, 7 memberships, and 8 sessions. The backup `p2-2026-11-03T16-48-32-402Z-5ab70f057fa4` contains the temporary 25/25/25/29 test-mutated state and is **not** a migration source. I then added per-test-worker temporary storage and automatic cleanup to prevent recurrence. The final full test run confirmed all four source JSON SHA-256 values stayed unchanged. At the user's explicit request, the final ZIP includes the full `workspace_data/identity/` tree, including this historical backup; preserve that warning when selecting migration input. The JSON originals remain in place; import attempts themselves do not update or remove them.
+
+`DATABASE_URL` and `P2_TEST_DATABASE_URL` are not configured in this environment. Therefore P1/P2 migrations were not applied, no transaction was exercised against a server, no identity rows were imported, and no authentication integration against PostgreSQL is certified. To continue safely: configure a real disposable/test PostgreSQL endpoint, pass the read-only preflight, apply/check P1 and P2 migrations there, rerun dry-run to check database duplicates/counts, then run the gated integration tests before a separately authorized production cutover.
+
+## Verification evidence
+
+- `npm run typecheck`: **PASS**.
+- `npm run build`: **PASS**. Existing warnings remain: browser bundling externalizes Node core modules in `lib/truth-kernel.ts`, and the vendor bundle exceeds the configured 600 kB warning threshold.
+- `npm run test:p1`: **4 passed, 0 failed** (static migration/rollback/runner/real-pool contract; not live PostgreSQL tests).
+- `npm run test:p2`: **6 passed, 0 failed, 1 skipped**. The skipped test is explicitly gated on `P2_TEST_DATABASE_URL` and contains real transaction, registration/login/logout HTTP, cookie/CSRF, session, tenant-isolation, revocation, and ownership-transfer checks.
+- `npm test`: Node suite **472 passed, 0 failed, 2 skipped** (474 total); Vitest **276 passed across 33 files**. The P2 live database test remains separately skipped because no test database is configured. The final run confirmed the four source JSON SHA-256 hashes were unchanged.
+- `npm run db:identity:dry-run`: approved projection returned `BLOCKED_PENDING_DATABASE_CONNECTION`; projected conflicts and override validation errors were empty, and `sourceSnapshotVerified` was true. It made a private exact-byte backup of source JSON and the approval override; no database connection or write occurred.
+- Browser E2E and database-backed PostgreSQL integration: **NOT RUN / BLOCKED**, not reported as pass.
+
+## Security review and remaining boundaries
+
+Password hashes use versioned PBKDF2-SHA512 with 310,000 iterations and salt; legacy hashes can be verified and upgraded on successful PostgreSQL login. Session tokens are random bearer secrets stored as SHA-256 hashes, have expiration, and are revocable. Every successful session validation joins the session to the current tenant membership and obtains the current role from the database; removed memberships and revoked/expired sessions fail closed. The generic role route cannot assign `OWNER`; a dedicated transaction locks the organization, validates the current owner and target membership, changes owner/membership records, and writes an audit row.
+
+The old JSON service and JSON data remain preserved; unrelated legacy consumers outside the new auth/team routes have not been globally converted in this phase. This is source integration only until PostgreSQL is reachable, migrations/import pass against a real server, and any compatibility consumers have been reviewed. OAuth remains explicitly unavailable because no trusted provider-verification flow is configured. Do not mark identity cutover or PostgreSQL integration as complete based on unit/static tests.

@@ -1,0 +1,337 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": "ZYNTHEOR CORE X",
+  "delivery": "Existing ZYNTHEOR CORE X workspace + P1/P2 source and approved P3 identity import projection/preflight",
+  "generatedAt": "2026-11-04",
+  "baseline": "ZYNTHEOR_AI_ENGINE_P16_NATIVE_CPU_PATCHED.zip",
+  "implementationStatus": "P3_OWNER_OVERRIDE_APPROVED_PROJECTION; BLOCKED_PENDING_DATABASE_CONNECTION",
+  "releaseApproved": false,
+  "phases": {
+    "P11": "NOT_VERIFIED",
+    "P12": "PARTIAL_TESTED",
+    "P13": "PARTIAL_TESTED",
+    "P14": "PARTIAL_TESTED",
+    "P15": "NOT_VERIFIED",
+    "P16": "BLOCKED_PENDING_DATA_GOVERNANCE",
+    "P17": "BLOCKED_NO_NATIVE_CHECKPOINT",
+    "P18": "PARTIAL_TESTED_NO_PROMOTION",
+    "P19": "PARTIAL_TESTED_AIRGAP_NOT_VERIFIED",
+    "P20": "BLOCKED",
+    "POSTGRESQL_P1": "SOURCE_AND_FOCUSED_TESTS_PASS_BLOCKED_LIVE_DATABASE",
+    "POSTGRESQL_P2_IDENTITY_AUTH": "SOURCE_AND_OFFLINE_TESTS_PASS_BLOCKED_DATABASE_AND_SOURCE_CONFLICT",
+    "POSTGRESQL_P3_IDENTITY_CUTOVER": "OWNER_PROJECTION_APPROVED_HASH_BOUND; DRY_RUN_SOURCE_VALIDATION_PASS; BLOCKED_PENDING_DATABASE_CONNECTION; NO_CUTOVER"
+  },
+  "verification": {
+    "nodeTargetedTests": {
+      "passed": 33,
+      "failed": 0,
+      "status": "PASS"
+    },
+    "pythonNativeCpuAndRuntimeTests": {
+      "passed": 12,
+      "failed": 0,
+      "status": "PASS"
+    },
+    "pythonSovereignBackupRestoreTests": {
+      "passed": 3,
+      "failed": 0,
+      "status": "PASS"
+    },
+    "totalTargetedTests": {
+      "passed": 48,
+      "failed": 0,
+      "status": "PASS"
+    },
+    "datasetValidation": {
+      "status": "PASS",
+      "samples": 15,
+      "splits": {
+        "train": 8,
+        "validation": 3,
+        "test": 4
+      }
+    },
+    "typecheck": {
+      "status": "PASS",
+      "command": "npm run typecheck"
+    },
+    "fullNpmBuild": {
+      "status": "PASS_WITH_EXISTING_WARNINGS",
+      "command": "npm run build",
+      "warnings": [
+        "Existing Node core-module externalization in lib/truth-kernel.ts",
+        "Existing vendor chunk exceeds 600 kB warning threshold"
+      ]
+    },
+    "nativeTraining": {
+      "status": "BLOCKED",
+      "reason": "Existing dataset source/license verification and authorized human-review gates are not approved."
+    },
+    "nativeCheckpointCreated": false,
+    "nativeInferenceReady": false,
+    "productionApproval": false,
+    "uiSyntaxTranspilation": {
+      "passed": 4,
+      "failed": 0,
+      "status": "PASS",
+      "files": [
+        "src/App.tsx",
+        "src/components/AuthGate.tsx",
+        "src/components/TeamManagementPage.tsx",
+        "src/services/identityService.ts"
+      ]
+    },
+    "authBrowserE2E": {
+      "status": "NOT_VERIFIED",
+      "reason": "No browser E2E session was executed; HTTP auth integration is implemented as a real-PostgreSQL-gated test and was skipped without P2_TEST_DATABASE_URL."
+    },
+    "latestFocusedRerun": {
+      "nodeP13CoordinatorTests": {
+        "passed": 7,
+        "failed": 0,
+        "status": "PASS"
+      },
+      "pythonNativeCpuAndRuntimeTests": {
+        "passed": 12,
+        "failed": 0,
+        "status": "PASS"
+      },
+      "datasetValidation": {
+        "status": "PASS",
+        "samples": 15,
+        "splits": {
+          "train": 8,
+          "validation": 3,
+          "test": 4
+        }
+      },
+      "p17RuntimeProbe": {
+        "status": "MODEL_NOT_FOUND",
+        "ready": false,
+        "reason": "NATIVE_MODEL_NOT_TRAINED"
+      },
+      "p18LifecycleLedger": {
+        "status": "PASS",
+        "verified": true,
+        "events": 0,
+        "modelPromoted": false
+      },
+      "p19SovereignPreflight": {
+        "status": "BLOCKED",
+        "localOnly": false,
+        "airGap": "NOT_VERIFIED",
+        "containerIsolation": "NOT_VERIFIED"
+      },
+      "p20PlatformGate": {
+        "status": "BLOCKED",
+        "releaseApproved": false
+      },
+      "pythonCompileall": {
+        "status": "PASS"
+      },
+      "identityRuntimeSmoke": {
+        "status": "PASS",
+        "checks": [
+          "versioned_pbkdf2_sha512",
+          "legacy_hash_verification",
+          "legacy_hash_upgrade",
+          "registration",
+          "session_validation"
+        ]
+      },
+      "identityCorruptionGuard": {
+        "status": "PASS",
+        "behavior": "startup_fails_closed"
+      },
+      "typescriptTypecheck": {
+        "status": "NOT_VERIFIED",
+        "reason": "Missing @types/node and vite/client; dependencies were not installed."
+      },
+      "browserE2E": {
+        "status": "NOT_VERIFIED",
+        "reason": "No browser E2E environment available."
+      }
+    },
+    "postgresqlP1": {
+      "status": "SOURCE_AND_STATIC_TESTS_PASS_LIVE_DATABASE_NOT_RUN",
+      "focusedTests": {
+        "passed": 4,
+        "failed": 0
+      },
+      "databaseUrlConfigured": false
+    },
+    "postgresqlP2": {
+      "status": "BLOCKED_PENDING_DATABASE_CONNECTION",
+      "sourcePreflight": "BLOCKED_SOURCE_CONFLICTS",
+      "conflict": "organization owner does not match an OWNER membership",
+      "sourceCounts": {
+        "users": 7,
+        "organizations": 7,
+        "memberships": 7,
+        "sessions": 8
+      },
+      "databaseUrlConfigured": false,
+      "testDatabaseUrlConfigured": false,
+      "liveIntegrationTest": "SKIPPED",
+      "sourceJsonPreservation": "All four source JSON files restored byte-for-byte from pre-test backup after legacy unit test pollution; final npm test SHA-256 values unchanged."
+    },
+    "latestRegressionRun": {
+      "node": {
+        "passed": 472,
+        "failed": 0,
+        "skipped": 2,
+        "total": 474,
+        "status": "PASS_WITH_DATABASE_TESTS_SKIPPED"
+      },
+      "vitest": {
+        "passed": 276,
+        "failed": 0,
+        "filesPassed": 33,
+        "status": "PASS"
+      },
+      "sourceIdentityJsonSha256": "UNCHANGED_AFTER_FINAL_NPM_TEST",
+      "command": "npm test"
+    },
+    "latestFocusedP1P2": {
+      "p1": {
+        "passed": 4,
+        "failed": 0,
+        "status": "PASS_STATIC_ONLY"
+      },
+      "p2": {
+        "passed": 6,
+        "failed": 0,
+        "skipped": 1,
+        "status": "PASS_OFFLINE; LIVE_POSTGRESQL_SKIPPED"
+      }
+    },
+    "postgresqlP3": {
+      "status": "BLOCKED_PENDING_DATABASE_CONNECTION",
+      "databaseUrlConfigured": false,
+      "p2TestDatabaseUrlConfigured": false,
+      "writesPerformed": false,
+      "livePostgreSQLVerification": "NOT_RUN",
+      "sourceCounts": {
+        "users": 7,
+        "organizations": 7,
+        "memberships": 7,
+        "sessions": 8
+      },
+      "originalSourceConflict": {
+        "organizationId": "org-usr-3",
+        "ownerId": 3,
+        "membershipId": "mem-3-org-usr-3",
+        "membershipUserId": 3,
+        "membershipRole": "ADMIN",
+        "ownerMembershipCount": 0
+      },
+      "approvedProjection": {
+        "approvalId": "chat-p3-owner-override-org-usr-3-2026-11-04-0019",
+        "toRole": "OWNER",
+        "ownerIdPreserved": true,
+        "sourceHashesBound": true,
+        "projectionConflicts": 0,
+        "overrideValidationErrors": 0,
+        "sourceMutationAllowed": false,
+        "approverIdentityIndependentlyVerified": false
+      },
+      "dryRun": {
+        "status": "BLOCKED_PENDING_DATABASE_CONNECTION",
+        "sourceSnapshotVerified": true,
+        "conflicts": 0,
+        "backupCreated": true,
+        "sourceJsonHashesUnchanged": true,
+        "databaseDuplicatesChecked": false
+      },
+      "cutoverPerformed": false
+    },
+    "latestFocusedP1P2P3": {
+      "p1": {
+        "passed": 4,
+        "failed": 0,
+        "status": "PASS_OFFLINE_ONLY"
+      },
+      "p2": {
+        "passed": 6,
+        "failed": 0,
+        "skipped": 1,
+        "status": "PASS_OFFLINE; LIVE_POSTGRESQL_SKIPPED"
+      },
+      "p3": {
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "status": "PASS_HASH_BOUND_PROJECTION_AND_READ_ONLY_PREFLIGHT_CONTRACT"
+      }
+    },
+    "postgresReadOnlyPreflight": {
+      "command": "npm run db:preflight",
+      "status": "BLOCKED_PENDING_DATABASE_CONNECTION",
+      "databaseReason": "DATABASE_URL_NOT_CONFIGURED",
+      "writesPerformed": false,
+      "rawSourceConflicts": 2,
+      "approvedProjectionConflicts": 0,
+      "overridesApplied": 1
+    }
+  },
+  "organization": {
+    "legacySnapshots": "PRESERVED_UNDER_archive/legacy-snapshots",
+    "unclassifiedArtifacts": "PRESERVED_UNDER_archive/unclassified-artifacts",
+    "localWorkspaceData": "EXCLUDED_FROM_DELIVERY_ZIP_TO_PROTECT_PRIVATE_RUNTIME_STATE",
+    "secrets": "EXCLUDED",
+    "environmentTemplate": "INCLUDED_AS_.env.example",
+    "pythonCaches": "EXCLUDED",
+    "dependenciesAndBuildOutput": "EXCLUDED",
+    "privateIdentityJson": {
+      "status": "PRESERVED_BYTE_FOR_BYTE_AND_INCLUDED_BY_USER_REQUEST",
+      "includedInDeliveryZip": true,
+      "fileCount": 32,
+      "uncompressedBytes": 87801,
+      "originalJsonFiles": [
+        "users.json",
+        "organizations.json",
+        "organization_members.json",
+        "sessions.json",
+        "usage_records.json"
+      ],
+      "allBackupDirectoriesIncluded": true,
+      "sensitiveContents": [
+        "identity/profile records",
+        "password hashes",
+        "session token hashes"
+      ],
+      "warning": "backup p2-2026-11-03T16-48-32-402Z-5ab70f057fa4 is a test-polluted historical backup; not a migration source"
+    }
+  },
+  "integrity": {
+    "manifest": "FILE_MANIFEST.sha256",
+    "manifestDoesNotHashItself": true,
+    "manifestFileCount": 947,
+    "privateIdentityDataIncludedInZip": true
+  },
+  "accountAndUi": {
+    "loginRegistrationUi": "COOKIE_AND_CSRF_INTEGRATED_NOT_BROWSER_E2E_VERIFIED",
+    "sessionValidation": "POSTGRESQL_CURRENT_MEMBERSHIP_AND_ROLE_LOOKUP; FAILS_CLOSED_WITHOUT_DATABASE",
+    "teamManagementUi": "TENANT_SCOPED_COOKIE_AND_CSRF; DATABASE_INTEGRATION_NOT_VERIFIED",
+    "registration": "OPEN_SELF_SERVICE_SEPARATE_TENANT",
+    "predictableBootstrapCredential": "REMOVED_FOR_NEW_STORES_AND_RETIRED_ADDRESS_BLOCKED",
+    "ownerRoleEditing": "GENERIC_OWNER_EDIT_BLOCKED; DEDICATED_AUDITED_TRANSFER_SOURCE_IMPLEMENTED_DATABASE_TEST_PENDING",
+    "sessionNetworkFailure": "NO_OFFLINE_ACCESS; EXPIRES_AND_REVOKES_IN_POSTGRESQL; LIVE_DATABASE_NOT_VERIFIED",
+    "reviewReport": "docs/ACCOUNT_ACCESS_REVIEW_TH.md",
+    "identityStorageHardening": "POSTGRESQL_AUTH_ROUTES_FAIL_CLOSED; LEGACY_JSON_PRESERVED; IMPORT_BLOCKED_BY_SOURCE_OWNER_CONFLICT",
+    "passwordHashing": "VERSIONED_PBKDF2_SHA512_310000; LEGACY_10000_UPGRADED_ON_SUCCESSFUL_LOGIN",
+    "identityCorruption": "FAIL_CLOSED",
+    "authRateLimitIp": "DIRECT_SOCKET_ONLY_UNTIL_TRUSTED_PROXY_CONFIGURED",
+    "p3PreflightReport": "docs/operations/POSTGRESQL_IDENTITY_P3_PREFLIGHT.md"
+  },
+  "deliveryArchive": "ZYNTHEOR_CORE_X_P3_IDENTITY_PREFLIGHT_BUNDLE.zip (flat project root; full identity data/backups included; PostgreSQL blocked)",
+  "previousDeliveryArchive": "ZYNTHEOR_CORE_X_P2_IDENTITY_INTEGRATED.zip (source workspace; private workspace_data, build and dependencies excluded)",
+  "deliveryArchiveStatus": "FLAT_ROOT_REPACKAGED_FOR_CODESPACES",
+  "approvedP3Override": {
+    "approvalId": "chat-p3-owner-override-org-usr-3-2026-11-04-0019",
+    "path": "workspace_data/identity/migration-overrides/approved-owner-corrections.json",
+    "includedInDeliveryZip": true,
+    "scope": "Import projection only; no database write or cutover authorization"
+  },
+  "deliveryArchiveLayout": "FLAT_PROJECT_ROOT_NO_WORK_WRAPPER; package.json is at ZIP root and files can be extracted directly into Codespaces repository root"
+}

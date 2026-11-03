@@ -1,0 +1,110 @@
+{
+  "manifest_version": "1.3.1",
+  "name": "zyntheor-core-engineering-v1.2",
+  "description": "Bilingual Thai-English engineering intelligence corpus for instruction-tuning ZYNTHEOR CORE. Phase 2 (Buffalo 0.12) dataset engineering: schema, leakage, near-duplicate, provenance digests. All samples handcrafted; no bulk synthetic inflation.",
+  "target_domains": [
+    "software_engineering",
+    "agent_reasoning",
+    "code_analysis",
+    "debugging",
+    "tool_usage",
+    "security_engineering",
+    "workspace_operations",
+    "instruction_following"
+  ],
+  "schema": {
+    "required_fields": [
+      "id",
+      "split",
+      "domain",
+      "category",
+      "language",
+      "license",
+      "source",
+      "instruction",
+      "expected_output"
+    ],
+    "optional_fields": [
+      "context",
+      "test_cases",
+      "input"
+    ],
+    "allowed_splits": [
+      "train",
+      "validation",
+      "test"
+    ],
+    "allowed_languages": [
+      "th-en",
+      "th",
+      "en"
+    ]
+  },
+  "dataset_files": [
+    {
+      "file_path": "training/dataset/samples.json",
+      "format": "json",
+      "license": "Apache-2.0",
+      "sample_count": 15,
+      "split_distribution": {
+        "train": 8,
+        "validation": 3,
+        "test": 4
+      },
+      "language_distribution": {
+        "th-en": 9,
+        "en": 3,
+        "th": 3
+      },
+      "category_distribution": {
+        "code_generation": 3,
+        "debugging": 2,
+        "tool_orchestration": 2,
+        "instruction_following": 2,
+        "code_explanation": 1,
+        "multi_constraint": 1,
+        "agent_reasoning": 1,
+        "security_engineering": 1,
+        "workspace_operations": 1,
+        "code_analysis": 1
+      },
+      "change_log": [
+        {
+          "version": "1.0.0",
+          "date": "2026-10-28",
+          "action": "initial 5 handcrafted seeds"
+        },
+        {
+          "version": "1.1.0",
+          "date": "2026-10-29",
+          "action": "append 4 handcrafted samples; original 5 retained"
+        },
+        {
+          "version": "1.2.0",
+          "date": "2026-10-29",
+          "action": "Phase 2 engineering: append th-en-tool-010 and th-code-011; strengthen verifier (near-dup Jaccard, provenance, language allowlist); add dataset_report.mjs and SHA256SUMS"
+        },
+        {
+          "version": "1.3.0",
+          "date": "2026-10-30",
+          "action": "Phase 3 ZYNTHEOR CORE expansion: append samples 012-015 covering Agent Reasoning, Security Engineering, Workspace Operations, and Code Analysis"
+        },
+        {
+          "version": "1.3.1",
+          "date": "2026-11-03",
+          "action": "Corrected stale split metadata after verification against samples.json; no sample content changed."
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "maintainer": "ZYNTHEOR AI ENGINE Team",
+    "curation_method": "Handcrafted software engineering benchmarks only; no bulk auto-generated training rows",
+    "license": "Apache-2.0",
+    "last_audited": "2026-10-30T03:00:00Z",
+    "strict_deduplication": true,
+    "leakage_protection": "Disjoint train-val-test normalized instruction hashing + Jaccard near-duplicate warnings",
+    "human_review_status": "REQUIRED_BEFORE_FULL_TRAINING",
+    "training_license_claim": "NOT_AUTOMATICALLY_ASSERTED — each sample carries Apache-2.0 source tag but fitness for commercial training still requires policy review"
+  }
+}

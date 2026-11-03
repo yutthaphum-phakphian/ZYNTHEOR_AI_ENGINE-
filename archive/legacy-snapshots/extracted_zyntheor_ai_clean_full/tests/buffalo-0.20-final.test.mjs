@@ -1,0 +1,11 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import fs from 'fs';
+test('0.20 releaseFinalizer exists', () => assert.ok(fs.existsSync('src/services/releaseFinalizer.ts')));
+test('0.20 allowed statuses', () => assert.ok(fs.readFileSync('src/services/releaseFinalizer.ts','utf8').includes('RELEASE_STATUSES')));
+test('0.20 isAllowedStatus', () => assert.ok(fs.readFileSync('src/services/releaseFinalizer.ts','utf8').includes('isAllowedStatus')));
+test('0.20 finalCheck bounded', () => assert.ok(fs.readFileSync('src/services/releaseFinalizer.ts','utf8').includes('bounded')));
+test('0.20 productionReady flag', () => assert.ok(fs.readFileSync('src/services/releaseFinalizer.ts','utf8').includes('productionReady')));
+test('0.20 vite splits training', () => assert.ok(fs.readFileSync('vite.config.ts','utf8').includes('training')));
+test('0.20 vite splits buffalo', () => assert.ok(fs.readFileSync('vite.config.ts','utf8').includes('buffalo')));
+test('0.20 no external font', () => assert.ok(!fs.readFileSync('src/App.tsx','utf8').includes('fonts.googleapis.com')));
+test('0.20 loopback default', () => assert.ok(fs.readFileSync('server.ts','utf8').includes('127.0.0.1') || fs.readFileSync('src/services/productionGuard.ts','utf8').includes('127.0.0.1')));
+test('0.20 final version check', () => assert.ok(true));

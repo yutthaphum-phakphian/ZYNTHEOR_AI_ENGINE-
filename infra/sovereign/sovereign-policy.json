@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "product": "ZYNTHEOR CORE X",
+  "mode": "LOCAL_FIRST",
+  "localOnlyEnvironmentVariable": "ZYNTHEOR_LOCAL_ONLY",
+  "localOnlyEnabledValues": [
+    "1",
+    "true",
+    "yes"
+  ],
+  "externalInferenceConsentRequired": true,
+  "silentCloudFallback": false,
+  "telemetryDefault": "DISABLED",
+  "secretsInAuditLogs": "FORBIDDEN",
+  "backup": {
+    "integrity": "SHA-256 per file",
+    "restoreMode": "VERIFY_BEFORE_EXTRACT",
+    "overwriteExistingFiles": false
+  },
+  "airGapClaim": "NOT_VERIFIED_WITHOUT_EXTERNAL_NETWORK_ISOLATION_TEST",
+  "containerIsolationClaim": "NOT_VERIFIED_WITHOUT_HARDENED_SANDBOX_RUNTIME_TEST"
+}

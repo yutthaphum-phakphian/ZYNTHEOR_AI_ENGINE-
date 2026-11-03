@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.1.0",
+  "baseline": {
+    "source": "ZYNTHEOR_CORE_X_FULL_INTEGRATED_RELEASE.zip",
+    "tests": 460,
+    "passed": 443,
+    "failed": 16,
+    "skipped": 1
+  },
+  "current": {
+    "nodeTests": 460,
+    "nodePassed": 459,
+    "nodeFailed": 0,
+    "nodeSkipped": 1,
+    "vitestFiles": 33,
+    "vitestPassed": 276,
+    "vitestFailed": 0,
+    "typecheck": "PASS",
+    "regressionGate": "GREEN",
+    "releaseApproved": false
+  },
+  "fixedRootCauses": [
+    "task_memory_clear_authorization",
+    "context_exact_path_provenance",
+    "local_provider_environment_leakage",
+    "secure_environment_defaults",
+    "access_middleware_contract",
+    "artifact_ignore_policy",
+    "stale_dataset_contract",
+    "stale_predictable_tenant_fixture",
+    "vitest_node_test_runner_mismatch",
+    "repair_audit_event_order_assertion"
+  ],
+  "remainingGovernanceGates": [
+    "postgresql_migration_and_rollback_evidence",
+    "native_runtime_and_checkpoint_evidence",
+    "dataset_provenance_license_human_approval",
+    "sovereign_air_gap_preflight",
+    "platform_quality_and_security_gate_wiring"
+  ],
+  "policy": {
+    "testsModified": true,
+    "testChangesWereContractMigrations": true,
+    "nativeCheckpointCreated": false,
+    "securityHardeningReverted": false,
+    "productionDeploymentAttempted": false
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1.0.0",
+  "phase": "P20",
+  "product": "ZYNTHEOR CORE X",
+  "generatedAt": "2026-11-03T15:10:10.664Z",
+  "status": "BLOCKED",
+  "phases": {
+    "P11": {
+      "status": "NOT_VERIFIED",
+      "evidence": [
+        "lib/intelligence-core.ts",
+        "lib/intelligence-orchestrator.ts"
+      ],
+      "note": "Source foundation exists; current end-to-end and security acceptance evidence is not attached to this run."
+    },
+    "P12": {
+      "status": "NOT_VERIFIED",
+      "evidence": [
+        "src/services/taskMemory.ts",
+        "src/services/workspaceMemory.ts",
+        "src/services/tenantScopedStorage.ts",
+        "src/services/tenantIsolation.ts"
+      ],
+      "note": "Source foundation exists; current end-to-end and security acceptance evidence is not attached to this run."
+    },
+    "P13": {
+      "status": "NOT_VERIFIED",
+      "evidence": [
+        "lib/agent-orchestrator.ts",
+        "lib/multi-agent-coordinator.mjs",
+        "src/services/safeExecutor.ts"
+      ],
+      "note": "Source foundation exists; current end-to-end and security acceptance evidence is not attached to this run."
+    },
+    "P14": {
+      "status": "NOT_VERIFIED",
+      "evidence": [
+        "src/services/selfImprovementEngine.ts",
+        "tests/self-improvement-and-learning.test.mjs"
+      ],
+      "note": "Source foundation exists; current end-to-end and security acceptance evidence is not attached to this run."
+    },
+    "P15": {
+      "status": "NOT_VERIFIED",
+      "evidence": [
+        "src/services/selfImprovementEngine.ts",
+        "src/services/auditLedger.ts",
+        "src/services/patchApplier.ts"
+      ],
+      "note": "Source foundation exists; current end-to-end and security acceptance evidence is not attached to this run."
+    },
+    "P16": {
+      "status": "BLOCKED",
+      "evidence": [
+        "training/native_cpu/train_native_cpu.py",
+        "training/native_cpu/native_cpu_model.py",
+        "training/dataset/manifest.json"
+      ],
+      "note": "Training is not evidenced as executed. Dataset gate: NOT_TRAINED."
+    },
+    "P17": {
+      "status": "BLOCKED",
+      "evidence": [
+        "training/native_cpu/native_runtime.py",
+        "lib/native-model-gateway.mjs"
+      ],
+      "note": "Native inference is not ready: NATIVE_MODEL_NOT_TRAINED;"
+    },
+    "P18": {
+      "status": "NOT_VERIFIED",
+      "evidence": [
+        "lib/model-lifecycle.mjs"
+      ],
+      "note": "Lifecycle code exists; no model lifecycle event chain has been established yet."
+    },
+    "P19": {
+      "status": "BLOCKED",
+      "evidence": [
+        "infra/sovereign/sovereign-policy.json",
+        "scripts/sovereign_infra.py"
+      ],
+      "note": "Set ZYNTHEOR_LOCAL_ONLY=1 for this process to exercise local-only mode. Air-gap is not inferred from configuration."
+    },
+    "P20": {
+      "status": "BLOCKED",
+      "evidence": [
+        "lib/corex-platform-gate.mjs",
+        "docs/audit/P11_P20_INTEGRATION_STATUS.json"
+      ],
+      "note": "Integrated release is gated by one or more upstream phases; no production-ready claim is permitted."
+    }
+  },
+  "releaseApproved": false,
+  "invariants": {
+    "missingEvidenceIsPass": false,
+    "agentSelfApprovalAllowed": false,
+    "silentCloudFallback": false,
+    "localOnlyRequiresExplicitEnvironmentFlag": true,
+    "nativeIdentityMustBeCoreNative": true,
+    "modelPromotionRequiresHumanOwnerApproval": true
+  },
+  "notes": [
+    "This report measures source/evidence present in the current project tree.",
+    "Source presence is not an implementation acceptance test.",
+    "P11-P15 prior reports were not treated as current proof unless current run evidence was available."
+  ]
+}

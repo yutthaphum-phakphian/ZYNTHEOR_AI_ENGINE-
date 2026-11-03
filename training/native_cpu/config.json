@@ -1,0 +1,15 @@
+{
+  "model_id": "zyntheor-native-cpu-001",
+  "identity": "CORE_NATIVE",
+  "seed": 849202,
+  "architecture": {"d_model": 256, "n_layers": 6, "n_heads": 4, "context": 256},
+  "parameter_range": [4500000, 5500000],
+  "batch_size": 1,
+  "epochs": 1,
+  "learning_rate": 0.0003,
+  "weight_decay": 0.01,
+  "max_grad_norm": 1.0,
+  "device": "cpu",
+  "requires_human_review": true,
+  "production_approval": false
+}

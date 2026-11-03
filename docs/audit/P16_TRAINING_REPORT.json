@@ -1,0 +1,60 @@
+{
+  "phase": "P16",
+  "status": "BLOCKED_PENDING_DATA_GOVERNANCE",
+  "implementation": "REAL_TRAINING_PIPELINE_ADDED",
+  "training_executed": false,
+  "reason": "Dataset aggregate human review and per-sample source/license/review approvals are not recorded.",
+  "dataset": {
+    "samples": 15,
+    "splits": {
+      "train": 8,
+      "validation": 3,
+      "test": 4
+    },
+    "samples_sha256": "49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db",
+    "manifest_sha256": "8bd97ecbd308664f48fbcd5d150d5001746588e229899d213a0c639b2e7a0a3c"
+  },
+  "native_model": {
+    "model_id": "zyntheor-native-cpu-001",
+    "identity": "CORE_NATIVE",
+    "architecture": {
+      "d_model": 256,
+      "n_layers": 6,
+      "n_heads": 4,
+      "context": 256,
+      "vocab_size": 259
+    },
+    "parameter_count": 4864768,
+    "initialization": "DETERMINISTIC_RANDOM_SEED",
+    "parent_model_id": null,
+    "checkpoint_created": false,
+    "inference_ready": false,
+    "production_approved": false
+  },
+  "verification": {
+    "python_unit_tests": {
+      "status": "PASS",
+      "passed": 8,
+      "failed": 0,
+      "scope": "tests/native_cpu/test_native_cpu.py"
+    },
+    "python_compileall": "PASS",
+    "dataset_validation": "PASS",
+    "hardware_probe": {
+      "status": "PASS",
+      "cpu_cores": 3,
+      "ram_gb": 5.81,
+      "cuda_available": false,
+      "torch": "2.10.0+cpu"
+    },
+    "training_invocation": "BLOCKED_AS_DESIGNED",
+    "full_npm_build": "NOT_VERIFIED",
+    "provenance_sample_hash_check": "PASS",
+    "native_runtime_tests": {
+      "status": "PASS",
+      "passed": 4,
+      "failed": 0,
+      "scope": "tests/native_cpu/test_native_runtime.py"
+    }
+  }
+}

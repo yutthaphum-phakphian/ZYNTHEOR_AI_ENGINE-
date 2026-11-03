@@ -1,0 +1,167 @@
+{
+  "registry_version": "1.0.0",
+  "updated_at": "2026-10-30T03:00:00Z",
+  "models": [
+    {
+      "model_id": "zyntheor-core-0.10.0-foundation",
+      "display_name": "ZYNTHEOR CORE 0.1 (Foundation Spec)",
+      "version": "0.1.0-alpha",
+      "revision": "spec-v1",
+      "status": "SPECIFICATION_LOCKED_PENDING_GPU_RUN",
+      "trained_weights_exist": false,
+      "base_model": {
+        "name": "Qwen/Qwen2.5-Coder-7B-Instruct",
+        "revision": "main",
+        "parameters": "7.61B",
+        "license": "Apache-2.0",
+        "tokenizer": "Qwen2Tokenizer",
+        "provider_attribution": "Alibaba Cloud / Qwen Team"
+      },
+      "dataset_provenance": {
+        "manifest_name": "zyntheor-core-engineering-v1.2",
+        "manifest_version": "1.3.1",
+        "manifest_sha256": "8bd97ecbd308664f48fbcd5d150d5001746588e229899d213a0c639b2e7a0a3c",
+        "samples_sha256": "49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db",
+        "samples_count": 15,
+        "domains": [
+          "software_engineering",
+          "agent_reasoning",
+          "code_analysis",
+          "debugging",
+          "tool_usage",
+          "security_engineering",
+          "workspace_operations",
+          "instruction_following"
+        ],
+        "languages": [
+          "th-en",
+          "en",
+          "th"
+        ],
+        "splits": {
+          "train": 8,
+          "validation": 3,
+          "test": 4
+        },
+        "human_review_status": "REQUIRED_BEFORE_FULL_TRAINING",
+        "training_license_claim": "NOT_AUTOMATICALLY_ASSERTED"
+      },
+      "training_spec": {
+        "config_file": "training/config/training_config.json",
+        "method": "LoRA (r=32, alpha=64)",
+        "precision": "bf16",
+        "learning_rate": 0.0002,
+        "effective_batch_size": 16,
+        "seed": 849202
+      },
+      "hardware_audit": {
+        "platform": "linux-x86_64",
+        "cpu_cores": 16,
+        "ram_gb": 12.0,
+        "gpu_present": false,
+        "cuda_devices": 0,
+        "vram_gb": 0.0,
+        "disk_free_gb": 189.0,
+        "readiness_verdict": "CPU-only node. Sufficient for dataset validation, token analysis, CPU smoke testing, and evaluation harness. Insufficient for full LoRA weight backprop without external GPU accelerator."
+      },
+      "checkpoints": {
+        "active_checkpoint": null,
+        "checkpoint_digest_sha256": null,
+        "reason": "Weights not yet trained. Strictly no fabricated weight files."
+      },
+      "benchmark_baseline": {
+        "status": "NOT_EVALUATED",
+        "benchmark_run_id": null,
+        "overall_score": null,
+        "syntax_pass_rate": null,
+        "unit_test_pass_rate": null,
+        "bilingual_compliance_rate": null,
+        "tool_safety_compliance_rate": null,
+        "hallucination_rate": null,
+        "note": "Previous numeric fields had no attached reproducible benchmark evidence; retained under unverified_legacy_claims."
+      },
+      "export_compatibility": {
+        "gguf": "COMPATIBLE_PENDING_TRAINED_WEIGHTS",
+        "quantization": "Q4_K_M",
+        "ollama_modelfile": "Modelfile_ZYNTHEOR_CORE_0.1",
+        "llamacpp": "llama.cpp b3000+"
+      },
+      "terms_and_license": {
+        "license": "Apache-2.0",
+        "data_privacy": "Local-first, zero telemetry",
+        "human_approval_gate": "Enforced for all consequential system actions"
+      },
+      "unverified_legacy_claims": {
+        "benchmark_baseline": {
+          "evaluator": "training/scripts/evaluate_baseline.mjs",
+          "overall_score": 1.0,
+          "syntax_pass_rate": 1.0,
+          "unit_test_pass_rate": 1.0,
+          "bilingual_compliance_rate": 1.0,
+          "tool_safety_compliance_rate": 1.0,
+          "hallucination_rate": 0.0
+        }
+      }
+    },
+    {
+      "model_id": "zyntheor-core-1.2.0-gpu-apex",
+      "display_name": "ZYNTHEOR CORE 1.2.0 (APEX ULTIMATE LTS Spec)",
+      "version": "1.2.0-lts",
+      "revision": "apex-qlora-v1",
+      "status": "SPECIFICATION_LOCKED_PENDING_GPU_RUN",
+      "trained_weights_exist": false,
+      "base_model": {
+        "name": "Qwen/Qwen2.5-Coder-7B-Instruct",
+        "revision": "main",
+        "parameters": "7.61B",
+        "license": "Apache-2.0",
+        "tokenizer": "Qwen2Tokenizer"
+      },
+      "dataset_provenance": {
+        "manifest_name": "zyntheor-core-engineering-v1.2",
+        "manifest_version": "1.3.1",
+        "manifest_sha256": "8bd97ecbd308664f48fbcd5d150d5001746588e229899d213a0c639b2e7a0a3c",
+        "genesis_epoch": 849202,
+        "baseline_drift": "0.00%",
+        "ssot_anchor": "https://yutthaphum-phakphian.github.io/ZYRQUEN-1.2-LTS/?utm_source=chatgpt.com",
+        "samples_sha256": "49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db",
+        "samples_count": 15,
+        "splits": {
+          "train": 8,
+          "validation": 3,
+          "test": 4
+        }
+      },
+      "training_spec": {
+        "config_file": "training/config/training_config.json",
+        "method": "QLoRA 4-bit / LoRA 16-bit",
+        "precision": "bf16",
+        "target_modules": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj",
+          "gate_proj",
+          "up_proj",
+          "down_proj"
+        ],
+        "lora_r": 32,
+        "lora_alpha": 64,
+        "learning_rate": 0.0002,
+        "seed": 849202
+      },
+      "hardware_audit": {
+        "gpu_required": true,
+        "recommended_vram_gb": 16.0,
+        "minimum_vram_gb": 8.0,
+        "current_runtime_gpu": false,
+        "readiness_verdict": "Specification ready. Awaiting remote GPU runner attachment or CUDA node execution."
+      },
+      "checkpoints": {
+        "active_checkpoint": null,
+        "checkpoint_digest_sha256": null,
+        "reason": "Weights not yet trained. Strictly no fabricated weight files under Sovereign Truth Principle."
+      }
+    }
+  ]
+}

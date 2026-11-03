@@ -1,0 +1,19 @@
+{
+  "registry_version": "1.0.0",
+  "models": [
+    {
+      "model_id": "zyntheor-native-cpu-001",
+      "display_name": "ZYNTHEOR CORE Native CPU Research",
+      "identity": "CORE_NATIVE",
+      "status": "NOT_TRAINED",
+      "parent_model_id": null,
+      "initialization": "RANDOM_SEED_INITIALIZATION",
+      "trained_weights_exist": false,
+      "checkpoint": null,
+      "checkpoint_sha256": null,
+      "inference_ready": false,
+      "production_approved": false,
+      "qualification_note": "No checkpoint is registered until a governed real training run completes."
+    }
+  ]
+}

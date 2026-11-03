@@ -1,0 +1,18 @@
+ZYNTHEOR CORE — Dataset Integrity Report
+Generated: 2026-11-03
+
+Total samples: 15
+Split distribution: {'train': 8, 'validation': 3, 'test': 4}
+Languages: {'th-en': 10, 'en': 3, 'th': 2}
+Domains: {'software_engineering': 4, 'debugging': 2, 'tool_usage': 2, 'instruction_following': 2, 'code_analysis': 2, 'agent_reasoning': 1, 'security_engineering': 1, 'workspace_operations': 1}
+
+SHA-256
+manifest.json: 8bd97ecbd308664f48fbcd5d150d5001746588e229899d213a0c639b2e7a0a3c
+samples.json: 49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db
+
+Integrity: PASS (JSON/schema/split counts verified by P16 validator)
+Training admission: BLOCKED
+Reason: source/license verification and per-sample human review are not recorded as approved.
+
+A valid structural dataset is not automatically approved for model training.
+No sample content was changed by this metadata correction.

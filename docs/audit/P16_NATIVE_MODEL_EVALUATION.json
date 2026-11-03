@@ -1,0 +1,7 @@
+{
+  "phase": "P16",
+  "status": "NOT_RUN",
+  "reason": "No native checkpoint exists because dataset governance approval is pending.",
+  "test_split_samples": 4,
+  "production_approval": "NOT_GRANTED"
+}

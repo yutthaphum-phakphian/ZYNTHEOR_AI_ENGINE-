@@ -1,0 +1,19 @@
+# Version control
+.git
+.github
+
+# Dependencies and build output
+node_modules
+dist
+coverage
+
+# Local runtime state and private data
+workspace_data
+.env*
+!.env.example
+
+# Generated/cache files and delivery archives
+__pycache__
+*.pyc
+*.log
+*.zip
