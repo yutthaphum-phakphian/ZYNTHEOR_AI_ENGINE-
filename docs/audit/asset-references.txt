@@ -1,0 +1,643 @@
+./CONTRIBUTING.md:28:git clone https://github.com/zxsvzv00-cmyk/zyntheor-ai.git
+./CONTRIBUTING.md:29:cd zyntheor-ai
+./ZYNTHEOR_CORE_X_REGRESSION_CHANGELOG.md:5:The work continued from `ZYNTHEOR_CORE_X_FULL_INTEGRATED_RELEASE.zip` in `/home/ubuntu/workspaces/zyntheor-core-x-regression`. The original workspace was preserved. Runtime state, dependencies and build output were excluded from the release package.
+./public/status-cards.svg:3:  <desc id="d">TESTS: UNVERIFIED; TYPE ERRORS: UNVERIFIED; BUILD: UNVERIFIED; MANIFEST: UNVERIFIED. Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed</desc>
+./public/status-cards.svg:33:  <text x="420" y="110" text-anchor="middle" font-size="11" fill="#64748B">Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed</text>
+./public/manifest.webmanifest:9:  "icons": [{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+./public/sw.js:1:const CACHE = 'zyntheor-shell-v2';
+./public/sw.js:2:self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(['/','/manifest.webmanifest','/icon.svg']))));
+./scripts/migrate-identity-json.mjs:119:  const pool = new Pool({ connectionString: databaseUrl, max: 1, connectionTimeoutMillis: 5000, application_name: 'zyntheor-identity-import-p2' });
+./scripts/clear-all-mocks.sh:3:# รันใน root ของโปรเจค zyntheor-ai-fixed
+./scripts/gen-status-cards.mjs:2:// Generates public/status-cards.svg from REAL command results. No dependencies.
+./scripts/gen-status-cards.mjs:3://   node scripts/gen-status-cards.mjs              run the 4 checks, write the SVG
+./scripts/gen-status-cards.mjs:4://   node scripts/gen-status-cards.mjs --unverified write the SVG with every card UNVERIFIED (nothing is run)
+./scripts/gen-status-cards.mjs:10:const OUT = process.env.STATUS_OUT || 'public/status-cards.svg';
+./scripts/gen-status-cards.mjs:48:  ? 'Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed'
+./scripts/postgres-preflight.mjs:73:    application_name: 'zyntheor-p3-readonly-preflight',
+./vite.config.ts:4:// GitHub Pages serves the site under /zyntheor-ai/; local dev and normal builds stay at '/'.
+./vite.config.ts:5:const base = process.env.GITHUB_PAGES === 'true' ? '/zyntheor-ai-fixed/' : '/';
+./governance/registry.yaml:19:  id: "zyntheor-v1.1-upgrade"
+./governance/registry.yaml:50:  - id: zyntheor-v1.1-upgrade
+./governance/registry.yaml:56:  - id: zyntheor-v1.1.1-forensic-diff
+./governance/registry.yaml:61:    parent_release: zyntheor-v1.1-upgrade
+./governance/registry.yaml:80:      rollback_target: zyntheor-v1.1-upgrade
+./governance/upgrade.yaml:7:  subsystem_id: "zyntheor-v1.1-upgrade"
+./render.yaml:3:    name: zyntheor-buffalo-110
+./.github/workflows/native-core-1.1.0.yml:7:      - '.github/workflows/native-core-1.1.0.yml'
+./.github/workflows/native-core-1.1.0.yml:11:  native-core:
+./.github/workflows/native-core-1.1.0.yml:35:        run: npm run check:env 2>&1 | tee native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:39:          echo "## Dataset Manifest" | tee -a native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:40:          ls -lh training/dataset/manifest.json training/dataset/samples.json | tee -a native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:41:          node training/scripts/verify_dataset.mjs 2>&1 | tee -a native-core-audit.txt || echo "UNVERIFIED: verify_dataset failed - check manifest" | tee -a native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:45:          echo "## Quality Gates" | tee -a native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:46:          node training/scripts/quality_gates.mjs 2>&1 | tee -a native-core-audit.txt || echo "Quality gates check" | tee -a native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:50:          echo "## Baseline Eval" | tee -a native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:51:          node training/scripts/evaluate_baseline.mjs 2>&1 | tee -a native-core-audit.txt || echo "UNVERIFIED: No checkpoint - SPECIFICATION_LOCKED_PENDING_GPU_RUN" | tee -a native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:54:        run: npm run verify 2>&1 | tee -a native-core-audit.txt
+./.github/workflows/native-core-1.1.0.yml:59:          path: native-core-audit.txt
+./index.html:14:    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+./README.md:2:  <img src="public/zyntheor-header.svg" alt="ZYNTHEOR AI ENGINE" width="840" />
+./README.md:6:  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE checks" /></a>
+./README.md:14:<p align="center"><img src="public/status-cards.svg" alt="Local status cards. Values depend on the latest status generation run; UNVERIFIED means evidence is unavailable." width="840" /></p>
+./README.md:16:<p align="center"><img src="public/zyntheor-features.svg" alt="ZYNTHEOR AI ENGINE engineering pillars" width="840" /></p>
+./README.md:106:![ZYNTHEOR AI ENGINE multi-tier architecture](public/zyntheor-architecture.svg)
+./README.md:220:<p align="center"><img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition" width="840" /></p>
+./tests/model-gateway-integration.test.mjs:144:  const logPath = path.join(tmpdir(), `zyntheor-external-fetch-${randomUUID()}.log`);
+./tests/postgres-identity-p2.test.mjs:84:  assert.match(legacy, /zyntheor-identity-test-\$\{process\.pid\}-\$\{threadId\}/);
+./tests/corex-model-lifecycle.test.mjs:19:  const root=fs.mkdtempSync(path.join(os.tmpdir(),'zyntheor-lifecycle-'));
+./tests/corex-model-lifecycle.test.mjs:25:  const root=fs.mkdtempSync(path.join(os.tmpdir(),'zyntheor-lifecycle-registry-'));
+./tests/corex-model-lifecycle.test.mjs:28:    fs.writeFileSync(path.join(dir,'native_model_identity.json'),JSON.stringify({registry_version:'1.0.0',models:[{model_id:'zyntheor-native-cpu-001',identity:'CORE_NATIVE',status:'NOT_TRAINED',parent_model_id:null,checkpoint:null,checkpoint_sha256:null}]}));
+./tests/intelligence-core.test.mjs:147:  assert.equal(pkgInfo.name, 'zyntheor-ai-engine');
+./tests/buffalo-core.test.mjs:72:  assert.equal(extractToken({ 'x-zyntheor-token': ' xyz ' }), 'xyz');
+./tests/workspace-storage-and-auth.test.mjs:116:  assert.equal(extractToken({ 'x-zyntheor-token': mockToken }), mockToken);
+./tests/workspace-storage-and-auth.test.mjs:293:  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-git-test-'));
+./tests/workspace-storage-and-auth.test.mjs:344:  assert.ok(cicd.workflows.some(w => w.filename.includes('audit') || w.filename.includes('native-core')));
+./tests/autonomous-intelligence-execution.test.mjs:18:  id: 'zyntheor-local-provider',
+./tests/autonomous-intelligence-execution.test.mjs:19:  configuredModel: 'zyntheor-core-1.1',
+./tests/autonomous-intelligence-execution.test.mjs:22:  listModels: async () => [{ id: 'zyntheor-core-1.1', name: 'Zyntheor Core 1.1' }],
+./tests/autonomous-intelligence-execution.test.mjs:25:    model: 'zyntheor-core-1.1',
+./tests/autonomous-intelligence-execution.test.mjs:26:    provider: 'zyntheor-local-provider',
+./tests/autonomous-intelligence-execution.test.mjs:34:    model: 'zyntheor-core-1.1',
+./tests/native_cpu/test_native_runtime.py:29:        identity={'identity':'CORE_NATIVE','model_id':'zyntheor-native-cpu-001','status':'TRAINED_EXPERIMENTAL',
+./tests/native_cpu/test_native_cpu.py:46:                {'model_id':'zyntheor-native-cpu-001','identity':'CORE_NATIVE','status':'NOT_TRAINED'}
+./tests/native_cpu/test_native_cpu.py:53:                trainer.save_native_identity({'model_id':'zyntheor-native-cpu-001','identity':'CORE_NATIVE','status':'TRAINED_EXPERIMENTAL','checkpoint':'training/checkpoints/native_cpu/test.pt'})
+./tests/truth-kernel.test.ts:197:      const res = kernel.validateProductionProvider('zyntheor-native-coder', { isLocal: true });
+./tests/safe-executor-containment.test.mjs:10:  const marker = path.join(tmpdir(), `zyntheor-safeexec-${randomUUID()}`);
+./tests/request-observability-persistence.test.mjs:9:  const dir = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-observe-'));
+./tests/production-config-lock.test.mjs:42:  assert.equal(extractToken({ 'x-zyntheor-token': testSecret }), testSecret);
+./tests/patch-security-regression.test.ts:18:  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-test-'));
+./tests/workspace-path-security.test.ts:12:    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-workspace-'));
+./tests/workspace-path-security.test.ts:20:    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-workspace-'));
+./tests/workspace-path-security.test.ts:27:    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-workspace-'));
+./tests/workspace-path-security.test.ts:28:    const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-outside-'));
+./tests/deployment-validation-and-gpu-training.test.mjs:98:  const apexModel = reg.models.find(m => m.model_id === 'zyntheor-core-1.2.0-gpu-apex');
+./tests/deployment-validation-and-gpu-training.test.mjs:100:  assert.ok(apexModel, 'zyntheor-core-1.2.0-gpu-apex model must be registered');
+./tests/app-smoke.test.mjs:42:    const marker = path.join(tmpdir(), `zyntheor-blocked-execution-${randomUUID()}`);
+./tests/self-improvement-and-learning.test.mjs:190:  const modelId = 'zyntheor-core-1.2.0-gpu-apex';
+./tests/intelligence-runtime-integration.test.mjs:13:  configuredModel: 'zyntheor-core-1.1',
+./tests/intelligence-runtime-integration.test.mjs:16:  listModels: async () => [{ id: 'zyntheor-core-1.1', name: 'Zyntheor Core 1.1' }],
+./tests/intelligence-runtime-integration.test.mjs:21:      model: 'zyntheor-core-1.1',
+./tests/intelligence-runtime-integration.test.mjs:31:    model: 'zyntheor-core-1.1',
+./tests/intelligence-runtime-integration.test.mjs:113:  assert.ok(readRes.content.includes('zyntheor-ai-engine'));
+./src/services/evidenceProvenanceService.ts:43:  signerIdentity = 'zyntheor-trusted-server',
+./src/services/evidenceProvenanceService.ts:113:  const signerIdentity = 'zyntheor-trusted-server';
+./src/services/auditLedger.ts:645:  anchor.download = `zyntheor-audit-ledger-${Date.now()}.json`;
+./src/services/auditLedger.ts:735:  anchor.download = `zyntheor-audit-ledger-${Date.now()}.csv`;
+./src/services/repositoryIntelligence.test.ts:15:    root = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-repo-scan-'));
+./src/services/repositoryIntelligence.test.ts:89:    const outside = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-repo-outside-'));
+./src/services/repositoryIntelligence.test.ts:108:    const outside = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-ignore-outside-'));
+./src/services/entitlementEngine.ts:26:    allowedModels: ['qwen2.5-coder:7b', 'zyntheor-core-0.10.0-foundation'],
+./src/services/keyManagementService.ts:34:    const rawSecret = process.env.TENANT_STORAGE_HMAC_SECRET || 'zyntheor-sovereign-master-key-2026';
+./src/services/identityService.ts:59:  ? path.join(os.tmpdir(), `zyntheor-identity-test-${process.pid}-${threadId}`)
+./src/services/selfImprovementEngine.ts:512:    datasetVersion: 'zyntheor-core-dataset-v1.2',
+./src/tests/patchApplierAudit.test.ts:16:    workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-audit-'));
+./src/tests/evidenceProvenanceSecurity.test.ts:15:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/evidenceProvenanceSecurity.test.ts:19:    assert.equal(signed.provenance?.signerIdentity, 'zyntheor-trusted-server');
+./src/tests/evidenceProvenanceSecurity.test.ts:27:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/evidenceProvenanceSecurity.test.ts:39:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/evidenceProvenanceSecurity.test.ts:52:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/evidenceProvenanceSecurity.test.ts:64:    const signed1 = signEvidenceRecord(entry1, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/evidenceProvenanceSecurity.test.ts:73:    const signed2 = signEvidenceRecord(entry2, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/evidenceProvenanceSecurity.test.ts:84:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-A');
+./src/tests/evidenceProvenanceSecurity.test.ts:105:    const signed1 = signEvidenceRecord(entry1, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/evidenceProvenanceSecurity.test.ts:108:    const signed2 = signEvidenceRecord(entry2, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/evidenceProvenanceSecurity.test.ts:121:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./src/tests/patchLifecycleSecurity.test.ts:29:  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-test-ws-'));
+./src/tests/patchLifecycle.test.ts:21:    workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-lifecycle-'));
+./src/components/GovernanceObservabilityPanels.tsx:166:            {(consensus?.consensus?.state?.activeProviders || ['provider-gemini-primary', 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec']).map((p: string) => (
+./src/components/TrainingMonitor.tsx:664:    downloadAnchor.setAttribute('download', `zyntheor-core-training-metrics-${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
+./src/components/TeamManagementPage.tsx:185:    link.setAttribute('download', `zyntheor-team-members-${dateStr}.csv`);
+./src/components/SettingsCenter.tsx:539:    a.download = `zyntheor-settings-backup-${new Date().toISOString().split('T')[0]}.json`;
+./src/components/GpuTrainingTab.tsx:480:              sub: 'zyntheor-core-v1.2 (0% leakage)',
+./src/components/AuditChainVisualizer.tsx:129:    downloadLink.download = `zyntheor-audit-hash-chain-${new Date().toISOString().slice(0, 10)}.svg`;
+./src/components/AuditChainVisualizer.tsx:173:        downloadLink.download = `zyntheor-audit-snapshot-${new Date().toISOString().slice(0, 10)}.png`;
+./src/components/LocalStorageAuditTool.tsx:391:      downloadAnchor.setAttribute("download", `zyntheor-localstorage-backup-${Date.now()}.json`);
+./server.ts:282:    service: 'zyntheor-ai-engine',
+./server.ts:302:    service: 'zyntheor-ai-engine',
+./server.ts:586:    service: 'zyntheor-ai-engine',
+./server.ts:2339:          '14:00:00 [INFO] Loading dataset manifest zyntheor-core-engineering-v1.2 (15 verified samples)',
+./server.ts:2398:      modelId: 'zyntheor-core-0.10.0-foundation',
+./server.ts:2409:        manifestName: 'zyntheor-core-engineering-v1.2',
+./server.ts:2530:    addAudit('MODEL_DEPLOYMENT_APPROVED', `modelId=${modelId || 'zyntheor-core-0.1'}; approvedBy=${approvedBy || user.id}`);
+./training/native_cpu/config.json:2:  "model_id": "zyntheor-native-cpu-001",
+./training/native_cpu/native_runtime.py:46:                         if item.get('model_id') == 'zyntheor-native-cpu-001'), None)
+./training/native_cpu/native_runtime.py:51:    if identity.get('identity') != 'CORE_NATIVE' or identity.get('model_id') != 'zyntheor-native-cpu-001':
+./training/native_cpu/train_native_cpu.py:39:        record = next((item for item in registry["models"] if item.get("model_id") == "zyntheor-native-cpu-001"), None)
+./training/native_cpu/train_native_cpu.py:247:    ckpt=OUT / f"zyntheor-native-cpu-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.pt"
+./training/native_cpu/train_native_cpu.py:248:    payload={"format_version":1,"model_id":"zyntheor-native-cpu-001","identity":"CORE_NATIVE",
+./training/native_cpu/train_native_cpu.py:260:    identity={"model_id":"zyntheor-native-cpu-001","identity":"CORE_NATIVE","status":"TRAINED_EXPERIMENTAL",
+./training/registry/native_model_identity.json:5:      "model_id": "zyntheor-native-cpu-001",
+./training/registry/model_registry.json:6:      "model_id": "zyntheor-core-0.10.0-foundation",
+./training/registry/model_registry.json:21:        "manifest_name": "zyntheor-core-engineering-v1.2",
+./training/registry/model_registry.json:107:      "model_id": "zyntheor-core-1.2.0-gpu-apex",
+./training/registry/model_registry.json:121:        "manifest_name": "zyntheor-core-engineering-v1.2",
+./training/dataset/manifest.json:3:  "name": "zyntheor-core-engineering-v1.2",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:3:  "datasetName": "zyntheor-core-engineering-v1.3",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:20:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:42:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:64:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:86:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:108:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:130:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:152:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:174:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:196:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:218:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:240:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:262:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:284:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:306:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/DATASET_PROVENANCE_MANIFEST.json:328:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:9:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:31:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:44:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:57:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:70:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:83:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:96:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:109:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:143:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:156:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:169:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:195:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:208:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:221:    "source": "zyntheor-curated-engineering-corpus-v1",
+./training/dataset/samples.json:234:    "source": "zyntheor-curated-engineering-corpus-v1",
+./lib/model-lifecycle.mjs:92:    ? registry.models.find(item => item.model_id === 'zyntheor-native-cpu-001')
+./lib/governance-federation.test.ts:7:    expect(status.federationId).toBe('zyntheor-global-fed-01');
+./lib/native-model-runtime.ts:245:  if (native.status === 'INFERENCE_READY' && native.inferenceTested && providerId === 'zyntheor-native') {
+./lib/governance-consensus.test.ts:59:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./lib/governance-consensus.test.ts:70:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./lib/governance-consensus.test.ts:80:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./lib/governance-consensus.ts:36:  private providers = ['provider-gemini-primary', 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec', 'provider-sovereign-node'];
+./lib/governance-consensus.ts:46:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 25, timestamp: new Date().toISOString(), signature: this.signVote('provider-zyntheor-core', 'GRANT') },
+./lib/corex-platform-gate.mjs:30:    ? (identityRegistry.models.find(item => item.model_id === 'zyntheor-native-cpu-001') || {})
+./lib/access.mjs:17:  const custom = headers['x-zyntheor-token'];
+./lib/governance-federation.ts:110:      federationId: 'zyntheor-global-fed-01',
+./lib/intelligence-core.ts:689:        name: 'zyntheor-ai-engine',
+./lib/model-benchmark.ts:476:    id: 'zyntheor-core-foundation',
+./package.json:2:  "name": "zyntheor-ai-engine-clean-rebuild",
+./FILE_MANIFEST.sha256:7:67c2bf46a47e1c30c1d9e33988c024f5e26b3f97a8ec670d9540a49020c22362  ./.github/workflows/native-core-1.1.0.yml
+./FILE_MANIFEST.sha256:58:67c2bf46a47e1c30c1d9e33988c024f5e26b3f97a8ec670d9540a49020c22362  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml
+./FILE_MANIFEST.sha256:253:c1eb825d6af550ae22779827af375a6ecee5570f5adc11d0a3fbee92fe5e1dac  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/divider.svg
+./FILE_MANIFEST.sha256:254:0b427efda29f9323ea43134e509865242a99c802302fab5dfac9763a07cc3abc  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/icon.svg
+./FILE_MANIFEST.sha256:256:4558421c058ffd339087505eff2f59c64169ba449d8415d82499c6ac998fc1df  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/native-core-mark.svg
+./FILE_MANIFEST.sha256:258:82782186915cd03e068855d9e4e3ac01c6e79c8197fef738c720c0415ef3438a  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/status-cards.svg
+./FILE_MANIFEST.sha256:260:a58169763137329d17854219f7054b076631fc9e5021f9e9b4fbaf48135aa222  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/zyntheor-footer.svg
+./FILE_MANIFEST.sha256:261:752f0e1a439013de46cd0ff8212424c9ab98137809882bf38423358bcd4c8689  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/zyntheor-header.svg
+./FILE_MANIFEST.sha256:262:3c39fc2c05b109429503d5f8f359bf166967336f08570fe6bfb335fb01e62700  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/zyntheor-logo.svg
+./FILE_MANIFEST.sha256:265:b388e2bda50fc0dd99cc63c6419d400c03d068920e93ed9314ee8a6e86f04dd6  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/scripts/gen-status-cards.mjs
+./FILE_MANIFEST.sha256:419:b348d52e2e860353970fedc88cf368e01a88652341f49cc7a7aebd0fe6e72718  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/p3-zyntheor-core.test.mjs
+./FILE_MANIFEST.sha256:445:90dcf442f47c232b850b7976ac67654a6a3eb1807a77f9770e5aa2ed6a96366f  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/zyntheor-core-native-model.test.mjs
+./FILE_MANIFEST.sha256:694:12559b1ccad654605eade58512731608c5b861c14f7593a26de030d9903f302f  ./public/divider.svg
+./FILE_MANIFEST.sha256:695:0b427efda29f9323ea43134e509865242a99c802302fab5dfac9763a07cc3abc  ./public/icon.svg
+./FILE_MANIFEST.sha256:697:4558421c058ffd339087505eff2f59c64169ba449d8415d82499c6ac998fc1df  ./public/native-core-mark.svg
+./FILE_MANIFEST.sha256:699:6819de542364ea6b10e3321e78c85e77b90b91838c0cd871cdef37e399cc73ec  ./public/status-cards.svg
+./FILE_MANIFEST.sha256:701:85b0202f50f280aa3fdecf060c3dbb0c8d74fb09a2086b6ce5aabae1f466aa8a  ./public/zyntheor-footer.svg
+./FILE_MANIFEST.sha256:702:19c34a1412c242edf215f544a0d772a7230df7cdd426949915afffc32eea5666  ./public/zyntheor-header.svg
+./FILE_MANIFEST.sha256:703:3c39fc2c05b109429503d5f8f359bf166967336f08570fe6bfb335fb01e62700  ./public/zyntheor-logo.svg
+./FILE_MANIFEST.sha256:710:b388e2bda50fc0dd99cc63c6419d400c03d068920e93ed9314ee8a6e86f04dd6  ./scripts/gen-status-cards.mjs
+./FILE_MANIFEST.sha256:887:b348d52e2e860353970fedc88cf368e01a88652341f49cc7a7aebd0fe6e72718  ./tests/p3-zyntheor-core.test.mjs
+./FILE_MANIFEST.sha256:919:90dcf442f47c232b850b7976ac67654a6a3eb1807a77f9770e5aa2ed6a96366f  ./tests/zyntheor-core-native-model.test.mjs
+./docs/audit/NATIVE_INFERENCE_VERIFICATION.md:32:  if (native.status === 'INFERENCE_READY' && native.inferenceTested && providerId === 'zyntheor-native') {
+./docs/audit/asset-references.txt:1:./CONTRIBUTING.md:28:git clone https://github.com/zxsvzv00-cmyk/zyntheor-ai.git
+./docs/audit/asset-references.txt:2:./CONTRIBUTING.md:29:cd zyntheor-ai
+./docs/audit/asset-references.txt:3:./ZYNTHEOR_CORE_X_REGRESSION_CHANGELOG.md:5:The work continued from `ZYNTHEOR_CORE_X_FULL_INTEGRATED_RELEASE.zip` in `/home/ubuntu/workspaces/zyntheor-core-x-regression`. The original workspace was preserved. Runtime state, dependencies and build output were excluded from the release package.
+./docs/audit/asset-references.txt:4:./public/status-cards.svg:3:  <desc id="d">TESTS: UNVERIFIED; TYPE ERRORS: UNVERIFIED; BUILD: UNVERIFIED; MANIFEST: UNVERIFIED. Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed</desc>
+./docs/audit/asset-references.txt:5:./public/status-cards.svg:33:  <text x="420" y="110" text-anchor="middle" font-size="11" fill="#64748B">Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed</text>
+./docs/audit/asset-references.txt:6:./public/manifest.webmanifest:9:  "icons": [{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+./docs/audit/asset-references.txt:7:./public/sw.js:1:const CACHE = 'zyntheor-shell-v2';
+./docs/audit/asset-references.txt:8:./public/sw.js:2:self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(['/','/manifest.webmanifest','/icon.svg']))));
+./docs/audit/asset-references.txt:9:./scripts/migrate-identity-json.mjs:119:  const pool = new Pool({ connectionString: databaseUrl, max: 1, connectionTimeoutMillis: 5000, application_name: 'zyntheor-identity-import-p2' });
+./docs/audit/asset-references.txt:10:./scripts/clear-all-mocks.sh:3:# รันใน root ของโปรเจค zyntheor-ai-fixed
+./docs/audit/asset-references.txt:11:./scripts/gen-status-cards.mjs:2:// Generates public/status-cards.svg from REAL command results. No dependencies.
+./docs/audit/asset-references.txt:12:./scripts/gen-status-cards.mjs:3://   node scripts/gen-status-cards.mjs              run the 4 checks, write the SVG
+./docs/audit/asset-references.txt:13:./scripts/gen-status-cards.mjs:4://   node scripts/gen-status-cards.mjs --unverified write the SVG with every card UNVERIFIED (nothing is run)
+./docs/audit/asset-references.txt:14:./scripts/gen-status-cards.mjs:10:const OUT = process.env.STATUS_OUT || 'public/status-cards.svg';
+./docs/audit/asset-references.txt:15:./scripts/gen-status-cards.mjs:48:  ? 'Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed'
+./docs/audit/asset-references.txt:16:./scripts/postgres-preflight.mjs:73:    application_name: 'zyntheor-p3-readonly-preflight',
+./docs/audit/asset-references.txt:17:./vite.config.ts:4:// GitHub Pages serves the site under /zyntheor-ai/; local dev and normal builds stay at '/'.
+./docs/audit/asset-references.txt:18:./vite.config.ts:5:const base = process.env.GITHUB_PAGES === 'true' ? '/zyntheor-ai-fixed/' : '/';
+./docs/audit/asset-references.txt:19:./governance/registry.yaml:19:  id: "zyntheor-v1.1-upgrade"
+./docs/audit/asset-references.txt:20:./governance/registry.yaml:50:  - id: zyntheor-v1.1-upgrade
+./docs/audit/asset-references.txt:21:./governance/registry.yaml:56:  - id: zyntheor-v1.1.1-forensic-diff
+./docs/audit/asset-references.txt:22:./governance/registry.yaml:61:    parent_release: zyntheor-v1.1-upgrade
+./docs/audit/asset-references.txt:23:./governance/registry.yaml:80:      rollback_target: zyntheor-v1.1-upgrade
+./docs/audit/asset-references.txt:24:./governance/upgrade.yaml:7:  subsystem_id: "zyntheor-v1.1-upgrade"
+./docs/audit/asset-references.txt:25:./render.yaml:3:    name: zyntheor-buffalo-110
+./docs/audit/asset-references.txt:26:./.github/workflows/native-core-1.1.0.yml:7:      - '.github/workflows/native-core-1.1.0.yml'
+./docs/audit/asset-references.txt:27:./.github/workflows/native-core-1.1.0.yml:11:  native-core:
+./docs/audit/asset-references.txt:28:./.github/workflows/native-core-1.1.0.yml:35:        run: npm run check:env 2>&1 | tee native-core-audit.txt
+./docs/audit/asset-references.txt:29:./.github/workflows/native-core-1.1.0.yml:39:          echo "## Dataset Manifest" | tee -a native-core-audit.txt
+./docs/audit/asset-references.txt:30:./.github/workflows/native-core-1.1.0.yml:40:          ls -lh training/dataset/manifest.json training/dataset/samples.json | tee -a native-core-audit.txt
+./docs/audit/asset-references.txt:31:./.github/workflows/native-core-1.1.0.yml:41:          node training/scripts/verify_dataset.mjs 2>&1 | tee -a native-core-audit.txt || echo "UNVERIFIED: verify_dataset failed - check manifest" | tee -a native-core-audit.txt
+./docs/audit/asset-references.txt:32:./.github/workflows/native-core-1.1.0.yml:45:          echo "## Quality Gates" | tee -a native-core-audit.txt
+./docs/audit/asset-references.txt:33:./.github/workflows/native-core-1.1.0.yml:46:          node training/scripts/quality_gates.mjs 2>&1 | tee -a native-core-audit.txt || echo "Quality gates check" | tee -a native-core-audit.txt
+./docs/audit/asset-references.txt:34:./.github/workflows/native-core-1.1.0.yml:50:          echo "## Baseline Eval" | tee -a native-core-audit.txt
+./docs/audit/asset-references.txt:35:./.github/workflows/native-core-1.1.0.yml:51:          node training/scripts/evaluate_baseline.mjs 2>&1 | tee -a native-core-audit.txt || echo "UNVERIFIED: No checkpoint - SPECIFICATION_LOCKED_PENDING_GPU_RUN" | tee -a native-core-audit.txt
+./docs/audit/asset-references.txt:36:./.github/workflows/native-core-1.1.0.yml:54:        run: npm run verify 2>&1 | tee -a native-core-audit.txt
+./docs/audit/asset-references.txt:37:./.github/workflows/native-core-1.1.0.yml:59:          path: native-core-audit.txt
+./docs/audit/asset-references.txt:38:./index.html:14:    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+./docs/audit/asset-references.txt:39:./README.md:2:  <img src="public/zyntheor-header.svg" alt="ZYNTHEOR AI ENGINE" width="840" />
+./docs/audit/asset-references.txt:40:./README.md:6:  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE checks" /></a>
+./docs/audit/asset-references.txt:41:./README.md:14:<p align="center"><img src="public/status-cards.svg" alt="Local status cards. Values depend on the latest status generation run; UNVERIFIED means evidence is unavailable." width="840" /></p>
+./docs/audit/asset-references.txt:42:./README.md:16:<p align="center"><img src="public/zyntheor-features.svg" alt="ZYNTHEOR AI ENGINE engineering pillars" width="840" /></p>
+./docs/audit/asset-references.txt:43:./README.md:106:![ZYNTHEOR AI ENGINE multi-tier architecture](public/zyntheor-architecture.svg)
+./docs/audit/asset-references.txt:44:./README.md:220:<p align="center"><img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition" width="840" /></p>
+./docs/audit/asset-references.txt:45:./tests/model-gateway-integration.test.mjs:144:  const logPath = path.join(tmpdir(), `zyntheor-external-fetch-${randomUUID()}.log`);
+./docs/audit/asset-references.txt:46:./tests/postgres-identity-p2.test.mjs:84:  assert.match(legacy, /zyntheor-identity-test-\$\{process\.pid\}-\$\{threadId\}/);
+./docs/audit/asset-references.txt:47:./tests/corex-model-lifecycle.test.mjs:19:  const root=fs.mkdtempSync(path.join(os.tmpdir(),'zyntheor-lifecycle-'));
+./docs/audit/asset-references.txt:48:./tests/corex-model-lifecycle.test.mjs:25:  const root=fs.mkdtempSync(path.join(os.tmpdir(),'zyntheor-lifecycle-registry-'));
+./docs/audit/asset-references.txt:49:./tests/corex-model-lifecycle.test.mjs:28:    fs.writeFileSync(path.join(dir,'native_model_identity.json'),JSON.stringify({registry_version:'1.0.0',models:[{model_id:'zyntheor-native-cpu-001',identity:'CORE_NATIVE',status:'NOT_TRAINED',parent_model_id:null,checkpoint:null,checkpoint_sha256:null}]}));
+./docs/audit/asset-references.txt:50:./tests/intelligence-core.test.mjs:147:  assert.equal(pkgInfo.name, 'zyntheor-ai-engine');
+./docs/audit/asset-references.txt:51:./tests/buffalo-core.test.mjs:72:  assert.equal(extractToken({ 'x-zyntheor-token': ' xyz ' }), 'xyz');
+./docs/audit/asset-references.txt:52:./tests/workspace-storage-and-auth.test.mjs:116:  assert.equal(extractToken({ 'x-zyntheor-token': mockToken }), mockToken);
+./docs/audit/asset-references.txt:53:./tests/workspace-storage-and-auth.test.mjs:293:  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-git-test-'));
+./docs/audit/asset-references.txt:54:./tests/workspace-storage-and-auth.test.mjs:344:  assert.ok(cicd.workflows.some(w => w.filename.includes('audit') || w.filename.includes('native-core')));
+./docs/audit/asset-references.txt:55:./tests/autonomous-intelligence-execution.test.mjs:18:  id: 'zyntheor-local-provider',
+./docs/audit/asset-references.txt:56:./tests/autonomous-intelligence-execution.test.mjs:19:  configuredModel: 'zyntheor-core-1.1',
+./docs/audit/asset-references.txt:57:./tests/autonomous-intelligence-execution.test.mjs:22:  listModels: async () => [{ id: 'zyntheor-core-1.1', name: 'Zyntheor Core 1.1' }],
+./docs/audit/asset-references.txt:58:./tests/autonomous-intelligence-execution.test.mjs:25:    model: 'zyntheor-core-1.1',
+./docs/audit/asset-references.txt:59:./tests/autonomous-intelligence-execution.test.mjs:26:    provider: 'zyntheor-local-provider',
+./docs/audit/asset-references.txt:60:./tests/autonomous-intelligence-execution.test.mjs:34:    model: 'zyntheor-core-1.1',
+./docs/audit/asset-references.txt:61:./tests/native_cpu/test_native_runtime.py:29:        identity={'identity':'CORE_NATIVE','model_id':'zyntheor-native-cpu-001','status':'TRAINED_EXPERIMENTAL',
+./docs/audit/asset-references.txt:62:./tests/native_cpu/test_native_cpu.py:46:                {'model_id':'zyntheor-native-cpu-001','identity':'CORE_NATIVE','status':'NOT_TRAINED'}
+./docs/audit/asset-references.txt:63:./tests/native_cpu/test_native_cpu.py:53:                trainer.save_native_identity({'model_id':'zyntheor-native-cpu-001','identity':'CORE_NATIVE','status':'TRAINED_EXPERIMENTAL','checkpoint':'training/checkpoints/native_cpu/test.pt'})
+./docs/audit/asset-references.txt:64:./tests/truth-kernel.test.ts:197:      const res = kernel.validateProductionProvider('zyntheor-native-coder', { isLocal: true });
+./docs/audit/asset-references.txt:65:./tests/safe-executor-containment.test.mjs:10:  const marker = path.join(tmpdir(), `zyntheor-safeexec-${randomUUID()}`);
+./docs/audit/asset-references.txt:66:./tests/request-observability-persistence.test.mjs:9:  const dir = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-observe-'));
+./docs/audit/asset-references.txt:67:./tests/production-config-lock.test.mjs:42:  assert.equal(extractToken({ 'x-zyntheor-token': testSecret }), testSecret);
+./docs/audit/asset-references.txt:68:./tests/patch-security-regression.test.ts:18:  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-test-'));
+./docs/audit/asset-references.txt:69:./tests/workspace-path-security.test.ts:12:    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-workspace-'));
+./docs/audit/asset-references.txt:70:./tests/workspace-path-security.test.ts:20:    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-workspace-'));
+./docs/audit/asset-references.txt:71:./tests/workspace-path-security.test.ts:27:    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-workspace-'));
+./docs/audit/asset-references.txt:72:./tests/workspace-path-security.test.ts:28:    const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-outside-'));
+./docs/audit/asset-references.txt:73:./tests/deployment-validation-and-gpu-training.test.mjs:98:  const apexModel = reg.models.find(m => m.model_id === 'zyntheor-core-1.2.0-gpu-apex');
+./docs/audit/asset-references.txt:74:./tests/deployment-validation-and-gpu-training.test.mjs:100:  assert.ok(apexModel, 'zyntheor-core-1.2.0-gpu-apex model must be registered');
+./docs/audit/asset-references.txt:75:./tests/app-smoke.test.mjs:42:    const marker = path.join(tmpdir(), `zyntheor-blocked-execution-${randomUUID()}`);
+./docs/audit/asset-references.txt:76:./tests/self-improvement-and-learning.test.mjs:190:  const modelId = 'zyntheor-core-1.2.0-gpu-apex';
+./docs/audit/asset-references.txt:77:./tests/intelligence-runtime-integration.test.mjs:13:  configuredModel: 'zyntheor-core-1.1',
+./docs/audit/asset-references.txt:78:./tests/intelligence-runtime-integration.test.mjs:16:  listModels: async () => [{ id: 'zyntheor-core-1.1', name: 'Zyntheor Core 1.1' }],
+./docs/audit/asset-references.txt:79:./tests/intelligence-runtime-integration.test.mjs:21:      model: 'zyntheor-core-1.1',
+./docs/audit/asset-references.txt:80:./tests/intelligence-runtime-integration.test.mjs:31:    model: 'zyntheor-core-1.1',
+./docs/audit/asset-references.txt:81:./tests/intelligence-runtime-integration.test.mjs:113:  assert.ok(readRes.content.includes('zyntheor-ai-engine'));
+./docs/audit/asset-references.txt:82:./src/services/evidenceProvenanceService.ts:43:  signerIdentity = 'zyntheor-trusted-server',
+./docs/audit/asset-references.txt:83:./src/services/evidenceProvenanceService.ts:113:  const signerIdentity = 'zyntheor-trusted-server';
+./docs/audit/asset-references.txt:84:./src/services/auditLedger.ts:645:  anchor.download = `zyntheor-audit-ledger-${Date.now()}.json`;
+./docs/audit/asset-references.txt:85:./src/services/auditLedger.ts:735:  anchor.download = `zyntheor-audit-ledger-${Date.now()}.csv`;
+./docs/audit/asset-references.txt:86:./src/services/repositoryIntelligence.test.ts:15:    root = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-repo-scan-'));
+./docs/audit/asset-references.txt:87:./src/services/repositoryIntelligence.test.ts:89:    const outside = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-repo-outside-'));
+./docs/audit/asset-references.txt:88:./src/services/repositoryIntelligence.test.ts:108:    const outside = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-ignore-outside-'));
+./docs/audit/asset-references.txt:89:./src/services/entitlementEngine.ts:26:    allowedModels: ['qwen2.5-coder:7b', 'zyntheor-core-0.10.0-foundation'],
+./docs/audit/asset-references.txt:90:./src/services/keyManagementService.ts:34:    const rawSecret = process.env.TENANT_STORAGE_HMAC_SECRET || 'zyntheor-sovereign-master-key-2026';
+./docs/audit/asset-references.txt:91:./src/services/identityService.ts:59:  ? path.join(os.tmpdir(), `zyntheor-identity-test-${process.pid}-${threadId}`)
+./docs/audit/asset-references.txt:92:./src/services/selfImprovementEngine.ts:512:    datasetVersion: 'zyntheor-core-dataset-v1.2',
+./docs/audit/asset-references.txt:93:./src/tests/patchApplierAudit.test.ts:16:    workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-audit-'));
+./docs/audit/asset-references.txt:94:./src/tests/evidenceProvenanceSecurity.test.ts:15:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:95:./src/tests/evidenceProvenanceSecurity.test.ts:19:    assert.equal(signed.provenance?.signerIdentity, 'zyntheor-trusted-server');
+./docs/audit/asset-references.txt:96:./src/tests/evidenceProvenanceSecurity.test.ts:27:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:97:./src/tests/evidenceProvenanceSecurity.test.ts:39:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:98:./src/tests/evidenceProvenanceSecurity.test.ts:52:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:99:./src/tests/evidenceProvenanceSecurity.test.ts:64:    const signed1 = signEvidenceRecord(entry1, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:100:./src/tests/evidenceProvenanceSecurity.test.ts:73:    const signed2 = signEvidenceRecord(entry2, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:101:./src/tests/evidenceProvenanceSecurity.test.ts:84:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-A');
+./docs/audit/asset-references.txt:102:./src/tests/evidenceProvenanceSecurity.test.ts:105:    const signed1 = signEvidenceRecord(entry1, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:103:./src/tests/evidenceProvenanceSecurity.test.ts:108:    const signed2 = signEvidenceRecord(entry2, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:104:./src/tests/evidenceProvenanceSecurity.test.ts:121:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./docs/audit/asset-references.txt:105:./src/tests/patchLifecycleSecurity.test.ts:29:  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-test-ws-'));
+./docs/audit/asset-references.txt:106:./src/tests/patchLifecycle.test.ts:21:    workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-lifecycle-'));
+./docs/audit/asset-references.txt:107:./src/components/GovernanceObservabilityPanels.tsx:166:            {(consensus?.consensus?.state?.activeProviders || ['provider-gemini-primary', 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec']).map((p: string) => (
+./docs/audit/asset-references.txt:108:./src/components/TrainingMonitor.tsx:664:    downloadAnchor.setAttribute('download', `zyntheor-core-training-metrics-${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
+./docs/audit/asset-references.txt:109:./src/components/TeamManagementPage.tsx:185:    link.setAttribute('download', `zyntheor-team-members-${dateStr}.csv`);
+./docs/audit/asset-references.txt:110:./src/components/SettingsCenter.tsx:539:    a.download = `zyntheor-settings-backup-${new Date().toISOString().split('T')[0]}.json`;
+./docs/audit/asset-references.txt:111:./src/components/GpuTrainingTab.tsx:480:              sub: 'zyntheor-core-v1.2 (0% leakage)',
+./docs/audit/asset-references.txt:112:./src/components/AuditChainVisualizer.tsx:129:    downloadLink.download = `zyntheor-audit-hash-chain-${new Date().toISOString().slice(0, 10)}.svg`;
+./docs/audit/asset-references.txt:113:./src/components/AuditChainVisualizer.tsx:173:        downloadLink.download = `zyntheor-audit-snapshot-${new Date().toISOString().slice(0, 10)}.png`;
+./docs/audit/asset-references.txt:114:./src/components/LocalStorageAuditTool.tsx:391:      downloadAnchor.setAttribute("download", `zyntheor-localstorage-backup-${Date.now()}.json`);
+./docs/audit/asset-references.txt:115:./server.ts:282:    service: 'zyntheor-ai-engine',
+./docs/audit/asset-references.txt:116:./server.ts:302:    service: 'zyntheor-ai-engine',
+./docs/audit/asset-references.txt:117:./server.ts:586:    service: 'zyntheor-ai-engine',
+./docs/audit/asset-references.txt:118:./server.ts:2339:          '14:00:00 [INFO] Loading dataset manifest zyntheor-core-engineering-v1.2 (15 verified samples)',
+./docs/audit/asset-references.txt:119:./server.ts:2398:      modelId: 'zyntheor-core-0.10.0-foundation',
+./docs/audit/asset-references.txt:120:./server.ts:2409:        manifestName: 'zyntheor-core-engineering-v1.2',
+./docs/audit/asset-references.txt:121:./server.ts:2530:    addAudit('MODEL_DEPLOYMENT_APPROVED', `modelId=${modelId || 'zyntheor-core-0.1'}; approvedBy=${approvedBy || user.id}`);
+./docs/audit/asset-references.txt:122:./training/native_cpu/config.json:2:  "model_id": "zyntheor-native-cpu-001",
+./docs/audit/asset-references.txt:123:./training/native_cpu/native_runtime.py:46:                         if item.get('model_id') == 'zyntheor-native-cpu-001'), None)
+./docs/audit/asset-references.txt:124:./training/native_cpu/native_runtime.py:51:    if identity.get('identity') != 'CORE_NATIVE' or identity.get('model_id') != 'zyntheor-native-cpu-001':
+./docs/audit/asset-references.txt:125:./training/native_cpu/train_native_cpu.py:39:        record = next((item for item in registry["models"] if item.get("model_id") == "zyntheor-native-cpu-001"), None)
+./docs/audit/asset-references.txt:126:./training/native_cpu/train_native_cpu.py:247:    ckpt=OUT / f"zyntheor-native-cpu-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.pt"
+./docs/audit/asset-references.txt:127:./training/native_cpu/train_native_cpu.py:248:    payload={"format_version":1,"model_id":"zyntheor-native-cpu-001","identity":"CORE_NATIVE",
+./docs/audit/asset-references.txt:128:./training/native_cpu/train_native_cpu.py:260:    identity={"model_id":"zyntheor-native-cpu-001","identity":"CORE_NATIVE","status":"TRAINED_EXPERIMENTAL",
+./docs/audit/asset-references.txt:129:./training/registry/native_model_identity.json:5:      "model_id": "zyntheor-native-cpu-001",
+./docs/audit/asset-references.txt:130:./training/registry/model_registry.json:6:      "model_id": "zyntheor-core-0.10.0-foundation",
+./docs/audit/asset-references.txt:131:./training/registry/model_registry.json:21:        "manifest_name": "zyntheor-core-engineering-v1.2",
+./docs/audit/asset-references.txt:132:./training/registry/model_registry.json:107:      "model_id": "zyntheor-core-1.2.0-gpu-apex",
+./docs/audit/asset-references.txt:133:./training/registry/model_registry.json:121:        "manifest_name": "zyntheor-core-engineering-v1.2",
+./docs/audit/asset-references.txt:134:./training/dataset/manifest.json:3:  "name": "zyntheor-core-engineering-v1.2",
+./docs/audit/asset-references.txt:135:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:3:  "datasetName": "zyntheor-core-engineering-v1.3",
+./docs/audit/asset-references.txt:136:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:20:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:137:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:42:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:138:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:64:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:139:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:86:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:140:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:108:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:141:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:130:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:142:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:152:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:143:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:174:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:144:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:196:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:145:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:218:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:146:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:240:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:147:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:262:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:148:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:284:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:149:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:306:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:150:./training/dataset/DATASET_PROVENANCE_MANIFEST.json:328:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:151:./training/dataset/samples.json:9:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:152:./training/dataset/samples.json:31:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:153:./training/dataset/samples.json:44:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:154:./training/dataset/samples.json:57:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:155:./training/dataset/samples.json:70:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:156:./training/dataset/samples.json:83:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:157:./training/dataset/samples.json:96:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:158:./training/dataset/samples.json:109:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:159:./training/dataset/samples.json:143:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:160:./training/dataset/samples.json:156:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:161:./training/dataset/samples.json:169:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:162:./training/dataset/samples.json:195:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:163:./training/dataset/samples.json:208:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:164:./training/dataset/samples.json:221:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:165:./training/dataset/samples.json:234:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/audit/asset-references.txt:166:./lib/model-lifecycle.mjs:92:    ? registry.models.find(item => item.model_id === 'zyntheor-native-cpu-001')
+./docs/audit/asset-references.txt:167:./lib/governance-federation.test.ts:7:    expect(status.federationId).toBe('zyntheor-global-fed-01');
+./docs/audit/asset-references.txt:168:./lib/native-model-runtime.ts:245:  if (native.status === 'INFERENCE_READY' && native.inferenceTested && providerId === 'zyntheor-native') {
+./docs/audit/asset-references.txt:169:./lib/governance-consensus.test.ts:59:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./docs/audit/asset-references.txt:170:./lib/governance-consensus.test.ts:70:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./docs/audit/asset-references.txt:171:./lib/governance-consensus.test.ts:80:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./docs/audit/asset-references.txt:172:./lib/governance-consensus.ts:36:  private providers = ['provider-gemini-primary', 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec', 'provider-sovereign-node'];
+./docs/audit/asset-references.txt:173:./lib/governance-consensus.ts:46:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 25, timestamp: new Date().toISOString(), signature: this.signVote('provider-zyntheor-core', 'GRANT') },
+./docs/audit/asset-references.txt:174:./lib/corex-platform-gate.mjs:30:    ? (identityRegistry.models.find(item => item.model_id === 'zyntheor-native-cpu-001') || {})
+./docs/audit/asset-references.txt:175:./lib/access.mjs:17:  const custom = headers['x-zyntheor-token'];
+./docs/audit/asset-references.txt:176:./lib/governance-federation.ts:110:      federationId: 'zyntheor-global-fed-01',
+./docs/audit/asset-references.txt:177:./lib/intelligence-core.ts:689:        name: 'zyntheor-ai-engine',
+./docs/audit/asset-references.txt:178:./lib/model-benchmark.ts:476:    id: 'zyntheor-core-foundation',
+./docs/audit/asset-references.txt:179:./package.json:2:  "name": "zyntheor-ai-engine-clean-rebuild",
+./docs/audit/asset-references.txt:180:./FILE_MANIFEST.sha256:7:67c2bf46a47e1c30c1d9e33988c024f5e26b3f97a8ec670d9540a49020c22362  ./.github/workflows/native-core-1.1.0.yml
+./docs/audit/asset-references.txt:181:./FILE_MANIFEST.sha256:58:67c2bf46a47e1c30c1d9e33988c024f5e26b3f97a8ec670d9540a49020c22362  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml
+./docs/audit/asset-references.txt:182:./FILE_MANIFEST.sha256:253:c1eb825d6af550ae22779827af375a6ecee5570f5adc11d0a3fbee92fe5e1dac  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/divider.svg
+./docs/audit/asset-references.txt:183:./FILE_MANIFEST.sha256:254:0b427efda29f9323ea43134e509865242a99c802302fab5dfac9763a07cc3abc  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/icon.svg
+./docs/audit/asset-references.txt:184:./FILE_MANIFEST.sha256:256:4558421c058ffd339087505eff2f59c64169ba449d8415d82499c6ac998fc1df  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/native-core-mark.svg
+./docs/audit/asset-references.txt:185:./FILE_MANIFEST.sha256:258:82782186915cd03e068855d9e4e3ac01c6e79c8197fef738c720c0415ef3438a  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/status-cards.svg
+./docs/audit/asset-references.txt:186:./FILE_MANIFEST.sha256:260:a58169763137329d17854219f7054b076631fc9e5021f9e9b4fbaf48135aa222  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/zyntheor-footer.svg
+./docs/audit/asset-references.txt:187:./FILE_MANIFEST.sha256:261:752f0e1a439013de46cd0ff8212424c9ab98137809882bf38423358bcd4c8689  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/zyntheor-header.svg
+./docs/audit/asset-references.txt:188:./FILE_MANIFEST.sha256:262:3c39fc2c05b109429503d5f8f359bf166967336f08570fe6bfb335fb01e62700  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/zyntheor-logo.svg
+./docs/audit/asset-references.txt:189:./FILE_MANIFEST.sha256:265:b388e2bda50fc0dd99cc63c6419d400c03d068920e93ed9314ee8a6e86f04dd6  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/scripts/gen-status-cards.mjs
+./docs/audit/asset-references.txt:190:./FILE_MANIFEST.sha256:419:b348d52e2e860353970fedc88cf368e01a88652341f49cc7a7aebd0fe6e72718  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/p3-zyntheor-core.test.mjs
+./docs/audit/asset-references.txt:191:./FILE_MANIFEST.sha256:445:90dcf442f47c232b850b7976ac67654a6a3eb1807a77f9770e5aa2ed6a96366f  ./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/zyntheor-core-native-model.test.mjs
+./docs/audit/asset-references.txt:192:./FILE_MANIFEST.sha256:694:12559b1ccad654605eade58512731608c5b861c14f7593a26de030d9903f302f  ./public/divider.svg
+./docs/audit/asset-references.txt:193:./FILE_MANIFEST.sha256:695:0b427efda29f9323ea43134e509865242a99c802302fab5dfac9763a07cc3abc  ./public/icon.svg
+./docs/audit/asset-references.txt:194:./FILE_MANIFEST.sha256:697:4558421c058ffd339087505eff2f59c64169ba449d8415d82499c6ac998fc1df  ./public/native-core-mark.svg
+./docs/audit/asset-references.txt:195:./FILE_MANIFEST.sha256:699:6819de542364ea6b10e3321e78c85e77b90b91838c0cd871cdef37e399cc73ec  ./public/status-cards.svg
+./docs/audit/asset-references.txt:196:./FILE_MANIFEST.sha256:701:85b0202f50f280aa3fdecf060c3dbb0c8d74fb09a2086b6ce5aabae1f466aa8a  ./public/zyntheor-footer.svg
+./docs/audit/asset-references.txt:197:./FILE_MANIFEST.sha256:702:19c34a1412c242edf215f544a0d772a7230df7cdd426949915afffc32eea5666  ./public/zyntheor-header.svg
+./docs/audit/asset-references.txt:198:./FILE_MANIFEST.sha256:703:3c39fc2c05b109429503d5f8f359bf166967336f08570fe6bfb335fb01e62700  ./public/zyntheor-logo.svg
+./docs/audit/asset-references.txt:199:./FILE_MANIFEST.sha256:710:b388e2bda50fc0dd99cc63c6419d400c03d068920e93ed9314ee8a6e86f04dd6  ./scripts/gen-status-cards.mjs
+./docs/audit/asset-references.txt:200:./FILE_MANIFEST.sha256:887:b348d52e2e860353970fedc88cf368e01a88652341f49cc7a7aebd0fe6e72718  ./tests/p3-zyntheor-core.test.mjs
+./docs/audit/asset-references.txt:201:./FILE_MANIFEST.sha256:919:90dcf442f47c232b850b7976ac67654a6a3eb1807a77f9770e5aa2ed6a96366f  ./tests/zyntheor-core-native-model.test.mjs
+./docs/audit/asset-references.txt:202:./docs/audit/NATIVE_INFERENCE_VERIFICATION.md:32:  if (native.status === 'INFERENCE_READY' && native.inferenceTested && providerId === 'zyntheor-native') {
+./docs/audit/asset-references.txt:203:./docs/audit/asset-references.txt:1:./CONTRIBUTING.md:28:git clone https://github.com/zxsvzv00-cmyk/zyntheor-ai.git
+./docs/audit/asset-references.txt:204:./docs/audit/asset-references.txt:2:./CONTRIBUTING.md:29:cd zyntheor-ai
+./docs/audit/asset-references.txt:205:./docs/audit/asset-references.txt:3:./ZYNTHEOR_CORE_X_REGRESSION_CHANGELOG.md:5:The work continued from `ZYNTHEOR_CORE_X_FULL_INTEGRATED_RELEASE.zip` in `/home/ubuntu/workspaces/zyntheor-core-x-regression`. The original workspace was preserved. Runtime state, dependencies and build output were excluded from the release package.
+./docs/audit/asset-references.txt:206:./docs/audit/asset-references.txt:4:./public/status-cards.svg:3:  <desc id="d">TESTS: UNVERIFIED; TYPE ERRORS: UNVERIFIED; BUILD: UNVERIFIED; MANIFEST: UNVERIFIED. Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed</desc>
+./docs/audit/asset-references.txt:207:./docs/audit/asset-references.txt:5:./public/status-cards.svg:33:  <text x="420" y="110" text-anchor="middle" font-size="11" fill="#64748B">Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed</text>
+./docs/audit/asset-references.txt:208:./docs/audit/asset-references.txt:6:./public/manifest.webmanifest:9:  "icons": [{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+./docs/audit/asset-references.txt:209:./docs/audit/asset-references.txt:7:./public/sw.js:1:const CACHE = 'zyntheor-shell-v2';
+./docs/audit/asset-references.txt:210:./docs/audit/asset-references.txt:8:./public/sw.js:2:self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(['/','/manifest.webmanifest','/icon.svg']))));
+./docs/audit/asset-references.txt:211:./docs/audit/asset-references.txt:9:./scripts/migrate-identity-json.mjs:119:  const pool = new Pool({ connectionString: databaseUrl, max: 1, connectionTimeoutMillis: 5000, application_name: 'zyntheor-identity-import-p2' });
+./docs/audit/asset-references.txt:212:./docs/audit/asset-references.txt:10:./scripts/clear-all-mocks.sh:3:# รันใน root ของโปรเจค zyntheor-ai-fixed
+./docs/audit/asset-references.txt:213:./docs/audit/asset-references.txt:11:./scripts/gen-status-cards.mjs:2:// Generates public/status-cards.svg from REAL command results. No dependencies.
+./docs/audit/asset-references.txt:214:./docs/audit/asset-references.txt:12:./scripts/gen-status-cards.mjs:3://   node scripts/gen-status-cards.mjs              run the 4 checks, write the SVG
+./docs/audit/asset-references.txt:215:./docs/audit/asset-references.txt:13:./scripts/gen-status-cards.mjs:4://   node scripts/gen-status-cards.mjs --unverified write the SVG with every card UNVERIFIED (nothing is run)
+./docs/audit/asset-references.txt:216:./docs/audit/asset-references.txt:14:./scripts/gen-status-cards.mjs:10:const OUT = process.env.STATUS_OUT || 'public/status-cards.svg';
+./docs/audit/asset-references.txt:217:./docs/audit/asset-references.txt:15:./scripts/gen-status-cards.mjs:48:  ? 'Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed'
+./docs/audit/asset-references.txt:218:./docs/audit/asset-references.txt:16:./scripts/postgres-preflight.mjs:73:    application_name: 'zyntheor-p3-readonly-preflight',
+./docs/audit/asset-references.txt:219:./docs/audit/asset-references.txt:17:./vite.config.ts:4:// GitHub Pages serves the site under /zyntheor-ai/; local dev and normal builds stay at '/'.
+./docs/audit/asset-references.txt:220:./docs/audit/asset-references.txt:18:./vite.config.ts:5:const base = process.env.GITHUB_PAGES === 'true' ? '/zyntheor-ai-fixed/' : '/';
+./docs/audit/asset-references.txt:221:./docs/audit/asset-references.txt:19:./governance/registry.yaml:19:  id: "zyntheor-v1.1-upgrade"
+./docs/audit/asset-references.txt:222:./docs/audit/asset-references.txt:20:./governance/registry.yaml:50:  - id: zyntheor-v1.1-upgrade
+./docs/audit/asset-references.txt:223:./docs/audit/asset-references.txt:21:./governance/registry.yaml:56:  - id: zyntheor-v1.1.1-forensic-diff
+./docs/audit/asset-references.txt:224:./docs/audit/asset-references.txt:22:./governance/registry.yaml:61:    parent_release: zyntheor-v1.1-upgrade
+./docs/audit/asset-references.txt:225:./docs/audit/asset-references.txt:23:./governance/registry.yaml:80:      rollback_target: zyntheor-v1.1-upgrade
+./docs/audit/asset-references.txt:226:./docs/audit/asset-references.txt:24:./governance/upgrade.yaml:7:  subsystem_id: "zyntheor-v1.1-upgrade"
+./docs/audit/P16_TRAINING_REPORT.json:18:    "model_id": "zyntheor-native-cpu-001",
+./docs/specs/P3_IMPLEMENTATION_REPORT.md:6:**Test Suite Status:** 10/10 Automated P3 Integration Tests Passed (`tests/p3-zyntheor-core.test.mjs`) & 12/12 Native Model Tests Passed (`tests/zyntheor-core-native-model.test.mjs`)
+./docs/specs/P3_IMPLEMENTATION_REPORT.md:36:- Registered model spec `zyntheor-core-0.10.0-foundation` with GGUF `Q4_K_M` export compatibility.
+./docs/specs/P3_IMPLEMENTATION_REPORT.md:50:Command: `node --test tests/p3-zyntheor-core.test.mjs`
+./docs/specs/DATASET_QUALITY_REPORT.md:5:The ZYNTHEOR CORE instruction-tuning corpus (`zyntheor-core-engineering-v1.2`) is a handcrafted bilingual Thai-English engineering benchmark dataset designed specifically for software engineering, agent orchestration, code analysis, debugging, and workspace operations.
+./docs/specs/BASE_MODEL_PROVENANCE.md:31:| **GGUF Q4_K_M** | `zyntheor-core-q4_k_m.gguf` | Efficient CPU / Low-VRAM local inference |
+./docs/specs/BASE_MODEL_PROVENANCE.md:32:| **GGUF Q8_0** | `zyntheor-core-q8_0.gguf` | High-fidelity local desktop inference |
+./docs/specs/DATASET_ENGINE_SPECIFICATION.md:19:    "source": "zyntheor-curated-engineering-corpus-v1",
+./docs/specs/MODEL_REGISTRY_SPECIFICATION.md:9:- `model_id`: Canonical unique model string (e.g. `zyntheor-core-0.10.0-foundation`).
+./docs/NATIVE_CORE_1.1.0_PLAN.md:27:Native training on separate branch feature/native-core-1.1.0 if needed
+./docs/operations/DEPLOYMENT_CHECKLIST_1.1.0_PHASE2.md:32:- [x] Registered `zyntheor-core-1.2.0-gpu-apex` in `training/registry/model_registry.json`
+./docs/training/DATASET_GOVERNANCE_APPROVAL_GUIDE.md:39:Training writes a new checkpoint and updates only the `zyntheor-native-cpu-001` entry in `native_model_identity.json`. It must preserve other model identities. No command in this guide bypasses the governance gate or grants production approval.
+./fly.toml:1:app = "zyntheor-buffalo-110"
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/src/services/selfImprovementEngine.ts:520:    datasetVersion: 'zyntheor-core-dataset-v1.2',
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/src/components/SettingsCenter.tsx:539:    a.download = `zyntheor-settings-backup-${new Date().toISOString().split('T')[0]}.json`;
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/src/components/GpuTrainingTab.tsx:480:              sub: 'zyntheor-core-v1.2 (0% leakage)',
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/server.ts:279:    service: 'zyntheor-ai-engine',
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/server.ts:299:    service: 'zyntheor-ai-engine',
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/server.ts:583:    service: 'zyntheor-ai-engine',
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/server.ts:2298:          '14:00:00 [INFO] Loading dataset manifest zyntheor-core-engineering-v1.2 (15 verified samples)',
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/server.ts:2357:      modelId: 'zyntheor-core-0.10.0-foundation',
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/server.ts:2368:        manifestName: 'zyntheor-core-engineering-v1.2',
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/server.ts:2489:    addAudit('MODEL_DEPLOYMENT_APPROVED', `modelId=${modelId || 'zyntheor-core-0.1'}; approvedBy=${approvedBy || user.id}`);
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/lib/governance-consensus.ts:36:  private providers = ['provider-gemini-primary', 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec', 'provider-sovereign-node'];
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/lib/governance-consensus.ts:46:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 25, timestamp: new Date().toISOString(), signature: this.signVote('provider-zyntheor-core', 'GRANT') },
+./archive/legacy-snapshots/extracted_simulation_removal_patch/files/package.json:2:  "name": "zyntheor-ai-engine-clean-rebuild",
+./archive/legacy-snapshots/extracted_simulation_removal_patch/APPLY_AND_ROLLBACK.md:3:Base: zyntheor-ai-fixed__1_.zip (no .git; the original ZIP is the only restore point - keep it untouched).
+./archive/legacy-snapshots/extracted_simulation_removal_patch/APPLY_AND_ROLLBACK.md:11:Re-extract the original ZIP over the project: `unzip -o zyntheor-ai-fixed__1_.zip`.
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/CONTRIBUTING.md:28:git clone https://github.com/zxsvzv00-cmyk/zyntheor-ai.git
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/CONTRIBUTING.md:29:cd zyntheor-ai
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/manifest.webmanifest:9:  "icons": [{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/sw.js:1:const CACHE = 'zyntheor-shell-v2';
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/public/sw.js:2:self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(['/','/manifest.webmanifest','/icon.svg']))));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/scripts/gen-status-cards.mjs:2:// Generates public/status-cards.svg from REAL command results. No dependencies.
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/scripts/gen-status-cards.mjs:3://   node scripts/gen-status-cards.mjs              run the 4 checks, write the SVG
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/scripts/gen-status-cards.mjs:4://   node scripts/gen-status-cards.mjs --unverified write the SVG with every card UNVERIFIED (nothing is run)
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/scripts/gen-status-cards.mjs:10:const OUT = process.env.STATUS_OUT || 'public/status-cards.svg';
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/scripts/gen-status-cards.mjs:48:  ? 'Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed'
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/vite.config.ts:4:// GitHub Pages serves the site under /zyntheor-ai/; local dev and normal builds stay at '/'.
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/vite.config.ts:5:const base = process.env.GITHUB_PAGES === 'true' ? '/zyntheor-ai-fixed/' : '/';
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/governance/registry.yaml:19:  id: "zyntheor-v1.1-upgrade"
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/governance/registry.yaml:50:  - id: zyntheor-v1.1-upgrade
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/governance/registry.yaml:56:  - id: zyntheor-v1.1.1-forensic-diff
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/governance/registry.yaml:61:    parent_release: zyntheor-v1.1-upgrade
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/governance/registry.yaml:80:      rollback_target: zyntheor-v1.1-upgrade
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/governance/upgrade.yaml:7:  subsystem_id: "zyntheor-v1.1-upgrade"
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/render.yaml:3:    name: zyntheor-buffalo-110
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:7:      - '.github/workflows/native-core-1.1.0.yml'
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:11:  native-core:
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:35:        run: npm run check:env 2>&1 | tee native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:39:          echo "## Dataset Manifest" | tee -a native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:40:          ls -lh training/dataset/manifest.json training/dataset/samples.json | tee -a native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:41:          node training/scripts/verify_dataset.mjs 2>&1 | tee -a native-core-audit.txt || echo "UNVERIFIED: verify_dataset failed - check manifest" | tee -a native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:45:          echo "## Quality Gates" | tee -a native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:46:          node training/scripts/quality_gates.mjs 2>&1 | tee -a native-core-audit.txt || echo "Quality gates check" | tee -a native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:50:          echo "## Baseline Eval" | tee -a native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:51:          node training/scripts/evaluate_baseline.mjs 2>&1 | tee -a native-core-audit.txt || echo "UNVERIFIED: No checkpoint - SPECIFICATION_LOCKED_PENDING_GPU_RUN" | tee -a native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:54:        run: npm run verify 2>&1 | tee -a native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/.github/workflows/native-core-1.1.0.yml:59:          path: native-core-audit.txt
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/index.html:14:    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:2:  <img src="public/zyntheor-header.svg" alt="ZYNTHEOR AI ENGINE" width="840" />
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:6:  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai"><img src="https://img.shields.io/badge/Buffalo-Active%20Governance-10B981?style=for-the-badge&logo=shield&logoColor=white" alt="Buffalo Audit" /></a>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:7:  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai"><img src="https://img.shields.io/badge/Integrity%20Manifest-SHA--256%20Verified-38BDF8?style=for-the-badge&logo=fingerprint&logoColor=white" alt="Manifest Integrity" /></a>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:8:  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai"><img src="https://img.shields.io/badge/Tests-Continuous%20PASS-10B981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Test Verification" /></a>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:12:  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE - Dataset & Eval" /></a>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:13:  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/audit-1.1.0.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Buffalo Audit" /></a>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:14:  <a href="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/codeql.yml"><img src="https://github.com/zxsvzv00-cmyk/zyntheor-ai-fixed/actions/workflows/codeql.yml/badge.svg" alt="CodeQL Advanced" /></a>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:22:  <img src="public/status-cards.svg" alt="Local check status cards: tests, type errors, build, manifest. Values come from the last local run of scripts/gen-status-cards.mjs; UNVERIFIED means it has not been run." width="840" />
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:36:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:40:> ⚠️ ตารางนี้เป็นสถานะที่ผู้ดูแลบันทึกไว้เอง **ไม่ได้อ่านจากการรันอัตโนมัติ** — ค่าที่มาจากการรันจริงดูที่การ์ดสถานะด้านบน (รันด้วย `node scripts/gen-status-cards.mjs`)
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:51:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:70:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:89:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:106:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:138:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:152:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:190:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:206:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:213:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:219:<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/README.md:222:  <img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition" width="840" />
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/model-gateway-integration.test.mjs:144:  const logPath = path.join(tmpdir(), `zyntheor-external-fetch-${randomUUID()}.log`);
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/intelligence-core.test.mjs:147:  assert.equal(pkgInfo.name, 'zyntheor-ai-engine');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/buffalo-core.test.mjs:72:  assert.equal(extractToken({ 'x-zyntheor-token': ' xyz ' }), 'xyz');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/workspace-storage-and-auth.test.mjs:116:  assert.equal(extractToken({ 'x-zyntheor-token': mockToken }), mockToken);
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/workspace-storage-and-auth.test.mjs:293:  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-git-test-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/workspace-storage-and-auth.test.mjs:344:  assert.ok(cicd.workflows.some(w => w.filename.includes('audit') || w.filename.includes('native-core')));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/autonomous-intelligence-execution.test.mjs:18:  id: 'zyntheor-local-provider',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/autonomous-intelligence-execution.test.mjs:19:  configuredModel: 'zyntheor-core-1.1',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/autonomous-intelligence-execution.test.mjs:22:  listModels: async () => [{ id: 'zyntheor-core-1.1', name: 'Zyntheor Core 1.1' }],
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/autonomous-intelligence-execution.test.mjs:25:    model: 'zyntheor-core-1.1',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/autonomous-intelligence-execution.test.mjs:26:    provider: 'zyntheor-local-provider',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/autonomous-intelligence-execution.test.mjs:34:    model: 'zyntheor-core-1.1',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/truth-kernel.test.ts:197:      const res = kernel.validateProductionProvider('zyntheor-native-coder', { isLocal: true });
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/safe-executor-containment.test.mjs:10:  const marker = path.join(tmpdir(), `zyntheor-safeexec-${randomUUID()}`);
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/request-observability-persistence.test.mjs:9:  const dir = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-observe-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/production-config-lock.test.mjs:42:  assert.equal(extractToken({ 'x-zyntheor-token': testSecret }), testSecret);
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/patch-security-regression.test.ts:18:  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-test-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/deployment-validation-and-gpu-training.test.mjs:98:  const apexModel = reg.models.find(m => m.model_id === 'zyntheor-core-1.2.0-gpu-apex');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/deployment-validation-and-gpu-training.test.mjs:100:  assert.ok(apexModel, 'zyntheor-core-1.2.0-gpu-apex model must be registered');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/app-smoke.test.mjs:42:    const marker = path.join(tmpdir(), `zyntheor-blocked-execution-${randomUUID()}`);
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/self-improvement-and-learning.test.mjs:190:  const modelId = 'zyntheor-core-1.2.0-gpu-apex';
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/intelligence-runtime-integration.test.mjs:13:  configuredModel: 'zyntheor-core-1.1',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/intelligence-runtime-integration.test.mjs:16:  listModels: async () => [{ id: 'zyntheor-core-1.1', name: 'Zyntheor Core 1.1' }],
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/intelligence-runtime-integration.test.mjs:21:      model: 'zyntheor-core-1.1',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/intelligence-runtime-integration.test.mjs:31:    model: 'zyntheor-core-1.1',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/tests/intelligence-runtime-integration.test.mjs:113:  assert.ok(readRes.content.includes('zyntheor-ai-engine'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/evidenceProvenanceService.ts:43:  signerIdentity = 'zyntheor-trusted-server',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/evidenceProvenanceService.ts:113:  const signerIdentity = 'zyntheor-trusted-server';
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/auditLedger.ts:645:  anchor.download = `zyntheor-audit-ledger-${Date.now()}.json`;
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/auditLedger.ts:735:  anchor.download = `zyntheor-audit-ledger-${Date.now()}.csv`;
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/repositoryIntelligence.test.ts:15:    root = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-repo-scan-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/repositoryIntelligence.test.ts:89:    const outside = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-repo-outside-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/repositoryIntelligence.test.ts:108:    const outside = mkdtempSync(path.join(os.tmpdir(), 'zyntheor-ignore-outside-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/entitlementEngine.ts:26:    allowedModels: ['qwen2.5-coder:7b', 'zyntheor-core-0.10.0-foundation'],
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/keyManagementService.ts:34:    const rawSecret = process.env.TENANT_STORAGE_HMAC_SECRET || 'zyntheor-sovereign-master-key-2026';
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/identityService.ts:109:        slug: 'zyntheor-default',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/services/selfImprovementEngine.ts:520:    datasetVersion: 'zyntheor-core-dataset-v1.2',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/patchApplierAudit.test.ts:16:    workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-audit-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:15:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:19:    assert.equal(signed.provenance?.signerIdentity, 'zyntheor-trusted-server');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:27:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:39:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:52:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:64:    const signed1 = signEvidenceRecord(entry1, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:73:    const signed2 = signEvidenceRecord(entry2, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:84:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-A');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:105:    const signed1 = signEvidenceRecord(entry1, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:108:    const signed2 = signEvidenceRecord(entry2, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/evidenceProvenanceSecurity.test.ts:121:    const signed = signEvidenceRecord(entry, 'zyntheor-trusted-server', 'tenant-alpha');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/patchLifecycleSecurity.test.ts:29:  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-test-ws-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/tests/patchLifecycle.test.ts:21:    workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zyntheor-patch-lifecycle-'));
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/components/GovernanceObservabilityPanels.tsx:166:            {(consensus?.consensus?.state?.activeProviders || ['provider-gemini-primary', 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec']).map((p: string) => (
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/components/TrainingMonitor.tsx:664:    downloadAnchor.setAttribute('download', `zyntheor-core-training-metrics-${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/components/SettingsCenter.tsx:539:    a.download = `zyntheor-settings-backup-${new Date().toISOString().split('T')[0]}.json`;
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/components/GpuTrainingTab.tsx:480:              sub: 'zyntheor-core-v1.2 (0% leakage)',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/components/AuditChainVisualizer.tsx:129:    downloadLink.download = `zyntheor-audit-hash-chain-${new Date().toISOString().slice(0, 10)}.svg`;
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/components/AuditChainVisualizer.tsx:173:        downloadLink.download = `zyntheor-audit-snapshot-${new Date().toISOString().slice(0, 10)}.png`;
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/src/components/LocalStorageAuditTool.tsx:391:      downloadAnchor.setAttribute("download", `zyntheor-localstorage-backup-${Date.now()}.json`);
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/server.ts:279:    service: 'zyntheor-ai-engine',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/server.ts:299:    service: 'zyntheor-ai-engine',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/server.ts:583:    service: 'zyntheor-ai-engine',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/server.ts:2298:          '14:00:00 [INFO] Loading dataset manifest zyntheor-core-engineering-v1.2 (15 verified samples)',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/server.ts:2357:      modelId: 'zyntheor-core-0.10.0-foundation',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/server.ts:2368:        manifestName: 'zyntheor-core-engineering-v1.2',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/server.ts:2489:    addAudit('MODEL_DEPLOYMENT_APPROVED', `modelId=${modelId || 'zyntheor-core-0.1'}; approvedBy=${approvedBy || user.id}`);
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/registry/model_registry.json:6:      "model_id": "zyntheor-core-0.10.0-foundation",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/registry/model_registry.json:21:        "manifest_name": "zyntheor-core-engineering-v1.2",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/registry/model_registry.json:94:      "model_id": "zyntheor-core-1.2.0-gpu-apex",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/registry/model_registry.json:108:        "manifest_name": "zyntheor-core-engineering-v1.2",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_REPORT.txt:32:  zyntheor-curated-engineering-corpus-v1    11
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_REPORT.txt:59:sources: zyntheor-curated-engineering-corpus-v1
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/manifest.json:3:  "name": "zyntheor-core-engineering-v1.2",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:3:  "datasetName": "zyntheor-core-engineering-v1.3",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:20:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:42:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:64:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:86:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:108:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:130:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:152:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:174:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:196:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:218:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:240:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:262:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:284:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:306:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/DATASET_PROVENANCE_MANIFEST.json:328:        "claim": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:9:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:31:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:44:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:57:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:70:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:83:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:96:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:109:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:143:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:156:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:169:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:195:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:208:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:221:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/training/dataset/samples.json:234:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/governance-federation.test.ts:7:    expect(status.federationId).toBe('zyntheor-global-fed-01');
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/native-model-runtime.ts:245:  if (native.status === 'INFERENCE_READY' && native.inferenceTested && providerId === 'zyntheor-native') {
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/governance-consensus.test.ts:59:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/governance-consensus.test.ts:70:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/governance-consensus.test.ts:80:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 50, timestamp: new Date().toISOString(), signature: 'sig-2' },
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/governance-consensus.ts:36:  private providers = ['provider-gemini-primary', 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec', 'provider-sovereign-node'];
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/governance-consensus.ts:46:      { providerId: 'provider-zyntheor-core', vote: 'GRANT', weight: 25, timestamp: new Date().toISOString(), signature: this.signVote('provider-zyntheor-core', 'GRANT') },
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/access.mjs:17:  const custom = headers['x-zyntheor-token'];
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/governance-federation.ts:110:      federationId: 'zyntheor-global-fed-01',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/intelligence-core.ts:688:        name: 'zyntheor-ai-engine',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/lib/model-benchmark.ts:476:    id: 'zyntheor-core-foundation',
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/package.json:2:  "name": "zyntheor-ai-engine-clean-rebuild",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/audit/NATIVE_INFERENCE_VERIFICATION.md:32:  if (native.status === 'INFERENCE_READY' && native.inferenceTested && providerId === 'zyntheor-native') {
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/specs/P3_IMPLEMENTATION_REPORT.md:6:**Test Suite Status:** 10/10 Automated P3 Integration Tests Passed (`tests/p3-zyntheor-core.test.mjs`) & 12/12 Native Model Tests Passed (`tests/zyntheor-core-native-model.test.mjs`)
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/specs/P3_IMPLEMENTATION_REPORT.md:36:- Registered model spec `zyntheor-core-0.10.0-foundation` with GGUF `Q4_K_M` export compatibility.
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/specs/P3_IMPLEMENTATION_REPORT.md:50:Command: `node --test tests/p3-zyntheor-core.test.mjs`
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/specs/DATASET_QUALITY_REPORT.md:5:The ZYNTHEOR CORE instruction-tuning corpus (`zyntheor-core-engineering-v1.2`) is a handcrafted bilingual Thai-English engineering benchmark dataset designed specifically for software engineering, agent orchestration, code analysis, debugging, and workspace operations.
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/specs/BASE_MODEL_PROVENANCE.md:31:| **GGUF Q4_K_M** | `zyntheor-core-q4_k_m.gguf` | Efficient CPU / Low-VRAM local inference |
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/specs/BASE_MODEL_PROVENANCE.md:32:| **GGUF Q8_0** | `zyntheor-core-q8_0.gguf` | High-fidelity local desktop inference |
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/specs/DATASET_ENGINE_SPECIFICATION.md:19:    "source": "zyntheor-curated-engineering-corpus-v1",
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/specs/MODEL_REGISTRY_SPECIFICATION.md:9:- `model_id`: Canonical unique model string (e.g. `zyntheor-core-0.10.0-foundation`).
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/NATIVE_CORE_1.1.0_PLAN.md:27:Native training on separate branch feature/native-core-1.1.0 if needed
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/docs/operations/DEPLOYMENT_CHECKLIST_1.1.0_PHASE2.md:32:- [x] Registered `zyntheor-core-1.2.0-gpu-apex` in `training/registry/model_registry.json`
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/fly.toml:1:app = "zyntheor-buffalo-110"
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/node scripts/check-manifest.js:2:// Generates public/status-cards.svg from REAL command results. No dependencies.
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/node scripts/check-manifest.js:3://   node scripts/gen-status-cards.mjs              run the 4 checks, write the SVG
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/node scripts/check-manifest.js:4://   MANIFEST_CMD="<your real manifest check>" node scripts/gen-status-cards.mjs   override the manifest command
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/node scripts/check-manifest.js:5://   node scripts/gen-status-cards.mjs --unverified write the SVG with every card UNVERIFIED (nothing is run)
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/node scripts/check-manifest.js:11:const OUT = process.env.STATUS_OUT || 'public/status-cards.svg';
+./archive/legacy-snapshots/extracted_zyntheor_ai_clean_full/node scripts/check-manifest.js:49:  ? 'Not run yet - every value is UNVERIFIED until scripts/gen-status-cards.mjs is executed'
+./ZYNTHEOR_CORE_X_FULL_AUDIT.md:7:ตรวจ archive `ZYNTHEOR_CORE_X_CONTINUED_HARDENED.zip` ใน workspace แยก `/home/ubuntu/workspaces/zyntheor-core-x-audit` โดยไม่แก้ต้นฉบับ ตรวจ source, documentation, scripts, configuration, tests, training pipeline และ manifest. Archive มี 922 ไฟล์ก่อนติดตั้ง dependencies; source หลักอยู่ใน `src/`, `lib/`, `server.ts`, `training/`, `tests/`.

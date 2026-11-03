@@ -18,3 +18,4 @@ __pycache__/
 
 # Delivery archives
 *.zip
+archive/legacy-snapshots/
