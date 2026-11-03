@@ -1,27 +1,21 @@
-# === Secrets - ห้ามขึ้น Pages เด็ดขาด ===
+# === Secrets - ห้ามขึ้น Pages ===
 .env
 .env.*
 *.key
 *.pem
-*secret*
-*token*
 
-# === OS / Logs ===
+# OS / Logs
 .DS_Store
 *.log
 coverage/
 .oryx/
 
-# === Node / Build - ไม่ขึ้น Pages ถ้าใช้ path '.' ===
+# Node / Build
 node_modules/
 dist/
 workspace_data/
-544
-500*
-*.zip
 
-# === ZYNTHEOR CORE X - Checkpoints ===
-# ห้าม push checkpoint ขึ้น GitHub / Pages
+# ZYNTHEOR CORE X - Checkpoints ห้าม push
 *.npz
 *.bin
 *.pt
@@ -33,16 +27,13 @@ native_data/*.pt
 .venv_p5/
 venv/
 __pycache__/
-*.cpython-*.pyc
-*.pyo
 *.pyc
-training/scripts/__pycache__/
 
-# === แต่เปิดให้หลักฐาน P5 ขึ้นได้ ===
+# แต่เปิดให้หลักฐาน P5 ขึ้นได้
 !native_data/*.json
 !native_data/*.sig
 !native_data/*.md
 !native_data/p5_verifier_v1.py
 
-# === Allow Pages workflow ===
+# Allow Pages workflow
 !.github/workflows/pages.yml
