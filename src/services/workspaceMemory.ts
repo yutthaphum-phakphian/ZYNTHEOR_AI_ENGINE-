@@ -64,6 +64,14 @@ export class WorkspaceMemoryService {
     return list;
   }
 
+  public deleteMemoryEntry(workspaceId: string, id: string): boolean {
+    const list = this.memoryEntries.get(workspaceId) || [];
+    const initialLen = list.length;
+    const filtered = list.filter(e => e.id !== id);
+    this.memoryEntries.set(workspaceId, filtered);
+    return filtered.length < initialLen;
+  }
+
   private seedDefaultArchitectureEntries(workspaceId: string) {
     this.addMemoryEntry(workspaceId, {
       type: 'architecture_summary',

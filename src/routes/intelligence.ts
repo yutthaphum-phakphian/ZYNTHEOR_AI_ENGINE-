@@ -152,6 +152,137 @@ r.get('/api/intelligence/workspace-memory', (req, res) => {
   }
 });
 
+// 5b. POST /api/intelligence/workspace-memory
+r.post('/api/intelligence/workspace-memory', (req, res) => {
+  try {
+    const { workspaceId, type, title, content, sourceFile, sourceLine, provenance, confidenceScore } = req.body || {};
+    if (!title || !content) {
+      return res.status(400).json({ ok: false, error: 'title and content are required' });
+    }
+    const targetWs = String(workspaceId || 'default');
+    const entry = workspaceMemoryService.addMemoryEntry(targetWs, {
+      type: type || 'architecture_summary',
+      title: String(title).slice(0, 200),
+      content: String(content).slice(0, 10000),
+      sourceFile: sourceFile ? String(sourceFile) : undefined,
+      sourceLine: typeof sourceLine === 'number' ? sourceLine : undefined,
+      provenance: provenance ? String(provenance) : `manual://${targetWs}`,
+      confidenceScore: typeof confidenceScore === 'number' ? confidenceScore : 1.0,
+      versionMarker: '1.2.0',
+    });
+    return res.status(201).json({ ok: true, entry });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// 5c. DELETE /api/intelligence/workspace-memory/:id
+r.delete('/api/intelligence/workspace-memory/:id', (req, res) => {
+  try {
+    const workspaceId = (req.query.workspaceId as string) || (req.body?.workspaceId as string) || 'default';
+    const id = String(req.params.id);
+    const deleted = workspaceMemoryService.deleteMemoryEntry(workspaceId, id);
+    if (!deleted) {
+      return res.status(404).json({ ok: false, error: 'Memory record not found in workspace' });
+    }
+    return res.json({ ok: true, message: 'Memory record deleted successfully', id });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// 6. Agent Command Center Roles and Execution
+const AGENT_ROLES = [
+  {
+    id: 'planner',
+    name: 'Planner Agent',
+    nameTh: 'เอเจนต์วางแผน (Planner)',
+    description: 'High-level task decomposition, dependency resolution, risk classification, and milestone planning.',
+    permissions: ['workspace:read', 'plan:create', 'plan:update', 'dependencies:inspect'],
+    allowedTools: ['workspace.inspect', 'plan.decompose', 'dependencies.resolve'],
+    requiresApprovalFor: ['plan:publish'],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'engineering',
+    name: 'Engineering Agent',
+    nameTh: 'เอเจนต์วิศวกรรม (Engineering)',
+    description: 'AST analysis, code generation, refactoring, patch creation, and unit test execution.',
+    permissions: ['code:read', 'ast:inspect', 'patch:propose', 'test:execute'],
+    allowedTools: ['code.read', 'ast.parse', 'patch.propose', 'test.run'],
+    requiresApprovalFor: ['patch:apply', 'file:delete', 'system:write'],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'research',
+    name: 'Research Agent',
+    nameTh: 'เอเจนต์วิจัยและสืบค้น (Research)',
+    description: 'Cross-file context synthesis, documentation indexing, provenance tracing, and factual evidence checking.',
+    permissions: ['context:retrieve', 'doc:read', 'provenance:verify'],
+    allowedTools: ['context.search', 'provenance.trace', 'facts.verify'],
+    requiresApprovalFor: [],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'security',
+    name: 'Security Agent',
+    nameTh: 'เอเจนต์ความมั่นคงปลอดภัย (Security)',
+    description: 'Sandbox containment verification, secret scanning, fail-closed gate enforcement, and permission audits.',
+    permissions: ['security:audit', 'sandbox:verify', 'secrets:scan', 'policy:enforce'],
+    allowedTools: ['security.scan', 'sandbox.probe', 'policy.check'],
+    requiresApprovalFor: ['policy:override'],
+    status: 'ACTIVE',
+  },
+  {
+    id: 'verification',
+    name: 'Verification Agent',
+    nameTh: 'เอเจนต์ตรวจสอบความถูกต้อง (Verification)',
+    description: 'Cryptographic hash checking, regression test assertion, Merkle tree auditing, and sign-off logging.',
+    permissions: ['audit:verify', 'hash:compute', 'regression:test', 'manifest:validate'],
+    allowedTools: ['hash.sha256', 'manifest.verify', 'audit.ratify'],
+    requiresApprovalFor: ['release:approve'],
+    status: 'ACTIVE',
+  },
+];
+
+r.get('/api/intelligence/agent/roles', (_req, res) => {
+  res.json({ ok: true, roles: AGENT_ROLES });
+});
+
+r.post('/api/intelligence/agent/execute', async (req, res) => {
+  try {
+    const { goal, agentRole, workspaceId, isDryRun } = req.body || {};
+    if (!goal || typeof goal !== 'string' || !goal.trim()) {
+      return res.status(400).json({ ok: false, error: 'goal is required string' });
+    }
+
+    const role = AGENT_ROLES.find(r => r.id === agentRole) || AGENT_ROLES[0];
+    const isThai = /[\u0E00-\u0E7F]/.test(goal);
+    const targetWs = String(workspaceId || 'default');
+
+    // Deconstruct through orchestrator
+    const response = await orchestrator.execute({
+      query: goal.trim(),
+      workspaceId: targetWs,
+      language: isThai ? 'th' : 'en',
+      responseLanguage: isThai ? 'th' : 'en',
+      humanApprovals: {},
+      isDryRun: Boolean(isDryRun),
+      onlineConsent: false,
+    });
+
+    res.json({
+      ok: true,
+      agentRole: role,
+      task: response,
+      humanApprovalRequired: response.taskState === 'WAITING_FOR_APPROVAL',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: err?.message || 'Agent execution failed' });
+  }
+});
+
 // 7. GET /api/intelligence/scan & POST /api/intelligence/scan
 let latestRepositoryScan: RepositoryScanResult | null = null;
 

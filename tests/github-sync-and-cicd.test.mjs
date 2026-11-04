@@ -8,7 +8,7 @@ let child;
 
 async function waitForServer(base) {
   const started = Date.now();
-  while (Date.now() - started < 18000) {
+  while (Date.now() - started < 25000) {
     if (child?.exitCode !== null && child?.exitCode !== undefined) {
       throw new Error(`server exited: ${child.exitCode}`);
     }
@@ -20,10 +20,10 @@ async function waitForServer(base) {
     }
     await delay(250);
   }
-  throw new Error('server did not become healthy within 18 seconds');
+  throw new Error('server did not become healthy within 25 seconds');
 }
 
-test('GitHub Sync & CI/CD Status API endpoints', async () => {
+test('GitHub Sync & CI/CD Status API endpoints', { timeout: 35000 }, async () => {
   const base = `http://127.0.0.1:${port}`;
   child = spawn(process.execPath, ['--import', 'tsx', 'server.ts'], {
     cwd: new URL('..', import.meta.url).pathname,

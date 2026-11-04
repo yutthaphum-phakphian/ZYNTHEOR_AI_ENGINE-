@@ -39,12 +39,15 @@ import { EvaluationLabDashboard } from './components/evaluation/EvaluationLabDas
 import { MemoryCenter } from './components/MemoryCenter';
 import { GitHubSyncWidget } from './components/GitHubSyncWidget';
 import { CicdStatusWidget } from './components/CicdStatusWidget';
+import { AgentCommandCenter } from './components/AgentCommandCenter';
+import { CicdPage } from './components/CicdPage';
+import { HomepageEngineeringCenter } from './components/HomepageEngineeringCenter';
 import { createAuditEntry, verifyAuditHashChain, repairAndResignAuditLedger, downloadAuditLedgerJson, downloadAuditLedgerCsv, type AuditEntry } from './services/auditLedger';
 import { CodeIntelligence } from '../lib/code-intelligence';
 import { evaluateDiagnosticChecks } from '../lib/diagnostics-evaluator.ts';
 import * as d3 from 'd3';
 
-type Page = 'Chat' | 'Memory Center' | 'Team' | 'Projects' | 'Plans' | 'Files' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Evaluation Lab' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings';
+type Page = 'Chat' | 'Memory Center' | 'Team' | 'Projects' | 'Plans' | 'Files' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Evaluation Lab' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings' | 'Agent Command Center' | 'CI/CD';
 type ChatMessage = { id: string; role: 'user' | 'assistant'; content: string; at: string; model?: string; error?: boolean; mode?: ChatMode; streaming?: boolean; incomplete?: string; requiresApproval?: boolean; approved?: boolean; rejected?: boolean };
 type ChatSession = { id: string; title: string; createdAt: string; updatedAt: string; messages: ChatMessage[]; mode: ChatMode };
 type ComposerAttachment = { id: string; name: string; size: number; content: string };
@@ -60,10 +63,31 @@ type ModelResult = { state: string; source?: 'live' | 'fallback'; configuredMode
 type InferenceResult = { state: string; model?: string; latencyMs?: number; matchedExpectedText?: boolean; responsePreview?: string; error?: string; message?: string; modelStatus?: string };
 
 const NAV: { title: string; items: { id: Page; icon: LucideIcon; label: string; desc?: string }[] }[] = [
-  { title: 'WORKSPACE', items: [{ id: 'Chat', icon: MessageSquare, label: 'AI Workspace' }, { id: 'Projects', icon: Boxes, label: 'Projects' }, { id: 'Plans', icon: LayoutDashboard, label: 'Plans' }, { id: 'Files', icon: Files, label: 'Files' }, { id: 'Memory Center', icon: Brain, label: 'Memory Center' }] },
-  { title: 'INTELLIGENCE', items: [{ id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }, { id: 'Models', icon: Cpu, label: 'CORE Model Studio' }, { id: 'Evaluation Lab', icon: Gauge, label: 'Evaluation Lab' }] },
-  { title: 'TRUST & SAFETY', items: [{ id: 'Audit Ledger', icon: ShieldCheck, label: 'Audit Ledger' }, { id: 'Diagnostics', icon: Activity, label: 'Diagnostics' }] },
-  { title: 'SYSTEM', items: [{ id: 'Team', icon: ShieldCheck, label: 'Team & Access' }, { id: 'Billing', icon: CreditCard, label: 'Billing & Plans' }, { id: 'Settings', icon: Settings, label: 'Settings' }] },
+  { title: 'WORKSPACE', items: [
+    { id: 'Chat', icon: MessageSquare, label: 'AI Workspace' },
+    { id: 'Projects', icon: Boxes, label: 'Projects' },
+    { id: 'Plans', icon: LayoutDashboard, label: 'Plans' },
+    { id: 'Files', icon: Files, label: 'Files' },
+    { id: 'Memory Center', icon: Brain, label: 'Memory Center' }
+  ] },
+  { title: 'INTELLIGENCE', items: [
+    { id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' },
+    { id: 'Agent Command Center', icon: Bot, label: 'Agent Command Center' },
+    { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' },
+    { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' },
+    { id: 'Models', icon: Cpu, label: 'CORE Model Studio' },
+    { id: 'Evaluation Lab', icon: Gauge, label: 'Evaluation Lab' }
+  ] },
+  { title: 'OPERATIONS', items: [
+    { id: 'CI/CD', icon: GitBranch, label: 'CI/CD & Pipelines' },
+    { id: 'Audit Ledger', icon: ShieldCheck, label: 'Audit Ledger' },
+    { id: 'Diagnostics', icon: Activity, label: 'Diagnostics' }
+  ] },
+  { title: 'SYSTEM', items: [
+    { id: 'Team', icon: ShieldCheck, label: 'Team & Access' },
+    { id: 'Billing', icon: CreditCard, label: 'Billing & Plans' },
+    { id: 'Settings', icon: Settings, label: 'Settings' }
+  ] },
 ];
 const PAGE_COPY: Record<Page, { eyebrow: string; title: string; subtitle: string }> = {
   Chat: { eyebrow: 'ZYNTHEOR CORE X / ENGINEERING WORKSPACE', title: 'AI Engineering Workspace', subtitle: 'Chat, projects, files and repository intelligence in one governed engineering workspace.' },
@@ -73,10 +97,12 @@ const PAGE_COPY: Record<Page, { eyebrow: string; title: string; subtitle: string
   Plans: { eyebrow: 'WORKSPACE / PLANS', title: 'Plan before action.', subtitle: 'Turn a goal into clear steps and track what is actually complete.' },
   Files: { eyebrow: 'WORKSPACE / FILES', title: 'Your project files.', subtitle: 'Review local files before wiring up the secure server-side file gateway.' },
   'Repository Intelligence': { eyebrow: 'INTELLIGENCE / REPO INTELLIGENCE', title: 'Repository Intelligence Engine', subtitle: 'Map project structure, resolve symbols and exports into JSON context hierarchy.' },
+  'Agent Command Center': { eyebrow: 'CORE X / AGENT ORCHESTRATION', title: 'Agent Command Center', subtitle: 'Governed multi-agent workflows with tool allowlists and human approval gates.' },
   'Intelligent Debugging': { eyebrow: 'INTELLIGENCE / INTELLIGENT DEBUGGING', title: 'Intelligent Debugging Workflow', subtitle: 'Capture stack traces, fetch workspace code, and rank root cause hypotheses.' },
   'Prompt Forge': { eyebrow: 'INTELLIGENCE / PROMPT FORGE', title: 'Forge, optimize & benchmark prompts.', subtitle: 'Generate production-ready prompts, audit against rubrics, and run test benches.' },
   Models: { eyebrow: 'INTELLIGENCE / MODELS', title: 'Model control center.', subtitle: 'See actual endpoint status. A registered model is not proof of a trained model.' },
   'Evaluation Lab': { eyebrow: 'INTELLIGENCE / EVALUATION LAB', title: '12-Category Evaluation System', subtitle: 'Measure regression tests, capability gates, and benchmark results with real evidence.' },
+  'CI/CD': { eyebrow: 'OPERATIONS / CI/CD & PIPELINES', title: 'Continuous Integration & Deployment', subtitle: 'Git sync, code integrity, pipeline triggers and deployment ratification gates.' },
   'Audit Ledger': { eyebrow: 'TRUST & SAFETY / AUDIT', title: 'Evidence over assumptions.', subtitle: 'Inspect recorded events and their integrity fingerprints.' },
   Diagnostics: { eyebrow: 'TRUST & SAFETY / DIAGNOSTICS', title: 'Know what is working.', subtitle: 'Check the server and configured model independently.' },
   Billing: { eyebrow: 'SYSTEM / BILLING', title: 'Billing & Subscriptions', subtitle: 'Manage subscriptions, payment providers, invoices, and plan entitlements.' },
@@ -296,6 +322,7 @@ function WorkspaceApp() {
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const [hasProjectDraft, setHasProjectDraft] = useState(false);
+  const [activeProjectId, setActiveProjectId] = useState<string>('project-core');
 
   useEffect(() => {
     if (projectName.trim()) {
@@ -1073,20 +1100,14 @@ function WorkspaceApp() {
       </header>
       <div className="page-scroll"><div className="page-wrap">
         {page === 'Chat' && (
-          <div className="agent-command-grid">
-            <aside className="agent-workspace-rail" aria-label="Workspace explorer">
-              <div className="agent-panel-heading"><span>WORKSPACE EXPLORER</span><span className="agent-panel-kicker">NAVIGATION</span></div>
-              <div className="agent-workspace-current"><div className="agent-folder-mark">⌘</div><div><b>{activeWorkspace?.name || 'Main Engine'}</b><small>Active workspace</small></div></div>
-              <button type="button" className="agent-nav-item" onClick={() => choosePage('Projects')}><span>▰</span><span><b>Projects</b><small>Workspace projects</small></span><ChevronRight size={14}/></button>
-              <button type="button" className="agent-nav-item" onClick={() => choosePage('Files')}><span>▤</span><span><b>Files</b><small>Browse project files</small></span><ChevronRight size={14}/></button>
-              <button type="button" className="agent-nav-item" onClick={() => choosePage('Repository Intelligence')}><span>⌘</span><span><b>Repository map</b><small>Inspect code structure</small></span><ChevronRight size={14}/></button>
-              <button type="button" className="agent-nav-item" onClick={() => choosePage('Intelligent Debugging')}><span>⌕</span><span><b>Debugging</b><small>Analyze failures</small></span><ChevronRight size={14}/></button>
-              <GitHubSyncWidget />
-              <div className="agent-rail-note"><ShieldCheck size={15}/><span>File operations remain subject to workspace and server-side authorization.</span></div>
-            </aside>
-            <section className="agent-center-panel" aria-label="Agent command center">
-              <div className="agent-panel-heading agent-center-heading"><div><span>AGENT COMMAND CENTER</span><small>Chat and task control</small></div><span className={`agent-live-state ${sending ? 'is-running' : ''}`}><i/> {sending ? 'WORKING' : 'READY'}</span></div>
-              <ChatPage
+          <HomepageEngineeringCenter
+            activeWorkspace={activeWorkspace}
+            activeWorkspaceId={activeWorkspaceId}
+            workspaces={workspaces}
+            onSwitchWorkspace={switchWorkspace}
+            projects={projects}
+            activeProjectId={activeProjectId || projects[0]?.id}
+            onSwitchProject={(id) => setActiveProjectId(id)}
             messages={messages}
             draft={draft}
             setDraft={setDraft}
@@ -1120,18 +1141,8 @@ function WorkspaceApp() {
             recordAudit={recordAudit}
             setToast={setToast}
             serverSession={serverSession}
-              />
-            </section>
-            <aside className="agent-verify-rail" aria-label="Execution and verification">
-              <div className="agent-panel-heading"><span>EXECUTION &amp; VERIFY</span><span className="agent-panel-kicker">LIVE STATUS</span></div>
-              <div className="agent-status-card"><div className="agent-status-line"><span>Backend runtime</span><b className={health?.ok ? 'is-good' : 'is-unknown'}>{health?.ok ? 'CONNECTED' : 'UNKNOWN'}</b></div><small>{health?.service || 'Server health has not been confirmed'}</small></div>
-              <div className="agent-status-card"><div className="agent-status-line"><span>AI provider</span><b>{settings?.provider || 'Not configured'}</b></div><small>{settings?.model || 'No model selected'}</small></div>
-              <div className="agent-status-card"><div className="agent-status-line"><span>Inference verification</span><b className={settings?.inferenceVerified ? 'is-good' : 'is-unknown'}>{settings?.inferenceVerified ? 'VERIFIED' : 'NOT VERIFIED'}</b></div><small>{inferenceResult?.state || 'No verified live inference result in this session'}</small></div>
-              <div className="agent-terminal-card"><div className="agent-terminal-title"><span>▣</span> EXECUTION CONSOLE</div><p>{sending ? 'Agent request is being processed…' : 'No live sandbox process is attached to this view.'}</p><small>Terminal output will appear here only when a real execution tool is connected.</small></div>
-              <div className="agent-security-card"><ShieldCheck size={16}/><div><b>Security boundary</b><small>Workspace permissions and backend controls apply. Sandbox status is not assumed.</small></div></div>
-              <button type="button" className="agent-audit-link" onClick={() => choosePage('Audit Ledger')}>Open security audit ledger <ArrowUpRight size={13}/></button>
-            </aside>
-          </div>
+            files={files}
+          />
         )}
         {/* ProjectsPage keyboard navigation contract (delegated to WorkspaceProjectsPage): ArrowRight, ArrowDown, cardRefs, selectedProject, setSelectedProject, aria-selected */}
         {page === 'Team' && <TeamManagementPage authHeaders={authHeaders} currentRole={serverSession?.role} setToast={setToast}/>}
@@ -1203,7 +1214,21 @@ function WorkspaceApp() {
             }}
           />
         )}
-
+        {page === 'Agent Command Center' && (
+          <AgentCommandCenter
+            authHeaders={authHeaders}
+            workspaceId={activeWorkspaceId || 'default'}
+            setToast={setToast}
+            onOpenAuditLedger={() => choosePage('Audit Ledger')}
+          />
+        )}
+        {page === 'CI/CD' && (
+          <CicdPage
+            authHeaders={authHeaders}
+            setToast={setToast}
+            onOpenAuditLedger={() => choosePage('Audit Ledger')}
+          />
+        )}
         {page === 'Evaluation Lab' && <EvaluationLabDashboard />}
         {page === 'Diagnostics' && <DiagnosticsPage health={health} settings={settings} models={modelResult} loading={loadingStatus} refresh={() => void refreshStatus(true)} inferenceResult={inferenceResult} testingInference={testingInference} runInference={() => void runInferenceTest()}/>}
         {page === 'Billing' && <BillingCenter authHeaders={authHeaders} setToast={setToast} />}
