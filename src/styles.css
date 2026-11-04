@@ -1891,6 +1891,370 @@ button,
   color: #475569;
 }
 
+/* GitHub Sync Container */
+.github-sync-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Branch Selector Row */
+.github-branch-select-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: rgba(8, 15, 27, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+.github-branch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #94A3B8;
+  white-space: nowrap;
+}
+.github-select-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+.github-branch-dropdown {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: #38BDF8;
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.github-branch-dropdown option {
+  background: #0D1828;
+  color: #F1F5F9;
+  font-family: inherit;
+}
+.github-branch-dropdown:focus {
+  background: rgba(56, 189, 248, 0.12);
+}
+
+/* Commits List Section */
+.github-commits-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+.github-commits-heading {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #64748B;
+  text-transform: uppercase;
+}
+.github-commits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.github-commits-loading,
+.github-commits-empty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 8.5px;
+  color: #64748B;
+  padding: 6px 4px;
+}
+.github-commit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(8, 15, 27, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.github-commit-item:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(13, 24, 40, 0.8);
+}
+.github-commit-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.github-commit-hash-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #38BDF8;
+  text-decoration: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  font-weight: 700;
+}
+.github-commit-hash-link:hover {
+  color: #7DD3FC;
+  text-decoration: underline;
+}
+.github-commit-date {
+  font-size: 8px;
+  color: #64748B;
+}
+.github-commit-msg {
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #CBD5E1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.github-commit-author {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+  color: #64748B;
+}
+.github-author-name {
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+/* CI/CD Status Widget */
+.cicd-status-widget {
+  padding: 10px 12px;
+  border: 1px solid var(--line, #243044);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+.cicd-compact {
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  background: rgba(17, 31, 50, 0.7);
+}
+.cicd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cicd-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cicd-icon {
+  font-size: 11px;
+}
+.cicd-title {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94A3B8;
+}
+.cicd-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(56, 189, 248, 0.2));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38BDF8;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cicd-trigger-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.35), rgba(56, 189, 248, 0.35));
+  border-color: #38BDF8;
+  color: #FFFFFF;
+}
+.cicd-trigger-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.cicd-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cicd-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cicd-stage-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  border: 1px solid;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.cicd-percentage {
+  font-size: 10px;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.cicd-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(8, 15, 27, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  overflow: hidden;
+  position: relative;
+}
+.cicd-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.35s ease-out;
+}
+.cicd-progress-fill.is-animating {
+  background-size: 20px 20px;
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  animation: cicdStripes 1s linear infinite;
+}
+@keyframes cicdStripes {
+  0% { background-position: 0 0; }
+  100% { background-position: 20px 0; }
+}
+.cicd-step-desc {
+  font-size: 8.5px;
+  color: #94A3B8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cicd-step-text {
+  color: #7DD3FC;
+}
+.cicd-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(8, 15, 27, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+}
+.cicd-step-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #64748B;
+}
+.cicd-step-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cicd-step-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-pending { background: #475569; }
+.dot-running { background: #38BDF8; box-shadow: 0 0 6px #38BDF8; }
+.dot-success { background: #10B981; }
+.dot-failed { background: #EF4444; }
+.cicd-step-running .cicd-step-name { color: #38BDF8; font-weight: 600; }
+.cicd-step-success .cicd-step-name { color: #94A3B8; }
+.cicd-step-failed .cicd-step-name { color: #FCA5A5; }
+.cicd-step-duration {
+  font-size: 7.5px;
+  color: #475569;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.cicd-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+}
+.cicd-logs-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 0;
+  color: #64748B;
+  font-size: 8px;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: color 0.15s;
+}
+.cicd-logs-toggle:hover {
+  color: #38BDF8;
+}
+.cicd-total-time {
+  font-size: 8px;
+  color: #64748B;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.cicd-logs-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #040913;
+  border: 1px solid #1E293B;
+  max-height: 90px;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 7.5px;
+  color: #94A3B8;
+  line-height: 1.35;
+}
+.cicd-log-line code {
+  color: #A5F3FC;
+  word-break: break-all;
+}
+.sidebar-cicd-container {
+  margin-bottom: 10px;
+}
+
 /* CORE X account entry and access-management experience */
 .auth-screen{position:relative;isolation:isolate;min-height:100dvh;display:grid;place-items:center;padding:28px 18px 58px;overflow:hidden;background:#07111e}
 .auth-glow{position:absolute;z-index:-1;width:560px;height:560px;border-radius:50%;filter:blur(90px);opacity:.17;pointer-events:none}
