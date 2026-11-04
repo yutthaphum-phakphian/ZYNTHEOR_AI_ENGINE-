@@ -1,3 +1,5 @@
+<p align="center"><img src="public/zyntheor-buffalo-mark.svg" alt="ZYNTHEOR Buffalo Edition mark" width="72" height="72" /></p>
+
 <p align="center">
   <img src="public/zyntheor-header.svg" alt="ZYNTHEOR AI ENGINE" width="840" />
 </p>
@@ -219,3 +221,5 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development guidance. Contributions
 Distributed under the **AGPL-3.0 License**. Third-party libraries, pretrained model bases, datasets, and external components retain their applicable attribution, license, and provenance requirements. First-party AI independence is a long-term objective and does not reclassify current third-party components as first-party technology.
 
 <p align="center"><img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition" width="840" /></p>
+
+<p align="center"><img src="public/zyntheor-buffalo-mark.svg" alt="ZYNTHEOR Buffalo Edition mark" width="72" height="72" /></p>
