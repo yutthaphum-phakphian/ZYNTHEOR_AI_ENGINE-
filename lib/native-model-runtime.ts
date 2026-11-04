@@ -42,6 +42,9 @@ export interface NativeModelProbe {
   checksumMatched: boolean | null;
   trainedWeightsExist: boolean;
   registryStatus: string;
+  nativeIdentityModelId: string | null;
+  nativeIdentityStatus: string | null;
+  registryCrossCheck: 'MATCH' | 'MISMATCH' | 'UNAVAILABLE';
   runtime: {
     kind: 'none' | 'ollama_base' | 'native_weights';
     available: boolean;
@@ -51,6 +54,11 @@ export interface NativeModelProbe {
   inferenceTested: boolean;
   notes: string[];
   probedAt: string;
+}
+
+interface NativeIdentitySnapshot {
+  modelId: string | null;
+  status: string | null;
 }
 
 function sha256File(filePath: string): string | null {
@@ -114,6 +122,23 @@ function readRegistry(): {
   }
 }
 
+function readNativeIdentity(): NativeIdentitySnapshot {
+  const identityPath = path.join(rootDir, 'training/registry/native_model_identity.json');
+  if (!existsSync(identityPath)) return { modelId: null, status: null };
+  try {
+    const registry = JSON.parse(readFileSync(identityPath, 'utf8'));
+    const identity = Array.isArray(registry?.models)
+      ? registry.models.find((item: Record<string, unknown>) => item?.identity === 'CORE_NATIVE')
+      : registry;
+    return {
+      modelId: typeof identity?.model_id === 'string' ? identity.model_id : null,
+      status: typeof identity?.status === 'string' ? identity.status : null,
+    };
+  } catch {
+    return { modelId: null, status: 'IDENTITY_REGISTRY_PARSE_ERROR' };
+  }
+}
+
 /** Candidate paths where a real checkpoint might live (none fabricated). */
 function findCheckpointCandidates(): string[] {
   const dirs = [
@@ -150,6 +175,10 @@ export function probeNativeModelRuntime(options: {
   const allowBase = options.allowBaseModelFallback !== false;
   const ollamaReachable = options.ollamaReachable === true;
   const reg = readRegistry();
+  const nativeIdentity = readNativeIdentity();
+  const registryCrossCheck: NativeModelProbe['registryCrossCheck'] = reg.modelId && nativeIdentity.modelId
+    ? (reg.modelId === nativeIdentity.modelId ? 'MATCH' : 'MISMATCH')
+    : 'UNAVAILABLE';
   const candidates = findCheckpointCandidates();
   const checkpointPath = candidates[0] || null;
   const checkpointExists = Boolean(checkpointPath && existsSync(checkpointPath));
@@ -166,6 +195,11 @@ export function probeNativeModelRuntime(options: {
   }
 
   const notes: string[] = [];
+  if (registryCrossCheck === 'MISMATCH') {
+    notes.push(`Registry identity mismatch: model_registry=${reg.modelId}; native_identity=${nativeIdentity.modelId}. Records are not treated as the same model.`);
+  } else if (registryCrossCheck === 'UNAVAILABLE') {
+    notes.push('Registry cross-check unavailable because one or both model identity records are missing or incomplete.');
+  }
   let status: NativeRuntimeStatus;
   let answerSource: AnswerSource = 'unavailable';
   let runtimeKind: NativeModelProbe['runtime']['kind'] = 'none';
@@ -174,7 +208,10 @@ export function probeNativeModelRuntime(options: {
   let loadedRevision: string | null = null;
   const inferenceTested = false; // never claim tested without a real load+generate cycle
 
-  if (!reg.trainedWeightsExist && !checkpointExists) {
+  if (checkpointExists && registryCrossCheck === 'MISMATCH') {
+    status = 'CHECKPOINT_UNVERIFIED';
+    notes.push('Checkpoint verification blocked until model_registry.json and native_model_identity.json identify the same model.');
+  } else if (!reg.trainedWeightsExist && !checkpointExists) {
     status = 'MODEL_NOT_FOUND';
     notes.push('Registry reports trained_weights_exist=false and no checkpoint files were found under training/checkpoints, models/, or weights/.');
     notes.push(`Registry status: ${reg.registryStatus}`);
@@ -226,6 +263,9 @@ export function probeNativeModelRuntime(options: {
     checksumMatched,
     trainedWeightsExist: reg.trainedWeightsExist,
     registryStatus: reg.registryStatus,
+    nativeIdentityModelId: nativeIdentity.modelId,
+    nativeIdentityStatus: nativeIdentity.status,
+    registryCrossCheck,
     runtime: {
       kind: runtimeKind,
       available: runtimeAvailable,

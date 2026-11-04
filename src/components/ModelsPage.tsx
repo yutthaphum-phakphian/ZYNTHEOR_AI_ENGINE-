@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import ModelMetricsRollingChart from './ModelMetricsRollingChart';
 import { HardwareReadinessDashboard } from './HardwareReadinessDashboard';
+import ModelProvenancePanel from './ModelProvenancePanel';
 
 type ModelStudioTab =
   | 'registry'
@@ -41,12 +42,14 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<ModelStudioTab>('registry');
   const [modelRegistry, setModelRegistry] = useState<any[]>([]);
+  const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
   const [nativeIdentity, setNativeIdentity] = useState<any[]>([]);
   const [datasetManifest, setDatasetManifest] = useState<any | null>(null);
   const [trainingStatus, setTrainingStatus] = useState<any | null>(null);
   const [hardwareInfo, setHardwareInfo] = useState<any | null>(null);
   const [trainingConfig, setTrainingConfig] = useState<any | null>(null);
   const [nativeRuntime, setNativeRuntime] = useState<any | null>(null);
+  const [runtimeProvenance, setRuntimeProvenance] = useState<any | null>(null);
   const [evaluationReport, setEvaluationReport] = useState<any | null>(null);
   const [trainingHistory, setTrainingHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,18 +68,20 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const [statusRes, manifestRes, configRes, runtimeRes, reportRes, historyRes] = await Promise.allSettled([
+      const [statusRes, manifestRes, configRes, runtimeRes, reportRes, historyRes, provenanceRes] = await Promise.allSettled([
         fetch('/api/training/status').then(r => r.json()),
         fetch('/api/training/manifest').then(r => r.json()),
         fetch('/api/training/config').then(r => r.json()),
         fetch('/api/native/runtime').then(r => r.json()),
         fetch('/api/native-model/report').then(r => r.json()),
         fetch('/api/training/history').then(r => r.json()),
+        fetch('/api/native-model/status').then(r => r.json()),
       ]);
 
       if (statusRes.status === 'fulfilled' && statusRes.value?.ok) {
         setTrainingStatus(statusRes.value);
         setModelRegistry(statusRes.value.models || []);
+        setSelectedModelId(current => current || statusRes.value.models?.[0]?.model_id || null);
         if (statusRes.value.systemHardware) {
           setHardwareInfo(statusRes.value.systemHardware);
         }
@@ -96,6 +101,9 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
       if (historyRes.status === 'fulfilled' && historyRes.value?.ok) {
         setTrainingHistory(historyRes.value.runs || []);
       }
+      if (provenanceRes.status === 'fulfilled' && provenanceRes.value?.ok) {
+        setRuntimeProvenance(provenanceRes.value.native || null);
+      }
     } catch (err: any) {
       setError(err?.message || 'Failed to load model studio data');
     } finally {
@@ -106,6 +114,18 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
   useEffect(() => {
     fetchModelStudioData();
   }, [fetchModelStudioData]);
+
+  useEffect(() => {
+    if (modelRegistry.length === 0) {
+      setSelectedModelId(null);
+      return;
+    }
+    if (!selectedModelId || !modelRegistry.some(model => model.model_id === selectedModelId)) {
+      setSelectedModelId(modelRegistry[0]?.model_id || null);
+    }
+  }, [modelRegistry, selectedModelId]);
+
+  const selectedModel = modelRegistry.find(model => model.model_id === selectedModelId) || null;
 
   // Tokenizer simulation logic
   const handleTokenize = () => {
@@ -333,7 +353,17 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
             <div className="text-xs font-bold text-zinc-200">Registered Model Specs in training/registry/</div>
             <div className="space-y-2 text-xs">
               {modelRegistry.map((m: any) => (
-                <div key={m.model_id} className="p-3 rounded-lg bg-zinc-950 border border-zinc-800/80 space-y-2">
+                <button
+                  key={m.model_id}
+                  type="button"
+                  onClick={() => setSelectedModelId(m.model_id)}
+                  aria-pressed={selectedModel?.model_id === m.model_id}
+                  className={`w-full p-3 rounded-lg bg-zinc-950 border text-left space-y-2 transition ${
+                    selectedModel?.model_id === m.model_id
+                      ? 'border-cyan-700/80 ring-1 ring-cyan-900/60'
+                      : 'border-zinc-800/80 hover:border-zinc-700'
+                  }`}
+                >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <b className="text-zinc-100">{m.display_name || m.model_id}</b>
@@ -352,13 +382,21 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-zinc-400 pt-1">
                     <div>Base: <b className="text-zinc-200">{m.base_model?.name || 'From Scratch'}</b></div>
                     <div>Parameters: <b className="text-zinc-200">{m.base_model?.parameters || 'N/A'}</b></div>
-                    <div>License: <b className="text-zinc-200">{m.base_model?.license || 'Apache-2.0'}</b></div>
+                    <div>License: <b className="text-zinc-200">{m.base_model?.license || 'ยังไม่มีข้อมูลยืนยัน'}</b></div>
                     <div>Trained Weights: <b className="text-amber-400">{m.trained_weights_exist ? 'YES' : 'NONE'}</b></div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
+
+          <ModelProvenancePanel
+            model={selectedModel}
+            datasetManifest={datasetManifest}
+            trainingConfig={trainingConfig}
+            trainingStatus={trainingStatus}
+            runtimeProbe={runtimeProvenance}
+          />
         </div>
       )}
 
@@ -368,38 +406,41 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <div>
               <div className="text-xs font-bold text-zinc-200">Dataset Registry &amp; Provenance Manifest</div>
-              <div className="text-[11px] text-zinc-400">Manifest: {datasetManifest?.name || 'zyntheor-core-engineering-v1.2'}</div>
+              <div className="text-[11px] text-zinc-400">Manifest: {datasetManifest?.name || 'ยังไม่มีข้อมูลยืนยัน'}</div>
             </div>
             <span className="text-[11px] font-mono text-teal-400">
-              Version: {datasetManifest?.version || '1.3.1'}
+              Version: {datasetManifest?.manifest_version || 'ยังไม่มีข้อมูลยืนยัน'}
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
             <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
               <span className="text-[10px] uppercase font-bold text-zinc-500">Total Samples</span>
-              <div className="text-lg font-bold text-zinc-100 mt-1">{datasetManifest?.total_samples || 15}</div>
-              <span className="text-[10px] text-zinc-500">Verified domain records</span>
+              <div className="text-lg font-bold text-zinc-100 mt-1">{datasetManifest?.dataset_files?.[0]?.sample_count ?? 'ยังไม่มีข้อมูลยืนยัน'}</div>
+              <span className="text-[10px] text-zinc-500">Manifest-recorded samples</span>
             </div>
             <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
               <span className="text-[10px] uppercase font-bold text-zinc-500">Split Breakdown</span>
               <div className="text-sm font-bold text-zinc-200 mt-1">
-                Train: 8 · Val: 3 · Test: 4
+                {datasetManifest?.dataset_files?.[0]?.split_distribution
+                  ? `Train: ${datasetManifest.dataset_files[0].split_distribution.train ?? '—'} · Val: ${datasetManifest.dataset_files[0].split_distribution.validation ?? '—'} · Test: ${datasetManifest.dataset_files[0].split_distribution.test ?? '—'}`
+                  : 'ยังไม่มีข้อมูลยืนยัน'}
               </div>
-              <span className="text-[10px] text-emerald-400 font-semibold">Zero cross-split leakage verified</span>
+              <span className="text-[10px] text-amber-400 font-semibold">ตรวจสอบ leakage จากผล verifier แยกต่างหาก</span>
             </div>
             <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
               <span className="text-[10px] uppercase font-bold text-zinc-500">Language Distribution</span>
-              <div className="text-sm font-bold text-teal-300 mt-1">Thai · English · Code AST</div>
-              <span className="text-[10px] text-zinc-500">Trilingual engineering corpus</span>
+              <div className="text-sm font-bold text-teal-300 mt-1 break-words">{datasetManifest?.dataset_files?.[0]?.language_distribution ? Object.entries(datasetManifest.dataset_files[0].language_distribution).map(([language, count]) => `${language}: ${count}`).join(' · ') : 'ยังไม่มีข้อมูลยืนยัน'}</div>
+              <span className="text-[10px] text-zinc-500">Manifest-recorded language counts</span>
             </div>
           </div>
 
           <div className="space-y-2 text-xs">
             <span className="text-[10px] uppercase font-bold text-zinc-500">Cryptographic Digest Fingerprints</span>
             <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-[11px] space-y-1 text-zinc-400">
-              <div>SHA256(manifest.json): <span className="text-zinc-200">8bd97ecbd308664f48fbcd5d150d5001746588e229899d213a0c639b2e7a0a3c</span></div>
-              <div>SHA256(samples.json): <span className="text-zinc-200">49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db</span></div>
+              <div>Registry manifest SHA256 (recorded): <span className="text-zinc-200 break-all">{selectedModel?.dataset_provenance?.manifest_sha256 || 'ยังไม่มีข้อมูลยืนยัน'}</span></div>
+              <div>Registry samples SHA256 (recorded): <span className="text-zinc-200 break-all">{selectedModel?.dataset_provenance?.samples_sha256 || 'ยังไม่มีข้อมูลยืนยัน'}</span></div>
+              <div className="text-amber-300">Runtime digest verification: ยังไม่มี endpoint ผลตรวจในหน้านี้</div>
             </div>
           </div>
         </div>
@@ -528,12 +569,12 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-zinc-400">
                   <div>Method: <b className="text-zinc-200">{run.method}</b></div>
-                  <div>Final Loss: <b className="text-zinc-200">{run.finalTrainLoss}</b></div>
-                  <div>Accuracy: <b className="text-emerald-400">{run.finalAccuracyPct}%</b></div>
+                  <div>Final Loss: <b className="text-zinc-200">{run.finalTrainLoss ?? 'UNVERIFIED'}</b></div>
+                  <div>Accuracy: <b className="text-emerald-400">{run.finalAccuracyPct == null ? 'UNVERIFIED' : `${run.finalAccuracyPct}%`}</b></div>
                   <div>Hardware: <b className="text-zinc-200">{run.hardwareUsed}</b></div>
                 </div>
                 <div className="font-mono text-[10px] text-zinc-500 break-all">
-                  SHA256 Checkpoint: {run.checkpointHashSha256}
+                  SHA256 Checkpoint: {run.checkpointHashSha256 || 'UNVERIFIED — no checkpoint digest recorded'}
                 </div>
               </div>
             ))}

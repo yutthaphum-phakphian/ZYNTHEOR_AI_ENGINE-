@@ -1,46 +1,99 @@
-# Model Registry & Provenance Integration Audit
+# ZYNTHEOR Model Registry & Provenance Integration Audit
 
 วันที่ตรวจสอบ: 2026-11-04
+แพ็กงาน: Cumulative Incremental Patch — Patch 1 + Patch 2
 
-## Scope
+## ขอบเขต
 
-ตรวจเส้นทางข้อมูลระหว่าง `training/registry/model_registry.json`, `training/dataset/manifest.json`, `training/config/training_config.json`, `ModelsPage` และ `ModelProvenancePanel` โดยไม่เพิ่ม API และไม่เปลี่ยน Model Identity หรือ Runtime Router
+ตรวจและปรับปรุงเส้นทาง Model Registry → Runtime Provenance → Models UI โดยไม่สร้างโปรเจกต์ใหม่ ไม่เปลี่ยน Model Router ไม่เปลี่ยน External Provider identity และไม่ประกาศ runtime readiness เกินหลักฐานจริง
 
-## Findings and fixes
+## Patch 1 — Registry & Provenance UI
 
-### Registry consistency
+- เพิ่ม `ModelProvenancePanel`
+- เชื่อม panel กับ selected model ใน `ModelsPage`
+- แยก Overview กับ Technical Provenance
+- ลบ hardcoded license, dataset digest และข้อความ verification ที่ไม่มีหลักฐาน
+- แสดง missing evidence เป็น `ยังไม่มีข้อมูลยืนยัน`
+- รองรับ long model IDs และ SHA-256 บน mobile
 
-โมเดลใน registry ทั้ง 2 รายการอ้างอิง manifest name `zyntheor-core-engineering-v1.2`, manifest version `1.3.1`, sample count `15` และ base model เดียวกับ training config ผลตรวจ consistency ผ่านตามค่าที่บันทึกไว้
+## Patch 2 — Runtime Model Provenance Verification
 
-`selectedModel` ในหน้า Models จะอ้างอิง model id ที่ผู้ใช้เลือกเท่านั้น หาก registry เปลี่ยนจน selection เดิมไม่มีอยู่ ระบบจะเลือก record แรกอย่างชัดเจนผ่าน synchronization effect ไม่ใช่ fallback เงียบ ๆ ภายใน panel
+### Registry cross-check
 
-### Missing evidence
+`lib/native-model-runtime.ts` อ่านทั้ง `training/registry/model_registry.json` และ `training/registry/native_model_identity.json` แล้วส่งผล `registryCrossCheck` ออกมาเป็น `MATCH`, `MISMATCH` หรือ `UNAVAILABLE`
 
-ลบ fallback ที่ทำให้ข้อมูลดูเหมือนยืนยันแล้วออกจากหน้า Models ได้แก่ license `Apache-2.0`, sample count, split breakdown, language distribution และข้อความ zero-leakage ที่ hardcode ไว้ ข้อมูลที่ไม่มีจะแสดง `ยังไม่มีข้อมูลยืนยัน`
+ผลตรวจจริงของ Repository ปัจจุบัน:
 
-### Digest verification boundary
+```text
+model_registry:       zyntheor-core-0.10.0-foundation
+native_identity:      zyntheor-native-cpu-001
+registryCrossCheck:   MISMATCH
+runtime status:       MODEL_NOT_FOUND
+checkpoint exists:    false
+checksum matched:     null
+```
 
-Panel แสดง SHA-256 เป็น `recorded` เมื่อค่ามาจาก registry เท่านั้น และแสดงสถานะ `Runtime digest verification` แยกต่างหาก หากไม่มีผล verify จาก runtime จะไม่ประกาศว่า digest ผ่านการตรวจจริง
+ระบบจะไม่ถือ records สองชุดเป็นโมเดลเดียวกันเมื่อ model ID ไม่ตรงกัน
 
-### Cross-model contamination
+### Checkpoint verification
 
-Panel ไม่ใช้ dataset provenance จาก manifest ส่วนกลางมาเติมค่าให้ selected model อีกต่อไป และจะใช้ training config ส่วนกลางเฉพาะเมื่อ base model ตรงกับ model ที่เลือก หากไม่ตรงจะแสดงคำเตือนว่า config ยังยืนยันความเป็นของโมเดลนั้นไม่ได้
+Runtime probe ยังคงตรวจ SHA-256 จากไฟล์ checkpoint จริงเท่านั้น โดยแยก:
 
-### Model Identity
+- Registry-recorded digest
+- Runtime-calculated actual digest
+- Checksum match result
+- Runtime model identity
 
-Panel ไม่กำหนดหรือเปลี่ยน category/provider ของ model และไม่ประกาศ `CORE_NATIVE` เพิ่มเติม ข้อมูล identity ยังคงอยู่ภายใต้ contract และ response metadata ของระบบเดิม
+ไม่มีการสร้าง checkpoint file หรือ digest จำลอง
 
-### Mobile UX
+### Training History evidence boundary
 
-ใช้ responsive grid (`grid-cols-1`, `md`, `lg`), `break-all` สำหรับ model id และ digest, `break-words` สำหรับ metadata และ tab navigation แบบ horizontal scroll เพื่อไม่ให้ SHA-256 หรือข้อมูล provenance ทำให้เกิด horizontal overflow
+ลบ synthetic checkpoint digest, synthetic checkpoint path และ synthetic evidence digest ออกจาก `/api/training/history` เมื่อไม่มี checkpoint ที่ runtime ตรวจได้ โดยจะแสดง:
+
+- `BLOCKED_NO_VERIFIED_CHECKPOINT`
+- `checkpointHashSha256: null`
+- `checkpointPath: null`
+- `evidenceDigestSha256: null`
+- metrics เป็น `null` หากไม่มีหลักฐาน checkpoint ที่ verified
+
+`ModelsPage` และ `TrainingLogHistory` รองรับ null อย่างปลอดภัยและแสดง `UNVERIFIED` แทนการทำให้หน้าเดิมล่ม
+
+### Runtime UI integration
+
+`ModelsPage` เรียกใช้ API เดิม `/api/native-model/status` เพื่อแสดง runtime model ID, actual digest, checksum match และ registry cross-check โดยไม่เพิ่ม API ใหม่
+
+หาก runtime model ID ไม่ตรงกับ selected Registry model จะมีคำเตือนและไม่ถือ provenance เป็นของโมเดลเดียวกัน
 
 ## Verification results
 
-- Registry/manifest/config consistency script: ผ่านสำหรับ 2 registry records
+- Registry data consistency: ผ่านค่าที่บันทึกใน 2 registry records
+- Runtime cross-check: ตรวจพบ `MISMATCH` ตามข้อมูลจริง
+- Checkpoint file presence: ไม่พบ checkpoint จริง
+- Python native runtime: ไม่สามารถ probe ได้ใน environment นี้เนื่องจากไม่มี `torch`; gateway แปลงเป็น `RUNTIME_UNAVAILABLE` แบบ fail-closed
+- Synthetic evidence scan: ผ่าน ไม่มี synthetic checkpoint digest/path เหลือใน Training History API
+- Null-safe history consumer scan: ผ่าน
 - TypeScript typecheck: PASS
-- Evidence provenance regression: 9/9 PASS
-- Prohibited hardcoded evidence fallback scan: PASS
+- Production build: PASS
+- Evidence provenance tests: 9/9 PASS
+- Model lifecycle และ dataset quality tests: 11/11 PASS
 
-## Remaining blocker
+## สถานะที่ยังไม่ผ่านโดยเจตนา
 
-ยังไม่มี endpoint หรือ runtime result ที่ส่งค่า `verified digest` ของ manifest/checkpoint กลับมายังหน้า Models ในขอบเขตงานนี้ ดังนั้น UI จะแสดงได้เพียง registry-recorded digest และสถานะ runtime verification ว่าไม่มีข้อมูล ไม่ถือเป็นหลักฐานการฝึกโมเดลเสร็จ
+Patch 2 **ยังไม่ประกาศว่า Runtime Model Provenance Verification ผ่าน** เพราะยังไม่มีหลักฐาน runtime/checkpoint จริง ระบบจึงคงสถานะ `MODEL_NOT_FOUND`, `RUNTIME_UNAVAILABLE`, `UNVERIFIED` หรือ `BLOCKED` ตามจุดที่เกี่ยวข้อง
+
+การจะเลื่อนเป็น verified ต้องมีทั้ง:
+
+1. checkpoint จริงใน path ที่อนุญาต
+2. SHA-256 ของไฟล์ตรงกับ registry
+3. Registry identity สองชุดตรงกันหรือมี mapping ที่อนุมัติอย่างชัดเจน
+4. native runtime load และ forward/generation probe ผ่าน
+5. dataset lineage และ final weights digest ผ่านการตรวจ
+
+## ไฟล์ที่เปลี่ยนใน cumulative patch
+
+- `src/components/ModelsPage.tsx`
+- `src/components/ModelProvenancePanel.tsx`
+- `src/components/TrainingLogHistory.tsx`
+- `lib/native-model-runtime.ts`
+- `server.ts`
+- `docs/audit/MODEL_REGISTRY_PROVENANCE_INTEGRATION_AUDIT.md`

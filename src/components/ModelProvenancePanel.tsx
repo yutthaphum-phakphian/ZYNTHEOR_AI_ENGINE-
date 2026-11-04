@@ -8,6 +8,7 @@ export interface ModelProvenancePanelProps {
   datasetManifest?: AnyRecord | null;
   trainingConfig?: AnyRecord | null;
   trainingStatus?: AnyRecord | null;
+  runtimeProbe?: AnyRecord | null;
 }
 
 function displayValue(value: unknown, fallback = 'ยังไม่มีข้อมูลยืนยัน') {
@@ -51,6 +52,7 @@ export const ModelProvenancePanel: React.FC<ModelProvenancePanelProps> = ({
   datasetManifest,
   trainingConfig,
   trainingStatus,
+  runtimeProbe,
 }) => {
   if (!model) {
     return (
@@ -77,7 +79,11 @@ export const ModelProvenancePanel: React.FC<ModelProvenancePanelProps> = ({
   const sourceVerification = dataset.human_review_status;
   const registryManifestDigest = dataset.manifest_sha256;
   const registrySamplesDigest = dataset.samples_sha256;
-  const runtimeVerification = model.provenance_verification || checkpoint.verification_status;
+  const runtimeVerification = model.provenance_verification || checkpoint.verification_status || runtimeProbe?.registryCrossCheck;
+  const runtimeModelId = runtimeProbe?.modelId;
+  const runtimeActualDigest = runtimeProbe?.checkpointSha256Actual;
+  const runtimeChecksum = runtimeProbe?.checksumMatched;
+  const runtimeModelMatchesSelected = runtimeModelId ? runtimeModelId === model.model_id : null;
 
   return (
     <section className="rounded-xl border border-cyan-900/70 bg-zinc-900/70 p-4 space-y-4" aria-labelledby="model-provenance-title">
@@ -128,11 +134,20 @@ export const ModelProvenancePanel: React.FC<ModelProvenancePanelProps> = ({
         <Detail label="Training license claim" value={dataset.training_license_claim} />
         <Detail label="Checkpoint SHA-256 (recorded)" value={checkpoint.checkpoint_digest_sha256} mono />
         <Detail label="Runtime digest verification" value={runtimeVerification} />
+        <Detail label="Runtime model id" value={runtimeModelId} mono />
+        <Detail label="Runtime checkpoint SHA-256 (actual)" value={runtimeActualDigest} mono />
+        <Detail label="Runtime checksum match" value={runtimeChecksum} />
       </div>
 
       {!configMatchesModel && trainingConfig && (
         <div className="rounded-lg border border-amber-900 bg-amber-950/20 p-3 text-[11px] text-amber-200">
           ไม่แสดง training config ส่วนกลาง เพราะยังยืนยันไม่ได้ว่าเป็น config ของโมเดลที่เลือก
+        </div>
+      )}
+
+      {runtimeModelMatchesSelected === false && (
+        <div className="rounded-lg border border-red-900 bg-red-950/20 p-3 text-[11px] text-red-200">
+          Runtime model id ไม่ตรงกับ Registry model ที่เลือก จึงไม่ถือว่าเป็น provenance ของโมเดลเดียวกัน
         </div>
       )}
 

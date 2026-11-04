@@ -37,13 +37,13 @@ export interface TrainingRunLog {
   status: 'COMPLETED' | 'SMOKE_VERIFIED' | 'RUNNING' | 'FAILED' | string;
   epochs: number;
   totalSteps: number;
-  finalTrainLoss: number;
-  finalValLoss: number;
-  finalAccuracyPct: number;
-  checkpointHashSha256: string;
-  checkpointPath: string;
+  finalTrainLoss: number | null;
+  finalValLoss: number | null;
+  finalAccuracyPct: number | null;
+  checkpointHashSha256: string | null;
+  checkpointPath: string | null;
   hardwareUsed: string;
-  evidenceDigestSha256: string;
+  evidenceDigestSha256: string | null;
   logs: string[];
 }
 
@@ -77,7 +77,8 @@ export function TrainingLogHistory() {
     fetchTrainingHistory();
   }, []);
 
-  function handleCopyHash(hash: string) {
+  function handleCopyHash(hash: string | null) {
+    if (!hash) return;
     navigator.clipboard.writeText(hash);
     setCopiedHash(hash);
     setTimeout(() => setCopiedHash(null), 2000);
@@ -89,7 +90,7 @@ export function TrainingLogHistory() {
       run.runId.toLowerCase().includes(q) ||
       run.modelName.toLowerCase().includes(q) ||
       run.method.toLowerCase().includes(q) ||
-      run.checkpointHashSha256.toLowerCase().includes(q)
+      (run.checkpointHashSha256 || '').toLowerCase().includes(q)
     );
   });
 
@@ -240,7 +241,7 @@ export function TrainingLogHistory() {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>Accuracy</span>
-                      <b style={{ fontSize: '13px', color: '#38bdf8' }}>{run.finalAccuracyPct}%</b>
+                      <b style={{ fontSize: '13px', color: '#38bdf8' }}>{run.finalAccuracyPct == null ? 'UNVERIFIED' : `${run.finalAccuracyPct}%`}</b>
                     </div>
                   </div>
                 </div>
@@ -267,7 +268,7 @@ export function TrainingLogHistory() {
                           <HardDrive size={12} style={{ display: 'inline', marginRight: '4px' }} /> Checkpoint Path
                         </span>
                         <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#38bdf8', marginTop: '4px', wordBreak: 'break-all' }}>
-                          {run.checkpointPath}
+                          {run.checkpointPath || 'UNVERIFIED — no checkpoint path recorded'}
                         </div>
                         <span style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px', display: 'block' }}>
                           Steps: {run.totalSteps} · Epochs: {run.epochs}
@@ -286,16 +287,17 @@ export function TrainingLogHistory() {
                               handleCopyHash(run.checkpointHashSha256);
                             }}
                             style={{ background: 'transparent', border: 0, color: '#38bdf8', cursor: 'pointer', padding: 0 }}
-                            title="Copy SHA-256 Hash"
+                            title={run.checkpointHashSha256 ? 'Copy SHA-256 Hash' : 'No verified checkpoint digest'}
+                            disabled={!run.checkpointHashSha256}
                           >
-                            {copiedHash === run.checkpointHashSha256 ? <Check size={12} style={{ color: '#10b981' }} /> : <Copy size={12} />}
+                            {copiedHash === run.checkpointHashSha256 && run.checkpointHashSha256 ? <Check size={12} style={{ color: '#10b981' }} /> : <Copy size={12} />}
                           </button>
                         </div>
                         <div style={{ fontSize: '10px', fontFamily: 'monospace', color: '#34d399', marginTop: '4px', wordBreak: 'break-all' }}>
-                          {run.checkpointHashSha256}
+                          {run.checkpointHashSha256 || 'UNVERIFIED — no checkpoint digest recorded'}
                         </div>
                         <span style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', display: 'block' }}>
-                          Evidence Digest: {run.evidenceDigestSha256.slice(0, 16)}…
+                          Evidence Digest: {run.evidenceDigestSha256 ? `${run.evidenceDigestSha256.slice(0, 16)}…` : 'UNVERIFIED'}
                         </span>
                       </div>
                     </div>
