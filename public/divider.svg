@@ -1,1 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="2" viewBox="0 0 840 2"><rect width="840" height="2" fill="#232634"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 40" width="840" height="40" role="img" aria-hidden="true">
+  <defs>
+    <linearGradient id="dline" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0"/>
+      <stop offset="12%" stop-color="#0D9488" stop-opacity="0.75"/>
+      <stop offset="35%" stop-color="#14B8A6"/>
+      <stop offset="50%" stop-color="#22D3EE"/>
+      <stop offset="65%" stop-color="#38BDF8"/>
+      <stop offset="88%" stop-color="#67E8F9" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#67E8F9" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="dg" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Main premium wave -->
+  <path d="M 0 20
+           C 90 8, 170 32, 280 16
+           S 450 6, 560 22
+           S 700 34, 840 14"
+        fill="none" stroke="url(#dline)" stroke-width="2.1" filter="url(#dg)"/>
+
+  <!-- Soft twin -->
+  <path d="M 0 26
+           C 110 34, 190 14, 320 26
+           S 480 36, 610 20
+           S 740 10, 840 26"
+        fill="none" stroke="#14B8A6" stroke-width="1" opacity="0.3"/>
+
+  <!-- Ultra thin highlight -->
+  <path d="M 0 16
+           C 100 6, 180 26, 300 12
+           S 470 4, 580 18
+           S 720 28, 840 12"
+        fill="none" stroke="#A5F3FC" stroke-width="0.7" opacity="0.4"/>
+</svg>

@@ -1,1 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="60" viewBox="0 0 840 60"><rect width="840" height="60" rx="12" fill="#0b0d12"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="16" fill="#6b7280">ZYNTHEOR AI ENGINE · Buffalo Edition · AGPL-3.0</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 120" width="840" height="120" role="img" aria-label="ZYNTHEOR AI ENGINE · Buffalo Edition">
+  <defs>
+    <linearGradient id="fbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#03070E"/>
+      <stop offset="50%" stop-color="#081422"/>
+      <stop offset="100%" stop-color="#050D16"/>
+    </linearGradient>
+    <linearGradient id="fline" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0"/>
+      <stop offset="15%" stop-color="#0D9488"/>
+      <stop offset="40%" stop-color="#14B8A6"/>
+      <stop offset="70%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ftitle" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5EEAD4"/>
+      <stop offset="100%" stop-color="#A5F3FC"/>
+    </linearGradient>
+    <filter id="fg" x="-30%" y="-40%" width="160%" height="180%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="840" height="120" rx="18" fill="url(#fbg)"/>
+
+  <!-- Premium multi-layer waves -->
+  <path d="M 30 16
+           C 140 5, 250 28, 380 12
+           S 560 2, 680 18
+           S 780 28, 810 14"
+        fill="none" stroke="url(#fline)" stroke-width="2.2" opacity="0.9" filter="url(#fg)"/>
+
+  <path d="M 30 26
+           C 150 36, 260 14, 390 28
+           S 570 38, 690 20
+           S 790 10, 810 26"
+        fill="none" stroke="#14B8A6" stroke-width="1.1" opacity="0.35"/>
+
+  <path d="M 40 10
+           C 150 2, 260 20, 390 8
+           S 560 0, 690 14
+           S 780 22, 800 10"
+        fill="none" stroke="#A5F3FC" stroke-width="0.8" opacity="0.4"/>
+
+  <!-- Title -->
+  <text x="420" y="62" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" letter-spacing="1.8" fill="url(#ftitle)">ZYNTHEOR AI ENGINE</text>
+
+  <!-- Subtitle -->
+  <text x="420" y="86" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" letter-spacing="3.2" fill="#64748B">BUFFALO EDITION  ·  SOVEREIGN WORKSPACE</text>
+
+  <!-- Tiny bottom accent wave -->
+  <path d="M 270 102 C 340 96, 400 108, 470 100 S 560 94, 580 104"
+        fill="none" stroke="#0D9488" stroke-width="1.3" opacity="0.55"/>
+</svg>
