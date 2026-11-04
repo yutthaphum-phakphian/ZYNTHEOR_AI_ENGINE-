@@ -128,13 +128,31 @@ r.post('/api/intelligence/cross-file-reason', (req, res) => {
 // 4. POST /api/intelligence/change-impact
 r.post('/api/intelligence/change-impact', (req, res) => {
   try {
-    const { targetFile, proposedChange } = req.body || {};
+    const { targetFile, proposedChange, diff, lang } = req.body || {};
     if (!targetFile) {
       return res.status(400).json({ ok: false, error: 'targetFile is required' });
     }
 
-    const report = changeImpactEngine.analyzeImpact(targetFile, proposedChange);
+    const report = changeImpactEngine.analyzeImpact(targetFile, {
+      diff,
+      proposedChangeSummary: proposedChange,
+      lang: lang || 'th',
+    });
     return res.json({ ok: true, report });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// 4b. GET /api/intelligence/entry-points
+r.get('/api/intelligence/entry-points', (_req, res) => {
+  try {
+    const scan = latestRepositoryScan || runRepositoryScan();
+    return res.json({
+      ok: true,
+      entryPoints: scan.entryPoints || [],
+      count: scan.entryPoints?.length || 0,
+    });
   } catch (err: any) {
     return res.status(500).json({ ok: false, error: err.message });
   }

@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Code2, Network, FileCode2, Boxes, Copy, Check, Search, Download,
-  Layers, ShieldCheck, ChevronRight, ChevronDown, Terminal, Eye, WandSparkles, Filter, RefreshCw
+  Layers, ShieldCheck, ChevronRight, ChevronDown, Terminal, Eye, WandSparkles, Filter, RefreshCw,
+  AlertTriangle, GitCompare, ShieldAlert, Cpu, CheckCircle2, Lock, ArrowRight, Play, X
 } from 'lucide-react';
-import type { CodeAnalysis, SymbolInfo } from '../../lib/code-intelligence';
-import type { DependencyGraphResult, RepositoryFileKind, RepositoryScanStatus } from '../services/repositoryIntelligence';
-import { useTranslation } from '../../lib/i18n';
+import type { CodeAnalysis, SymbolInfo } from '../../lib/code-intelligence.ts';
+import type { DependencyGraphResult, RepositoryFileKind, RepositoryScanStatus, EntryPoint } from '../services/repositoryIntelligence.ts';
+import type { ImpactAnalysisReport } from '../services/changeImpactEngine.ts';
+import { useTranslation } from '../../lib/i18n.ts';
 
 export interface RepositoryFile {
   id: string;
@@ -52,12 +54,31 @@ export function RepositoryIntelligence({
     totalSymbols: number;
     totalExports: number;
     totalImports: number;
+    totalReactComponents?: number;
+    totalApiRoutes?: number;
     averageComplexity: number | null;
     scannedAt: string;
     warnings: string[];
   } | null>(null);
   const [dependencyGraph, setDependencyGraph] = useState<DependencyGraphResult | null>(null);
+  const [entryPoints, setEntryPoints] = useState<EntryPoint[]>([]);
   const [validatedContext, setValidatedContext] = useState<string | null>(null);
+
+  const [selectedFilePath, setSelectedFilePath] = useState<string>('server.ts');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'functions' | 'classes' | 'exports'>('all');
+  const [copiedContext, setCopiedContext] = useState(false);
+  const [activeTab, setActiveTab] = useState<'hierarchy' | 'symbols' | 'dependencies' | 'impact' | 'gate' | 'json'>('hierarchy');
+
+  // Impact Analysis State
+  const [impactReport, setImpactReport] = useState<ImpactAnalysisReport | null>(null);
+  const [isAnalyzingImpact, setIsAnalyzingImpact] = useState(false);
+  const [customDiff, setCustomDiff] = useState('');
+
+  // Engineering Change Gate State
+  const [changeGateProposal, setChangeGateProposal] = useState<any | null>(null);
+  const [isProposingChange, setIsProposingChange] = useState(false);
+  const [isApprovingChange, setIsApprovingChange] = useState(false);
 
   const fetchRepositoryScan = useCallback(async () => {
     setIsScanning(true);
@@ -73,6 +94,7 @@ export function RepositoryIntelligence({
       setServerScannedFiles(data.files);
       setScanSummary(data.summary);
       setDependencyGraph(data.dependencyGraph || null);
+      setEntryPoints(data.entryPoints || []);
       setScanStatus(data.status);
       setScanError(data.status === 'PARTIAL' ? (data.summary.warnings || []).join('\n') || 'Some repository files were not fully analyzed.' : null);
       const contextIsValidated = data.contextValidation?.valid === true &&
@@ -85,6 +107,7 @@ export function RepositoryIntelligence({
       setServerScannedFiles([]);
       setScanSummary(null);
       setDependencyGraph(null);
+      setEntryPoints([]);
       setValidatedContext(null);
       setScanStatus('FAILED');
       setScanError(message);
@@ -101,20 +124,12 @@ export function RepositoryIntelligence({
     return serverScannedFiles;
   }, [serverScannedFiles]);
 
-  const [selectedFilePath, setSelectedFilePath] = useState<string>('server.ts');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'functions' | 'classes' | 'exports'>('all');
-  const [copiedContext, setCopiedContext] = useState(false);
-  const [activeTab, setActiveTab] = useState<'hierarchy' | 'symbols' | 'dependencies' | 'json'>('hierarchy');
-
-  // Update selected file path if current selected file not in effectiveFiles
   useEffect(() => {
     if (effectiveFiles.length > 0 && !effectiveFiles.some(f => (f.path || f.name) === selectedFilePath)) {
       setSelectedFilePath(effectiveFiles[0].path || effectiveFiles[0].name);
     }
   }, [effectiveFiles, selectedFilePath]);
 
-  // Analyses are produced by the backend AST scanner; the browser never reparses file contents.
   const analysesMap = useMemo(() => {
     const map: Record<string, CodeAnalysis> = {};
     for (const f of effectiveFiles) {
@@ -124,7 +139,6 @@ export function RepositoryIntelligence({
     return map;
   }, [effectiveFiles]);
 
-  // Currently selected file
   const selectedFile = useMemo(() => {
     return effectiveFiles.find(f => (f.path || f.name) === selectedFilePath) || effectiveFiles[0];
   }, [effectiveFiles, selectedFilePath]);
@@ -134,7 +148,6 @@ export function RepositoryIntelligence({
     return analysesMap[selectedFile.path || selectedFile.name] || null;
   }, [selectedFile, analysesMap]);
 
-  // JSON Hierarchy Export for AI Context Reference
   const jsonHierarchyContext = validatedContext || '';
   const moduleHierarchyEntries = useMemo(() => {
     const entries = new Map<string, { path: string; type: 'dir' | 'file'; depth: number }>();
@@ -149,12 +162,11 @@ export function RepositoryIntelligence({
     return [...entries.values()].sort((left, right) => left.path.localeCompare(right.path));
   }, [effectiveFiles]);
 
-  // Filtered symbols for selected file
   const filteredSymbols = useMemo(() => {
     if (!selectedAnalysis) return [];
     let list = selectedAnalysis.symbols;
 
-    if (filterType === 'functions') list = list.filter(s => s.type === 'function');
+    if (filterType === 'functions') list = list.filter(s => s.type === 'function' || s.type === 'method');
     if (filterType === 'classes') list = list.filter(s => s.type === 'class');
     if (filterType === 'exports') list = list.filter(s => s.exported);
 
@@ -198,6 +210,106 @@ export function RepositoryIntelligence({
     }
   }
 
+  // Run Impact Analysis on target file or diff
+  const runImpactAnalysis = async () => {
+    if (!selectedFilePath) return;
+    setIsAnalyzingImpact(true);
+    try {
+      const res = await fetch('/api/intelligence/change-impact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders?.() },
+        body: JSON.stringify({
+          targetFile: selectedFilePath,
+          diff: customDiff.trim() || undefined,
+          lang,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Impact analysis failed');
+      setImpactReport(data.report);
+      setActiveTab('impact');
+      if (setToast) setToast(lang === 'th' ? `วิเคราะห์ผลกระทบของ ${selectedFilePath} สำเร็จ` : `Impact analysis complete for ${selectedFilePath}`);
+    } catch (err) {
+      if (setToast) setToast(err instanceof Error ? err.message : 'Analysis failed');
+    } finally {
+      setIsAnalyzingImpact(false);
+    }
+  };
+
+  // Create Change Proposal via Gate
+  const proposeChangeGate = async () => {
+    if (!selectedFilePath) return;
+    setIsProposingChange(true);
+    try {
+      const res = await fetch('/api/editing/propose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders?.() },
+        body: JSON.stringify({
+          file: selectedFilePath,
+          diff: customDiff.trim() || `// Verified change proposal for ${selectedFilePath}\n`,
+          reason: 'Change proposed via Repository Intelligence Change Gate',
+          lang,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.message || data.error || 'Proposal failed');
+      setChangeGateProposal(data);
+      setActiveTab('gate');
+      if (setToast) setToast(lang === 'th' ? 'สร้างข้อเสนอสำเร็จ — รอการอนุมัติ (Human Approval Gate)' : 'Proposal created — Awaiting Human Approval');
+    } catch (err) {
+      if (setToast) setToast(err instanceof Error ? err.message : 'Proposal failed');
+    } finally {
+      setIsProposingChange(false);
+    }
+  };
+
+  // Human Approval Action
+  const approveChangeGate = async (patchId: string) => {
+    setIsApprovingChange(true);
+    try {
+      const res = await fetch('/api/editing/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders?.() },
+        body: JSON.stringify({
+          patchId,
+          approverId: 'human-lead-engineer',
+          reason: 'Approved by authorized human operator',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.message || data.error || 'Approval failed');
+      setChangeGateProposal((prev: any) => ({ ...prev, status: 'APPROVED', approval: data.approval }));
+      if (setToast) setToast(lang === 'th' ? 'อนุมัติการเปลี่ยนแปลงสำเร็จ (Human Approval Granted)' : 'Change Gate Approved by Human Operator');
+    } catch (err) {
+      if (setToast) setToast(err instanceof Error ? err.message : 'Approval failed');
+    } finally {
+      setIsApprovingChange(false);
+    }
+  };
+
+  // Execute Approved Patch through Existing Gateway
+  const executeChangeGate = async (patchId: string) => {
+    setIsApprovingChange(true);
+    try {
+      const res = await fetch('/api/editing/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders?.() },
+        body: JSON.stringify({
+          patchId,
+          approverId: 'human-lead-engineer',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.message || data.error || 'Execution failed');
+      setChangeGateProposal((prev: any) => ({ ...prev, status: 'APPLIED', executionResult: data.result }));
+      if (setToast) setToast(lang === 'th' ? 'นำการเปลี่ยนแปลงไปใช้จริงสำเร็จ (Patch Applied & Audited)' : 'Patch applied to filesystem & recorded in audit ledger');
+    } catch (err) {
+      if (setToast) setToast(err instanceof Error ? err.message : 'Execution failed');
+    } finally {
+      setIsApprovingChange(false);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', color: '#f1f5f9' }}>
       {/* Header Banner */}
@@ -231,17 +343,40 @@ export function RepositoryIntelligence({
           </div>
           <div>
             <div style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc', letterSpacing: '0.02em' }}>
-              {lang === 'th' ? 'ระบบวิเคราะห์ความเข้าใจโปรเจกต์ (Repository Intelligence)' : 'Repository Intelligence Engine'}
+              {lang === 'th' ? 'ระบบวิเคราะห์ความเข้าใจโปรเจกต์ (Repository Intelligence & Impact Analysis)' : 'Repository Intelligence & Impact Analysis Engine'}
             </div>
             <div style={{ fontSize: '11px', color: '#94a3b8' }}>
               {lang === 'th'
-                ? 'ถอดรหัสโครงสร้างโปรเจกต์ Symbol Table, Module Exports และ Dependency Graph เป็น JSON Hierarchy เพื่อ AI Context Reference'
-                : 'Resolves project structure, symbols, module exports, and dependency graph into a structured JSON hierarchy for AI reasoning context.'}
+                ? 'ถอดรหัสโครงสร้างโปรเจกต์ AST, Symbol Table, Dependency Graph, Call Graph และวิเคราะห์ผลกระทบการเปลี่ยนแปลง (Evidence-Based Gate)'
+                : 'Resolves AST symbols, dependencies, entry points, and change impact boundaries for governed software engineering.'}
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={runImpactAnalysis}
+            disabled={isAnalyzingImpact || !selectedFilePath}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 12px',
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+              color: '#fff',
+              fontSize: '11px',
+              fontWeight: 600,
+              border: 0,
+              cursor: isAnalyzingImpact ? 'not-allowed' : 'pointer',
+              opacity: isAnalyzingImpact ? 0.7 : 1,
+            }}
+          >
+            <GitCompare size={14} />
+            <span>{isAnalyzingImpact ? (lang === 'th' ? 'กำลังวิเคราะห์ผลกระทบ…' : 'Analyzing…') : (lang === 'th' ? 'วิเคราะห์ผลกระทบ' : 'Run Impact Analysis')}</span>
+          </button>
+
           <button
             type="button"
             onClick={fetchRepositoryScan}
@@ -250,147 +385,98 @@ export function RepositoryIntelligence({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '8px 14px',
+              padding: '7px 12px',
               borderRadius: '8px',
+              background: '#1e293b',
+              color: '#f8fafc',
               fontSize: '11px',
               fontWeight: 600,
-              background: '#1e293b',
               border: '1px solid #334155',
-              color: '#e2e8f0',
-              cursor: 'pointer',
-              transition: 'all 0.15s'
-            }}
-            title="สแกนซอร์สโค้ดจริงใน Repository"
-          >
-            <RefreshCw size={14} className={isScanning ? 'spin' : ''} />
-            <span>{isScanning ? (lang === 'th' ? 'กำลังสแกน…' : 'Scanning…') : (lang === 'th' ? 'สแกนซอร์สโค้ดใหม่' : 'Rescan Repository')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={copyJsonContext}
-            disabled={!validatedContext}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 14px',
-              borderRadius: '8px',
-              fontSize: '11px',
-              fontWeight: 600,
-              background: '#1e293b',
-              border: '1px solid #334155',
-              color: copiedContext ? '#4ade80' : '#e2e8f0',
-              cursor: validatedContext ? 'pointer' : 'not-allowed',
-              opacity: validatedContext ? 1 : 0.5,
-              transition: 'all 0.15s'
+              cursor: isScanning ? 'not-allowed' : 'pointer'
             }}
           >
-            {copiedContext ? <Check size={14} /> : <Copy size={14} />}
-            <span>{copiedContext ? (lang === 'th' ? 'คัดลอกแล้ว!' : 'Copied!') : (lang === 'th' ? 'คัดลอก JSON Context' : 'Copy JSON Context')}</span>
+            <RefreshCw size={13} className={isScanning ? 'animate-spin' : ''} />
+            <span>{isScanning ? (lang === 'th' ? 'กำลังสแกน…' : 'Scanning…') : (lang === 'th' ? 'สแกน Repository' : 'Rescan Repo')}</span>
           </button>
 
           {onSendToChatContext && (
             <button
               type="button"
               onClick={handleInjectContext}
-              disabled={!validatedContext || !selectedAnalysis}
+              disabled={!validatedContext || !selectedFile || !selectedAnalysis}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 14px',
+                padding: '7px 12px',
                 borderRadius: '8px',
-                fontSize: '11px',
-                fontWeight: 700,
-                background: 'linear-gradient(120deg, #14b8a6, #0d9488)',
-                border: 0,
+                background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
                 color: '#fff',
-                cursor: validatedContext && selectedAnalysis ? 'pointer' : 'not-allowed',
-                opacity: validatedContext && selectedAnalysis ? 1 : 0.5,
-                boxShadow: '0 4px 14px rgba(20, 184, 166, 0.25)'
+                fontSize: '11px',
+                fontWeight: 600,
+                border: 0,
+                cursor: (!validatedContext || !selectedFile || !selectedAnalysis) ? 'not-allowed' : 'pointer',
+                opacity: (!validatedContext || !selectedFile || !selectedAnalysis) ? 0.6 : 1
               }}
             >
-              <WandSparkles size={14} />
-              <span>{lang === 'th' ? 'ส่ง Context ให้ AI' : 'Inject AI Context'}</span>
+              <WandSparkles size={13} />
+              <span>{lang === 'th' ? 'ส่งบริบทไปยังแชท' : 'Send to Chat'}</span>
             </button>
           )}
         </div>
       </div>
 
-      <div style={{ border: '1px solid #1e293b', borderRadius: '8px', background: scanStatus === 'FAILED' ? 'rgba(127, 29, 29, 0.18)' : '#0d1522', padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: '5px' }} role="status" aria-live="polite">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontWeight: 700, color: scanStatus === 'FAILED' ? '#fca5a5' : scanStatus === 'PARTIAL' ? '#fbbf24' : scanStatus === 'SCANNING' ? '#38bdf8' : '#4ade80' }}>
-          <span>{scanStatus === 'SCANNING' ? (lang === 'th' ? 'กำลังสแกน Workspace…' : 'Scanning workspace…') : scanStatus}</span>
-          {scanSummary && <span style={{ fontWeight: 400, color: '#94a3b8' }}>{new Date(scanSummary.scannedAt).toLocaleString()}</span>}
-        </div>
-        {scanError && <div style={{ color: scanStatus === 'FAILED' ? '#fecaca' : '#fcd34d', fontSize: '10px', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{scanError}</div>}
-        {!scanError && scanStatus === 'COMPLETED' && effectiveFiles.length === 0 && (
-          <div style={{ color: '#94a3b8', fontSize: '10px' }}>
-            {lang === 'th' ? 'สแกนสำเร็จ แต่ไม่พบไฟล์ TypeScript, JavaScript หรือไฟล์ Configuration ที่รองรับใน Workspace นี้' : 'Scan completed, but no supported TypeScript, JavaScript, or configuration files were found in this workspace.'}
+      {/* Summary KPI Cards */}
+      {scanSummary && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
+          <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>{lang === 'th' ? 'ไฟล์ที่สแกนจริง' : 'Scanned Files'}</div>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: '#38bdf8', marginTop: '4px' }}>{scanSummary.scannedFiles}</div>
+            <span style={{ fontSize: '10px', color: '#64748b' }}>{scanSummary.totalModules} modules</span>
           </div>
-        )}
-      </div>
 
-      {/* Top Metrics Cards */}
-      {scanSummary && effectiveFiles.length > 0 && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-        <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px 14px' }}>
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {lang === 'th' ? 'จำนวนไฟล์ที่สแกน' : 'Scanned Files'}
+          <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>{lang === 'th' ? 'สัญลักษณ์ใน AST' : 'AST Symbols'}</div>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: '#2dd4bf', marginTop: '4px' }}>{scanSummary.totalSymbols}</div>
+            <span style={{ fontSize: '10px', color: '#64748b' }}>{scanSummary.totalExports} exports</span>
           </div>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>
-            {scanSummary.scannedFiles} <span style={{ fontSize: '11px', fontWeight: 500, color: '#64748b' }}>files</span>
-          </div>
-        </div>
 
-        <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px 14px' }}>
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {lang === 'th' ? 'Modules' : 'Modules'}
+          <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>{lang === 'th' ? 'จุดเริ่มต้น (Entry Points)' : 'Entry Points'}</div>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: '#a855f7', marginTop: '4px' }}>{entryPoints.length}</div>
+            <span style={{ fontSize: '10px', color: '#64748b' }}>Server & Client</span>
           </div>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>
-            {scanSummary.totalModules}
-          </div>
-        </div>
 
-        <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px 14px' }}>
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {lang === 'th' ? 'Symbols ทั้งหมด' : 'Total Resolved Symbols'}
+          <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>{lang === 'th' ? 'ความซับซ้อนเฉลี่ย' : 'Avg Complexity'}</div>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: '#fbbf24', marginTop: '4px' }}>
+              {scanSummary.averageComplexity === null ? 'N/A' : scanSummary.averageComplexity}
+            </div>
+            <span style={{ fontSize: '10px', color: '#64748b' }}>Cyclomatic</span>
           </div>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#2dd4bf', marginTop: '4px' }}>
-            {scanSummary.totalSymbols}{' '}
-            <span style={{ fontSize: '11px', fontWeight: 500, color: '#64748b' }}>symbols</span>
-          </div>
-        </div>
 
-        <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px 14px' }}>
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {lang === 'th' ? 'Module Exports' : 'Module Exports'}
-          </div>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#c084fc', marginTop: '4px' }}>
-            {scanSummary.totalExports}{' '}
-            <span style={{ fontSize: '11px', fontWeight: 500, color: '#64748b' }}>exports</span>
-          </div>
-        </div>
-
-        <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px 14px' }}>
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {lang === 'th' ? 'เฉลี่ย Complexity' : 'Avg Complexity'}
-          </div>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#fbbf24', marginTop: '4px' }}>
-            {scanSummary.averageComplexity === null ? 'N/A' : scanSummary.averageComplexity.toFixed(1)}{' '}
-            <span style={{ fontSize: '11px', fontWeight: 500, color: '#64748b' }}>{scanSummary.averageComplexity === null ? 'unavailable' : 'score'}</span>
+          <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+            <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>{lang === 'th' ? 'สถานะการตรวจสอบ' : 'Audit Status'}</div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: scanStatus === 'COMPLETED' ? '#10b981' : '#f59e0b', marginTop: '4px' }}>
+              {scanStatus}
+            </div>
+            <span style={{ fontSize: '10px', color: '#64748b' }}>Evidence Sealed</span>
           </div>
         </div>
-      </div>}
+      )}
 
       {/* Main Interactive Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', alignItems: 'start' }}>
         {/* Left Column: File Explorer List */}
         <div style={{ background: '#0d1522', border: '1px solid #1e293b', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0 4px' }}>
-            {lang === 'th' ? 'รายการไฟล์ในโปรเจกต์' : 'Project Structure Files'}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              {lang === 'th' ? 'รายการไฟล์ในโปรเจกต์' : 'Project Files'}
+            </span>
+            <span style={{ fontSize: '10px', color: '#64748b' }}>{effectiveFiles.length} files</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '520px', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '560px', overflowY: 'auto' }}>
             {effectiveFiles.map(f => {
               const path = f.path || f.name;
               const isSelected = path === selectedFilePath;
@@ -453,11 +539,10 @@ export function RepositoryIntelligence({
                   background: activeTab === 'hierarchy' ? '#14b8a6' : 'transparent',
                   color: activeTab === 'hierarchy' ? '#fff' : '#94a3b8',
                   cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
+                  whiteSpace: 'nowrap'
                 }}
               >
-                {lang === 'th' ? 'ลำดับชั้น & Exports' : 'Hierarchy & Exports'}
+                {lang === 'th' ? 'โครงสร้าง & Exports' : 'Hierarchy & Exports'}
               </button>
               <button
                 type="button"
@@ -471,11 +556,10 @@ export function RepositoryIntelligence({
                   background: activeTab === 'symbols' ? '#14b8a6' : 'transparent',
                   color: activeTab === 'symbols' ? '#fff' : '#94a3b8',
                   cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
+                  whiteSpace: 'nowrap'
                 }}
               >
-                {lang === 'th' ? 'ตาราง Symbol Table' : 'Symbol Table'}
+                {lang === 'th' ? 'ดัชนีสัญลักษณ์ (Symbols)' : 'Symbols'}
               </button>
               <button
                 type="button"
@@ -489,11 +573,44 @@ export function RepositoryIntelligence({
                   background: activeTab === 'dependencies' ? '#14b8a6' : 'transparent',
                   color: activeTab === 'dependencies' ? '#fff' : '#94a3b8',
                   cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
+                  whiteSpace: 'nowrap'
                 }}
               >
-                {lang === 'th' ? 'แผนผัง Dependency' : 'Dependency Graph'}
+                {lang === 'th' ? 'Dependencies & Call Graph' : 'Dependencies'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('impact')}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  border: 0,
+                  background: activeTab === 'impact' ? '#0ea5e9' : 'transparent',
+                  color: activeTab === 'impact' ? '#fff' : '#94a3b8',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {lang === 'th' ? 'วิเคราะห์ผลกระทบ (Impact)' : 'Impact Analysis'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('gate')}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  border: 0,
+                  background: activeTab === 'gate' ? '#8b5cf6' : 'transparent',
+                  color: activeTab === 'gate' ? '#fff' : '#94a3b8',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {lang === 'th' ? 'Change Gate & Approval' : 'Change Gate'}
               </button>
               <button
                 type="button"
@@ -507,11 +624,10 @@ export function RepositoryIntelligence({
                   background: activeTab === 'json' ? '#14b8a6' : 'transparent',
                   color: activeTab === 'json' ? '#fff' : '#94a3b8',
                   cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
+                  whiteSpace: 'nowrap'
                 }}
               >
-                {lang === 'th' ? 'JSON Context Spec' : 'JSON Context Spec'}
+                JSON Context
               </button>
             </div>
 
@@ -521,117 +637,86 @@ export function RepositoryIntelligence({
             </div>
           </div>
 
-          {activeTab === 'hierarchy' && effectiveFiles.length > 0 && (
-            <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', marginBottom: '8px' }}>Module Hierarchy</div>
-              <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                {moduleHierarchyEntries.map(entry => (
-                  <div key={entry.path} style={{ paddingLeft: `${entry.depth * 14}px`, color: entry.type === 'dir' ? '#fbbf24' : '#cbd5e1', fontSize: '10px', fontFamily: 'monospace' }}>
-                    {entry.type === 'dir' ? <Boxes size={11} style={{ verticalAlign: 'middle', marginRight: '5px' }} /> : <FileCode2 size={11} style={{ verticalAlign: 'middle', marginRight: '5px' }} />}
-                    {entry.path.split('/').at(-1)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {!selectedAnalysis && activeTab !== 'dependencies' && activeTab !== 'json' && (
-            <div style={{ padding: '18px', border: '1px dashed #334155', borderRadius: '8px', color: '#94a3b8', fontSize: '11px', textAlign: 'center' }}>
-              {selectedFile
-                ? (lang === 'th' ? `ไฟล์ ${selectedFile.path} เป็น ${selectedFile.kind || 'ไฟล์ที่ไม่รองรับ'} จึงไม่มี AST Symbols หรือ Complexity ให้แสดง` : `${selectedFile.path} is ${selectedFile.kind || 'unsupported'} and has no AST symbol or complexity analysis.`)
-                : (lang === 'th' ? 'ไม่มีไฟล์ Workspace ที่พร้อมวิเคราะห์' : 'No workspace files are available for analysis.')}
-            </div>
-          )}
-
           {/* TAB 1: HIERARCHY & EXPORTS */}
-          {activeTab === 'hierarchy' && selectedAnalysis && (
+          {activeTab === 'hierarchy' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-                {/* Module Exports Box */}
-                <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#c084fc', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Layers size={14} />
-                    <span>Module Exports ({selectedAnalysis.exports.length})</span>
-                  </div>
-                  {selectedAnalysis.exports.length === 0 ? (
-                    <div style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>
-                      {lang === 'th' ? 'ไม่มีการ export สัญลักษณ์ในไฟล์นี้' : 'No explicit exports found in this module'}
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {selectedAnalysis.exports.map(exp => (
-                        <span key={exp} style={{ fontSize: '10px', background: 'rgba(192, 132, 252, 0.15)', border: '1px solid rgba(192, 132, 252, 0.3)', color: '#e9d5ff', padding: '3px 8px', borderRadius: '5px', fontWeight: 600 }}>
-                          export {exp}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+              {/* Directory Tree */}
+              <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', marginBottom: '8px' }}>
+                  {lang === 'th' ? 'ลำดับชั้นโมดูล (Module Hierarchy)' : 'Module Hierarchy'}
                 </div>
-
-                {/* Module Imports Box */}
-                <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#38bdf8', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Network size={14} />
-                    <span>Module Imports ({selectedAnalysis.imports.length})</span>
-                  </div>
-                  {selectedAnalysis.imports.length === 0 ? (
-                    <div style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>
-                      {lang === 'th' ? 'ไม่พบ Import ในไฟล์นี้' : 'No imports detected in this module'}
+                <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  {moduleHierarchyEntries.map(entry => (
+                    <div key={entry.path} style={{ paddingLeft: `${entry.depth * 14}px`, color: entry.type === 'dir' ? '#fbbf24' : '#cbd5e1', fontSize: '10px', fontFamily: 'monospace' }}>
+                      {entry.type === 'dir' ? <Boxes size={11} style={{ verticalAlign: 'middle', marginRight: '5px' }} /> : <FileCode2 size={11} style={{ verticalAlign: 'middle', marginRight: '5px' }} />}
+                      {entry.path.split('/').at(-1)}
                     </div>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '140px', overflowY: 'auto' }}>
-                      {selectedAnalysis.imports.map(imp => (
-                        <span key={imp} style={{ fontSize: '10px', color: '#93c5fd', fontFamily: 'monospace' }}>
-                          import from '{imp}'
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
 
-              {/* Module Complexity Overview */}
-              <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                  <div>
-                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>Total Lines: </span>
-                    <strong style={{ fontSize: '12px', color: '#f8fafc' }}>{selectedAnalysis.lines}</strong>
+              {selectedAnalysis && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+                  {/* Module Exports Box */}
+                  <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#c084fc', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Layers size={14} />
+                      <span>Module Exports ({selectedAnalysis.exports.length})</span>
+                    </div>
+                    {selectedAnalysis.exports.length === 0 ? (
+                      <div style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>
+                        {lang === 'th' ? 'ไม่มีการ export สัญลักษณ์ในไฟล์นี้' : 'No explicit exports found in this module'}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {selectedAnalysis.exports.map(exp => (
+                          <span key={exp} style={{ fontSize: '10px', background: 'rgba(192, 132, 252, 0.15)', border: '1px solid rgba(192, 132, 252, 0.3)', color: '#e9d5ff', padding: '3px 8px', borderRadius: '5px', fontWeight: 600 }}>
+                            export {exp}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>Functions Count: </span>
-                    <strong style={{ fontSize: '12px', color: '#2dd4bf' }}>{selectedAnalysis.functions}</strong>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>Cyclomatic Complexity: </span>
-                    <strong style={{ fontSize: '12px', color: '#fbbf24' }}>{selectedAnalysis.complexityMetrics?.cyclomatic ?? 'N/A'}</strong>
-                  </div>
-                  <div style={{ width: '100%', color: '#64748b', fontSize: '9px' }}>{selectedAnalysis.complexityMetrics?.formula}</div>
-                </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', color: selectedAnalysis.parserWarnings.length ? '#fbbf24' : '#4ade80' }}>
-                  <ShieldCheck size={14} />
-                  <span>{selectedAnalysis.parserWarnings.length ? `${selectedAnalysis.parserWarnings.length} parser warning(s)` : 'AST static analysis'}</span>
+                  {/* Complexity Box */}
+                  <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#fbbf24', marginBottom: '8px' }}>
+                      {lang === 'th' ? 'ดัชนีความซับซ้อน (Complexity Metrics)' : 'Complexity Metrics'}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11px' }}>
+                      <div>Cyclomatic: <b style={{ color: '#fbbf24' }}>{selectedAnalysis.complexity}</b></div>
+                      <div>Branches: <b>{selectedAnalysis.complexityMetrics.branches}</b></div>
+                      <div>Functions: <b>{selectedAnalysis.functions}</b></div>
+                      <div>Max Nesting: <b>{selectedAnalysis.complexityMetrics.maxNestingDepth}</b></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
           {/* TAB 2: SYMBOL TABLE */}
           {activeTab === 'symbols' && selectedAnalysis && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {/* Search and Filters */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#090d16', border: '1px solid #1e293b', borderRadius: '6px', padding: '4px 8px' }}>
-                  <Search size={13} style={{ color: '#64748b' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: '180px' }}>
+                  <Search size={14} style={{ position: 'absolute', left: '10px', top: '9px', color: '#64748b' }} />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    placeholder={lang === 'th' ? 'ค้นหา symbol...' : 'Search symbol name...'}
-                    style={{ background: 'transparent', border: 0, outline: 'none', color: '#fff', fontSize: '11px', width: '160px' }}
+                    placeholder={lang === 'th' ? 'ค้นหา Symbol ในไฟล์นี้…' : 'Filter symbols in file…'}
+                    style={{
+                      width: '100%',
+                      padding: '7px 10px 7px 32px',
+                      background: '#090d16',
+                      border: '1px solid #1e293b',
+                      borderRadius: '6px',
+                      color: '#f8fafc',
+                      fontSize: '11px'
+                    }}
                   />
                 </div>
-
                 <div style={{ display: 'flex', gap: '4px' }}>
                   {(['all', 'functions', 'classes', 'exports'] as const).map(type => (
                     <button
@@ -639,12 +724,12 @@ export function RepositoryIntelligence({
                       type="button"
                       onClick={() => setFilterType(type)}
                       style={{
-                        padding: '4px 8px',
-                        borderRadius: '5px',
+                        padding: '6px 10px',
+                        borderRadius: '6px',
                         fontSize: '10px',
-                        border: '1px solid #1e293b',
-                        background: filterType === type ? '#1e293b' : 'transparent',
-                        color: filterType === type ? '#38bdf8' : '#94a3b8',
+                        border: 0,
+                        background: filterType === type ? '#334155' : '#090d16',
+                        color: filterType === type ? '#f8fafc' : '#94a3b8',
                         cursor: 'pointer'
                       }}
                     >
@@ -654,114 +739,404 @@ export function RepositoryIntelligence({
                 </div>
               </div>
 
-              {/* Table */}
-              <div style={{ border: '1px solid #1e293b', borderRadius: '8px', overflowX: 'auto', background: '#090d16' }}>
-                <table style={{ width: '100%', minWidth: '520px', borderCollapse: 'collapse', fontSize: '11px', textAlign: 'left' }}>
+              <div style={{ maxHeight: '420px', overflowY: 'auto', border: '1px solid #1e293b', borderRadius: '8px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ background: '#0e1726', borderBottom: '1px solid #1e293b', color: '#94a3b8', fontSize: '10px', textTransform: 'uppercase' }}>
-                      <th style={{ padding: '8px 12px' }}>Symbol Name</th>
+                    <tr style={{ background: '#090d16', borderBottom: '1px solid #1e293b', color: '#94a3b8' }}>
+                      <th style={{ padding: '8px 12px' }}>Name</th>
                       <th style={{ padding: '8px 12px' }}>Type</th>
-                      <th style={{ padding: '8px 12px' }}>Line</th>
-                      <th style={{ padding: '8px 12px' }}>Status</th>
+                      <th style={{ padding: '8px 12px' }}>Lines</th>
+                      <th style={{ padding: '8px 12px' }}>Scope</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSymbols.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} style={{ padding: '16px', textAlign: 'center', color: '#64748b' }}>
-                          {lang === 'th' ? 'ไม่พบ Symbol ตามเงื่อนไขที่เลือก' : 'No symbols found matching filter'}
+                    {filteredSymbols.map(sym => (
+                      <tr key={`${sym.name}-${sym.line}`} style={{ borderBottom: '1px solid #1e293b' }}>
+                        <td style={{ padding: '8px 12px', fontFamily: 'monospace', color: '#f8fafc', fontWeight: 600 }}>{sym.name}</td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <span style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: '#1e293b', color: '#38bdf8' }}>{sym.type}</span>
+                        </td>
+                        <td style={{ padding: '8px 12px', color: '#64748b' }}>L{sym.line}:{sym.character || 1} → L{sym.endLine || sym.line}:{sym.endCharacter || 1}</td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <span style={{ fontSize: '9px', color: sym.exported ? '#c084fc' : '#64748b' }}>{sym.exported ? 'Exported' : 'Internal'}</span>
                         </td>
                       </tr>
-                    ) : (
-                      filteredSymbols.map((sym, idx) => {
-                        const isExported = Boolean(sym.exported);
-                        return (
-                          <tr key={idx} style={{ borderBottom: '1px solid #141f30' }}>
-                            <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontWeight: 600, color: '#f8fafc' }}>
-                              {sym.name}
-                            </td>
-                            <td style={{ padding: '8px 12px' }}>
-                              <span
-                                style={{
-                                  fontSize: '9px',
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  background: sym.type === 'function' ? 'rgba(45, 212, 191, 0.15)' : sym.type === 'class' ? 'rgba(192, 132, 252, 0.15)' : 'rgba(56, 189, 248, 0.15)',
-                                  color: sym.type === 'function' ? '#2dd4bf' : sym.type === 'class' ? '#c084fc' : '#38bdf8'
-                                }}
-                              >
-                                {sym.type}
-                              </span>
-                            </td>
-                            <td style={{ padding: '8px 12px', color: '#94a3b8', fontFamily: 'monospace' }}>
-                              L{sym.line}
-                            </td>
-                            <td style={{ padding: '8px 12px' }}>
-                              {isExported ? (
-                                <span style={{ fontSize: '9px', color: '#c084fc', background: 'rgba(192, 132, 252, 0.12)', padding: '2px 6px', borderRadius: '4px' }}>
-                                  Exported · {sym.visibility || 'public'}
-                                </span>
-                              ) : (
-                                <span style={{ fontSize: '9px', color: '#64748b' }}>Internal</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
+                    ))}
                   </tbody>
                 </table>
               </div>
             </div>
           )}
 
-          {/* TAB 3: DEPENDENCY GRAPH */}
+          {/* TAB 3: DEPENDENCIES & CALL GRAPH & ENTRY POINTS */}
           {activeTab === 'dependencies' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>
-                {lang === 'th' ? 'ความสัมพันธ์การนำเข้าระหว่างมอดูลต่าง ๆ ในโปรเจกต์' : 'Module Import & Inter-dependency Mapping Graph'}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Entry Points Section */}
+              <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#a855f7', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Cpu size={14} />
+                  <span>{lang === 'th' ? `จุดเริ่มต้นของระบบ (Detected Entry Points: ${entryPoints.length})` : `Application Entry Points (${entryPoints.length})`}</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {entryPoints.map(ep => (
+                    <div key={ep.path} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', background: '#0d1522', borderRadius: '6px', fontSize: '11px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontFamily: 'monospace', color: '#f8fafc', fontWeight: 600 }}>{ep.path}</span>
+                        <span style={{ fontSize: '9px', background: 'rgba(168, 85, 247, 0.15)', color: '#d8b4fe', padding: '2px 6px', borderRadius: '4px' }}>{ep.type}</span>
+                      </div>
+                      <span style={{ fontSize: '10px', color: '#94a3b8' }}>{ep.reason}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {!dependencyGraph || dependencyGraph.nodes.length === 0 ? (
-                  <div style={{ padding: '16px', color: '#94a3b8', fontSize: '11px' }}>
-                    {lang === 'th' ? 'ไม่มีโมดูลที่วิเคราะห์ได้สำหรับสร้าง dependency graph' : 'No analyzed modules are available for the dependency graph.'}
+              {/* Call Graph for Selected File */}
+              {selectedAnalysis?.callGraph && selectedAnalysis.callGraph.length > 0 && (
+                <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#38bdf8', marginBottom: '8px' }}>
+                    {lang === 'th' ? `Call Graph สกัดจาก AST ของ ${selectedFile?.path} (${selectedAnalysis.callGraph.length} การเรียก)` : `AST Call Graph for ${selectedFile?.path} (${selectedAnalysis.callGraph.length} calls)`}
                   </div>
-                ) : dependencyGraph.nodes.map(filePath => {
+                  <div style={{ maxHeight: '160px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {selectedAnalysis.callGraph.map((call, idx) => (
+                      <div key={idx} style={{ fontSize: '10px', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', background: '#0d1522', borderRadius: '4px' }}>
+                        <span style={{ color: '#f8fafc', fontFamily: 'monospace' }}>{call.caller}()</span>
+                        <ArrowRight size={11} style={{ color: '#2dd4bf' }} />
+                        <span style={{ color: '#38bdf8', fontFamily: 'monospace' }}>{call.callee}()</span>
+                        <span style={{ marginLeft: 'auto', color: '#64748b' }}>L{call.line} [{call.resolvedKind}]</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Dependency Map */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8' }}>
+                  {lang === 'th' ? 'การพึ่งพาข้ามโมดูล (Cross-Module Dependency Graph)' : 'Cross-Module Dependency Graph'}
+                </div>
+                {dependencyGraph?.nodes.map(filePath => {
                   const edges = dependencyGraph.edges.filter(edge => edge.source === filePath);
-                  const unresolved = dependencyGraph.unresolvedDependencies.filter(item => item.source === filePath);
-                  const external = dependencyGraph.externalDependencies.filter(item => item.source === filePath);
+                  const isCur = filePath === selectedFilePath;
                   return (
-                    <div key={filePath} style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '8px', padding: '10px 12px' }}>
-                      <div style={{ fontSize: '11px', fontWeight: 700, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div key={filePath} style={{ background: '#090d16', border: isCur ? '1px solid #14b8a6' : '1px solid #1e293b', borderRadius: '8px', padding: '10px 12px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 700, color: isCur ? '#2dd4bf' : '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <FileCode2 size={13} />
                         <span>{filePath}</span>
                       </div>
-                      <div style={{ marginTop: '6px', paddingLeft: '16px', borderLeft: '2px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ marginTop: '6px', paddingLeft: '14px', borderLeft: '2px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         {edges.map(edge => (
                           <div key={`${edge.source}-${edge.target}-${edge.evidence}`} style={{ fontSize: '10px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <ChevronRight size={12} style={{ color: '#2dd4bf' }} />
                             <span style={{ fontFamily: 'monospace' }}>{edge.target}</span>
-                            <span style={{ color: '#64748b' }}>{edge.relationship}</span>
+                            <span style={{ color: '#64748b' }}>({edge.relationship})</span>
                           </div>
                         ))}
-                        {external.map(item => <div key={`${item.source}-${item.specifier}`} style={{ fontSize: '10px', color: '#94a3b8' }}>External: {item.specifier}</div>)}
-                        {unresolved.map(item => <div key={`${item.source}-${item.specifier}`} style={{ fontSize: '10px', color: '#fca5a5' }}>Unresolved: {item.specifier}</div>)}
-                        {edges.length + external.length + unresolved.length === 0 && <span style={{ fontSize: '10px', color: '#64748b', fontStyle: 'italic' }}>No imports detected</span>}
+                        {edges.length === 0 && <span style={{ fontSize: '10px', color: '#64748b', fontStyle: 'italic' }}>No internal imports</span>}
                       </div>
                     </div>
                   );
                 })}
-                {dependencyGraph?.circularDependencies.map(cycle => (
-                  <div key={cycle.join(' -> ')} style={{ borderLeft: '2px solid #f59e0b', padding: '6px 10px', color: '#fbbf24', fontSize: '10px' }}>
-                    Circular dependency: {cycle.join(' -> ')}
-                  </div>
-                ))}
               </div>
             </div>
           )}
 
-          {/* TAB 4: JSON CONTEXT SPEC */}
+          {/* TAB 4: IMPACT ANALYSIS & RISK REPORT */}
+          {activeTab === 'impact' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Diff Input / Options */}
+              <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#38bdf8' }}>
+                    {lang === 'th' ? `วิเคราะห์ผลกระทบสำหรับ: ${selectedFilePath}` : `Impact Analysis Target: ${selectedFilePath}`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={runImpactAnalysis}
+                    disabled={isAnalyzingImpact}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: '6px',
+                      background: '#0ea5e9',
+                      border: 0,
+                      color: '#fff',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: isAnalyzingImpact ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {isAnalyzingImpact ? 'Analyzing…' : (lang === 'th' ? 'คำนวณผลกระทบ' : 'Recalculate')}
+                  </button>
+                </div>
+                <textarea
+                  value={customDiff}
+                  onChange={e => setCustomDiff(e.target.value)}
+                  placeholder={lang === 'th' ? 'วาง Git Diff เพื่อจำลองผลกระทบเฉพาะส่วนที่แก้ไข (หรือเว้นว่างเพื่อวิเคราะห์ทั้งโมดูล)' : 'Optional: paste git diff snippet to focus impact on altered lines only...'}
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    background: '#0d1522',
+                    border: '1px solid #1e293b',
+                    borderRadius: '6px',
+                    padding: '8px',
+                    fontSize: '10px',
+                    fontFamily: 'monospace',
+                    color: '#f8fafc',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              {impactReport && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {/* Risk Badge Header */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          fontWeight: 700,
+                          fontSize: '11px',
+                          background:
+                            impactReport.riskLevel === 'CRITICAL' ? 'rgba(239, 68, 68, 0.2)' :
+                            impactReport.riskLevel === 'HIGH' ? 'rgba(249, 115, 22, 0.2)' :
+                            impactReport.riskLevel === 'MEDIUM' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(34, 197, 94, 0.2)',
+                          color:
+                            impactReport.riskLevel === 'CRITICAL' ? '#fca5a5' :
+                            impactReport.riskLevel === 'HIGH' ? '#fdba74' :
+                            impactReport.riskLevel === 'MEDIUM' ? '#fde047' : '#86efac',
+                          border: '1px solid currentColor'
+                        }}
+                      >
+                        RISK: {impactReport.riskLevel}
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                        Change Type: <b style={{ color: '#f8fafc' }}>{impactReport.changeType}</b>
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>
+                      Blast Radius: <b style={{ color: '#38bdf8' }}>{impactReport.affectedFiles.length} files</b>
+                    </span>
+                  </div>
+
+                  {/* 4 Categorical Partition Boxes */}
+                  {/* 1. VERIFIED FACTS */}
+                  <div style={{ background: '#090d16', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#10b981', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={13} />
+                      <span>{lang === 'th' ? 'ข้อเท็จจริงที่ยืนยันแล้ว (VERIFIED FACTS)' : 'VERIFIED FACTS'}</span>
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '11px', color: '#cbd5e1', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      {impactReport.verifiedFacts.map((fact, idx) => (
+                        <li key={idx}>{fact}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* 2. ANALYSIS */}
+                  <div style={{ background: '#090d16', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#38bdf8', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Network size={13} />
+                      <span>{lang === 'th' ? 'ผลการวิเคราะห์โครงสร้าง (ANALYSIS)' : 'ANALYSIS'}</span>
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '11px', color: '#cbd5e1', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      {impactReport.analysis.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* 3. HYPOTHESES */}
+                  <div style={{ background: '#090d16', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#f59e0b', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <AlertTriangle size={13} />
+                      <span>{lang === 'th' ? 'สมมติฐานและความเสี่ยง (HYPOTHESES)' : 'HYPOTHESES'}</span>
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '11px', color: '#cbd5e1', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      {impactReport.hypotheses.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* 4. UNKNOWNS */}
+                  <div style={{ background: '#090d16', border: '1px solid rgba(148, 163, 184, 0.3)', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <ShieldAlert size={13} />
+                      <span>{lang === 'th' ? 'สิ่งที่ยังไม่ทราบ (UNKNOWN)' : 'UNKNOWN'}</span>
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '11px', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      {impactReport.unknowns.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Regression Test Recommendations */}
+                  <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#a855f7', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={13} />
+                      <span>{lang === 'th' ? `รายการทดสอบถดถอยที่แนะนำ (${impactReport.recommendedRegressionTests.length})` : `Recommended Regression Tests (${impactReport.recommendedRegressionTests.length})`}</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {impactReport.recommendedRegressionTests.map(rec => (
+                        <div key={rec.testFile} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', background: '#0d1522', borderRadius: '6px', fontSize: '11px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontFamily: 'monospace', color: '#f8fafc', fontWeight: 600 }}>{rec.testFile}</span>
+                            <span
+                              style={{
+                                fontSize: '9px',
+                                padding: '1px 5px',
+                                borderRadius: '4px',
+                                background: rec.priority === 'HIGH' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(56, 189, 248, 0.2)',
+                                color: rec.priority === 'HIGH' ? '#fca5a5' : '#7dd3fc',
+                              }}
+                            >
+                              {rec.priority}
+                            </span>
+                          </div>
+                          <span style={{ fontSize: '10px', color: '#94a3b8' }}>{rec.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 5: ENGINEERING CHANGE GATE & APPROVAL */}
+          {activeTab === 'gate' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ background: '#090d16', border: '1px solid #1e293b', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Lock size={16} style={{ color: '#8b5cf6' }} />
+                  <span>{lang === 'th' ? 'ประตูควบคุมการเปลี่ยนแปลง (Engineering Change Gate Workflow)' : 'Engineering Change Gate Workflow'}</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                  {lang === 'th'
+                    ? 'สถาปัตยกรรมความปลอดภัย 9 ขั้นตอน: Repository Analysis → Proposal → Impact Analysis → Risk Assessment → Human Approval → Execution Gateway → Sandbox Execution → Verification → Audit Ledger'
+                    : 'Governed 9-step change workflow enforcing human verification before any filesystem modification.'}
+                </div>
+
+                {!changeGateProposal ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' }}>
+                    <div style={{ fontSize: '11px', color: '#cbd5e1' }}>
+                      {lang === 'th' ? `สร้างข้อเสนอการเปลี่ยนแปลงสำหรับไฟล์: ` : 'Create change proposal for file: '}
+                      <b style={{ color: '#38bdf8' }}>{selectedFilePath}</b>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={proposeChangeGate}
+                      disabled={isProposingChange || !selectedFilePath}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: '8px',
+                        background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                        border: 0,
+                        color: '#fff',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        cursor: isProposingChange ? 'not-allowed' : 'pointer',
+                        alignSelf: 'flex-start',
+                      }}
+                    >
+                      {isProposingChange ? 'Proposing…' : (lang === 'th' ? 'ยื่นข้อเสนอการเปลี่ยนแปลง (Submit Proposal)' : 'Submit Change Proposal')}
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0d1522', padding: '8px 12px', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '11px', color: '#94a3b8' }}>Proposal ID: <b style={{ color: '#f8fafc' }}>{changeGateProposal.patchId}</b></span>
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontWeight: 700,
+                          background: changeGateProposal.status === 'APPROVED' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                          color: changeGateProposal.status === 'APPROVED' ? '#86efac' : '#fde047',
+                        }}
+                      >
+                        STATUS: {changeGateProposal.status}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '11px', color: '#cbd5e1' }}>
+                      Target: <b style={{ color: '#38bdf8' }}>{changeGateProposal.proposal?.targetFile || selectedFilePath}</b>
+                    </div>
+
+                    {/* Action Buttons based on status */}
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                      {changeGateProposal.status !== 'APPROVED' && changeGateProposal.status !== 'APPLIED' && (
+                        <button
+                          type="button"
+                          onClick={() => approveChangeGate(changeGateProposal.patchId)}
+                          disabled={isApprovingChange}
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '8px',
+                            background: '#10b981',
+                            border: 0,
+                            color: '#fff',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            cursor: isApprovingChange ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          {lang === 'th' ? 'อนุมัติการเปลี่ยนแปลง (Grant Human Approval)' : 'Grant Human Approval'}
+                        </button>
+                      )}
+
+                      {changeGateProposal.status === 'APPROVED' && (
+                        <button
+                          type="button"
+                          onClick={() => executeChangeGate(changeGateProposal.patchId)}
+                          disabled={isApprovingChange}
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '8px',
+                            background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
+                            border: 0,
+                            color: '#fff',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            cursor: isApprovingChange ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          {lang === 'th' ? 'ประยุกต์ใช้แพตช์ผ่าน Execution Gateway' : 'Apply Patch via Execution Gateway'}
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setChangeGateProposal(null)}
+                        style={{
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          background: '#1e293b',
+                          border: 0,
+                          color: '#94a3b8',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {lang === 'th' ? 'ปิด / ล้างสถานะ' : 'Reset Gate'}
+                      </button>
+                    </div>
+
+                    {changeGateProposal.auditHash && (
+                      <div style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace', marginTop: '4px' }}>
+                        Audit Evidence Digest: {changeGateProposal.auditHash}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: JSON CONTEXT SPEC */}
           {activeTab === 'json' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -802,3 +1177,5 @@ export function RepositoryIntelligence({
     </div>
   );
 }
+
+export default RepositoryIntelligence;

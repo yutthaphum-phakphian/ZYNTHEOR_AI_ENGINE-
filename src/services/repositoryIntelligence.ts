@@ -82,6 +82,12 @@ export interface RepositoryContext {
   };
 }
 
+export interface EntryPoint {
+  path: string;
+  reason: string;
+  type: 'SERVER_ENTRY' | 'CLIENT_ENTRY' | 'SCRIPT_ENTRY' | 'ROOT_MODULE';
+}
+
 export interface RepositoryScanResult {
   status: RepositoryScanStatus;
   summary: {
@@ -102,6 +108,7 @@ export interface RepositoryScanResult {
   context: RepositoryContext;
   contextJson: string;
   contextValidation: { valid: true; schemaVersion: '1.0'; bytes: number };
+  entryPoints?: EntryPoint[];
 }
 
 export interface RepositoryScanLimits {
@@ -646,6 +653,30 @@ function buildContext(
   };
 }
 
+export function detectEntryPoints(files: RepositoryFileRecord[], graph: DependencyGraphResult): EntryPoint[] {
+  const entryPoints: EntryPoint[] = [];
+  const sourceFiles = new Set(files.filter(f => f.kind === 'source').map(f => f.path));
+
+  for (const file of files) {
+    const norm = file.path.replace(/\\/g, '/');
+    if (norm === 'server.ts' || norm === 'server.js') {
+      entryPoints.push({ path: file.path, reason: 'Express fullstack server root entry point', type: 'SERVER_ENTRY' });
+    } else if (norm === 'src/main.tsx' || norm === 'src/index.tsx' || norm === 'index.html') {
+      entryPoints.push({ path: file.path, reason: 'React SPA web client root entry point', type: 'CLIENT_ENTRY' });
+    } else if (norm.startsWith('scripts/') && (file.kind === 'source' || file.kind === 'configuration')) {
+      entryPoints.push({ path: file.path, reason: 'Operational automation / lifecycle script', type: 'SCRIPT_ENTRY' });
+    } else if (file.kind === 'source' && sourceFiles.has(file.path)) {
+      const incoming = graph.reverseDependencies?.[file.path] || [];
+      const internalCallers = incoming.filter(dep => !dep.startsWith('tests/') && dep !== file.path);
+      if (internalCallers.length === 0 && !norm.startsWith('tests/') && !norm.startsWith('src/tests/')) {
+        entryPoints.push({ path: file.path, reason: 'Top-level source module with zero internal callers', type: 'ROOT_MODULE' });
+      }
+    }
+  }
+
+  return entryPoints;
+}
+
 export function scanRepositoryFiles(rootDir = process.cwd(), suppliedLimits: Partial<RepositoryScanLimits> = {}): RepositoryScanResult {
   const limits = { ...DEFAULT_LIMITS, ...suppliedLimits };
   const root = fs.realpathSync(rootDir);
@@ -734,9 +765,9 @@ export function scanRepositoryFiles(rootDir = process.cwd(), suppliedLimits: Par
   }
   const parsedContext: unknown = JSON.parse(contextJson);
   if (!validateRepositoryContext(parsedContext)) throw new Error('Repository context failed schema validation');
-
   const analyzed = files.filter(file => file.analysis);
   const branchTotal = analyzed.reduce((sum, file) => sum + file.analysis!.complexity, 0);
+  const entryPoints = detectEntryPoints(files, graph);
   return {
     status,
     summary: {
@@ -757,6 +788,7 @@ export function scanRepositoryFiles(rootDir = process.cwd(), suppliedLimits: Par
     context: parsedContext,
     contextJson,
     contextValidation: { valid: true, schemaVersion: '1.0', bytes: Buffer.byteLength(contextJson, 'utf8') },
+    entryPoints,
   };
 }
 

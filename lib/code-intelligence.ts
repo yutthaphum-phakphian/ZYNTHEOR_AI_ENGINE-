@@ -34,11 +34,20 @@ export interface ComplexityMetrics {
   formula: string;
 }
 
+export interface CallGraphEntry {
+  caller: string;
+  callee: string;
+  line: number;
+  character?: number;
+  resolvedKind: 'LOCAL' | 'IMPORTED' | 'DYNAMIC';
+}
+
 export interface CodeAnalysis {
   imports: string[];
   exports: string[];
   reExports: string[];
   symbols: SymbolInfo[];
+  callGraph: CallGraphEntry[];
   lines: number;
   functions: number;
   complexity: number;
@@ -315,12 +324,95 @@ export class CodeIntelligence {
     };
   }
 
+  extractImportedSymbols(code: string, fileName = 'file.ts'): Set<string> {
+    const importedSymbols = new Set<string>();
+    const sourceFile = this.parse(code, fileName);
+    const visit = (node: ts.Node) => {
+      if (ts.isImportClause(node)) {
+        if (node.name) importedSymbols.add(node.name.text);
+        if (node.namedBindings && ts.isNamespaceImport(node.namedBindings)) importedSymbols.add(node.namedBindings.name.text);
+        if (node.namedBindings && ts.isNamedImports(node.namedBindings)) {
+          for (const el of node.namedBindings.elements) importedSymbols.add(el.name.text);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+    return importedSymbols;
+  }
+
+  extractCallGraph(code: string, fileName = 'file.ts'): CallGraphEntry[] {
+    const calls: CallGraphEntry[] = [];
+    const sourceFile = this.parse(code, fileName);
+    const importedSymbols = this.extractImportedSymbols(code, fileName);
+
+    const getCallerName = (node: ts.Node): string => {
+      let current: ts.Node | undefined = node.parent;
+      while (current) {
+        if (ts.isFunctionDeclaration(current) && current.name) {
+          return current.name.text;
+        }
+        if (ts.isMethodDeclaration(current) && current.name) {
+          return current.name.getText(sourceFile);
+        }
+        if (
+          ts.isVariableDeclaration(current) &&
+          current.name &&
+          ts.isIdentifier(current.name) &&
+          current.initializer &&
+          (ts.isArrowFunction(current.initializer) || ts.isFunctionExpression(current.initializer))
+        ) {
+          return current.name.text;
+        }
+        if (ts.isClassDeclaration(current) && current.name) {
+          return current.name.text;
+        }
+        current = current.parent;
+      }
+      return '<top-level>';
+    };
+
+    const visit = (node: ts.Node) => {
+      if (ts.isCallExpression(node)) {
+        const caller = getCallerName(node);
+        const start = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+        let callee = '';
+        let resolvedKind: CallGraphEntry['resolvedKind'] = 'LOCAL';
+
+        if (ts.isIdentifier(node.expression)) {
+          callee = node.expression.text;
+          resolvedKind = importedSymbols.has(callee) ? 'IMPORTED' : 'LOCAL';
+        } else if (ts.isPropertyAccessExpression(node.expression)) {
+          callee = node.expression.getText(sourceFile);
+          const baseName = node.expression.expression.getText(sourceFile);
+          resolvedKind = importedSymbols.has(baseName) ? 'IMPORTED' : 'LOCAL';
+        } else {
+          callee = '[dynamic-call]';
+          resolvedKind = 'DYNAMIC';
+        }
+
+        calls.push({
+          caller,
+          callee,
+          line: start.line + 1,
+          character: start.character + 1,
+          resolvedKind,
+        });
+      }
+      ts.forEachChild(node, visit);
+    };
+
+    visit(sourceFile);
+    return calls;
+  }
+
   analyze(code: string, fileName = 'file.ts'): CodeAnalysis {
     const sourceFile = this.parse(code, fileName);
     const imports = this.extractImports(code, fileName);
     const exports = this.extractExports(code, fileName);
     const reExports = this.extractReExports(code, fileName);
     const symbols = this.extractSymbols(code, fileName);
+    const callGraph = this.extractCallGraph(code, fileName);
     const { lines, functions, complexity, complexityMetrics } = this.analyzeComplexity(code, fileName);
     const parserDiagnostics = (sourceFile as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics || [];
     const parserWarnings = parserDiagnostics.map(diagnostic => {
@@ -328,7 +420,7 @@ export class CodeIntelligence {
       const line = diagnostic.start === undefined ? undefined : sourceFile.getLineAndCharacterOfPosition(diagnostic.start).line + 1;
       return line ? `line ${line}: ${message}` : message;
     });
-    return { imports, exports, reExports, symbols, lines, functions, complexity, complexityMetrics, parserWarnings };
+    return { imports, exports, reExports, symbols, callGraph, lines, functions, complexity, complexityMetrics, parserWarnings };
   }
 
   buildDependencyGraph(files: Record<string, string>): DependencyGraph {
