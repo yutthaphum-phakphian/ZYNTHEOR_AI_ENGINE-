@@ -125,7 +125,7 @@ npm install
 # Configure environment
 cp .env.example .env
 
-# Start development server on port 3000
+# Start development server on port 3000 (binds to loopback 127.0.0.1 by default; do not expose it directly to the internet)
 npm run dev
 ```
 

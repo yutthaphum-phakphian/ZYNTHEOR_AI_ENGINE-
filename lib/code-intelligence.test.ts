@@ -117,7 +117,7 @@ describe('Code Intelligence - 9 PASS', () => {
 
   it('11. parses JSX, reports syntax diagnostics, and exposes the complexity formula', () => {
     const jsx = ci.analyze('export const Widget = () => <section>{ready && <span />}</section>;', 'widget.tsx');
-    expect(jsx.symbols.find(symbol => symbol.name === 'Widget')).toMatchObject({ type: 'function', exported: true });
+    expect(jsx.symbols.find(symbol => symbol.name === 'Widget')).toMatchObject({ type: 'react-component', exported: true });
     expect(jsx.complexityMetrics.formula).toContain('1 +');
     expect(jsx.complexityMetrics.branches).toBeGreaterThan(0);
 

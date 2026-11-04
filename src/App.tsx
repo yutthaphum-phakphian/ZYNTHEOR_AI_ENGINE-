@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
 import {
-  Activity, AlertTriangle, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, Bot, Boxes, Bug, Calendar, Check,
+  Activity, AlertTriangle, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, Bot, Boxes, Brain, Bug, Calendar, Check,
   CheckCircle2, ChevronDown, ChevronRight, CircleHelp, ClipboardCheck, Clock, Code2, Cpu, CreditCard, Download,
   Eye, File, FileCode2, FileText, Files, Gauge, GitBranch, Globe, HardDrive, History, Keyboard, LayoutDashboard,
   LockKeyhole, Menu, MessageSquare, MoreHorizontal, Network, Plus, RefreshCw, RotateCcw, Search, Send, Server,
@@ -36,6 +36,7 @@ import { RepositoryIntelligence } from './components/RepositoryIntelligence';
 import { IntelligentDebugging } from './components/IntelligentDebugging';
 import { LocalStorageAuditTool } from './components/LocalStorageAuditTool';
 import { EvaluationLabDashboard } from './components/evaluation/EvaluationLabDashboard';
+import { MemoryCenter } from './components/MemoryCenter';
 import { GitHubSyncWidget } from './components/GitHubSyncWidget';
 import { CicdStatusWidget } from './components/CicdStatusWidget';
 import { createAuditEntry, verifyAuditHashChain, repairAndResignAuditLedger, downloadAuditLedgerJson, downloadAuditLedgerCsv, type AuditEntry } from './services/auditLedger';
@@ -43,7 +44,7 @@ import { CodeIntelligence } from '../lib/code-intelligence';
 import { evaluateDiagnosticChecks } from '../lib/diagnostics-evaluator.ts';
 import * as d3 from 'd3';
 
-type Page = 'Chat' | 'Team' | 'Projects' | 'Plans' | 'Files' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Evaluation Lab' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings';
+type Page = 'Chat' | 'Memory Center' | 'Team' | 'Projects' | 'Plans' | 'Files' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Evaluation Lab' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings';
 type ChatMessage = { id: string; role: 'user' | 'assistant'; content: string; at: string; model?: string; error?: boolean; mode?: ChatMode; streaming?: boolean; incomplete?: string; requiresApproval?: boolean; approved?: boolean; rejected?: boolean };
 type ChatSession = { id: string; title: string; createdAt: string; updatedAt: string; messages: ChatMessage[]; mode: ChatMode };
 type ComposerAttachment = { id: string; name: string; size: number; content: string };
@@ -59,13 +60,14 @@ type ModelResult = { state: string; source?: 'live' | 'fallback'; configuredMode
 type InferenceResult = { state: string; model?: string; latencyMs?: number; matchedExpectedText?: boolean; responsePreview?: string; error?: string; message?: string; modelStatus?: string };
 
 const NAV: { title: string; items: { id: Page; icon: LucideIcon; label: string; desc?: string }[] }[] = [
-  { title: 'WORKSPACE', items: [{ id: 'Chat', icon: MessageSquare, label: 'Chat' }, { id: 'Projects', icon: Boxes, label: 'Projects' }, { id: 'Plans', icon: LayoutDashboard, label: 'Plans' }, { id: 'Files', icon: Files, label: 'Files' }] },
-  { title: 'INTELLIGENCE', items: [{ id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }, { id: 'Models', icon: Cpu, label: 'Models' }, { id: 'Evaluation Lab', icon: Gauge, label: 'Evaluation Lab' }] },
+  { title: 'WORKSPACE', items: [{ id: 'Chat', icon: MessageSquare, label: 'AI Workspace' }, { id: 'Projects', icon: Boxes, label: 'Projects' }, { id: 'Plans', icon: LayoutDashboard, label: 'Plans' }, { id: 'Files', icon: Files, label: 'Files' }, { id: 'Memory Center', icon: Brain, label: 'Memory Center' }] },
+  { title: 'INTELLIGENCE', items: [{ id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }, { id: 'Models', icon: Cpu, label: 'CORE Model Studio' }, { id: 'Evaluation Lab', icon: Gauge, label: 'Evaluation Lab' }] },
   { title: 'TRUST & SAFETY', items: [{ id: 'Audit Ledger', icon: ShieldCheck, label: 'Audit Ledger' }, { id: 'Diagnostics', icon: Activity, label: 'Diagnostics' }] },
   { title: 'SYSTEM', items: [{ id: 'Team', icon: ShieldCheck, label: 'Team & Access' }, { id: 'Billing', icon: CreditCard, label: 'Billing & Plans' }, { id: 'Settings', icon: Settings, label: 'Settings' }] },
 ];
 const PAGE_COPY: Record<Page, { eyebrow: string; title: string; subtitle: string }> = {
-  Chat: { eyebrow: 'ZYNTHEOR INTELLIGENCE', title: 'Your thinking workspace', subtitle: 'Ask, build, debug and reason — with visible system status.' },
+  Chat: { eyebrow: 'ZYNTHEOR CORE X / ENGINEERING WORKSPACE', title: 'AI Engineering Workspace', subtitle: 'Chat, projects, files and repository intelligence in one governed engineering workspace.' },
+  'Memory Center': { eyebrow: 'CORE X / MEMORY GOVERNANCE', title: 'Memory Center', subtitle: 'Inspect workspace-scoped task memory and manage retained records.' },
   Team: { eyebrow: 'SYSTEM / ACCESS CONTROL', title: 'Team & Access Management', subtitle: 'Manage workspace members and role-based permissions.' },
   Projects: { eyebrow: 'WORKSPACE / PROJECTS', title: 'Build in context.', subtitle: 'Organize codebases and ideas into dedicated workspaces.' },
   Plans: { eyebrow: 'WORKSPACE / PLANS', title: 'Plan before action.', subtitle: 'Turn a goal into clear steps and track what is actually complete.' },
@@ -121,7 +123,12 @@ function WorkspaceApp() {
   } = useMultiWorkspace();
   const [page, setPage] = useState<Page>('Chat');
   const [mobileNav, setMobileNav] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    try { return localStorage.getItem('zyntheor.sidebar.collapsed') === 'true'; } catch { return false; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('zyntheor.sidebar.collapsed', String(collapsed)); } catch { /* storage may be unavailable */ }
+  }, [collapsed]);
   const [query, setQuery] = useState('');
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
     const saved = readStore<ChatSession[]>(STORAGE.sessions, []);
@@ -947,7 +954,14 @@ function WorkspaceApp() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="brand-row"><div className="brand-mark"><Sparkles size={20} strokeWidth={2.2}/></div>{!collapsed && <div className="brand-copy"><b>ZYNTHEOR</b><span>AI ENGINE <i>CORE 0.2 (v1.2.2)</i></span></div>}<button className="icon-button collapse-button" onClick={() => setCollapsed(v => !v)} aria-label="Collapse sidebar"><ChevronRight size={16}/></button></div>
+      <div className="brand-row"><div className="brand-mark"><Sparkles size={20} strokeWidth={2.2}/></div>{!collapsed && <div className="brand-copy"><b>ZYNTHEOR</b><span>AI ENGINE <i>CORE 0.2 (v1.2.2)</i></span></div>}<button
+        type="button"
+        className="icon-button collapse-button"
+        onClick={() => setCollapsed(v => !v)}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-expanded={!collapsed}
+        title={collapsed ? 'ขยายแถบเมนู' : 'ย่อแถบเมนู'}
+      ><ChevronRight size={16}/></button></div>
       <SidebarWorkspaceSwitcher
         workspaces={workspaces}
         activeWorkspaceId={activeWorkspaceId}
@@ -1003,7 +1017,7 @@ function WorkspaceApp() {
           )}
         </div>
       )}
-      <nav className="navigation">{NAV.map(group => <div className="nav-group" key={group.title}><div className="nav-group-label">{!collapsed && (t('nav.' + group.title.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')) || group.title)}</div>{group.items.map(item => { const itemLabel = t('nav.' + item.id.toLowerCase().replace(/ /g, '_')) || item.label; return <button key={item.id} onClick={() => choosePage(item.id)} className={`nav-item ${page === item.id ? 'active' : ''}`} title={collapsed ? itemLabel : undefined}><item.icon size={18}/>{!collapsed && <span>{itemLabel}</span>}{!collapsed && item.id === 'Audit Ledger' && audit.length > 0 && <small className="nav-count">{audit.length > 99 ? '99+' : audit.length}</small>}</button>; })}</div>)}</nav>
+      <nav className="navigation">{NAV.map(group => <div className="nav-group" key={group.title}><div className="nav-group-label">{!collapsed && (t('nav.' + group.title.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')) || group.title)}</div>{group.items.map(item => { const itemLabel = t('nav.' + item.id.toLowerCase().replace(/ /g, '_')) || item.label; return <button key={item.id} onClick={() => { choosePage(item.id); setMobileNav(false); }} className={`nav-item ${page === item.id ? 'active' : ''}`} title={collapsed ? itemLabel : undefined}><item.icon size={18}/>{!collapsed && <span>{itemLabel}</span>}{!collapsed && item.id === 'Audit Ledger' && audit.length > 0 && <small className="nav-count">{audit.length > 99 ? '99+' : audit.length}</small>}</button>; })}</div>)}</nav>
       {!collapsed && <div className="sidebar-bottom"><div className="sidebar-cicd-container"><CicdStatusWidget compact={true} /></div><div className="local-mode-card"><div className="local-card-icon"><LockKeyhole size={16}/></div><div><b>{settings?.localOnly ?? true ? t('common.status_local') : t('common.status_remote')}</b><span>{settings?.localOnly ?? true ? 'External calls restricted' : settings?.onlineConsent ? 'Explicit consent recorded' : 'Consent not confirmed'}</span></div><span className={`status-led ${settings?.localOnly ?? true ? 'green' : 'amber'}`}/></div><div className="user-workspace"><div className="workspace-avatar">Z</div><div className="workspace-user"><b>Signed-in account</b><span>{serverSession?.role?.toUpperCase() || 'ROLE UNKNOWN'} · verified session</span></div><button className="icon-button" onClick={() => choosePage('Settings')} aria-label="Open settings"><MoreHorizontal size={18}/></button></div></div>}
     </aside>
     <main className="main-area">
@@ -1142,6 +1156,7 @@ function WorkspaceApp() {
           />
         )}
         {page === 'Plans' && <PlansPage plans={plans} add={() => setNewPlanOpen(true)} toggle={togglePlan} query={query} onAddBulk={addBulkPlans} setToast={setToast}/>}
+        {page === 'Memory Center' && <MemoryCenter workspaceId={activeWorkspaceId || 'default'} />}
         {page === 'Files' && <FilesPage files={files} onPick={() => fileInputRef.current?.click()} remove={fileId => setFiles(prev => prev.filter(file => file.id !== fileId))} onViewSnippet={file => setViewingFile(file)} />}
         {page === 'Repository Intelligence' && (
           <RepositoryIntelligence
@@ -1752,25 +1767,27 @@ function ChatPage({
               <span className="orb-dot dot-one"/>
               <span className="orb-dot dot-two"/>
             </div>
-            <div className="eyebrow center"><span className="eyebrow-line"/> INTELLIGENCE WORKSPACE <span className="eyebrow-line"/></div>
-            <h2>feel <em>clear.</em></h2>
+            <div className="eyebrow center"><span className="eyebrow-line"/> SOVEREIGN AI ENGINEERING <span className="eyebrow-line"/></div>
+            <h2>ZYNTHEOR <em>CORE X</em></h2>
             <p className="welcome-description">
-              Ask a question, inspect a problem, or plan what to build next.<br className="desktop-break"/>
-              ZYNTHEOR will report real runtime failures instead of inventing an answer.
+              พัฒนาแอป วิเคราะห์โค้ด และยกระดับ Intelligence Core ใน Workspace เดียว<br className="desktop-break"/>
+              ทุกการทำงานต้องอ้างอิงผลจริง มีหลักฐาน และผ่านการอนุมัติตามสิทธิ์
             </p>
             <div className="suggestion-grid">
               {[
-                { icon: Code2, title: 'Review a codebase', desc: 'Map architecture and identify risk', prompt: 'ช่วยวางแผนตรวจสอบ codebase นี้ โดยเริ่มจากโครงสร้างและ dependency' },
-                { icon: WandSparkles, title: 'Fix a bug', desc: 'Trace symptoms to a testable cause', prompt: 'ช่วยวิเคราะห์แนวทาง debug แอปที่ส่งข้อความแล้วไม่ตอบ' },
-                { icon: Network, title: 'Design the system', desc: 'Plan a secure app architecture', prompt: 'ออกแบบสถาปัตยกรรม AI app ใหม่ให้รองรับมือถือ ความปลอดภัย และโมเดลจริง' },
+                { icon: Code2, title: 'เข้าใจ Repository', desc: 'สำรวจโครงสร้าง Symbol และ Dependency', prompt: 'ตรวจสอบ repository นี้จากโครงสร้างจริง ระบุขอบเขตการสแกน สิ่งที่ยืนยันได้ ความเสี่ยง และขั้นตอนถัดไป' },
+                { icon: Bug, title: 'วิเคราะห์และแก้ปัญหา', desc: 'หาสาเหตุและเสนอ Diff ที่ตรวจสอบได้', prompt: 'ช่วยวิเคราะห์ปัญหานี้โดยแยก Verified Findings, Hypotheses และ Unknowns ก่อนเสนอแนวทางแก้ไข' },
+                { icon: Cpu, title: 'พัฒนา CORE Native', desc: 'Dataset → Training → Checkpoint → Evaluation', action: 'Models' },
+                { icon: Gauge, title: 'ทดสอบ Intelligence', desc: 'วัดคุณภาพและตรวจจับ Regression', action: 'Evaluation Lab' },
               ].map(item => (
-                <button key={item.title} className="suggestion-card" onClick={() => setDraft(item.prompt)}>
+                <button key={item.title} className="suggestion-card" onClick={() => item.action ? onSelectPage(item.action as Page) : setDraft(item.prompt || '')}>
                   <div className="suggestion-icon"><item.icon size={17}/></div>
                   <div><b>{item.title}</b><span>{item.desc}</span></div>
                   <ArrowUpRight size={15} className="suggestion-arrow"/>
                 </button>
               ))}
             </div>
+            <div className="core-identity-note"><Cpu size={15}/><span><b>First-party model track:</b> CORE_NATIVE · CORE_ADAPTED · CORE_DISTILLED — แยกตัวตนและหลักฐานของแต่ละสายโมเดลอย่างชัดเจน</span><button type="button" onClick={() => onSelectPage('Models')}>จัดการโมเดล <ArrowRight size={13}/></button></div>
             <div className="quick-status-row">
               <span className={`status-led ${health?.ok ? 'green' : 'amber'}`}/>
               {health?.ok ? 'API is reachable' : 'Waiting for API health check'}
@@ -3273,16 +3290,16 @@ function ModelsPage({ settings, result, loading, refresh, onSelectPage, setToast
           <div className={`model-hero ${isManuallyUnavailable ? 'model-unavailable' : status==='CONNECTED'?'model-connected':''}`} style={{ borderColor: isManuallyUnavailable ? '#ef4444' : undefined }}>
             <div className="model-hero-orb" style={{ background: isManuallyUnavailable ? 'rgba(239,68,68,0.15)' : undefined }}><Cpu size={25} style={{ color: isManuallyUnavailable ? '#ef4444' : undefined }}/></div>
             <div className="model-hero-copy">
-              <span className="eyebrow">CONFIGURED INFERENCE ROUTE</span>
-              <h2>{settings?.model || 'ZYNTHEOR CORE 0.14.0'}</h2>
-              <p>{settings?.provider || 'Provider unavailable'} · {settings?.endpointHost || 'Endpoint not resolved'}</p>
+              <span className="eyebrow">ZYNTHEOR FIRST-PARTY MODEL IDENTITY</span>
+              <h2>ZYNTHEOR CORE Native</h2>
+              <p>โมเดลหลักที่ ZYNTHEOR พัฒนาเอง · ไม่รวม weights จากโมเดลภายนอก</p>
               <div className="model-status-line">
                 <span className={`status-led ${isManuallyUnavailable ? 'red' : status==='CONNECTED'?'green':'amber'}`}/>
-                {isManuallyUnavailable ? 'Unavailable (Manual Downtime / Maintenance Mode)' : status==='CONNECTED'?'Endpoint reachable':status==='BLOCKED'?'Blocked by policy':'Endpoint not verified'}
+                {isManuallyUnavailable ? 'Unavailable (Manual Downtime / Maintenance Mode)' : status==='CONNECTED'?'Configured runtime endpoint reachable (not proof of CORE Native readiness)':status==='BLOCKED'?'Blocked by policy':'CORE Native inference not verified'}
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-              <div className="model-hero-tag">{settings?.localEndpoint?'LOCAL ENDPOINT':'ENDPOINT TYPE UNKNOWN'}</div>
+              <div className="model-hero-tag">CORE NATIVE · FIRST-PARTY TRACK</div>
               
               {/* ToggleModelAvailability Switch */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#091322', border: `1px solid ${isManuallyUnavailable ? '#b91c1c' : '#1e293b'}`, padding: '5px 10px', borderRadius: '8px' }}>
@@ -3357,7 +3374,7 @@ function ModelsPage({ settings, result, loading, refresh, onSelectPage, setToast
               </span>
             </div>
             <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
-              <b>Base Model Target:</b> Qwen/Qwen2.5-Coder-7B-Instruct (Apache-2.0).
+              <b>Historical adapted track:</b> Qwen2.5-Coder-7B-Instruct (Apache-2.0). This is not the identity or weight source of CORE Native.
               <br />
               <b>Hardware Profile:</b> CPU-only node (12GB RAM, 0 VRAM, 189GB disk).
               <br />

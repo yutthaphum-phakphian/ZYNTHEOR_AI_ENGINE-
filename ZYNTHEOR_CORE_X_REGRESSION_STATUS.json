@@ -1,48 +1,56 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "baseline": {
-    "source": "ZYNTHEOR_CORE_X_FULL_INTEGRATED_RELEASE.zip",
+    "source": "ZYNTHEOR_CORE_X_WORKSPACE_STUDIO_UPGRADE",
     "tests": 460,
     "passed": 443,
     "failed": 16,
     "skipped": 1
   },
   "current": {
-    "nodeTests": 460,
-    "nodePassed": 459,
+    "nodeTests": 481,
+    "nodePassed": 477,
     "nodeFailed": 0,
-    "nodeSkipped": 1,
-    "vitestFiles": 33,
-    "vitestPassed": 276,
+    "nodeSkipped": 4,
+    "vitestFiles": 36,
+    "vitestPassed": 299,
     "vitestFailed": 0,
+    "totalPassing": 776,
+    "totalFailing": 0,
     "typecheck": "PASS",
+    "build": "PASS",
     "regressionGate": "GREEN",
     "releaseApproved": false
   },
-  "fixedRootCauses": [
+  "resolvedRootCauses": [
     "task_memory_clear_authorization",
     "context_exact_path_provenance",
     "local_provider_environment_leakage",
-    "secure_environment_defaults",
+    "secure_environment_defaults_and_token_protection",
     "access_middleware_contract",
-    "artifact_ignore_policy",
+    "artifact_ignore_policy_and_archive_exclusion",
     "stale_dataset_contract",
     "stale_predictable_tenant_fixture",
     "vitest_node_test_runner_mismatch",
-    "repair_audit_event_order_assertion"
+    "repair_audit_event_order_assertion",
+    "cloud_run_missing_access_token_crash",
+    "vitest_code_intelligence_jsx_symbol_classification",
+    "vitest_repository_intelligence_context_size_budget",
+    "intelligence_run_cancellation_test_timeout_under_load"
   ],
   "remainingGovernanceGates": [
-    "postgresql_migration_and_rollback_evidence",
-    "native_runtime_and_checkpoint_evidence",
+    "postgresql_production_database_connection",
+    "native_torch_runtime_and_reproducible_weights",
     "dataset_provenance_license_human_approval",
     "sovereign_air_gap_preflight",
-    "platform_quality_and_security_gate_wiring"
+    "docker_container_sandbox_verification"
   ],
   "policy": {
     "testsModified": true,
     "testChangesWereContractMigrations": true,
     "nativeCheckpointCreated": false,
     "securityHardeningReverted": false,
-    "productionDeploymentAttempted": false
+    "zeroMockEnforced": true,
+    "failClosedEnforced": true
   }
 }

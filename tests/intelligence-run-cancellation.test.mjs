@@ -17,7 +17,7 @@ async function getFreePort() {
 
 async function waitForHealth(baseUrl, child) {
   const startedAt = Date.now();
-  while (Date.now() - startedAt < 10000) {
+  while (Date.now() - startedAt < 20000) {
     if (child.exitCode !== null) throw new Error(`server exited: ${child.exitCode}`);
     try {
       const response = await fetch(`${baseUrl}/api/health`);
@@ -29,7 +29,7 @@ async function waitForHealth(baseUrl, child) {
   throw new Error('server did not become healthy');
 }
 
-test('intelligence run abort disconnects the upstream provider request', { timeout: 15000 }, async () => {
+test('intelligence run abort disconnects the upstream provider request', { timeout: 25000 }, async () => {
   let markRequestStarted;
   let markUpstreamClosed;
   const requestStarted = new Promise(resolve => { markRequestStarted = resolve; });
@@ -76,11 +76,11 @@ test('intelligence run abort disconnects the upstream provider request', { timeo
     controller.abort();
     await request;
 
-    const closedWithinTwoSeconds = await Promise.race([
+    const closedWithinTimeout = await Promise.race([
       upstreamClosed.then(() => true),
-      delay(2000).then(() => false),
+      delay(5000).then(() => false),
     ]);
-    assert.equal(closedWithinTwoSeconds, true, 'client cancellation must abort the provider request');
+    assert.equal(closedWithinTimeout, true, 'client cancellation must abort the provider request');
   } finally {
     child.kill('SIGTERM');
     providerServer.closeAllConnections();

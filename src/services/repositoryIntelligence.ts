@@ -122,7 +122,7 @@ const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.mts',
 const CONFIG_FILENAMES = new Set(['package.json', 'tsconfig.json', 'jsconfig.json', 'vite.config.ts', 'vitest.config.ts']);
 const EXCLUDED_DIRECTORIES = new Set([
   '.git', '.hg', '.svn', 'node_modules', 'dist', 'build', 'coverage', 'out', '.next', '.turbo',
-  '.cache', 'workspace_data', 'vendor', 'tmp', 'temp',
+  '.cache', 'workspace_data', 'vendor', 'tmp', 'temp', 'archive',
 ]);
 const SENSITIVE_FILE = /(^|\/)(\.env(?:\..*)?|credentials(?:\.[^/]*)?|secrets?(?:\.[^/]*)?|id_rsa[^/]*|[^/]+\.(?:pem|key|p12|pfx))$/i;
 const MAX_SYMBOLS_PER_FILE = 1000;

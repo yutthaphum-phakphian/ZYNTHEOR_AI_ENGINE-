@@ -1,8 +1,45 @@
-// P14 Unified Evaluation Engine - REAL execution across 12 Sovereign Categories
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { verifyAuditHashChain } from '../services/auditLedger.js';
 import { isAllowedCommand } from '../services/safeExecutor.js';
+
+let nodeFs: any = null;
+let nodePath: any = null;
+async function ensureNodeModules() {
+  if (typeof window === 'undefined') {
+    try {
+      if (!nodeFs) nodeFs = await import('node:fs');
+      if (!nodePath) nodePath = await import('node:path');
+    } catch {}
+  }
+}
+
+function safeJoin(...parts: string[]): string {
+  if (nodePath && typeof nodePath.join === 'function') {
+    return nodePath.join(...parts);
+  }
+  return parts.filter(Boolean).join('/').replace(/\/+/g, '/');
+}
+
+function safeExistsSync(filePath: string): boolean {
+  if (nodeFs && typeof nodeFs.existsSync === 'function') {
+    try {
+      return nodeFs.existsSync(filePath);
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+function safeReaddirSync(dirPath: string): string[] {
+  if (nodeFs && typeof nodeFs.readdirSync === 'function') {
+    try {
+      return nodeFs.readdirSync(dirPath) as unknown as string[];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
 
 export type CategoryId =
   | 'SECURITY_FIRST'
@@ -75,8 +112,9 @@ export const CATEGORY_METADATA: Record<CategoryId, { name: string; weight: numbe
 export async function runUnifiedEvaluation(
   selectedCategoryIds?: CategoryId[],
   version: string = '1.2.2',
-  repoRoot: string = process.cwd()
+  repoRoot: string = typeof process !== 'undefined' && process.cwd ? process.cwd() : '/'
 ): Promise<UnifiedEvaluation> {
+  await ensureNodeModules();
   const startTime = performance.now();
   const timestamp = new Date().toISOString();
   const evaluationId = `eval-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -263,8 +301,8 @@ async function executeCategoryTests(categoryId: CategoryId, repoRoot: string): P
 
     case 'TYPE_SAFETY': {
       const t1Start = performance.now();
-      const tsconfigPath = path.join(repoRoot, 'tsconfig.json');
-      const tsconfigExists = fs.existsSync(tsconfigPath);
+      const tsconfigPath = safeJoin(repoRoot, 'tsconfig.json');
+      const tsconfigExists = safeExistsSync(tsconfigPath);
       tests.push({
         id: 'TYPE-01',
         name: 'TypeScript Strict Configuration',
@@ -367,9 +405,9 @@ async function executeCategoryTests(categoryId: CategoryId, repoRoot: string): P
 
     case 'TEST_COVERAGE': {
       const t1Start = performance.now();
-      const testDir = path.join(repoRoot, 'tests');
-      const testDirExists = fs.existsSync(testDir);
-      const testCount = testDirExists ? fs.readdirSync(testDir).filter(f => f.endsWith('.ts') || f.endsWith('.mjs')).length : 0;
+      const testDir = safeJoin(repoRoot, 'tests');
+      const testDirExists = safeExistsSync(testDir);
+      const testCount = testDirExists ? safeReaddirSync(testDir).filter(f => f.endsWith('.ts') || f.endsWith('.mjs')).length : 0;
       tests.push({
         id: 'COV-01',
         name: 'Automated Test Suites Present',
@@ -431,9 +469,9 @@ async function executeCategoryTests(categoryId: CategoryId, repoRoot: string): P
 
     case 'FILE_MANIFEST_INTEGRITY': {
       const t1Start = performance.now();
-      const serverFile = path.join(repoRoot, 'server.ts');
-      const pkgFile = path.join(repoRoot, 'package.json');
-      const filesExist = fs.existsSync(serverFile) && fs.existsSync(pkgFile);
+      const serverFile = safeJoin(repoRoot, 'server.ts');
+      const pkgFile = safeJoin(repoRoot, 'package.json');
+      const filesExist = safeExistsSync(serverFile) && safeExistsSync(pkgFile);
       tests.push({
         id: 'MAN-01',
         name: 'Core Application File Manifest',
@@ -463,8 +501,8 @@ async function executeCategoryTests(categoryId: CategoryId, repoRoot: string): P
 
     case 'BUILD_REPRODUCIBILITY': {
       const t1Start = performance.now();
-      const viteConfig = path.join(repoRoot, 'vite.config.ts');
-      const hasVite = fs.existsSync(viteConfig);
+      const viteConfig = safeJoin(repoRoot, 'vite.config.ts');
+      const hasVite = safeExistsSync(viteConfig);
       tests.push({
         id: 'BLD-01',
         name: 'Vite Production Bundler Setup',

@@ -26,7 +26,7 @@ export const ModelsPage: React.FC = () => {
         const json = await res.json();
         setModels(json.models || []);
       } catch {
-        // fallback mock if endpoint not ready — do not block chart
+        // Keep the provider list empty when the API is unavailable; never synthesize provider state.
       } finally {
         setLoading(false);
       }
@@ -48,7 +48,7 @@ export const ModelsPage: React.FC = () => {
           <div className="mt-2 text-xs text-zinc-500">Loading models...</div>
         ) : (
           <div className="mt-3 grid gap-2">
-            {models.length === 0 && <div className="text-xs text-zinc-500">No models configured — chart above shows aggregated latency/error from /api/observability/model-metrics</div>}
+            {models.length === 0 && <div className="text-xs text-zinc-500">No verified model status returned by /api/models/status. Configure a provider and confirm its runtime status.</div>}
             {models.map(m => (
               <div key={m.id} className="flex items-center justify-between rounded bg-zinc-800/50 px-3 py-2">
                 <div>

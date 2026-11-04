@@ -17,7 +17,8 @@ export function NativeModelStatusPanel() {
         fetch('/api/native-model/report').then(r => r.json()).catch(() => null),
       ]);
 
-      if (statusRes) setData(statusRes);
+      if (statusRes?.ok) setData(statusRes);
+      else if (statusRes) setError(statusRes.error || 'Runtime status is not verified');
       if (reportRes?.ok && reportRes.report) setReport(reportRes.report);
     } catch (e: any) {
       setError(e?.message || 'API error');
@@ -34,15 +35,16 @@ export function NativeModelStatusPanel() {
 
   if (loading) return <div style={{ padding: '16px', background: '#0f172a', borderRadius: '8px', border: '1px solid #1e293b', color: '#94a3b8' }}>Loading ZYNTHEOR CORE status...</div>;
 
-  const statusMatrix = report?.commitAndDeploymentStatus || {
-    foundationReady: true,
-    datasetReady: true,
-    trainingReady: true,
-    trainingRunning: false,
-    trainingCompleted: false,
-    evaluationPassed: true,
-    productionApproved: false,
-  };
+  const statusMatrix = report?.commitAndDeploymentStatus || {};
+  const statusItems: { label: string; val: boolean | undefined; desc: string }[] = [
+    { label: 'Native Foundation', val: statusMatrix.foundationReady, desc: 'Architecture and tokenizer evidence; no external base weights' },
+    { label: 'Dataset', val: statusMatrix.datasetReady, desc: 'Manifest and validation evidence' },
+    { label: 'Training Ready', val: statusMatrix.trainingReady, desc: 'Configuration and hardware checks' },
+    { label: 'Training Running', val: statusMatrix.trainingRunning, desc: 'Live training job state' },
+    { label: 'Training Complete', val: statusMatrix.trainingCompleted, desc: 'Checkpoint artifact verified' },
+    { label: 'Evaluation', val: statusMatrix.evaluationPassed, desc: 'Benchmark result verified' },
+    { label: 'Production Approval', val: statusMatrix.productionApproved, desc: 'Explicit human approval' },
+  ];
 
   return (
     <div className="surface-card" style={{ padding: '18px 20px', border: '1px solid #3b82f6', marginBottom: '20px' }}>
@@ -53,13 +55,13 @@ export function NativeModelStatusPanel() {
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <b style={{ fontSize: '15px', color: '#f8fafc' }}>ZYNTHEOR CORE 0.1 — First-Party AI Model</b>
+              <b style={{ fontSize: '15px', color: '#f8fafc' }}>ZYNTHEOR CORE — Model Development</b>
               <span style={{ fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '4px', background: '#1e293b', color: '#38bdf8', border: '1px solid #334155' }}>
-                TARGET: Qwen2.5-Coder-7B-Instruct
+                CORE NATIVE · RANDOM INITIALIZATION
               </span>
             </div>
             <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-              SSoT Genesis Anchor #849202 · Apache-2.0 License Provenance · Local-First Zero Telemetry
+              First-party model lineage · Independent weights · Local-first · Zero telemetry
             </span>
           </div>
         </div>
@@ -86,37 +88,30 @@ export function NativeModelStatusPanel() {
       </div>
 
       {/* Directive 10 Distinct Status Tracker Matrix */}
+      {error && <div role="status" style={{ marginBottom: '12px', padding: '10px 12px', borderRadius: '8px', background: '#33251a', border: '1px solid #92400e', color: '#fcd34d', fontSize: '11px' }}>Status unavailable: {error}. Unknown states are intentionally not marked as complete.</div>}
       <div style={{ marginBottom: '16px', padding: '12px', borderRadius: '8px', background: '#0a0f1d', border: '1px solid #1e293b' }}>
         <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Model Status Matrix (Distinct Lifecycle States)
         </span>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginTop: '8px' }}>
-          {[
-            { label: 'Foundation Ready', val: statusMatrix.foundationReady, desc: 'Base model target & license verified' },
-            { label: 'Dataset Ready', val: statusMatrix.datasetReady, desc: '15 samples / 0 leakage' },
-            { label: 'Training Ready', val: statusMatrix.trainingReady, desc: 'Hyperparams & hardware specs locked' },
-            { label: 'Training Running', val: statusMatrix.trainingRunning, desc: 'Active PyTorch backprop loop' },
-            { label: 'Training Completed', val: statusMatrix.trainingCompleted, desc: 'Trained weights on disk' },
-            { label: 'Evaluation Passed', val: statusMatrix.evaluationPassed, desc: '8-category benchmark >= 80%' },
-            { label: 'Production Approved', val: statusMatrix.productionApproved, desc: 'Human Approval Gate requirement' },
-          ].map((item) => (
+          {statusItems.map((item) => (
             <div
               key={item.label}
               style={{
                 padding: '8px 10px',
                 borderRadius: '6px',
-                background: item.val ? '#064e3b' : '#1e1b2e',
-                border: `1px solid ${item.val ? '#10b981' : '#374151'}`,
+                background: item.val === true ? '#064e3b' : item.val === false ? '#1e1b2e' : '#172033',
+                border: `1px solid ${item.val === true ? '#10b981' : item.val === false ? '#374151' : '#475569'}`, 
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '2px',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '10px', fontWeight: 700, color: item.val ? '#a7f3d0' : '#9ca3af' }}>{item.label}</span>
-                <span style={{ fontSize: '10px' }}>{item.val ? '✅' : '⏳'}</span>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: item.val === true ? '#a7f3d0' : '#cbd5e1' }}>{item.label}</span>
+                <span style={{ fontSize: '10px' }}>{item.val === true ? 'VERIFIED' : item.val === false ? 'NOT READY' : 'UNKNOWN'}</span>
               </div>
-              <span style={{ fontSize: '8px', color: item.val ? '#6ee7b7' : '#6b7280' }}>{item.desc}</span>
+              <span style={{ fontSize: '8px', color: item.val === true ? '#6ee7b7' : '#94a3b8' }}>{item.desc}</span>
             </div>
           ))}
         </div>
