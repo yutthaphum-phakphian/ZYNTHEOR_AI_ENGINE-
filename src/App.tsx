@@ -1101,6 +1101,7 @@ function WorkspaceApp() {
       <div className="page-scroll"><div className="page-wrap">
         {page === 'Chat' && (
           <HomepageEngineeringCenter
+            authHeaders={authHeaders}
             activeWorkspace={activeWorkspace}
             activeWorkspaceId={activeWorkspaceId}
             workspaces={workspaces}

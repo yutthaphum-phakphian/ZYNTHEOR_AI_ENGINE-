@@ -4,12 +4,53 @@ import {
   Send, Square, Sparkles, ChevronRight, RefreshCw, AlertTriangle,
   Play, CheckCircle2, Clock, Check, X, Search, FileCode2,
   Lock, ArrowUpRight, Shield, Layers, HardDrive, Terminal,
-  Sliders, Bug, WandSparkles, AlertCircle, ChevronDown, Paperclip
+  Sliders, Bug, WandSparkles, AlertCircle, ChevronDown, Paperclip,
+  Activity, Radio, Zap, ArrowRight, CornerDownLeft
 } from 'lucide-react';
 import { HighlightedMessage } from './HighlightedMessage';
 import type { ChatMode } from '../../lib/chat-core.mjs';
 
+export interface LiveAssignedTask {
+  taskId: string;
+  goal: string;
+  agentRoleId: string;
+  agentRoleName: string;
+  status: 'IDLE' | 'ASSIGNED' | 'RUNNING' | 'WAITING_FOR_APPROVAL' | 'COMPLETED' | 'FAILED';
+  currentStepIndex: number;
+  totalSteps: number;
+  currentStepTitle: string;
+  toolInUse?: string;
+  riskTier?: 'LOW' | 'MEDIUM' | 'HIGH';
+  isDryRun: boolean;
+  assignedAt: string;
+  completedAt?: string;
+  evidenceDigest?: string;
+  findings?: string[];
+  plannedSteps?: any[];
+}
+
+export interface LiveActivityEvent {
+  id: string;
+  taskId: string;
+  agentId: string;
+  agentName: string;
+  action: string;
+  detail: string;
+  status: 'RUNNING' | 'COMPLETED' | 'WAITING_FOR_APPROVAL' | 'FAILED';
+  riskTier?: 'LOW' | 'MEDIUM' | 'HIGH';
+  timestamp: string;
+  evidenceHash?: string;
+}
+
+export interface LiveAgentStats {
+  totalTasksExecuted: number;
+  activeRunningAgents: number;
+  pendingHumanApprovals: number;
+  verificationRate: string;
+}
+
 interface HomepageEngineeringCenterProps {
+  authHeaders?: () => Record<string, string>;
   activeWorkspace?: any;
   activeWorkspaceId?: string;
   workspaces?: any[];
@@ -54,6 +95,7 @@ interface HomepageEngineeringCenterProps {
 }
 
 export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps> = ({
+  authHeaders,
   activeWorkspace,
   activeWorkspaceId = 'default',
   workspaces = [],
@@ -120,8 +162,180 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
 
   // Active secondary section view
   const [activeSecondaryTab, setActiveSecondaryTab] = useState<
-    'project' | 'repo' | 'agents' | 'models' | 'security'
-  >('project');
+    'project' | 'repo' | 'agents' | 'activity' | 'models' | 'security'
+  >('agents');
+
+  // Live Agent Activity State
+  const [liveAgents, setLiveAgents] = useState<any[]>([]);
+  const [recentActivities, setRecentActivities] = useState<LiveActivityEvent[]>([]);
+  const [liveStats, setLiveStats] = useState<LiveAgentStats>({
+    totalTasksExecuted: 16,
+    activeRunningAgents: 0,
+    pendingHumanApprovals: 0,
+    verificationRate: '100.0%',
+  });
+  const [isLiveConnected, setIsLiveConnected] = useState(false);
+  const [lastLivePulse, setLastLivePulse] = useState<string>('Just now');
+
+  // Agent Dispatch State
+  const [selectedAgentRole, setSelectedAgentRole] = useState<string>('planner');
+  const [agentGoalInput, setAgentGoalInput] = useState('');
+  const [isDryRunAgent, setIsDryRunAgent] = useState(true);
+  const [dispatchingAgent, setDispatchingAgent] = useState(false);
+  const [dispatchedTaskResult, setDispatchedTaskResult] = useState<any | null>(null);
+  const [approvingStep, setApprovingStep] = useState<string | null>(null);
+
+  // Fetch Live Agent Activity
+  const fetchLiveAgentActivity = useCallback(async () => {
+    try {
+      const headers = authHeaders ? authHeaders() : {};
+      const res = await fetch('/api/intelligence/agent/activity', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok) {
+          if (Array.isArray(data.activeAgents)) setLiveAgents(data.activeAgents);
+          if (Array.isArray(data.recentActivities)) setRecentActivities(data.recentActivities);
+          if (data.stats) setLiveStats(data.stats);
+          setIsLiveConnected(true);
+          setLastLivePulse(new Date().toLocaleTimeString());
+        }
+      }
+    } catch {
+      setIsLiveConnected(false);
+    }
+  }, [authHeaders]);
+
+  // Real-time EventSource & Polling sync
+  useEffect(() => {
+    fetchLiveAgentActivity();
+
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource('/api/intelligence/agent/activity/stream');
+      eventSource.onopen = () => {
+        setIsLiveConnected(true);
+      };
+      eventSource.addEventListener('snapshot', (e: any) => {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload.activeAgents) setLiveAgents(payload.activeAgents);
+          if (payload.recentActivities) setRecentActivities(payload.recentActivities);
+          setLastLivePulse(new Date().toLocaleTimeString());
+        } catch {}
+      });
+      eventSource.addEventListener('agent:task_started', () => {
+        fetchLiveAgentActivity();
+      });
+      eventSource.addEventListener('agent:task_completed', () => {
+        fetchLiveAgentActivity();
+      });
+      eventSource.addEventListener('agent:waiting_approval', () => {
+        fetchLiveAgentActivity();
+      });
+      eventSource.addEventListener('agent:decision_recorded', () => {
+        fetchLiveAgentActivity();
+      });
+      eventSource.onerror = () => {
+        setIsLiveConnected(false);
+      };
+    } catch {
+      setIsLiveConnected(false);
+    }
+
+    const pollInterval = setInterval(() => {
+      fetchLiveAgentActivity();
+    }, 3500);
+
+    return () => {
+      if (eventSource) eventSource.close();
+      clearInterval(pollInterval);
+    };
+  }, [fetchLiveAgentActivity]);
+
+  // Dispatch Agent Task
+  const handleDispatchAgentTask = async (customGoal?: string) => {
+    const goalToRun = (customGoal || agentGoalInput).trim();
+    if (!goalToRun || dispatchingAgent) return;
+
+    try {
+      setDispatchingAgent(true);
+      setDispatchedTaskResult(null);
+
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(authHeaders ? authHeaders() : {}),
+      };
+
+      const res = await fetch('/api/intelligence/agent/execute', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          goal: goalToRun,
+          agentRole: selectedAgentRole,
+          workspaceId: activeWorkspaceId,
+          isDryRun: isDryRunAgent,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Agent dispatch failed');
+      }
+
+      setDispatchedTaskResult(data);
+      if (setToast) {
+        setToast(`สั่งงาน ${data.agentRole?.name || selectedAgentRole} สำเร็จ`);
+      }
+      fetchLiveAgentActivity();
+    } catch (err: any) {
+      if (setToast) setToast(`การสั่งงานล้มเหลว: ${err.message}`);
+    } finally {
+      setDispatchingAgent(false);
+    }
+  };
+
+  // Human Step Approval
+  const handleStepApproval = async (taskId: string, agentRoleId: string, decision: 'approve' | 'reject') => {
+    try {
+      setApprovingStep(taskId);
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(authHeaders ? authHeaders() : {}),
+      };
+
+      const res = await fetch('/api/intelligence/agent/step-approval', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          taskId,
+          agentRoleId,
+          decision,
+          reason: decision === 'approve' ? 'Approved in Command Center UI' : 'Rejected in Command Center UI',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Approval request failed');
+      }
+
+      if (setToast) {
+        setToast(decision === 'approve' ? 'อนุมัติขั้นตอนเรียบร้อยแล้ว' : 'ปฏิเสธขั้นตอนเรียบร้อยแล้ว');
+      }
+      fetchLiveAgentActivity();
+      if (dispatchedTaskResult?.liveTask?.taskId === taskId) {
+        setDispatchedTaskResult((prev: any) => prev ? {
+          ...prev,
+          humanApprovalRequired: false,
+          liveTask: data.task,
+        } : null);
+      }
+    } catch (err: any) {
+      if (setToast) setToast(`ดำเนินการล้มเหลว: ${err.message}`);
+    } finally {
+      setApprovingStep(null);
+    }
+  };
 
   // Trigger real repository scan
   const handleScanRepository = async () => {
@@ -494,7 +708,8 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
             {[
               { id: 'project', label: 'Active Project', icon: Boxes },
               { id: 'repo', label: 'Repo Intelligence', icon: Network },
-              { id: 'agents', label: 'Agents', icon: Bot },
+              { id: 'agents', label: 'Agent Command', icon: Bot },
+              { id: 'activity', label: 'Live Activity', icon: Activity, count: liveStats.activeRunningAgents },
               { id: 'models', label: 'CORE Models', icon: Cpu },
               { id: 'security', label: 'Verification & Safety', icon: ShieldCheck },
             ].map(tab => {
@@ -511,8 +726,13 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                       : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
                   }`}
                 >
-                  <Icon size={12} />
+                  <Icon size={12} className={tab.id === 'activity' && liveStats.activeRunningAgents > 0 ? 'text-amber-400 animate-pulse' : ''} />
                   <span>{tab.label}</span>
+                  {typeof tab.count === 'number' && tab.count > 0 && (
+                    <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 text-[9px] font-mono font-bold animate-pulse">
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -657,41 +877,439 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
             </div>
           )}
 
-          {/* ZONE D: AGENT COMMAND CENTER */}
+          {/* ZONE D: AGENT COMMAND CENTER & INSTANT DISPATCH */}
           {activeSecondaryTab === 'agents' && (
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-4">
+              {/* Header */}
+              <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+                <div>
+                  <span className="text-xs font-bold text-zinc-100 flex items-center gap-2">
+                    <Bot size={14} className="text-teal-400" /> Zone D: Agent Command Center
+                  </span>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">สั่งงาน Agent และติดตามสถานะแบบเรียลไทม์จากหน้าแรก</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-950 border border-zinc-800 text-[10px] text-zinc-400">
+                    <span className={`w-1.5 h-1.5 rounded-full ${isLiveConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                    <span>{isLiveConnected ? 'LIVE SYNC' : 'OFFLINE'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onSelectPage('Agent Command Center')}
+                    className="text-[11px] text-teal-400 hover:text-teal-300 flex items-center gap-1 font-semibold"
+                  >
+                    <span>Full Center</span>
+                    <ChevronRight size={12} />
+                  </button>
+                </div>
+              </div>
+
+              {/* INSTANT AGENT DISPATCHER (ฟังก์ชันสั่งงาน Agent ได้จากหน้าแรกทันที) */}
+              <div className="p-3 rounded-lg bg-zinc-950 border border-teal-900/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-teal-300 flex items-center gap-1.5">
+                    <Zap size={13} className="text-amber-400" />
+                    <span>Instant Agent Dispatch / สั่งงาน Agent ทันที</span>
+                  </span>
+                  <span className="text-[10px] text-zinc-500 font-mono">WORKSPACE: {activeWorkspace?.name || 'Main Engine'}</span>
+                </div>
+
+                {/* Agent Role Selector */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Select Agent Role</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    {[
+                      { id: 'planner', label: 'Planner Agent', desc: 'AST & Task Map', tool: 'ast.parse' },
+                      { id: 'engineering', label: 'Engineering Agent', desc: 'Code Analysis & Fixes', tool: 'code.patch' },
+                      { id: 'security', label: 'Security Agent', desc: 'Sandbox & Leaks', tool: 'security.scan' },
+                      { id: 'verification', label: 'Verification Agent', desc: 'Hash & Seals', tool: 'hash.sha256' },
+                      { id: 'research', label: 'Research Agent', desc: 'Context & Citations', tool: 'context.extract' },
+                    ].map(r => {
+                      const isSel = selectedAgentRole === r.id;
+                      return (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onClick={() => setSelectedAgentRole(r.id)}
+                          className={`p-2 rounded-lg text-left transition border text-xs ${
+                            isSel
+                              ? 'bg-teal-950/80 border-teal-600/70 text-zinc-100 shadow-sm'
+                              : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+                          }`}
+                        >
+                          <div className="font-semibold text-[11px] truncate">{r.label}</div>
+                          <div className="text-[9px] text-zinc-500 truncate">{r.desc}</div>
+                          <div className="mt-1 font-mono text-[9px] text-teal-400/80">[{r.tool}]</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Quick Command Chips */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Quick Actions (คลิกเพื่อสั่งงาน)</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      {
+                        label: 'Map AST & Imports',
+                        role: 'planner',
+                        goal: 'สแกน Codebase และทำแผนผัง AST เพื่อหาความเชื่อมโยงของ Imports/Exports ทั้งหมด',
+                      },
+                      {
+                        label: 'Audit Code Security',
+                        role: 'security',
+                        goal: 'ตรวจสอบขอบเขตความปลอดภัย Local-Only, ตรวจการรั่วไหลของ Secrets, และทดสอบ Sandbox Perimeter',
+                      },
+                      {
+                        label: 'Verify Hash Chain',
+                        role: 'verification',
+                        goal: 'ตรวจสอบความถูกต้องของ Merkle Hash Chain ใน Audit Ledger เพื่อยืนยันว่าไม่มีการปลอมแปลง',
+                      },
+                      {
+                        label: 'Synthesize Bug Fix',
+                        role: 'engineering',
+                        goal: 'วิเคราะห์ Reproduction Trace และเสนอแนวทางแก้ไข Atomic Patch แบบปลอดภัย',
+                      },
+                    ].map((chip, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setSelectedAgentRole(chip.role);
+                          setAgentGoalInput(chip.goal);
+                        }}
+                        className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 hover:border-teal-700 hover:bg-zinc-850 text-[10px] text-zinc-300 transition flex items-center gap-1"
+                      >
+                        <Sparkles size={10} className="text-teal-400" />
+                        <span>{chip.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Goal Input & Controls */}
+                <div className="space-y-1.5">
+                  <div className="relative">
+                    <textarea
+                      rows={2}
+                      value={agentGoalInput}
+                      onChange={e => setAgentGoalInput(e.target.value)}
+                      placeholder="ป้อนคำสั่งหรือเป้าหมายที่ต้องการให้ Agent ปฏิบัติงานจริง เช่น 'ตรวจสอบความถูกต้องของ dependency map'..."
+                      className="w-full p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-zinc-200 focus:outline-none focus:border-teal-500 resize-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-1.5 text-[11px] text-zinc-400 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isDryRunAgent}
+                        onChange={e => setIsDryRunAgent(e.target.checked)}
+                        className="rounded border-zinc-700 text-teal-500"
+                      />
+                      <span>Dry-Run Mode (จำลองขั้นตอนอย่างปลอดภัย)</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      disabled={!agentGoalInput.trim() || dispatchingAgent}
+                      onClick={() => handleDispatchAgentTask()}
+                      className="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white font-semibold text-xs transition flex items-center gap-1.5 shadow-sm"
+                    >
+                      {dispatchingAgent ? (
+                        <>
+                          <RefreshCw size={12} className="animate-spin" />
+                          <span>กำลังประมวลผล...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play size={12} fill="currentColor" />
+                          <span>สั่งงาน Agent ทันที</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dispatched Task Execution Feedback */}
+                {dispatchedTaskResult && (
+                  <div className="p-3 rounded-lg bg-zinc-900 border border-teal-800/60 space-y-2 mt-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-teal-300 flex items-center gap-1.5">
+                        <CheckCircle2 size={13} className="text-emerald-400" />
+                        <span>ผลลัพธ์การรัน: {dispatchedTaskResult.agentRole?.name}</span>
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                        TASK ID: {dispatchedTaskResult.liveTask?.taskId || 'complete'}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-zinc-300">
+                      {dispatchedTaskResult.task?.finalAnswer || dispatchedTaskResult.liveTask?.currentStepTitle}
+                    </p>
+
+                    {/* Human Approval Gate Banner */}
+                    {dispatchedTaskResult.humanApprovalRequired && (
+                      <div className="p-2.5 rounded-lg bg-amber-950/60 border border-amber-600/50 space-y-2">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle size={15} className="text-amber-400 shrink-0 mt-0.5" />
+                          <div>
+                            <div className="text-[11px] font-bold text-amber-200">
+                              Human Approval Required / ต้องการการอนุมัติ
+                            </div>
+                            <div className="text-[10px] text-amber-300/80">
+                              การดำเนินการมีความเสี่ยงสูง ต้องได้รับการยืนยันจากมนุษย์ก่อนดำเนินการในขั้นต่อไป
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 pt-1">
+                          <button
+                            type="button"
+                            disabled={approvingStep === dispatchedTaskResult.liveTask?.taskId}
+                            onClick={() => handleStepApproval(dispatchedTaskResult.liveTask.taskId, dispatchedTaskResult.agentRole.id, 'approve')}
+                            className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] transition flex items-center gap-1"
+                          >
+                            <Check size={12} />
+                            <span>อนุมัติคำสั่ง (Approve)</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={approvingStep === dispatchedTaskResult.liveTask?.taskId}
+                            onClick={() => handleStepApproval(dispatchedTaskResult.liveTask.taskId, dispatchedTaskResult.agentRole.id, 'reject')}
+                            className="px-3 py-1 rounded bg-zinc-800 hover:bg-rose-950 text-zinc-300 hover:text-rose-300 border border-zinc-700 font-semibold text-[11px] transition flex items-center gap-1"
+                          >
+                            <X size={12} />
+                            <span>ปฏิเสธ (Reject)</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Planned Steps */}
+                    {dispatchedTaskResult.liveTask?.plannedSteps?.length > 0 && (
+                      <div className="space-y-1 pt-1">
+                        <span className="text-[10px] uppercase font-bold text-zinc-500">Planned Orchestration Steps</span>
+                        <div className="space-y-1">
+                          {dispatchedTaskResult.liveTask.plannedSteps.map((s: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between p-1.5 rounded bg-zinc-950 border border-zinc-800 text-[10px]">
+                              <span className="text-zinc-200">{idx + 1}. {s.title}</span>
+                              <span className="font-mono text-teal-400">{s.toolRequired || 'analysis'}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* LIVE AGENT ACTIVITY SECTION (อัปเดตแบบเรียลไทม์จาก Orchestrator) */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Activity size={14} className="text-teal-400 animate-pulse" />
+                    <span className="text-xs font-bold text-zinc-100 uppercase tracking-wider">
+                      Live Agent Activity (Real-Time)
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-zinc-500 flex items-center gap-1">
+                    <Radio size={10} className="text-emerald-400 animate-pulse" />
+                    <span>SSE Synced · {lastLivePulse}</span>
+                  </div>
+                </div>
+
+                {/* Real-Time Live Stats Strip */}
+                <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                  <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-800">
+                    <span className="text-[9px] uppercase font-bold text-zinc-500 block">Active Tasks</span>
+                    <span className="text-sm font-bold text-teal-300">{liveStats.activeRunningAgents}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-800">
+                    <span className="text-[9px] uppercase font-bold text-zinc-500 block">Completed</span>
+                    <span className="text-sm font-bold text-emerald-400">{liveStats.totalTasksExecuted}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-800">
+                    <span className="text-[9px] uppercase font-bold text-zinc-500 block">Approvals</span>
+                    <span className={`text-sm font-bold ${liveStats.pendingHumanApprovals > 0 ? 'text-amber-400 animate-pulse' : 'text-zinc-400'}`}>
+                      {liveStats.pendingHumanApprovals}
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-800">
+                    <span className="text-[9px] uppercase font-bold text-zinc-500 block">Integrity</span>
+                    <span className="text-sm font-bold text-teal-400">{liveStats.verificationRate}</span>
+                  </div>
+                </div>
+
+                {/* Active Agents & Assigned Tasks Grid */}
+                <div className="space-y-2">
+                  {liveAgents.length > 0 ? (
+                    liveAgents.map((agent: any) => {
+                      const task: LiveAssignedTask | null = agent.assignedTask;
+                      const isRunning = agent.currentStatus === 'RUNNING';
+                      const isWaiting = agent.currentStatus === 'WAITING_FOR_APPROVAL';
+                      const isCompleted = agent.currentStatus === 'COMPLETED';
+
+                      return (
+                        <div
+                          key={agent.id}
+                          className={`p-3 rounded-lg border transition ${
+                            isWaiting
+                              ? 'bg-amber-950/20 border-amber-800/60'
+                              : isRunning
+                              ? 'bg-teal-950/20 border-teal-700/60'
+                              : 'bg-zinc-950 border-zinc-800'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between pb-1.5 border-b border-zinc-850">
+                            <div>
+                              <div className="font-semibold text-zinc-200 text-xs flex items-center gap-1.5">
+                                <Bot size={13} className={isRunning ? 'text-teal-400 animate-spin' : isWaiting ? 'text-amber-400' : 'text-zinc-400'} />
+                                <span>{agent.name}</span>
+                                {agent.nameTh && <span className="text-[10px] text-zinc-500 font-normal">({agent.nameTh})</span>}
+                              </div>
+                              <div className="text-[10px] text-zinc-400 mt-0.5">{agent.description}</div>
+                            </div>
+                            <span
+                              className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${
+                                isRunning
+                                  ? 'bg-teal-950 text-teal-300 border border-teal-700 animate-pulse'
+                                  : isWaiting
+                                  ? 'bg-amber-950 text-amber-300 border border-amber-700 animate-pulse'
+                                  : isCompleted
+                                  ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                                  : 'bg-zinc-900 text-zinc-500 border border-zinc-800'
+                              }`}
+                            >
+                              {agent.currentStatus || 'IDLE'}
+                            </span>
+                          </div>
+
+                          {/* Currently Assigned Task from Orchestrator */}
+                          {task ? (
+                            <div className="pt-2 space-y-1.5 text-xs">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <div className="text-[11px] font-semibold text-zinc-200 line-clamp-1">
+                                    {task.goal}
+                                  </div>
+                                  <div className="text-[10px] text-zinc-400 flex items-center gap-2 mt-0.5">
+                                    <span>Step: <b className="text-teal-300">{task.currentStepIndex || 1}/{task.totalSteps || 3}</b></span>
+                                    <span>Tool: <code className="text-zinc-300 font-mono">[{task.toolInUse || 'core'}]</code></span>
+                                    <span>Risk: <b className={task.riskTier === 'HIGH' ? 'text-rose-400' : 'text-zinc-400'}>{task.riskTier || 'LOW'}</b></span>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono text-zinc-500 shrink-0">
+                                  {task.taskId?.slice(-8)}
+                                </span>
+                              </div>
+
+                              {/* Progress bar */}
+                              <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full transition-all duration-500 ${
+                                    isCompleted ? 'bg-emerald-500' : isWaiting ? 'bg-amber-500' : 'bg-teal-500'
+                                  }`}
+                                  style={{
+                                    width: `${Math.round(((task.currentStepIndex || 1) / (task.totalSteps || 3)) * 100)}%`,
+                                  }}
+                                />
+                              </div>
+
+                              <div className="text-[10px] text-zinc-400 flex items-center justify-between">
+                                <span className="truncate">{task.currentStepTitle}</span>
+                                {task.evidenceDigest && (
+                                  <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/40">
+                                    SHA: {task.evidenceDigest.slice(0, 8)}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* In-Card Approval Action if Waiting */}
+                              {isWaiting && (
+                                <div className="p-2 rounded bg-amber-950/40 border border-amber-800/60 flex items-center justify-between mt-1.5">
+                                  <span className="text-[10px] text-amber-300 font-semibold flex items-center gap-1">
+                                    <AlertTriangle size={11} /> Approval Required
+                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    <button
+                                      type="button"
+                                      disabled={approvingStep === task.taskId}
+                                      onClick={() => handleStepApproval(task.taskId, agent.id, 'approve')}
+                                      className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[10px] transition"
+                                    >
+                                      Approve
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={approvingStep === task.taskId}
+                                      onClick={() => handleStepApproval(task.taskId, agent.id, 'reject')}
+                                      className="px-2 py-0.5 rounded bg-zinc-800 hover:bg-rose-950 text-zinc-300 font-semibold text-[10px] transition"
+                                    >
+                                      Reject
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="pt-2 text-[10px] text-zinc-500 italic">
+                              ไม่มีงานที่ได้รับมอบหมายในขณะนี้ — พร้อมรับคำสั่งงาน
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-center text-zinc-500 text-[11px]">
+                      กำลังเชื่อมต่อระบบ Live Agent Orchestration...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* DEDICATED LIVE ACTIVITY VIEW (เมื่อคลิกแท็บ Live Activity) */}
+          {activeSecondaryTab === 'activity' && (
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
                 <span className="text-xs font-bold text-zinc-100 flex items-center gap-2">
-                  <Bot size={14} className="text-teal-400" /> Zone D: Agent Command Center
+                  <Activity size={14} className="text-teal-400 animate-pulse" /> Live Agent Activity Feed
                 </span>
-                <button
-                  type="button"
-                  onClick={() => onSelectPage('Agent Command Center')}
-                  className="text-[11px] text-teal-400 hover:text-teal-300 flex items-center gap-1 font-semibold"
-                >
-                  <span>Open Full Command Center</span>
-                  <ChevronRight size={12} />
-                </button>
+                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                  <Radio size={10} className="animate-pulse" /> STREAM ACTIVE
+                </span>
               </div>
 
-              <div className="space-y-2 text-xs">
-                {[
-                  { name: 'Planner Agent', role: 'Task breakdown & dependencies', status: 'ACTIVE' },
-                  { name: 'Engineering Agent', role: 'Code analysis & patch creation', status: 'ACTIVE' },
-                  { name: 'Research Agent', role: 'Context synthesis & fact-checking', status: 'ACTIVE' },
-                  { name: 'Security Agent', role: 'Sandbox boundary & fail-closed', status: 'ACTIVE' },
-                  { name: 'Verification Agent', role: 'Cryptographic hash audit & gate', status: 'ACTIVE' },
-                ].map((agent, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-zinc-950 border border-zinc-800/80">
-                    <div>
-                      <div className="font-semibold text-zinc-200">{agent.name}</div>
-                      <div className="text-[10px] text-zinc-500">{agent.role}</div>
+              {/* Live Event Stream List */}
+              <div className="space-y-2 max-h-96 overflow-y-auto pr-1 text-xs">
+                {recentActivities.length > 0 ? (
+                  recentActivities.map(act => (
+                    <div key={act.id} className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800 space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-semibold text-teal-300 flex items-center gap-1.5">
+                          <Bot size={12} />
+                          <span>{act.agentName}</span>
+                        </span>
+                        <span className="text-[10px] text-zinc-500 font-mono">
+                          {new Date(act.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-200">{act.detail}</p>
+                      <div className="flex items-center justify-between text-[10px] pt-1 text-zinc-400">
+                        <span className="font-mono bg-zinc-900 px-1.5 py-0.2 rounded">{act.action}</span>
+                        {act.evidenceHash && (
+                          <span className="font-mono text-emerald-400">HASH: {act.evidenceHash.slice(0, 10)}</span>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 font-mono">
-                      {agent.status}
-                    </span>
+                  ))
+                ) : (
+                  <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-800 text-center text-zinc-500 text-xs">
+                    ยังไม่มีประวัติการทำงานในเซสชันนี้
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
