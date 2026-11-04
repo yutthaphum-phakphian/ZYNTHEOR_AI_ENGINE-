@@ -1,55 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 120" width="840" height="120" role="img" aria-label="ZYNTHEOR AI ENGINE · Buffalo Edition">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 130" width="840" height="130" role="img" aria-label="ZYNTHEOR AI ENGINE Buffalo Edition Sovereign Footer">
   <defs>
-    <linearGradient id="fbg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#03070E"/>
-      <stop offset="50%" stop-color="#081422"/>
-      <stop offset="100%" stop-color="#050D16"/>
+    <linearGradient id="ftr-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#08101E" />
+      <stop offset="50%" stop-color="#0B182B" />
+      <stop offset="100%" stop-color="#07101C" />
     </linearGradient>
-    <linearGradient id="fline" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#0D9488" stop-opacity="0"/>
-      <stop offset="15%" stop-color="#0D9488"/>
-      <stop offset="40%" stop-color="#14B8A6"/>
-      <stop offset="70%" stop-color="#22D3EE"/>
-      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0"/>
+
+    <linearGradient id="ftr-laser" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#2DD4BF" />
     </linearGradient>
-    <linearGradient id="ftitle" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#5EEAD4"/>
-      <stop offset="100%" stop-color="#A5F3FC"/>
+
+    <linearGradient id="ftr-title" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#60A5FA" />
     </linearGradient>
-    <filter id="fg" x="-30%" y="-40%" width="160%" height="180%">
-      <feGaussianBlur stdDeviation="3" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+
+    <filter id="ftr-glow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="b" />
+      <feMerge>
+        <feMergeNode in="b" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
   </defs>
 
-  <rect width="840" height="120" rx="18" fill="url(#fbg)"/>
+  <style>
+    @keyframes ftr-stroke {
+      0% { stroke-dashoffset: 200; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .ftr-anim {
+      stroke-dasharray: 40 160;
+      animation: ftr-stroke 6s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ftr-anim { animation: none; }
+    }
+  </style>
 
-  <!-- Premium multi-layer waves -->
-  <path d="M 30 16
-           C 140 5, 250 28, 380 12
-           S 560 2, 680 18
-           S 780 28, 810 14"
-        fill="none" stroke="url(#fline)" stroke-width="2.2" opacity="0.9" filter="url(#fg)"/>
+  <!-- Card container -->
+  <rect x="4" y="4" width="832" height="122" rx="16" fill="url(#ftr-bg)" stroke="#16324D" stroke-width="1.2" />
 
-  <path d="M 30 26
-           C 150 36, 260 14, 390 28
-           S 570 38, 690 20
-           S 790 10, 810 26"
-        fill="none" stroke="#14B8A6" stroke-width="1.1" opacity="0.35"/>
+  <!-- Center Hexagon Seal -->
+  <g transform="translate(420, 36)">
+    <polygon points="0,-14 12,-7 12,7 0,14 -12,7 -12,-7" fill="#0C2036" stroke="#14B8A6" stroke-width="1.2" />
+    <circle cx="0" cy="0" r="2.5" fill="#38BDF8" />
+  </g>
 
-  <path d="M 40 10
-           C 150 2, 260 20, 390 8
-           S 560 0, 690 14
-           S 780 22, 800 10"
-        fill="none" stroke="#A5F3FC" stroke-width="0.8" opacity="0.4"/>
+  <!-- Titles -->
+  <text x="420" y="66" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="18" font-weight="800" letter-spacing="4" fill="url(#ftr-title)">ZYNTHEOR AI ENGINE</text>
+  <text x="420" y="86" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-size="10.5" font-weight="600" letter-spacing="2" fill="#2DD4BF">BUFFALO EDITION · SOVEREIGN LOCAL-FIRST INTELLIGENCE CORE</text>
+  <text x="420" y="104" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" letter-spacing="1" fill="#64748B">AGPL-3.0 · CRYPTOGRAPHIC GOVERNANCE BASELINE · ZERO-SIMULATION ASSURANCE</text>
 
-  <!-- Title -->
-  <text x="420" y="62" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" letter-spacing="1.8" fill="url(#ftitle)">ZYNTHEOR AI ENGINE</text>
-
-  <!-- Subtitle -->
-  <text x="420" y="86" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" letter-spacing="3.2" fill="#64748B">BUFFALO EDITION  ·  SOVEREIGN WORKSPACE</text>
-
-  <!-- Tiny bottom accent wave -->
-  <path d="M 270 102 C 340 96, 400 108, 470 100 S 560 94, 580 104"
-        fill="none" stroke="#0D9488" stroke-width="1.3" opacity="0.55"/>
+  <!-- Animated Border Lasers -->
+  <rect x="4" y="4" width="832" height="122" rx="16" fill="none" stroke="url(#ftr-laser)" stroke-width="2.2" stroke-linecap="round" pathLength="200" class="ftr-anim" filter="url(#ftr-glow)" />
 </svg>

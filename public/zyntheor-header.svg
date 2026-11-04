@@ -1,181 +1,188 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 260" width="840" height="260" role="img" aria-label="ZYNTHEOR AI ENGINE — Sovereign AI Workspace">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 280" width="840" height="280" role="img" aria-label="ZYNTHEOR AI ENGINE - Sovereign Local-First Intelligence &amp; Autonomous Engineering Core">
   <defs>
-    <!-- Deep midnight background -->
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#03070E"/>
-      <stop offset="45%" stop-color="#081422"/>
-      <stop offset="100%" stop-color="#050D16"/>
+    <!-- Background Gradient -->
+    <linearGradient id="hdr-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#060C16" />
+      <stop offset="45%" stop-color="#0A1424" />
+      <stop offset="100%" stop-color="#080F1B" />
     </linearGradient>
 
-    <!-- Premium multi-stop flow -->
-    <linearGradient id="flow" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#0F766E"/>
-      <stop offset="18%" stop-color="#0D9488"/>
-      <stop offset="42%" stop-color="#14B8A6"/>
-      <stop offset="68%" stop-color="#22D3EE"/>
-      <stop offset="100%" stop-color="#38BDF8"/>
+    <!-- Glowing Accent Gradients -->
+    <linearGradient id="teal-cyan-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#14B8A6" />
+      <stop offset="100%" stop-color="#38BDF8" />
     </linearGradient>
 
-    <linearGradient id="flow-soft" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.25"/>
-      <stop offset="40%" stop-color="#14B8A6" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#67E8F9" stop-opacity="0.2"/>
+    <linearGradient id="text-title-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="40%" stop-color="#2DD4BF" />
+      <stop offset="80%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#60A5FA" />
     </linearGradient>
 
-    <linearGradient id="title" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#5EEAD4"/>
-      <stop offset="40%" stop-color="#2DD4BF"/>
-      <stop offset="100%" stop-color="#A5F3FC"/>
+    <linearGradient id="badge-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F2438" />
+      <stop offset="100%" stop-color="#0A1624" />
     </linearGradient>
 
-    <!-- Premium glow filters -->
-    <filter id="glow-strong" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="5.5" result="b"/>
-      <feMerge>
-        <feMergeNode in="b"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-
-    <filter id="glow-mid" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="3.2" result="b"/>
-      <feMerge>
-        <feMergeNode in="b"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-
-    <filter id="glow-soft" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="1.8" result="b"/>
-      <feMerge>
-        <feMergeNode in="b"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-
-    <!-- Subtle luxury grid -->
-    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#0F3D3A" stroke-width="0.5" stroke-opacity="0.22"/>
+    <!-- Cyber Matrix Grid Pattern -->
+    <pattern id="hdr-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#132338" stroke-width="0.8" stroke-opacity="0.45" />
+      <circle cx="0" cy="0" r="1" fill="#14B8A6" fill-opacity="0.3" />
     </pattern>
+
+    <!-- Laser & Glow Filters -->
+    <filter id="hdr-neon" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="hdr-subtle-glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <clipPath id="hdr-clip">
+      <rect x="4" y="4" width="832" height="272" rx="18" />
+    </clipPath>
   </defs>
 
-  <!-- Background -->
-  <rect width="840" height="260" rx="20" fill="url(#bg)"/>
-  <rect width="840" height="260" rx="20" fill="url(#grid)"/>
+  <style>
+    @keyframes scan-track {
+      0% { stroke-dashoffset: 400; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes core-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
+    @keyframes node-blink {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.95; }
+    }
+    @keyframes wave-float {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-420px); }
+    }
+    .track-anim {
+      stroke-dasharray: 60 340;
+      animation: scan-track 7s linear infinite;
+    }
+    .track-anim-rev {
+      stroke-dasharray: 40 360;
+      animation: scan-track 9s linear infinite reverse;
+    }
+    .pulse-node {
+      animation: node-blink 3s ease-in-out infinite;
+    }
+    .wave-slide {
+      animation: wave-float 14s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .track-anim, .track-anim-rev, .pulse-node, .wave-slide {
+        animation: none;
+      }
+    }
+  </style>
 
-  <!-- Ambient luxury orbs -->
-  <circle cx="90" cy="70" r="110" fill="#0D9488" fill-opacity="0.055"/>
-  <circle cx="750" cy="190" r="130" fill="#0891B2" fill-opacity="0.045"/>
-  <circle cx="420" cy="130" r="80" fill="#14B8A6" fill-opacity="0.03"/>
+  <!-- Card Background Container -->
+  <rect x="4" y="4" width="832" height="272" rx="18" fill="url(#hdr-bg)" stroke="#162E48" stroke-width="1.5" />
 
-  <!-- ========== PREMIUM WAVY SYSTEM ========== -->
+  <!-- Clipped Interior with Grid and Geometric Waves -->
+  <g clip-path="url(#hdr-clip)">
+    <!-- Circuit Grid -->
+    <rect x="4" y="4" width="832" height="272" fill="url(#hdr-grid)" />
 
-  <!-- Layer 1: Deep background wave (very soft, thick) -->
-  <path d="M -30 68
-           C 70 42, 150 88, 270 58
-           C 380 32, 470 82, 580 52
-           C 680 28, 760 78, 870 48"
-        fill="none" stroke="#0D9488" stroke-width="6" opacity="0.08" filter="url(#glow-strong)"/>
+    <!-- Ambient Glow Orbs -->
+    <circle cx="210" cy="50" r="140" fill="#14B8A6" fill-opacity="0.06" filter="url(#hdr-neon)" />
+    <circle cx="630" cy="70" r="160" fill="#38BDF8" fill-opacity="0.05" filter="url(#hdr-neon)" />
+    <circle cx="420" cy="140" r="180" fill="#10B981" fill-opacity="0.04" filter="url(#hdr-neon)" />
 
-  <!-- Layer 2: Main hero wave -->
-  <path d="M -25 58
-           C 85 28, 165 82, 275 52
-           C 385 26, 475 78, 585 48
-           C 685 24, 765 72, 865 42"
-        fill="none" stroke="url(#flow)" stroke-width="2.4" opacity="0.95" filter="url(#glow-mid)"/>
+    <!-- Isometric Circuit Traces Left -->
+    <path d="M 30 50 L 120 50 L 160 90 L 220 90" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
+    <circle cx="30" cy="50" r="2.5" fill="#38BDF8" />
+    <circle cx="220" cy="90" r="3" fill="#10B981" class="pulse-node" />
 
-  <!-- Layer 3: Parallel elegant twin (slightly offset) -->
-  <path d="M -25 74
-           C 95 48, 175 98, 285 68
-           C 395 42, 485 94, 595 64
-           C 695 40, 775 88, 865 58"
-        fill="none" stroke="url(#flow-soft)" stroke-width="1.7" opacity="0.7"/>
+    <path d="M 60 190 L 140 190 L 170 160 L 210 160" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
+    <circle cx="60" cy="190" r="2.5" fill="#14B8A6" />
+    <circle cx="210" cy="160" r="3" fill="#38BDF8" class="pulse-node" />
 
-  <!-- Layer 4: Thin high-light accent -->
-  <path d="M -15 52
-           C 90 24, 170 70, 280 44
-           C 390 20, 480 68, 590 40
-           C 690 18, 770 62, 855 36"
-        fill="none" stroke="#A5F3FC" stroke-width="0.9" opacity="0.55" filter="url(#glow-soft)"/>
+    <!-- Isometric Circuit Traces Right -->
+    <path d="M 810 50 L 720 50 L 680 90 L 620 90" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
+    <circle cx="810" cy="50" r="2.5" fill="#10B981" />
+    <circle cx="620" cy="90" r="3" fill="#38BDF8" class="pulse-node" />
 
-  <!-- Layer 5: Ultra-thin secondary highlight -->
-  <path d="M -10 80
-           C 110 55, 190 105, 300 75
-           C 410 50, 500 100, 610 70
-           C 710 48, 790 95, 860 65"
-        fill="none" stroke="#5EEAD4" stroke-width="0.7" opacity="0.35"/>
+    <path d="M 780 190 L 700 190 L 670 160 L 630 160" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
+    <circle cx="780" cy="190" r="2.5" fill="#38BDF8" />
+    <circle cx="630" cy="160" r="3" fill="#14B8A6" class="pulse-node" />
 
-  <!-- Bottom system -->
-  <path d="M -30 208
-           C 80 238, 170 188, 290 222
-           C 400 250, 500 195, 610 228
-           C 710 255, 780 205, 870 235"
-        fill="none" stroke="url(#flow)" stroke-width="2.1" opacity="0.7" filter="url(#glow-mid)"/>
-
-  <path d="M -20 220
-           C 100 248, 190 198, 310 232
-           C 420 258, 520 205, 630 238
-           C 730 262, 800 215, 860 242"
-        fill="none" stroke="url(#flow-soft)" stroke-width="1.4" opacity="0.5"/>
-
-  <path d="M -10 200
-           C 90 228, 180 178, 300 212
-           C 410 240, 510 185, 620 218
-           C 720 245, 790 195, 860 225"
-        fill="none" stroke="#67E8F9" stroke-width="0.8" opacity="0.4" filter="url(#glow-soft)"/>
-
-  <!-- Luxury particle accents along the main wave -->
-  <circle cx="140" cy="48" r="1.6" fill="#5EEAD4" opacity="0.8"/>
-  <circle cx="280" cy="52" r="1.3" fill="#2DD4BF" opacity="0.7"/>
-  <circle cx="420" cy="45" r="1.8" fill="#A5F3FC" opacity="0.75"/>
-  <circle cx="560" cy="50" r="1.4" fill="#22D3EE" opacity="0.7"/>
-  <circle cx="700" cy="42" r="1.5" fill="#67E8F9" opacity="0.65"/>
-  <circle cx="180" cy="72" r="1.1" fill="#14B8A6" opacity="0.5"/>
-  <circle cx="480" cy="68" r="1.2" fill="#0D9488" opacity="0.45"/>
-  <circle cx="640" cy="60" r="1.0" fill="#38BDF8" opacity="0.5"/>
-
-  <!-- ========== CONTENT ========== -->
-  <!-- Top badge -->
-  <rect x="265" y="26" width="310" height="28" rx="14" fill="#0A1624" stroke="#134E4A" stroke-width="1.1"/>
-  <text x="420" y="44" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" letter-spacing="2.8" fill="#5EEAD4">SOVEREIGN AI WORKSPACE</text>
-
-  <!-- Main Title -->
-  <text x="420" y="112" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="44" font-weight="800" letter-spacing="1.5" fill="url(#title)" filter="url(#glow-soft)">ZYNTHEOR</text>
-  
-  <!-- Subtitle -->
-  <text x="420" y="145" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="17" font-weight="500" letter-spacing="5" fill="#94A3B8">AI ENGINE</text>
-
-  <!-- Tagline -->
-  <text x="420" y="175" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" fill="#64748B">Buffalo Edition  ·  Local-First  ·  Evidence-Based</text>
-
-  <!-- Status pills -->
-  <g transform="translate(155, 202)">
-    <rect x="0" y="0" width="115" height="30" rx="15" fill="#0A1624" stroke="#0D9488" stroke-width="1.3"/>
-    <circle cx="20" cy="15" r="4.2" fill="#14B8A6"/>
-    <text x="34" y="19.5" font-family="system-ui,sans-serif" font-size="11.5" font-weight="600" fill="#5EEAD4">ACTIVE DEV</text>
-  </g>
-  <g transform="translate(290, 202)">
-    <rect x="0" y="0" width="140" height="30" rx="15" fill="#0A1624" stroke="#0891B2" stroke-width="1.3"/>
-    <circle cx="20" cy="15" r="4.2" fill="#22D3EE"/>
-    <text x="34" y="19.5" font-family="system-ui,sans-serif" font-size="11.5" font-weight="600" fill="#67E8F9">SECURITY-FIRST</text>
-  </g>
-  <g transform="translate(450, 202)">
-    <rect x="0" y="0" width="155" height="30" rx="15" fill="#0A1624" stroke="#0D9488" stroke-width="1.3"/>
-    <circle cx="20" cy="15" r="4.2" fill="#2DD4BF"/>
-    <text x="34" y="19.5" font-family="system-ui,sans-serif" font-size="11.5" font-weight="600" fill="#5EEAD4">EVIDENCE-BASED</text>
-  </g>
-  <g transform="translate(625, 202)">
-    <rect x="0" y="0" width="70" height="30" rx="15" fill="#0A1624" stroke="#134E4A" stroke-width="1.1"/>
-    <text x="35" y="19.5" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#64748B">v1.1</text>
+    <!-- Wave Horizon Bottom -->
+    <g class="wave-slide" fill="none" stroke="#14B8A6" stroke-opacity="0.18" stroke-width="1.5">
+      <path d="M 0 255 Q 105 235 210 255 T 420 255 T 630 255 T 840 255 T 1050 255 T 1260 255 V 280 H 0 Z" fill="#10B981" fill-opacity="0.04" />
+    </g>
   </g>
 
-  <!-- Tiny Geometric Buffalo Mark (Buffalo Edition identity) -->
-  <g transform="translate(780, 18) scale(0.42)" opacity="0.85">
-    <path d="M18 22 L8 8 L14 10 L22 20 Z" fill="#14B8A6"/>
-    <path d="M46 22 L56 8 L50 10 L42 20 Z" fill="#14B8A6"/>
-    <path d="M20 24 L32 18 L44 24 L46 38 L32 48 L18 38 Z" fill="#0D9488" stroke="#134E4A" stroke-width="1.2"/>
-    <circle cx="27" cy="32" r="1.6" fill="#5EEAD4"/>
-    <circle cx="37" cy="32" r="1.6" fill="#5EEAD4"/>
+  <!-- Central Hexagonal Neural Shield Icon -->
+  <g transform="translate(420, 52)">
+    <!-- Hexagon Outer Ring -->
+    <polygon points="0,-26 22.5,-13 22.5,13 0,26 -22.5,13 -22.5,-13" fill="#0C1B2E" stroke="#14B8A6" stroke-width="1.8" filter="url(#hdr-subtle-glow)" />
+    <!-- Hexagon Inner Lattice -->
+    <polygon points="0,-17 14.7,-8.5 14.7,8.5 0,17 -14.7,8.5 -14.7,-8.5" fill="#081422" stroke="#38BDF8" stroke-width="1.2" />
+    <!-- Center Core Dot & Sparks -->
+    <circle cx="0" cy="0" r="4.5" fill="#10B981" filter="url(#hdr-neon)" />
+    <line x1="0" y1="-17" x2="0" y2="17" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
+    <line x1="-14.7" y1="-8.5" x2="14.7" y2="8.5" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
+    <line x1="-14.7" y1="8.5" x2="14.7" y2="-8.5" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
   </g>
 
+  <!-- Main Title: ZYNTHEOR -->
+  <text x="420" y="128" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="52" font-weight="900" letter-spacing="8" fill="url(#text-title-grad)" filter="url(#hdr-subtle-glow)">ZYNTHEOR</text>
+
+  <!-- Subtitle: AI ENGINE -->
+  <text x="420" y="160" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="16" font-weight="700" letter-spacing="14" fill="#E2E8F0">AI ENGINE</text>
+
+  <!-- Tagline: Sovereign Intelligence -->
+  <text x="420" y="186" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="12" font-weight="500" letter-spacing="2.5" fill="#2DD4BF">SOVEREIGN LOCAL-FIRST INTELLIGENCE &amp; AUTONOMOUS ENGINEERING CORE</text>
+
+  <!-- Bottom Cyber Badges Row -->
+  <g transform="translate(68, 212)">
+    <!-- Badge 1: Local Loopback -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="162" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
+      <circle cx="16" cy="15" r="4" fill="#10B981" />
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">LOCAL-ONLY (127.0.0.1)</text>
+    </g>
+
+    <!-- Badge 2: Cryptographic Ledger -->
+    <g transform="translate(180, 0)">
+      <rect x="0" y="0" width="168" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
+      <circle cx="16" cy="15" r="4" fill="#38BDF8" />
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">SHA-256 HASH CHAIN</text>
+    </g>
+
+    <!-- Badge 3: Visual Analytics -->
+    <g transform="translate(366, 0)">
+      <rect x="0" y="0" width="162" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
+      <circle cx="16" cy="15" r="4" fill="#14B8A6" />
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">RECHARTS &amp; D3 AST MAP</text>
+    </g>
+
+    <!-- Badge 4: Dual AI Gateway -->
+    <g transform="translate(546, 0)">
+      <rect x="0" y="0" width="158" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
+      <circle cx="16" cy="15" r="4" fill="#34D399" />
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">OLLAMA ⇄ GEMINI CORE</text>
+    </g>
+  </g>
+
+  <!-- Outer Animated Cyber Laser Borders -->
+  <rect x="4" y="4" width="832" height="272" rx="18" fill="none" stroke="url(#teal-cyan-glow)" stroke-width="2.5" stroke-linecap="round" pathLength="400" class="track-anim" filter="url(#hdr-neon)" />
+  <rect x="4" y="4" width="832" height="272" rx="18" fill="none" stroke="#38BDF8" stroke-width="1.8" stroke-linecap="round" pathLength="400" class="track-anim-rev" filter="url(#hdr-neon)" />
 </svg>
