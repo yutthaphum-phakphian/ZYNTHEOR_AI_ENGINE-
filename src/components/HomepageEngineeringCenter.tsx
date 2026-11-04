@@ -150,10 +150,10 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
   );
   const activeProject = projects.find(p => p.id === selectedProjectId) || projects[0] || {
     id: 'project-main',
-    name: 'ZYNTHEOR AI ENGINE',
-    targetPath: 'src/',
-    description: 'First-party AI engineering workspace',
-    status: 'Active workspace',
+    name: 'Current workspace',
+    targetPath: '',
+    description: 'เริ่มต้นใช้งาน ZYNTHEOR Intelligence ใน Workspace นี้',
+    status: 'NOT_VERIFIED',
   };
 
   // Repository Intelligence scan state
@@ -175,10 +175,10 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
   const [liveAgents, setLiveAgents] = useState<any[]>([]);
   const [recentActivities, setRecentActivities] = useState<LiveActivityEvent[]>([]);
   const [liveStats, setLiveStats] = useState<LiveAgentStats>({
-    totalTasksExecuted: 16,
+    totalTasksExecuted: 0,
     activeRunningAgents: 0,
     pendingHumanApprovals: 0,
-    verificationRate: '100.0%',
+    verificationRate: 'UNAVAILABLE',
   });
   const [isLiveConnected, setIsLiveConnected] = useState(false);
   const [lastLivePulse, setLastLivePulse] = useState<string>('Just now');
@@ -459,6 +459,27 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
     if (setToast) setToast(`แทรกบริบท ${sym.name} ลงในช่องข้อความแล้ว`);
   };
 
+  const workspaceStatus = chatPhase !== 'idle'
+      ? (chatPhase === 'streaming' ? 'กำลังตอบ' : 'กำลังเชื่อมต่อ')
+    : systemStatus === 'Ready'
+      ? 'พร้อมใช้งาน'
+      : systemStatus === 'Running' || systemStatus === 'Planning'
+        ? 'กำลังประมวลผล'
+      : systemStatus === 'Completed'
+        ? 'ตอบเสร็จแล้ว'
+        : systemStatus === 'Awaiting Approval'
+          ? 'รอการอนุมัติ'
+          : systemStatus === 'Model Unavailable'
+            ? 'โมเดลยังไม่พร้อม'
+            : systemStatus === 'Failed'
+              ? 'การทำงานล้มเหลว'
+              : systemStatus || 'ยังไม่ยืนยันสถานะ';
+  const workspaceStatusClass = chatPhase !== 'idle' || systemStatus === 'Ready' || systemStatus === 'Completed'
+    ? 'text-teal-300 border-teal-800/60 bg-teal-950/50'
+    : systemStatus === 'Awaiting Approval'
+      ? 'text-amber-300 border-amber-800/60 bg-amber-950/40'
+      : 'text-zinc-400 border-zinc-700 bg-zinc-950';
+
   return (
     <div className="w-full space-y-4">
       {/* Top Workspace & Project Command Bar */}
@@ -506,36 +527,10 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
 
           <span className="text-zinc-700 hidden sm:inline">|</span>
 
-          {/* Provider Transparency & Model Routing Pill */}
-          <div className="flex flex-wrap items-center gap-2 text-[11px]">
-            {/* First-Party Platform Model Identity */}
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-teal-950/60 border border-teal-800/60 text-teal-300 font-mono text-[10px]">
-              <Cpu size={11} className="text-teal-400" />
-              <span className="font-bold">FIRST-PARTY: ZYNTHEOR CORE</span>
-            </div>
-
-            {/* Active Provider & Router Status */}
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-zinc-500 font-semibold uppercase text-[10px] tracking-wider">
-                {settings?.provider && settings.provider !== 'ollama' && settings.provider !== 'local' && settings.provider !== 'zyntheor-core' ? 'Active External Provider:' : 'Active Route:'}
-              </span>
-              <span className="font-mono text-zinc-200 font-semibold">
-                {settings?.provider ? settings.provider.toUpperCase() : 'LOCAL ROUTER'}
-              </span>
-              <span className="text-zinc-500">/</span>
-              <span className="font-mono text-zinc-300 text-[11px]">
-                {settings?.model || 'Local Engine'}
-              </span>
-              {settings?.provider && settings.provider !== 'ollama' && settings.provider !== 'local' && settings.provider !== 'zyntheor-core' ? (
-                <span className="px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[9px] font-mono font-bold">
-                  EXTERNAL PROVIDER (NOT NATIVE)
-                </span>
-              ) : (
-                <span className="px-1.5 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800 text-[9px] font-mono font-bold">
-                  LOCAL / FIRST-PARTY ROUTE
-                </span>
-              )}
-            </div>
+          {/* Product identity only: provider and route details stay in Settings, Models and message metadata. */}
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-teal-950/60 border border-teal-800/60 text-teal-300 font-mono text-[10px]">
+            <Sparkles size={11} className="text-teal-400" />
+            <span className="font-bold">ZYNTHEOR INTELLIGENCE</span>
           </div>
         </div>
 
@@ -587,8 +582,11 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                       {chatMode.toUpperCase()}
                     </span>
                   </div>
-                  <div className="text-[10px] text-zinc-500">
-                    Governed reasoning with repo context &amp; human approval boundary
+                  <div className="text-[10px] text-zinc-500 flex items-center gap-2 flex-wrap">
+                    <span>สนทนา วิเคราะห์ และทำงานกับบริบท Workspace</span>
+                    <span className={`px-1.5 py-0.5 rounded border font-mono ${workspaceStatusClass}`} role="status" aria-live="polite">
+                      {workspaceStatus}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -617,14 +615,18 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
             {/* Conversation Stream */}
             <div className="flex-1 overflow-y-auto py-3 space-y-3 pr-1 max-h-[460px]">
               {messages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3 text-zinc-500">
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3 text-zinc-500">
                   <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-teal-400">
                     <WandSparkles size={28} />
                   </div>
                   <div>
-                    <b className="text-zinc-300 text-sm">พร้อมสำหรับการพัฒนาและวิเคราะห์โค้ด</b>
+                    <b className="text-zinc-300 text-sm">
+                      {systemStatus === 'Model Unavailable' ? 'พร้อมรับคำสั่ง แต่ยังไม่มีโมเดลที่ยืนยันว่าพร้อมตอบ' : 'พร้อมสำหรับการสนทนาและการทำงานกับ Workspace'}
+                    </b>
                     <p className="text-xs text-zinc-500 mt-1 max-w-sm">
-                      พิมพ์คำสั่งเพื่อวิเคราะห์โค้ดในโปรเจกต์ <b>{activeProject.name}</b>, วางแผนแก้ไขข้อผิดพลาด หรือสั่งให้ Agent ทำงาน
+                      {systemStatus === 'Model Unavailable'
+                        ? 'ตรวจสอบสถานะ Runtime ใน Diagnostics หรือ Settings ก่อนส่งคำสั่งสำคัญ'
+                        : <>พิมพ์คำถาม งานวิเคราะห์ งานค้นคว้า หรือคำสั่งเกี่ยวกับโปรเจกต์ <b>{activeProject.name}</b></>}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-1.5 justify-center max-w-md pt-2">
@@ -659,7 +661,7 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                   >
                     <div className="flex items-center justify-between text-[10px] text-zinc-500 pb-1 border-b border-zinc-800/40">
                       <span className="font-bold text-zinc-400">
-                        {msg.role === 'user' ? 'Operator (You)' : `ZYNTHEOR AI (${msg.model || 'Core Engine'})`}
+                        {msg.role === 'user' ? 'Operator (You)' : `ZYNTHEOR Intelligence (${msg.model || 'model not verified'})`}
                       </span>
                       <span>{new Date(msg.at || Date.now()).toLocaleTimeString()}</span>
                     </div>
@@ -793,13 +795,11 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
           {/* Engineering Secondary Navigation Tabs */}
           <div className="flex items-center gap-1 bg-zinc-900/80 p-1 rounded-xl border border-zinc-800 text-xs overflow-x-auto">
             {[
-              { id: 'project', label: 'Active Project', icon: Boxes },
-              { id: 'repo', label: 'Repo Intelligence', icon: Network },
-              { id: 'agents', label: 'Agent Command', icon: Bot },
-              { id: 'activity', label: 'Live Activity', icon: Activity, count: liveStats.activeRunningAgents },
-              { id: 'models', label: 'CORE Models', icon: Cpu },
-              { id: 'security', label: 'Verification & Safety', icon: ShieldCheck },
-            ].map(tab => {
+                    { id: 'project', label: 'Workspace', icon: Boxes },
+                    { id: 'repo', label: 'Repo Intelligence', icon: Network },
+                    { id: 'agents', label: 'Agent Command', icon: Bot },
+                    { id: 'activity', label: 'Live Activity', icon: Activity, count: liveStats.activeRunningAgents },
+                  ].map(tab => {
               const Icon = tab.icon;
               const isActive = activeSecondaryTab === tab.id;
               return (
@@ -849,22 +849,22 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                   <p className="text-[11px] text-zinc-400 mt-0.5">{activeProject.description}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                  <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
                   <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800">
                     <span className="text-[10px] uppercase font-bold text-zinc-500">Target Path</span>
-                    <div className="font-mono text-zinc-200 mt-0.5">{activeProject.targetPath || 'src/'}</div>
+                    <div className="font-mono text-zinc-200 mt-0.5">{activeProject.targetPath || 'Not recorded'}</div>
                   </div>
                   <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800">
-                    <span className="text-[10px] uppercase font-bold text-zinc-500">Tracked Files</span>
-                    <div className="text-zinc-200 mt-0.5">{files?.length || 335} source files</div>
+                    <span className="text-[10px] uppercase font-bold text-zinc-500">Workspace Files</span>
+                    <div className="text-zinc-200 mt-0.5">{files?.length ?? 0} loaded</div>
                   </div>
                   <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800">
-                    <span className="text-[10px] uppercase font-bold text-zinc-500">Languages</span>
-                    <div className="text-teal-300 mt-0.5">TypeScript · React · SQL · Python</div>
+                    <span className="text-[10px] uppercase font-bold text-zinc-500">Workspace State</span>
+                    <div className="text-teal-300 mt-0.5">{activeWorkspace ? 'Available' : 'Not verified'}</div>
                   </div>
                   <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800">
                     <span className="text-[10px] uppercase font-bold text-zinc-500">Repository Status</span>
-                    <div className="text-emerald-400 mt-0.5 font-semibold">Clean &amp; Verified</div>
+                    <div className="text-amber-400 mt-0.5 font-semibold">Not verified</div>
                   </div>
                 </div>
 
@@ -944,11 +944,11 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                   <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 space-y-1.5">
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-zinc-400">Total Files Scanned:</span>
-                      <b className="text-zinc-100">{repoScan.totalFilesScanned || 335}</b>
+                      <b className="text-zinc-100">{repoScan.totalFilesScanned ?? 0}</b>
                     </div>
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-zinc-400">Indexed Symbols:</span>
-                      <b className="text-teal-300">{repoScan.totalSymbolsIndexed || 215}</b>
+                      <b className="text-teal-300">{repoScan.totalSymbolsIndexed ?? 0}</b>
                     </div>
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-zinc-400">AST Analysis Status:</span>
@@ -1523,33 +1523,8 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                   </div>
                 </div>
 
-                {/* Distinct External Model Providers Section */}
-                <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] uppercase font-bold text-zinc-400 tracking-wider">
-                      External Model Providers (Not Native)
-                    </span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-400 font-mono">
-                      Consent-Gated Remote Calls
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-1.5 text-[10px]">
-                    <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-850">
-                      <div className="font-semibold text-zinc-200">Gemini</div>
-                      <div className="text-zinc-500 text-[9px]">Google Cloud Proxy</div>
-                    </div>
-                    <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-850">
-                      <div className="font-semibold text-zinc-200">OpenAI</div>
-                      <div className="text-zinc-500 text-[9px]">API Gateway</div>
-                    </div>
-                    <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-850">
-                      <div className="font-semibold text-zinc-200">Claude</div>
-                      <div className="text-zinc-500 text-[9px]">Anthropic Proxy</div>
-                    </div>
-                  </div>
-                  <div className="text-[10px] text-zinc-500 italic">
-                    External providers are clearly attributed. ZYNTHEOR never claims external inferences are First-Party Native.
-                  </div>
+                <div className="mt-3 pt-3 border-t border-zinc-800 text-[10px] text-zinc-500 italic">
+                  Technical model records are available in Model Studio; the Home experience stays focused on ZYNTHEOR Intelligence.
                 </div>
               </div>
             </div>

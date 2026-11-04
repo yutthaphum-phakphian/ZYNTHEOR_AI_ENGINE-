@@ -639,8 +639,8 @@ function WorkspaceApp() {
       id: assistantId,
       role: 'assistant',
       content: lang === 'th'
-        ? '🧠 กำลังเริ่มต้น ZYNTHEOR Intelligence Core: วิเคราะห์เป้าหมาย ตรวจสอบ Workspace และวางแผนการทำงาน...'
-        : '🧠 Initializing ZYNTHEOR Intelligence Core: Understanding intent, inspecting workspace, and generating plan...',
+        ? '🧠 กำลังเริ่มต้น ZYNTHEOR Intelligence: วิเคราะห์เป้าหมาย ตรวจสอบ Workspace และวางแผนการทำงาน...'
+        : '🧠 Initializing ZYNTHEOR Intelligence: Understanding intent, inspecting workspace, and generating plan...',
       at: new Date().toISOString(),
       mode: 'reasoning',
       streaming: true,
@@ -689,7 +689,7 @@ function WorkspaceApp() {
       setMessages(prev => prev.map(m => m.id === assistantId ? {
         ...m,
         content: answerWithSources,
-        model: data.modelUsed || 'Intelligence Core',
+        model: data.modelUsed || 'model not verified',
         streaming: false,
         requiresApproval: needsApproval,
         approved: !needsApproval,
@@ -1334,7 +1334,7 @@ function WorkspaceApp() {
           />
         )}
       </div></div>
-      <footer className="bottom-bar"><div><span className={`status-led ${health?.ok ? 'green' : 'amber'}`}/>{health?.ok ? 'API server reachable' : 'API status not verified'}</div><span>Buffalo Edition 0.10.0 · Gemini & provider gateway · Native Model Training Spec</span><span className="footer-safe"><Shield size={13}/> Human approval for consequential actions</span></footer>
+      <footer className="bottom-bar"><div><span className={`status-led ${health?.ok ? 'green' : 'amber'}`}/>{health?.ok ? 'API server reachable' : 'API status not verified'}</div><span>ZYNTHEOR Intelligence Platform · CORE development status is evidence-based</span><span className="footer-safe"><Shield size={13}/> Human approval for consequential actions</span></footer>
     </main>
     <input ref={fileInputRef} type="file" multiple hidden onChange={onFilesPicked}/>
     <input ref={attachmentInputRef} type="file" multiple hidden onChange={handleAttachFiles}/>
@@ -1840,19 +1840,19 @@ function ChatPage({
         <div className="chat-status-item">
           <Cpu size={12} style={{ color: '#2dd4bf' }} />
           <span>Active Model:</span>
-          <b style={{ color: '#e2e8f0' }}>{settings?.model || 'buffalo-1.1-native'}</b>
+              <b style={{ color: '#e2e8f0' }}>{settings?.model || 'Model not verified'}</b>
         </div>
         <div className="chat-status-divider" />
         <div className="chat-status-item">
           <Globe size={12} style={{ color: '#38bdf8' }} />
           <span>Runtime:</span>
-          <b style={{ color: '#e2e8f0' }}>{settings?.localEndpoint ? 'Local (Loopback)' : 'Remote / Online'}</b>
+              <b style={{ color: '#e2e8f0' }}>{settings?.localEndpoint === true ? 'Local runtime configured' : settings?.localEndpoint === false ? 'Online runtime configured' : 'Runtime not verified'}</b>
         </div>
         <div className="chat-status-divider" />
         <div className="chat-status-item">
           <LockKeyhole size={12} style={{ color: '#4ade80' }} />
           <span>Privacy:</span>
-          <b style={{ color: '#e2e8f0' }}>{settings?.localOnly ?? true ? 'Local-Only 🔒' : 'Online Allowed 🌐'}</b>
+              <b style={{ color: '#e2e8f0' }}>{settings?.localOnly === true ? 'Local-only policy' : settings?.localOnly === false ? 'Online allowed by policy' : 'Policy not verified'}</b>
         </div>
         <div className="chat-status-divider" />
         <div className="chat-status-item">
@@ -1896,7 +1896,7 @@ function ChatPage({
             <div className="core-identity-note">
               <Cpu size={15}/>
               <span>
-                <b>First-Party Intelligence Contract:</b> CORE_NATIVE · CORE_ADAPTED · CORE_DISTILLED — แยกตัวตนชัดเจน ไม่แอบอ้าง External Provider เป็น CORE
+                <b>ZYNTHEOR Intelligence:</b> แพลตฟอร์ม AI อเนกประสงค์ที่แยกสถานะของโมเดลและแหล่งคำตอบตามหลักฐานจริง
               </span>
               <button type="button" onClick={() => onSelectPage('Models')}>
                 จัดการโมเดล <ArrowRight size={13}/>
@@ -1904,10 +1904,10 @@ function ChatPage({
             </div>
             <div className="quick-status-row">
               <span className={`status-led ${health?.ok ? 'green' : 'amber'}`}/>
-              {health?.ok ? 'API is reachable (One Shared Intelligence Core)' : 'Waiting for API health check'}
+              {health?.ok ? 'ZYNTHEOR Intelligence API is reachable' : 'Waiting for API health check'}
               <span className="status-separator">·</span>
               <LockKeyhole size={13}/>
-              {settings?.localOnly ?? true ? 'Local-only default' : 'Online endpoint allowed'}
+              {settings?.localOnly === true ? 'Local-only policy' : settings?.localOnly === false ? 'Online endpoint allowed by policy' : 'Policy not verified'}
             </div>
           </div>
         ) : (
