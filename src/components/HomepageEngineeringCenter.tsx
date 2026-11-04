@@ -506,23 +506,36 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
 
           <span className="text-zinc-700 hidden sm:inline">|</span>
 
-          {/* Model Status Pill */}
-          <div className="flex items-center gap-2 text-[11px]">
-            <span className="text-zinc-500 font-semibold uppercase text-[10px] tracking-wider">Model:</span>
-            <span className="font-mono text-zinc-300">
-              {settings?.model || 'Local Model'}
-            </span>
-            <span
-              className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                settings?.modelStatus === 'INFERENCE_READY'
-                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                  : settings?.modelStatus === 'BLOCKED_BY_LOCAL_ONLY'
-                  ? 'bg-amber-950 text-amber-300 border border-amber-800'
-                  : 'bg-zinc-800 text-zinc-400'
-              }`}
-            >
-              {settings?.modelStatus || 'READY'}
-            </span>
+          {/* Provider Transparency & Model Routing Pill */}
+          <div className="flex flex-wrap items-center gap-2 text-[11px]">
+            {/* First-Party Platform Model Identity */}
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-teal-950/60 border border-teal-800/60 text-teal-300 font-mono text-[10px]">
+              <Cpu size={11} className="text-teal-400" />
+              <span className="font-bold">FIRST-PARTY: ZYNTHEOR CORE</span>
+            </div>
+
+            {/* Active Provider & Router Status */}
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-zinc-500 font-semibold uppercase text-[10px] tracking-wider">
+                {settings?.provider && settings.provider !== 'ollama' && settings.provider !== 'local' && settings.provider !== 'zyntheor-core' ? 'Active External Provider:' : 'Active Route:'}
+              </span>
+              <span className="font-mono text-zinc-200 font-semibold">
+                {settings?.provider ? settings.provider.toUpperCase() : 'LOCAL ROUTER'}
+              </span>
+              <span className="text-zinc-500">/</span>
+              <span className="font-mono text-zinc-300 text-[11px]">
+                {settings?.model || 'Local Engine'}
+              </span>
+              {settings?.provider && settings.provider !== 'ollama' && settings.provider !== 'local' && settings.provider !== 'zyntheor-core' ? (
+                <span className="px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[9px] font-mono font-bold">
+                  EXTERNAL PROVIDER (NOT NATIVE)
+                </span>
+              ) : (
+                <span className="px-1.5 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800 text-[9px] font-mono font-bold">
+                  LOCAL / FIRST-PARTY ROUTE
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1507,6 +1520,35 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                   </div>
                   <div className="text-[10px] text-zinc-400">
                     Teacher model attribution and licensing recorded in registry.
+                  </div>
+                </div>
+
+                {/* Distinct External Model Providers Section */}
+                <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase font-bold text-zinc-400 tracking-wider">
+                      External Model Providers (Not Native)
+                    </span>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-400 font-mono">
+                      Consent-Gated Remote Calls
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5 text-[10px]">
+                    <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-850">
+                      <div className="font-semibold text-zinc-200">Gemini</div>
+                      <div className="text-zinc-500 text-[9px]">Google Cloud Proxy</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-850">
+                      <div className="font-semibold text-zinc-200">OpenAI</div>
+                      <div className="text-zinc-500 text-[9px]">API Gateway</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-850">
+                      <div className="font-semibold text-zinc-200">Claude</div>
+                      <div className="text-zinc-500 text-[9px]">Anthropic Proxy</div>
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-zinc-500 italic">
+                    External providers are clearly attributed. ZYNTHEOR never claims external inferences are First-Party Native.
                   </div>
                 </div>
               </div>

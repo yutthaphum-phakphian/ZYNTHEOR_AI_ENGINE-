@@ -69,6 +69,7 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Quick Action & Logs Modal State
+  const [statusFilter, setStatusFilter] = useState<'all' | 'Working' | 'Blocked' | 'Idle' | 'Error'>('all');
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const [logsModalAgent, setLogsModalAgent] = useState<AgentRole | null>(null);
   const [agentLogs, setAgentLogs] = useState<any[]>([]);
@@ -299,31 +300,83 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
         </div>
       )}
 
-      {/* Quick Monitoring Bar (Fleet Status Overview) */}
+      {/* Quick Monitoring Bar (Fleet Status Overview & Quick Filters) */}
       <div className="p-3.5 rounded-xl bg-zinc-900/70 border border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="text-xs font-bold text-zinc-200 flex items-center gap-1.5">
             <Activity size={14} className="text-teal-400 animate-pulse" />
             <span>Fleet Health Monitor:</span>
           </span>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-950/70 border border-sky-800/60 text-sky-300 font-mono text-[11px]">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            {/* All Filter */}
+            <button
+              type="button"
+              onClick={() => setStatusFilter('all')}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[11px] transition border ${
+                statusFilter === 'all'
+                  ? 'bg-teal-950/90 border-teal-500 text-teal-200 ring-1 ring-teal-400/50'
+                  : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              All: <b>{roles.length}</b>
+            </button>
+
+            {/* Running / Working Filter */}
+            <button
+              type="button"
+              onClick={() => setStatusFilter('Working')}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[11px] transition border ${
+                statusFilter === 'Working'
+                  ? 'bg-sky-950 border-sky-400 text-sky-200 ring-1 ring-sky-400/50'
+                  : 'bg-sky-950/40 border-sky-850/60 text-sky-300 hover:border-sky-700'
+              }`}
+            >
               <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-              Working: <b>{workingCount}</b>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-950/70 border border-amber-800/60 text-amber-300 font-mono text-[11px]">
+              Running: <b>{workingCount}</b>
+            </button>
+
+            {/* Blocked Filter */}
+            <button
+              type="button"
+              onClick={() => setStatusFilter('Blocked')}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[11px] transition border ${
+                statusFilter === 'Blocked'
+                  ? 'bg-amber-950 border-amber-400 text-amber-200 ring-1 ring-amber-400/50'
+                  : 'bg-amber-950/40 border-amber-850/60 text-amber-300 hover:border-amber-700'
+              }`}
+            >
               <span className="w-2 h-2 rounded-full bg-amber-400" />
               Blocked: <b>{blockedCount}</b>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-[11px]">
+            </button>
+
+            {/* Idle Filter */}
+            <button
+              type="button"
+              onClick={() => setStatusFilter('Idle')}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[11px] transition border ${
+                statusFilter === 'Idle'
+                  ? 'bg-zinc-800 border-zinc-400 text-zinc-200 ring-1 ring-zinc-400/50'
+                  : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
               <span className="w-2 h-2 rounded-full bg-zinc-400" />
               Idle: <b>{idleCount}</b>
-            </span>
+            </button>
+
+            {/* Error Filter */}
             {errorCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-950/70 border border-rose-800/60 text-rose-300 font-mono text-[11px]">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('Error')}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[11px] transition border ${
+                  statusFilter === 'Error'
+                    ? 'bg-rose-950 border-rose-400 text-rose-200 ring-1 ring-rose-400/50'
+                    : 'bg-rose-950/40 border-rose-850/60 text-rose-300 hover:border-rose-700'
+                }`}
+              >
                 <span className="w-2 h-2 rounded-full bg-rose-500" />
                 Error: <b>{errorCount}</b>
-              </span>
+              </button>
             )}
           </div>
         </div>
@@ -353,10 +406,14 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
       <div>
         <div className="text-xs font-semibold text-zinc-300 mb-2.5 flex items-center justify-between">
           <span>Active Agent Roles (Strict Least-Privilege Separation)</span>
-          <span className="text-[11px] text-zinc-500">{roles.length} Governed Roles</span>
+          <span className="text-[11px] text-zinc-500">
+            {roles.filter(r => statusFilter === 'all' || getAgentVisualStatus(r.currentStatus).status === statusFilter).length} of {roles.length} Roles Shown
+          </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {roles.map(r => {
+          {roles
+            .filter(r => statusFilter === 'all' || getAgentVisualStatus(r.currentStatus).status === statusFilter)
+            .map(r => {
             const isSelected = r.id === selectedRole;
             const task = r.assignedTask;
             const statusCfg = getAgentVisualStatus(r.currentStatus);

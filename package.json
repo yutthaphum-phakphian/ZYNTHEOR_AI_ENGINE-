@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@google/genai": "^2.31.0",
+    "@tailwindcss/vite": "^4.3.4",
     "d3": "^7.9.0",
     "drizzle-orm": "^0.45.4",
     "express": "^5.1.0",
@@ -53,6 +54,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "recharts": "^3.10.1",
+    "tailwindcss": "^4.3.4",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   },

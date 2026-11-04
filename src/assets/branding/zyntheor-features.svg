@@ -104,7 +104,7 @@
     <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ประมวลผลสองระดับ</text>
     <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B">
       <tspan x="14" dy="0">• Ollama Local Engine อิสระ</tspan>
-      <tspan x="14" dy="14">• Google Gemini Cloud Gateway</tspan>
+      <tspan x="14" dy="14">• External Provider Cloud Gateway</tspan>
       <tspan x="14" dy="14">• Consent Gate อนุมัติล่วงหน้า</tspan>
     </text>
   </g>

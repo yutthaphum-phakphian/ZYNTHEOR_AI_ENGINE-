@@ -178,7 +178,7 @@
     <g transform="translate(546, 0)">
       <rect x="0" y="0" width="158" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
       <circle cx="16" cy="15" r="4" fill="#34D399" />
-      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">OLLAMA ⇄ GEMINI CORE</text>
+      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">ZYNTHEOR CORE ⇄ ROUTER</text>
     </g>
   </g>
 

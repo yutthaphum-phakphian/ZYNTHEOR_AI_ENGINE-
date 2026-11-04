@@ -104,10 +104,10 @@
     </g>
     <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#60A5FA">PILLAR 03</text>
     <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13.5" font-weight="700" fill="#F1F5F9">Dual Routing</text>
-    <text x="14" y="76" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">Ollama &amp; Gemini</text>
+    <text x="14" y="76" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ZYNTHEOR CORE &amp; Providers</text>
     <text x="14" y="96" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" fill="#64748B">
-      <tspan x="14" dy="0">• Local Ollama Inference</tspan>
-      <tspan x="14" dy="14">• Authorized Gemini Proxy</tspan>
+      <tspan x="14" dy="0">• First-Party ZYNTHEOR CORE</tspan>
+      <tspan x="14" dy="14">• External Provider Gateway</tspan>
       <tspan x="14" dy="14">• Real Response Verification</tspan>
     </text>
   </g>

@@ -246,6 +246,57 @@ export function MemoryCenter({ workspaceId = 'default' }: { workspaceId: string 
         </div>
       </div>
 
+      {/* 5-System ZYNTHEOR Architecture Map & Zero-Assumption Policy */}
+      <div className="p-4 rounded-xl border border-teal-900/50 bg-teal-950/20 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-teal-800/40 pb-2.5">
+          <div className="flex items-center gap-2">
+            <span className="p-1 rounded bg-teal-500/20 text-teal-300 font-bold text-xs font-mono">5-TIER SOVEREIGN AI ARCHITECTURE</span>
+            <span className="text-xs text-zinc-300 font-semibold">แยกสมอง ความจำ และการปฏิบัติการอย่างชัดเจน</span>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 border border-teal-800/50 text-teal-300">
+            ZERO ASSUMPTION IN KNOWLEDGE
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
+          <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800">
+            <div className="font-bold text-teal-300 flex items-center gap-1.5">
+              <span>🧠</span> 1. Intelligence Core
+            </div>
+            <div className="text-[10px] text-zinc-400 mt-1">สมองส่วนคิด: Reasoning, Semantic Analysis &amp; การตัดสินใจ</div>
+          </div>
+          <div className="p-2.5 rounded-lg bg-teal-950/40 border border-teal-700/60 ring-1 ring-teal-500/30">
+            <div className="font-bold text-emerald-300 flex items-center gap-1.5">
+              <span>💾</span> 2. Memory Center
+            </div>
+            <div className="text-[10px] text-zinc-300 mt-1 font-semibold">ห้องความจำ: จัดเก็บ &amp; เรียกคืนความรู้ที่ Verify แล้ว (ห้องนี้)</div>
+          </div>
+          <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800">
+            <div className="font-bold text-sky-300 flex items-center gap-1.5">
+              <span>📋</span> 3. Planning Engine
+            </div>
+            <div className="text-[10px] text-zinc-400 mt-1">การวางแผน: แยก Fact ออกจาก Assumption, แบ่งเป้าหมาย</div>
+          </div>
+          <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800">
+            <div className="font-bold text-amber-300 flex items-center gap-1.5">
+              <span>🤖</span> 4. Agent Orchestrator
+            </div>
+            <div className="text-[10px] text-zinc-400 mt-1">ประสานงาน: มอบหมาย 5 Governed Agents &amp; ควบคุม Tools</div>
+          </div>
+          <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800">
+            <div className="font-bold text-purple-300 flex items-center gap-1.5">
+              <span>🔒</span> 5. Verification Engine
+            </div>
+            <div className="text-[10px] text-zinc-400 mt-1">ตรวจสอบหลักฐาน: SHA-256 Digest &amp; Human Approval</div>
+          </div>
+        </div>
+
+        <div className="text-[10px] text-zinc-400 bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/80 flex items-center gap-2">
+          <ShieldCheck size={14} className="text-teal-400 shrink-0" />
+          <span><b>กฎเหล็ก:</b> ห้ามบันทึกสมมติฐานหรือผลลัพธ์ที่ยังไม่ผ่าน Verification Engine เป็น Knowledge Record จริงโดยเด็ดขาด ทุกข้อค้นพบต้องยึดโยงกับ SHA-256 Evidence</span>
+        </div>
+      </div>
+
       {error && (
         <div className="p-3 rounded-lg bg-red-950/40 border border-red-800 text-xs text-red-300 flex items-center gap-2">
           <AlertTriangle size={15} className="text-red-400 shrink-0" />

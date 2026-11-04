@@ -294,6 +294,38 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* EXTERNAL MODEL PROVIDERS (Directive 4: Distinct Separation) */}
+            <div className="mt-4 pt-3 border-t border-zinc-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                  External Model Providers (Not First-Party Native)
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono">
+                  Consent-Gated External API Calls
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-400">
+                โมเดลภายนอกเป็นเพียงผู้ให้บริการเสริมภายใต้ Human Consent Gate ห้ามแสดงเป็นโมเดลที่ ZYNTHEOR เป็นเจ้าของน้ำหนักหรือฝึกเอง
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
+                <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                  <div className="font-bold text-zinc-200">Google Gemini Cloud</div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">Provider: Google Cloud Vertex / AI Studio</div>
+                  <div className="text-[10px] text-zinc-500 mt-1 font-mono">Scope: External API Proxy</div>
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                  <div className="font-bold text-zinc-200">OpenAI API</div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">Provider: OpenAI Gateway</div>
+                  <div className="text-[10px] text-zinc-500 mt-1 font-mono">Scope: External API Proxy</div>
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                  <div className="font-bold text-zinc-200">Anthropic Claude</div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">Provider: Anthropic API</div>
+                  <div className="text-[10px] text-zinc-500 mt-1 font-mono">Scope: External API Proxy</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Model Registry List */}

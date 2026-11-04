@@ -146,7 +146,7 @@
       <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🦬 Ollama Local Inference</text>
 
       <rect x="0" y="29" width="160" height="24" rx="6" fill="#071526" stroke="#123052" stroke-width="0.8" />
-      <text x="10" y="45" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">☁️ Gemini 2.5/3.0 Proxy</text>
+      <text x="10" y="45" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">☁️ External Provider Proxy</text>
 
       <rect x="0" y="58" width="160" height="24" rx="6" fill="#071526" stroke="#123052" stroke-width="0.8" />
       <text x="10" y="74" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🧠 Cognitive Reasoning</text>

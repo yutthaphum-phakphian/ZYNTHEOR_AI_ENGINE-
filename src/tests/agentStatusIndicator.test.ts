@@ -25,16 +25,23 @@ describe('AgentStatusIndicator visual categories', () => {
     expect(paused.labelEn).toBe('Paused');
   });
 
-  it('maps FAILED and ERROR to Error status with red/rose color', () => {
+  it('maps FAILED, ERROR, REJECTED, and CANCELLED to Error status with red/rose color', () => {
     const failed = getAgentVisualStatus('FAILED');
     expect(failed.status).toBe('Error');
     expect(failed.dotClass).toContain('bg-rose-500');
 
     const error = getAgentVisualStatus('ERROR');
     expect(error.status).toBe('Error');
+
+    const cancelled = getAgentVisualStatus('CANCELLED');
+    expect(cancelled.status).toBe('Error');
+    expect(cancelled.labelEn).toBe('Cancelled');
+
+    const rejected = getAgentVisualStatus('REJECTED');
+    expect(rejected.status).toBe('Error');
   });
 
-  it('maps IDLE, COMPLETED (without active run), and unknown to Idle status with slate color', () => {
+  it('maps IDLE, READY, STANDBY, and COMPLETED to Idle status with slate color', () => {
     const idle = getAgentVisualStatus('IDLE');
     expect(idle.status).toBe('Idle');
     expect(idle.dotClass).toContain('bg-zinc-400');
@@ -44,5 +51,12 @@ describe('AgentStatusIndicator visual categories', () => {
 
     const fallback = getAgentVisualStatus(undefined);
     expect(fallback.status).toBe('Idle');
+  });
+
+  it('maps unclassified arbitrary status strings to Unknown status with slate-500', () => {
+    const unknown = getAgentVisualStatus('CORRUPTED_OR_ARBITRARY_STATE');
+    expect(unknown.status).toBe('Unknown');
+    expect(unknown.labelEn).toBe('Unknown');
+    expect(unknown.color).toBe('#64748B');
   });
 });

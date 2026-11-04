@@ -182,7 +182,7 @@
         <!-- Tag 3 -->
         <g transform="translate(316, 0)">
           <rect x="0" y="0" width="168" height="24" rx="6" fill="#0A1828" stroke="#16344F" stroke-width="1" />
-          <text x="12" y="16" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10.5" font-weight="500" fill="#94A3B8">⚡ Ollama + Gemini Gateway</text>
+          <text x="12" y="16" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10.5" font-weight="500" fill="#94A3B8">⚡ ZYNTHEOR CORE + External</text>
         </g>
       </g>
 

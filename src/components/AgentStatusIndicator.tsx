@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type AgentVisualStatus = 'Idle' | 'Working' | 'Blocked' | 'Error';
+export type AgentVisualStatus = 'Idle' | 'Working' | 'Blocked' | 'Error' | 'Unknown';
 
 export interface AgentStatusConfig {
   status: AgentVisualStatus;
@@ -13,13 +13,25 @@ export interface AgentStatusConfig {
 }
 
 /**
- * Maps raw orchestrator status (IDLE, ASSIGNED, RUNNING, WAITING_FOR_APPROVAL, BLOCKED, PAUSED, COMPLETED, FAILED)
- * to one of 4 strict visual categories: Idle, Working, Blocked, Error.
+ * Maps raw orchestrator status (IDLE, ASSIGNED, RUNNING, WAITING_FOR_APPROVAL, BLOCKED, PAUSED, COMPLETED, FAILED, CANCELLED, REJECTED)
+ * to one of 4 strict visual categories: Idle, Working, Blocked, Error (or Unknown if unclassified).
  */
 export function getAgentVisualStatus(rawStatus?: string): AgentStatusConfig {
-  const s = (rawStatus || 'IDLE').toUpperCase();
+  if (!rawStatus || rawStatus.trim() === '') {
+    return {
+      status: 'Idle',
+      color: '#94A3B8', // Slate
+      dotClass: 'bg-zinc-400/80 ring-1 ring-zinc-500/30',
+      badgeClass: 'bg-zinc-900/90 text-zinc-400 border-zinc-800',
+      labelEn: 'Idle',
+      labelTh: 'พร้อมรับงาน',
+      descriptionTh: 'ไม่มี Active Task สแตนด์บายพร้อมรับคำสั่งงานใหม่',
+    };
+  }
 
-  if (s === 'RUNNING' || s === 'ASSIGNED') {
+  const s = rawStatus.toUpperCase().trim();
+
+  if (s === 'RUNNING' || s === 'ASSIGNED' || s === 'EXECUTING') {
     return {
       status: 'Working',
       color: '#38BDF8', // Cyan / Sky
@@ -27,11 +39,11 @@ export function getAgentVisualStatus(rawStatus?: string): AgentStatusConfig {
       badgeClass: 'bg-sky-950/80 text-sky-300 border-sky-700/60 shadow-sm shadow-sky-950',
       labelEn: 'Working',
       labelTh: 'กำลังทำงาน',
-      descriptionTh: 'เอเจนต์กำลังประมวลผลงานในระบบ Sandbox',
+      descriptionTh: 'เอเจนต์กำลังประมวลผลงานในระบบ Sandbox จริง',
     };
   }
 
-  if (s === 'WAITING_FOR_APPROVAL' || s === 'BLOCKED' || s === 'PAUSED') {
+  if (s === 'WAITING_FOR_APPROVAL' || s === 'WAITING_APPROVAL' || s === 'BLOCKED' || s === 'PAUSED') {
     return {
       status: 'Blocked',
       color: '#F59E0B', // Amber
@@ -43,27 +55,39 @@ export function getAgentVisualStatus(rawStatus?: string): AgentStatusConfig {
     };
   }
 
-  if (s === 'FAILED' || s === 'ERROR') {
+  if (s === 'FAILED' || s === 'ERROR' || s === 'REJECTED' || s === 'CANCELLED') {
     return {
       status: 'Error',
       color: '#EF4444', // Red
       dotClass: 'bg-rose-500 ring-2 ring-rose-500/50 shadow-sm shadow-rose-500/50',
       badgeClass: 'bg-rose-950/80 text-rose-300 border-rose-700/60 shadow-sm shadow-rose-950',
-      labelEn: 'Error',
-      labelTh: 'ข้อผิดพลาด',
-      descriptionTh: 'การทำงานล้มเหลว หรือถูกยกเลิก',
+      labelEn: s === 'CANCELLED' ? 'Cancelled' : s === 'REJECTED' ? 'Rejected' : 'Error',
+      labelTh: s === 'CANCELLED' ? 'ยกเลิกแล้ว' : s === 'REJECTED' ? 'ปฏิเสธแล้ว' : 'ข้อผิดพลาด',
+      descriptionTh: 'การทำงานล้มเหลว หรือถูกยกเลิก/ปฏิเสธ',
     };
   }
 
-  // Default: Idle (ready for tasks, or completed task returned to idle standby)
+  if (s === 'IDLE' || s === 'STANDBY' || s === 'READY' || s === 'COMPLETED') {
+    return {
+      status: 'Idle',
+      color: '#94A3B8', // Slate
+      dotClass: 'bg-zinc-400/80 ring-1 ring-zinc-500/30',
+      badgeClass: 'bg-zinc-900/90 text-zinc-400 border-zinc-800',
+      labelEn: 'Idle',
+      labelTh: 'พร้อมรับงาน',
+      descriptionTh: 'ไม่มี Active Task สแตนด์บายพร้อมรับคำสั่งงานใหม่',
+    };
+  }
+
+  // Fail-closed fallback: do NOT assume Working or Idle if state is completely unknown
   return {
-    status: 'Idle',
-    color: '#94A3B8', // Slate
-    dotClass: 'bg-zinc-400/80 ring-1 ring-zinc-500/30',
-    badgeClass: 'bg-zinc-900/90 text-zinc-400 border-zinc-800',
-    labelEn: 'Idle',
-    labelTh: 'พร้อมทำงาน',
-    descriptionTh: 'สแตนด์บายพร้อมรับคำสั่งงานใหม่',
+    status: 'Unknown',
+    color: '#64748B', // Slate-500
+    dotClass: 'bg-zinc-500/60 ring-1 ring-zinc-600/40',
+    badgeClass: 'bg-zinc-900 text-zinc-500 border-zinc-800',
+    labelEn: 'Unknown',
+    labelTh: 'ไม่ทราบสถานะ',
+    descriptionTh: 'สถานะไม่สามารถจัดกลุ่มได้ กรุณาตรวจสอบ Orchestrator State',
   };
 }
 

@@ -1044,7 +1044,35 @@ function WorkspaceApp() {
           )}
         </div>
       )}
-      <nav className="navigation">{NAV.map(group => <div className="nav-group" key={group.title}><div className="nav-group-label">{!collapsed && (t('nav.' + group.title.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')) || group.title)}</div>{group.items.map(item => { const itemLabel = t('nav.' + item.id.toLowerCase().replace(/ /g, '_')) || item.label; return <button key={item.id} onClick={() => { choosePage(item.id); setMobileNav(false); }} className={`nav-item ${page === item.id ? 'active' : ''}`} title={collapsed ? itemLabel : undefined}><item.icon size={18}/>{!collapsed && <span>{itemLabel}</span>}{!collapsed && item.id === 'Audit Ledger' && audit.length > 0 && <small className="nav-count">{audit.length > 99 ? '99+' : audit.length}</small>}</button>; })}</div>)}</nav>
+      <nav className="navigation">{NAV.map(group => {
+        const groupKey = 'nav.' + group.title.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
+        const groupTrans = t(groupKey);
+        const groupLabel = (groupTrans && groupTrans !== groupKey) ? groupTrans : group.title;
+        return (
+          <div className="nav-group" key={group.title}>
+            <div className="nav-group-label">{!collapsed && groupLabel}</div>
+            {group.items.map(item => {
+              const navKey = 'nav.' + item.id.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
+              const itemTrans = t(navKey);
+              const itemLabel = (itemTrans && itemTrans !== navKey) ? itemTrans : item.label;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => { choosePage(item.id); setMobileNav(false); }}
+                  className={`nav-item ${page === item.id ? 'active' : ''}`}
+                  title={collapsed ? itemLabel : undefined}
+                >
+                  <item.icon size={18}/>
+                  {!collapsed && <span>{itemLabel}</span>}
+                  {!collapsed && item.id === 'Audit Ledger' && audit.length > 0 && (
+                    <small className="nav-count">{audit.length > 99 ? '99+' : audit.length}</small>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })}</nav>
       {!collapsed && <div className="sidebar-bottom"><div className="sidebar-cicd-container"><CicdStatusWidget compact={true} /></div><div className="local-mode-card"><div className="local-card-icon"><LockKeyhole size={16}/></div><div><b>{settings?.localOnly ?? true ? t('common.status_local') : t('common.status_remote')}</b><span>{settings?.localOnly ?? true ? 'External calls restricted' : settings?.onlineConsent ? 'Explicit consent recorded' : 'Consent not confirmed'}</span></div><span className={`status-led ${settings?.localOnly ?? true ? 'green' : 'amber'}`}/></div><div className="user-workspace"><div className="workspace-avatar">Z</div><div className="workspace-user"><b>Signed-in account</b><span>{serverSession?.role?.toUpperCase() || 'ROLE UNKNOWN'} · verified session</span></div><button className="icon-button" onClick={() => choosePage('Settings')} aria-label="Open settings"><MoreHorizontal size={18}/></button></div></div>}
     </aside>
     <main className="main-area">
@@ -1060,7 +1088,15 @@ function WorkspaceApp() {
             onExportBundle={exportWorkspaceBundle}
             onImportBundle={importWorkspaceBundle}
           />
-          <div className="breadcrumb"><span>{t('nav.workspace') || 'Workspace'}</span><ChevronRight size={13}/><b>{t('nav.' + page.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')) || page}</b></div>
+          <div className="breadcrumb">
+            <span>{t('nav.workspace') || 'Workspace'}</span>
+            <ChevronRight size={13}/>
+            <b>{(() => {
+              const pKey = 'nav.' + page.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
+              const pTrans = t(pKey);
+              return (pTrans && pTrans !== pKey) ? pTrans : page;
+            })()}</b>
+          </div>
         </div>
         <div className="topbar-right">
           <label className="search-box"><Search size={15}/><input ref={searchInputRef} value={query} onChange={e => setQuery(e.target.value)} placeholder={t('common.search')}/><kbd>⌘ K</kbd>{query && <button className="search-clear" onClick={() => setQuery('')} type="button"><X size={12}/></button>}</label>
@@ -2848,9 +2884,10 @@ function CodebaseDependencyMap() {
     });
 
     const simulation = d3.forceSimulation(nodes as any)
-      .force('link', d3.forceLink(links).id((d: any) => d.id).distance(80))
-      .force('charge', d3.forceManyBody().strength(-140))
-      .force('center', d3.forceCenter(width / 2, height / 2));
+      .force('link', d3.forceLink(links).id((d: any) => d.id).distance(70))
+      .force('charge', d3.forceManyBody().strength(-120))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collide', d3.forceCollide(28));
 
     const link = svg.append('g')
       .attr('stroke-opacity', 0.6)
@@ -2868,8 +2905,8 @@ function CodebaseDependencyMap() {
         event.subject.fy = event.subject.y;
       }
       function dragged(event: any) {
-        event.subject.fx = event.x;
-        event.subject.fy = event.y;
+        event.subject.fx = Math.max(30, Math.min(width - 45, event.x));
+        event.subject.fy = Math.max(25, Math.min(height - 25, event.y));
       }
       function dragended(event: any) {
         if (!event.active) sim.alphaTarget(0);
@@ -2905,6 +2942,12 @@ function CodebaseDependencyMap() {
       .attr('fill', (d: any) => d.id === selectedFile ? '#f8fafc' : '#94a3b8');
 
     simulation.on('tick', () => {
+      // Clamp node coordinates strictly within SVG view bounds
+      nodes.forEach((d: any) => {
+        if (d.x !== undefined) d.x = Math.max(30, Math.min(width - 45, d.x));
+        if (d.y !== undefined) d.y = Math.max(25, Math.min(height - 25, d.y));
+      });
+
       link
         .attr('x1', (d: any) => d.source.x)
         .attr('y1', (d: any) => d.source.y)
@@ -2919,7 +2962,7 @@ function CodebaseDependencyMap() {
 
   return (
     <div className="surface-card" style={{ border: '1px solid #0284c7', background: '#081220' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Network size={20} style={{ color: '#38bdf8' }} />
           <div>
@@ -2934,10 +2977,10 @@ function CodebaseDependencyMap() {
         </span>
       </div>
 
-      {/* Main Grid: D3 Visual Graph + Detailed Inspector Sidebar */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '16px' }}>
-        {/* Module Selector & D3 Graph Area */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* Main Grid: D3 Visual Graph + Detailed Inspector Sidebar (Responsive) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Module Selector & D3 Graph Area (cols 1-5 on desktop) */}
+        <div className="lg:col-span-5 flex flex-col gap-3">
           <div style={{ background: '#0b1626', padding: '10px', borderRadius: '8px', border: '1px solid #1e293b', maxHeight: '180px', overflowY: 'auto' }}>
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase' }}>
               Select Module
@@ -2975,12 +3018,17 @@ function CodebaseDependencyMap() {
               <span>D3 Interactive Graph (Click node to select)</span>
               <span style={{ color: '#64748b' }}>Drag or click nodes</span>
             </div>
-            <svg ref={svgRef} width={520} height={320} style={{ width: '100%', height: '320px', background: '#060d17', borderRadius: '6px' }} />
+            <svg
+              ref={svgRef}
+              viewBox="0 0 520 320"
+              preserveAspectRatio="xMidYMid meet"
+              style={{ width: '100%', height: '320px', maxWidth: '100%', background: '#060d17', borderRadius: '6px', overflow: 'hidden' }}
+            />
           </div>
         </div>
 
-        {/* Detailed Inspector Sidebar */}
-        <div className="subpage" style={{ background: '#0b1626', padding: '14px', borderRadius: '8px', border: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {/* Detailed Inspector Sidebar (cols 6-12 on desktop) */}
+        <div className="lg:col-span-7 subpage" style={{ background: '#0b1626', padding: '14px', borderRadius: '8px', border: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #1e293b', paddingBottom: '10px' }}>
             <div>
               <span style={{ fontSize: '10px', color: '#94a3b8' }}>MODULE INSPECTOR SIDEBAR</span>

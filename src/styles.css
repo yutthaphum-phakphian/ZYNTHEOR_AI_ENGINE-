@@ -1,8 +1,11 @@
+@import "tailwindcss";
+
 /* Thai-First & Modern Typography */
 :root {
   font-family: 'Noto Sans Thai', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #F1F5F9;
   background: #080F1B;
+  color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -37,10 +40,32 @@ body {
   min-height: 100vh;
   background: radial-gradient(ellipse 65% 45% at 55% -10%, rgba(20, 184, 166, 0.08), transparent 76%), var(--bg);
   color: var(--text);
+  color-scheme: dark;
 }
 
-button, input, textarea, select { font: inherit; }
-button { cursor: pointer; color: inherit; }
+button, input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+  color: inherit;
+  background-color: transparent;
+}
+input, textarea, select {
+  color-scheme: dark;
+  background-color: #0f172a;
+  color: #F1F5F9;
+  border-color: rgba(148, 163, 184, 0.22);
+}
+select {
+  background-color: #0f172a;
+  color: #F1F5F9;
+}
+select option {
+  background-color: #0f172a;
+  color: #F1F5F9;
+}
 button:disabled { opacity: .48; cursor: not-allowed; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
   outline: 2px solid var(--accent);

@@ -1,12 +1,13 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 // GitHub Pages serves the site under /zyntheor-ai/; local dev and normal builds stay at '/'.
 const base = process.env.GITHUB_PAGES === 'true' ? '/zyntheor-ai-fixed/' : '/';
 
 export default defineConfig({
   base,
-  plugins: [react()],
+  plugins: [tailwindcss(), react()],
   test: {
     include: ['lib/**/*.test.ts', 'src/**/*.test.ts', 'tests/**/*.test.mts'],
   },
