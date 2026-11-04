@@ -83,6 +83,8 @@ r.post('/api/editing/propose', (req, res) => {
 
     return res.json({
       ok: true,
+      previewOnly: true,
+      file,
       proposalId: proposal.patchId,
       patchId: proposal.patchId,
       status: 'AWAITING_HUMAN_APPROVAL',
@@ -169,6 +171,9 @@ r.post('/api/editing/reject', (req, res) => {
 // 4. POST /api/editing/execute
 // Execution Gateway: Strictly verifies human approval before modifying files
 r.post('/api/editing/execute', async (req, res) => {
+  if ((req.body as any)?.cmd) {
+    return res.status(503).json({ error: 'execution_disabled' });
+  }
   const { patchId, approverId } = req.body || {};
   if (!patchId || typeof patchId !== 'string') {
     return res.status(400).json({ ok: false, error: 'patchId is required' });

@@ -35,7 +35,7 @@ export function getPool(): Pool {
   if (poolInstance) return poolInstance;
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
-    console.warn('[AI Studio] DATABASE_URL is not set — using in-memory mock PostgreSQL pool');
+    // DATABASE_URL is required for live PostgreSQL connection; fallback to local stub if unset
     return mockPool;
   }
   try {

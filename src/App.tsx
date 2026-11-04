@@ -7,7 +7,8 @@ import {
   Settings, Shield, ShieldCheck, Sparkles, Split, Square, SquareTerminal, Star, Trash2, Upload, WandSparkles, X, Zap, GitCompare,
   type LucideIcon
 } from 'lucide-react';
-import { readServerEvents, type ChatMode } from '../lib/chat-core.mjs';
+import { readServerEvents, classifyAutoMode, type ChatMode } from '../lib/chat-core.mjs';
+import { getModelIdentityBadge, type ModelCategory } from './contracts/modelIdentityContract.ts';
 import { useTranslation, type SupportedLanguage } from '../lib/i18n';
 import { HighlightedMessage } from './components/HighlightedMessage';
 import { AuthGate, isDevAccessModeActive } from './components/AuthGate';
@@ -48,7 +49,33 @@ import { evaluateDiagnosticChecks } from '../lib/diagnostics-evaluator.ts';
 import * as d3 from 'd3';
 
 type Page = 'Chat' | 'Memory Center' | 'Team' | 'Projects' | 'Plans' | 'Files' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Evaluation Lab' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings' | 'Agent Command Center' | 'CI/CD';
-type ChatMessage = { id: string; role: 'user' | 'assistant'; content: string; at: string; model?: string; error?: boolean; mode?: ChatMode; streaming?: boolean; incomplete?: string; requiresApproval?: boolean; approved?: boolean; rejected?: boolean };
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  at: string;
+  model?: string;
+  provider?: string;
+  modelCategory?: ModelCategory;
+  intentLabelTh?: string;
+  groundingUsed?: boolean;
+  groundingSourcesCount?: number;
+  identity?: {
+    modelId: string;
+    providerId: string;
+    modelCategory: ModelCategory;
+    isFirstParty: boolean;
+    groundingUsed: boolean;
+    zeroMockNotice: string;
+  };
+  error?: boolean;
+  mode?: ChatMode;
+  streaming?: boolean;
+  incomplete?: string;
+  requiresApproval?: boolean;
+  approved?: boolean;
+  rejected?: boolean;
+};
 type ChatSession = { id: string; title: string; createdAt: string; updatedAt: string; messages: ChatMessage[]; mode: ChatMode };
 type ComposerAttachment = { id: string; name: string; size: number; content: string };
 type SystemStatus = 'Ready' | 'Planning' | 'Running' | 'Awaiting Approval' | 'Completed' | 'Failed' | 'Model Unavailable';
@@ -742,15 +769,39 @@ function WorkspaceApp() {
       for await (const evt of readServerEvents(response.body)) {
         if (evt.event === 'start') {
           const model = typeof evt.data.model === 'string' ? evt.data.model : undefined;
+          const provider = typeof evt.data.provider === 'string' ? evt.data.provider : undefined;
+          const intentLabelTh = typeof evt.data.intentLabelTh === 'string' ? evt.data.intentLabelTh : undefined;
+          const identity = evt.data.identity as any;
           started = true;
-          setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '', at: new Date().toISOString(), model, mode, streaming: true }]);
+          setMessages(prev => [...prev, {
+            id: assistantId,
+            role: 'assistant',
+            content: '',
+            at: new Date().toISOString(),
+            model,
+            provider,
+            intentLabelTh,
+            identity,
+            mode,
+            streaming: true,
+          }]);
           setChatPhase('streaming');
         } else if (evt.event === 'delta' && typeof evt.data.text === 'string') {
           text += evt.data.text;
           patch({ content: text });
+        } else if (evt.event === 'grounding') {
+          const chunks = Array.isArray((evt.data as any).chunks) ? (evt.data as any).chunks : [];
+          patch({ groundingUsed: true, groundingSourcesCount: chunks.length });
         } else if (evt.event === 'error') {
           throw new Error(typeof evt.data.message === 'string' ? evt.data.message : 'Model stream error');
         } else if (evt.event === 'done') {
+          const doneIdentity = evt.data.identity as any;
+          const groundingChunks = Array.isArray((evt.data as any).groundingChunks) ? (evt.data as any).groundingChunks : [];
+          patch({
+            identity: doneIdentity,
+            groundingUsed: groundingChunks.length > 0 || Boolean(doneIdentity?.groundingUsed),
+            groundingSourcesCount: groundingChunks.length || doneIdentity?.groundingSourcesCount || 0,
+          });
           finished = true;
         }
       }
@@ -1537,21 +1588,14 @@ function ChatPage({
   const modeOriginLabel = isCustomSessionMode ? 'เลือกในแชตนี้' : 'ค่าเริ่มต้นของคุณ';
 
   const autoDetectedMode = useMemo<ChatMode>(() => {
-    const text = (draft + ' ' + (messages[messages.length - 1]?.content || '')).toLowerCase();
-    if (text.match(/code|function|const|import|bug|error|def|class|select|html|css|tsx|ts|js|json|script|sql|refactor|diff/i) || attachments.length > 0) {
-      return 'coding';
-    }
-    if (text.match(/เหตุผล|วิเคราะห์|ทำไม|why|reason|analyze|compare|plan|architecture|evaluate/i)) {
-      return 'reasoning';
-    }
-    if (text.match(/search|find|paper|document|ข้อมูล|ค้นหา|research|evidence/i)) {
-      return 'research';
-    }
-    return 'coding';
+    const text = (draft + ' ' + (messages[messages.length - 1]?.content || '')).trim();
+    if (attachments.length > 0) return 'coding';
+    if (!text) return 'chat';
+    return classifyAutoMode(text).mode;
   }, [draft, messages, attachments]);
 
   const autoDetectedOption = useMemo(() => {
-    return CHAT_MODE_OPTIONS.find(m => m.id === autoDetectedMode) || CHAT_MODE_OPTIONS[3];
+    return CHAT_MODE_OPTIONS.find(m => m.id === autoDetectedMode) || CHAT_MODE_OPTIONS[1];
   }, [autoDetectedMode]);
 
   const currentModeOption = useMemo(() => {
@@ -1829,30 +1873,38 @@ function ChatPage({
               <span className="orb-dot dot-one"/>
               <span className="orb-dot dot-two"/>
             </div>
-            <div className="eyebrow center"><span className="eyebrow-line"/> SOVEREIGN AI ENGINEERING <span className="eyebrow-line"/></div>
-            <h2>ZYNTHEOR <em>CORE X</em></h2>
+            <div className="eyebrow center"><span className="eyebrow-line"/> GENERAL-PURPOSE SOVEREIGN INTELLIGENCE <span className="eyebrow-line"/></div>
+            <h2>ZYNTHEOR <em>AI ENGINE</em></h2>
             <p className="welcome-description">
-              พัฒนาแอป วิเคราะห์โค้ด และยกระดับ Intelligence Core ใน Workspace เดียว<br className="desktop-break"/>
-              ทุกการทำงานต้องอ้างอิงผลจริง มีหลักฐาน และผ่านการอนุมัติตามสิทธิ์
+              ปัญญาประดิษฐ์อเนกประสงค์ — ถามตอบความรู้ สนทนา คิดวิเคราะห์ ค้นคว้า ช่วยเขียน และแก้ปัญหาทางวิศวกรรม<br className="desktop-break"/>
+              One Intelligence Core. One Unified Platform. Multiple Native Applications (Web · Android · iOS · Desktop)
             </p>
             <div className="suggestion-grid">
-              {[
-                { icon: Code2, title: 'เข้าใจ Repository', desc: 'สำรวจโครงสร้าง Symbol และ Dependency', prompt: 'ตรวจสอบ repository นี้จากโครงสร้างจริง ระบุขอบเขตการสแกน สิ่งที่ยืนยันได้ ความเสี่ยง และขั้นตอนถัดไป' },
-                { icon: Bug, title: 'วิเคราะห์และแก้ปัญหา', desc: 'หาสาเหตุและเสนอ Diff ที่ตรวจสอบได้', prompt: 'ช่วยวิเคราะห์ปัญหานี้โดยแยก Verified Findings, Hypotheses และ Unknowns ก่อนเสนอแนวทางแก้ไข' },
-                { icon: Cpu, title: 'พัฒนา CORE Native', desc: 'Dataset → Training → Checkpoint → Evaluation', action: 'Models' },
-                { icon: Gauge, title: 'ทดสอบ Intelligence', desc: 'วัดคุณภาพและตรวจจับ Regression', action: 'Evaluation Lab' },
-              ].map(item => (
-                <button key={item.title} className="suggestion-card" onClick={() => item.action ? onSelectPage(item.action as Page) : setDraft(item.prompt || '')}>
+              {([
+                { icon: MessageSquare, title: 'สนทนาและถามความรู้ทั่วไป', desc: 'ตอบคำถาม ความรู้ทั่วไป วิทยาศาสตร์ ประวัติศาสตร์', prompt: 'ช่วยอธิบายหลักการทำงานของ Quantum Computing และประโยชน์ที่จะเกิดขึ้นในชีวิตประจำวันอย่างเข้าใจง่าย' },
+                { icon: BookOpen, title: 'ช่วยเขียน สรุปความ และแปลภาษา', desc: 'ร่างบทความ สรุปเอกสาร และแปลภาษาอย่างเป็นธรรมชาติ', prompt: 'ช่วยร่างโครงร่างบทความวิชาการเรื่องการพัฒนา AI แบบพึ่งพาตนเอง (Sovereign AI) พร้อมบทสรุป' },
+                { icon: ClipboardCheck, title: 'คิดวิเคราะห์เชิงระบบ', desc: 'วิเคราะห์ข้อดีข้อเสีย ทางเลือก และผลกระทบอย่างรอบด้าน', prompt: 'ช่วยวิเคราะห์เปรียบเทียบสถาปัตยกรรม Monorepo กับ Multi-repo พร้อมข้อพิจารณาความเสี่ยงและแนวทางปฏิบัติ' },
+                { icon: Code2, title: 'วิศวกรรมและสถาปัตยกรรม', desc: 'วิเคราะห์โค้ด ตรวจสอบความปลอดภัย และพัฒนาซอฟต์แวร์', prompt: 'ตรวจสอบสถาปัตยกรรมของโครงการนี้ สรุปแผนผังโมดูลและจุดที่ต้องคำนึงถึงด้านความปลอดภัย' },
+              ] as { icon: LucideIcon; title: string; desc: string; prompt?: string; action?: Page }[]).map(item => (
+                <button key={item.title} className="suggestion-card" onClick={() => item.action ? onSelectPage(item.action) : setDraft(item.prompt || '')}>
                   <div className="suggestion-icon"><item.icon size={17}/></div>
                   <div><b>{item.title}</b><span>{item.desc}</span></div>
                   <ArrowUpRight size={15} className="suggestion-arrow"/>
                 </button>
               ))}
             </div>
-            <div className="core-identity-note"><Cpu size={15}/><span><b>First-party model track:</b> CORE_NATIVE · CORE_ADAPTED · CORE_DISTILLED — แยกตัวตนและหลักฐานของแต่ละสายโมเดลอย่างชัดเจน</span><button type="button" onClick={() => onSelectPage('Models')}>จัดการโมเดล <ArrowRight size={13}/></button></div>
+            <div className="core-identity-note">
+              <Cpu size={15}/>
+              <span>
+                <b>First-Party Intelligence Contract:</b> CORE_NATIVE · CORE_ADAPTED · CORE_DISTILLED — แยกตัวตนชัดเจน ไม่แอบอ้าง External Provider เป็น CORE
+              </span>
+              <button type="button" onClick={() => onSelectPage('Models')}>
+                จัดการโมเดล <ArrowRight size={13}/>
+              </button>
+            </div>
             <div className="quick-status-row">
               <span className={`status-led ${health?.ok ? 'green' : 'amber'}`}/>
-              {health?.ok ? 'API is reachable' : 'Waiting for API health check'}
+              {health?.ok ? 'API is reachable (One Shared Intelligence Core)' : 'Waiting for API health check'}
               <span className="status-separator">·</span>
               <LockKeyhole size={13}/>
               {settings?.localOnly ?? true ? 'Local-only default' : 'Online endpoint allowed'}
@@ -1869,7 +1921,62 @@ function ChatPage({
                   <div className="message-meta">
                     <b>{message.role === 'user' ? 'You' : 'ZYNTHEOR'}</b>
                     <span>{timeLabel(message.at)}</span>
-                    {message.model && <span className="message-model">{message.model}</span>}
+                    {message.model && (() => {
+                      const badge = getModelIdentityBadge(message.model, message.identity?.modelCategory);
+                      return (
+                        <span
+                          className="model-identity-badge"
+                          style={{
+                            fontSize: '9px',
+                            fontWeight: 700,
+                            padding: '2px 7px',
+                            borderRadius: '5px',
+                            border: '1px solid rgba(148, 163, 184, 0.25)',
+                            background: badge.bgClass.includes('emerald')
+                              ? 'rgba(16, 185, 129, 0.15)'
+                              : badge.bgClass.includes('cyan')
+                              ? 'rgba(56, 189, 248, 0.15)'
+                              : badge.bgClass.includes('amber')
+                              ? 'rgba(245, 158, 11, 0.15)'
+                              : 'rgba(168, 85, 247, 0.15)',
+                            color: badge.colorClass.includes('emerald')
+                              ? '#6ee7b7'
+                              : badge.colorClass.includes('cyan')
+                              ? '#7dd3fc'
+                              : badge.colorClass.includes('amber')
+                              ? '#fcd34d'
+                              : '#c084fc',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                          title={badge.descriptionTh}
+                        >
+                          {badge.category === 'EXTERNAL_MODEL_PROVIDER' ? '🌐 EXTERNAL: ' : '🛡️ CORE: '}
+                          {message.model}
+                        </span>
+                      );
+                    })()}
+                    {message.intentLabelTh && (
+                      <span className="message-model" style={{ color: '#94a3b8', fontSize: '9px' }}>
+                        {message.intentLabelTh}
+                      </span>
+                    )}
+                    {message.groundingUsed && (
+                      <span
+                        style={{
+                          fontSize: '9px',
+                          padding: '1px 5px',
+                          borderRadius: '4px',
+                          background: 'rgba(56, 189, 248, 0.15)',
+                          color: '#38bdf8',
+                          border: '1px solid rgba(56, 189, 248, 0.3)',
+                          fontWeight: 600,
+                        }}
+                      >
+                        🔍 Google Grounded
+                      </span>
+                    )}
                     {message.mode && <span className="message-model">{message.mode}</span>}
                     {message.streaming && <span className="stream-tag">STREAMING</span>}
                     {message.incomplete && <span className="error-tag">INCOMPLETE</span>}

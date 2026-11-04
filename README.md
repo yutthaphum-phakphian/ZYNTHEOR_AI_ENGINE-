@@ -117,7 +117,7 @@ ZYNTHEOR ปฏิบัติตามหลักความจริงใ�
 ## 6. Privacy and Local-Only Mode
 
 ZYNTHEOR ให้ความสำคัญสูงสุดกับความเป็นส่วนตัวของข้อมูล:
-- **Local-First Architecture:** รันบนเครื่องของคุณ (Loopback `127.0.0.1`) ข้อมูล แชท และไฟล์ถูกเก็บไว้ในเครื่องของคุณ
+- **Local-First Architecture:** รันบนเครื่องของคุณ (Loopback `127.0.0.1`) ข้อมูล แชท และไฟล์ถูกเก็บไว้ในเครื่องของคุณ — do not expose it directly to the internet unless protected by a reverse proxy and authentication.
 - **Strict `ZYNTHEOR_LOCAL_ONLY` Enforcement:** เมื่อเปิดใช้งานโหมดนี้ เกตเวย์จะตัดการเชื่อมต่อไปยัง API ภายนอกทั้งหมด และใช้งานเฉพาะอะแดปเตอร์ท้องถิ่นและ Ollama เท่านั้น
 - **No Silent Tracking:** ไม่มีการส่ง Telemetry, ไม่มี Tracking Script และไม่มีการเก็บข้อมูลเบื้องหลังโดยที่ผู้ใช้ไม่อนุญาต
 

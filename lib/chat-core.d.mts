@@ -13,4 +13,4 @@ export function parseUpstreamLine(line: string): UpstreamItem | null;
 export function readChatStream(body: ReadableStream<Uint8Array>): AsyncGenerator<UpstreamItem, void, undefined>;
 export function readServerEvents(body: ReadableStream<Uint8Array>): AsyncGenerator<ServerEvent, void, undefined>;
 
-export function classifyAutoMode(message: string): { mode: ChatMode; reason: string };
+export function classifyAutoMode(message: string): { mode: ChatMode; reason: string; intentType?: string; labelTh?: string };
