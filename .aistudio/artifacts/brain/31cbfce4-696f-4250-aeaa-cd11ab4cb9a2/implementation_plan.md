@@ -1,772 +1,608 @@
 ZYNTHEOR AI ENGINE 0.3
 
-IMPLEMENTATION PLAN & BASELINE AUDIT
+GENERAL-PURPOSE INTELLIGENCE & MULTI-PURPOSE ASSISTANT
 
-ชื่อโครงการ: Cross-Layer Root Cause Intelligence & Trust/Safety Systems
-แนวทาง: Thai-First · Evidence-Based · Zero-Mock · Security-First
-ขอบเขต: Baseline Audit, Audit Ledger Integrity, Intelligent Debugging และ Cross-Layer Root Cause Intelligence
+Product Vision
 
----
+ZYNTHEOR — One AI, Many Capabilities.
 
-1. MISSION & OBJECTIVES
+พัฒนา ZYNTHEOR ให้เป็น AI Assistant อเนกประสงค์ที่ผู้ใช้สามารถใช้งานได้หลากหลายผ่านแพลตฟอร์มเดียว โดยมีภาษาไทยเป็นภาษาหลัก
 
-เป้าหมายของ ZYNTHEOR AI ENGINE 0.3 คือยกระดับความสามารถด้านการตรวจสอบความถูกต้องของระบบ การวิเคราะห์สาเหตุของปัญหา และการรักษาความน่าเชื่อถือของหลักฐานทางวิศวกรรม
+ไม่จำกัดการใช้งานเฉพาะการเขียนโปรแกรม การตรวจสอบระบบ หรือการจัดการ Workflow
 
-ระบบต้องสามารถ:
-
-1. ตรวจสอบสถานะ Repository และระบบที่มีอยู่จริง
-2. วิเคราะห์ความสัมพันธ์ระหว่าง Frontend, Backend, Services และ Storage
-3. เชื่อมโยง Test Failures กับ Source Code และ Dependencies
-4. ติดตาม Request Flow เมื่อมี Instrumentation รองรับ
-5. ตรวจสอบความถูกต้องของ Audit Ledger
-6. ระบุ Root Cause โดยอ้างอิงหลักฐาน
-7. แยกข้อเท็จจริง สมมติฐาน และข้อมูลที่ยังไม่ทราบ
-8. เสนอแนวทางแก้ไขโดยไม่เปลี่ยนแปลงข้อมูลหรือประวัติหลักฐานโดยไม่ได้รับอนุมัติ
-
-หลักการสำคัญ: ระบบต้องไม่สร้างผลตรวจสอบ PASS, Hash, Dependency, Execution Trace หรือ Root Cause ขึ้นมาเองเพื่อทำให้รายงานดูสมบูรณ์
+เป้าหมายคือสร้าง AI ที่สามารถเข้าใจผู้ใช้ ช่วยคิด ช่วยทำงาน ช่วยเรียนรู้ ช่วยสร้างสรรค์ และช่วยจัดการปัญหาในชีวิตประจำวันและงานประเภทต่าง ๆ ได้จริง
 
 ---
 
-2. USER REVIEW & IMPLEMENTATION STATUS
+1. CORE PRODUCT PRINCIPLES
 
-2.1 LocalStorage Diagnostic Tool
+1.1 General-Purpose First
 
-ตำแหน่งที่ระบุ:
+ZYNTHEOR ต้องเป็นผู้ช่วย AI อเนกประสงค์ ไม่ใช่ Software Engineering Agent ที่เปลี่ยนชื่อเป็น AI Assistant
 
-"src/components/LocalStorageAuditTool.tsx"
+1.2 Thai-First Intelligence
 
-ตำแหน่ง UI:
+ภาษาไทยเป็นภาษาเริ่มต้นทั้งในส่วนติดต่อ การสนทนา การอธิบาย และการช่วยเหลือผู้ใช้
 
-Diagnostics → Storage Schema Audit
+รองรับภาษาอังกฤษและภาษาอื่นตามความสามารถจริง
 
-สถานะตามรายงานที่ได้รับ:
+1.3 One Unified Intelligence
 
-"COMPLETED_REPORTED"
+ผู้ใช้ไม่ควรต้องเข้าใจระบบ Agent, Model Router หรือ Backend ก่อนใช้งาน
 
-ความสามารถที่รายงานว่ามี:
+ผู้ใช้เพียงบอกสิ่งที่ต้องการ แล้วระบบเลือกความสามารถและเครื่องมือที่เหมาะสมให้
 
-- ตรวจสอบ LocalStorage Schema
-- ตรวจสอบ JSON Syntax
-- ตรวจสอบโครงสร้างข้อมูล
-- แสดงรายการ Storage Keys
-- Export ข้อมูล
-- Reset หรือ Purge ข้อมูล
+1.4 Real Capabilities
 
-ข้อกำหนดการตรวจสอบเพิ่มเติม:
+ทุกความสามารถต้องทำงานจริง
 
-- ตรวจสอบว่าแต่ละ Schema มี Validator จริง
-- แยก Invalid JSON ออกจาก Invalid Schema
-- ตรวจสอบ Version Compatibility
-- ตรวจสอบการจัดการข้อมูลที่ไม่รู้จัก
-- ตรวจสอบ Export และ Import Integrity
-- แสดงจำนวนรายการที่ตรวจสอบจริง
-- ห้าม Reset หรือ Purge โดยไม่มีการยืนยันจากผู้ใช้
-- ต้องมีคำเตือนและทางเลือกสำรองข้อมูลก่อนการลบ
-- ต้องไม่ลบข้อมูลของ Workspace หรือ Tenant อื่น
-- ต้องมีหลักฐานว่าการดำเนินการสำเร็จจริง
+ห้ามสร้างปุ่มหรือหน้าจอที่ดูเหมือนใช้งานได้แต่ไม่มี Backend รองรับ
 
-การตรวจสอบ Tool นี้ต้องไม่ถือว่าผ่านเพียงเพราะ Component แสดงผลได้
+1.5 User Control
 
-2.2 Audit Ledger Integrity Dashboard
-
-ไฟล์เป้าหมาย:
-
-- "src/components/AuditChainVisualizer.tsx"
-- "src/services/auditLedger.ts"
-
-สถานะ:
-
-"PROPOSED — NOT YET VERIFIED"
-
-เป้าหมายคือสร้างหน้าตรวจสอบสุขภาพ Audit Ledger โดยไม่ทำลายหลักฐานเดิม
-
-2.3 Intelligent Debugging Test-to-Dependency Mapping
-
-ไฟล์เป้าหมาย:
-
-"src/components/IntelligentDebugging.tsx"
-
-ระบบต้องเชื่อมโยงผลทดสอบกับ Dependencies ของ Source Code จริง โดยอาศัย Repository Intelligence ที่มีอยู่
-
-สถานะ:
-
-"PROPOSED — NOT YET VERIFIED"
+ผู้ใช้ต้องควบคุมข้อมูล ความจำ การเชื่อมต่อบริการภายนอก และการดำเนินการที่มีผลต่อข้อมูลจริงได้
 
 ---
 
-3. PHASE 0 — READ-ONLY BASELINE AUDIT
+2. GENERAL-PURPOSE CAPABILITY SYSTEM
 
-3.1 Repository Baseline
+พัฒนาความสามารถให้ครอบคลุมหลายด้าน โดยไม่จำกัดเฉพาะงานประเภทใดประเภทหนึ่ง
 
-ก่อนแก้ไข Source Code ให้ตรวจสอบ:
+2.1 Conversational Intelligence
 
-- Git Root
-- Current Branch
-- HEAD Commit
-- Git Status
-- Staged Changes
-- Unstaged Changes
-- Untracked Files
-- Existing Audit Reports
-- Existing Test Reports
-- Existing Local Modifications
+- สนทนาภาษาไทยอย่างเป็นธรรมชาติ
+- เข้าใจบริบทของบทสนทนา
+- จดจำบริบทที่เกี่ยวข้อง
+- ตอบคำถามต่อเนื่อง
+- เข้าใจคำสั่งหลายขั้นตอน
+- อธิบายเรื่องยากให้เข้าใจง่าย
+- ปรับระดับภาษาและรายละเอียด
+- สนทนาภาษาอังกฤษและภาษาอื่นที่รองรับ
 
-ห้ามสันนิษฐานว่าไฟล์ที่ Modified เป็นส่วนหนึ่งของงาน 0.3 ทั้งหมด
+2.2 Knowledge & Research
 
-ห้ามใช้คำสั่งที่อาจทำลายหรือย้อนกลับข้อมูลเดิม:
+- ตอบคำถามความรู้ทั่วไป
+- ค้นคว้าข้อมูล
+- วิเคราะห์หัวข้อที่ซับซ้อน
+- เปรียบเทียบข้อมูลหลายแหล่ง
+- สรุปเนื้อหา
+- ตรวจสอบความน่าเชื่อถือของข้อมูล
+- อธิบายข้อเท็จจริงและข้อจำกัด
+- จัดทำรายงาน
 
-- "git reset"
-- "git clean"
-- "git restore"
-- "git checkout"
-- "git stash"
+การค้นหาข้อมูลภายนอกต้องใช้เครื่องมือค้นหาจริง และระบุแหล่งที่มาเมื่อเหมาะสม
 
-ห้าม Commit หรือ Push โดยไม่ได้รับอนุมัติ
+2.3 Writing & Communication
 
-3.2 Baseline Test Results
+- เขียนบทความ
+- เขียนรายงาน
+- ร่างอีเมล
+- เขียนข้อความและประกาศ
+- แปลภาษา
+- ตรวจแก้ภาษา
+- ปรับสำนวนและโทน
+- สรุปเอกสาร
+- สร้างเนื้อหาสำหรับการสื่อสาร
 
-ตัวเลขต่อไปนี้เป็นข้อมูลจากรายงานที่ได้รับ ไม่ใช่ผลทดสอบที่ยืนยันโดยการตรวจสอบอิสระ:
+2.4 Learning & Education
 
-Test Suite| รายงานผล| สถานะ
-Node Test Runner| 384 passed, 1 skipped| NOT_INDEPENDENTLY_VERIFIED
-Vitest| 32 test files, 252 tests passed| NOT_INDEPENDENTLY_VERIFIED
-TypeScript| 0 errors| NOT_INDEPENDENTLY_VERIFIED
-LocalStorage Audit| 14 schemas| NOT_INDEPENDENTLY_VERIFIED
+- สอนบทเรียน
+- อธิบายแนวคิด
+- ช่วยทำความเข้าใจโจทย์
+- สร้างแบบฝึกหัด
+- สร้างแบบทดสอบ
+- สร้าง Flashcards
+- ช่วยฝึกภาษา
+- ปรับระดับคำอธิบายตามความเข้าใจ
 
-ก่อนประกาศ PASS ต้องบันทึก:
+2.5 Reasoning & Problem Solving
 
-- คำสั่งที่ใช้
-- วันและเวลาทดสอบ
-- Exit Code
-- จำนวน Tests ที่ผ่าน
-- จำนวน Tests ที่ล้มเหลว
-- จำนวน Tests ที่ถูก Skip
-- Test Files ที่เกี่ยวข้อง
-- ข้อผิดพลาดและคำเตือน
+- วิเคราะห์ปัญหา
+- คิดหาทางเลือก
+- เปรียบเทียบข้อดีและข้อเสีย
+- ช่วยวางแผนแก้ปัญหา
+- คำนวณ
+- ตรวจสอบเหตุผล
+- วิเคราะห์สถานการณ์
+- แยกข้อเท็จจริงออกจากสมมติฐาน
 
-ห้ามรวมจำนวน Tests จากคนละ Test Runner โดยไม่แสดงที่มา
+2.6 Productivity & Personal Assistant
 
-3.3 Existing Architecture Discovery
+- วางแผนงาน
+- จัดลำดับความสำคัญ
+- จัดตารางเวลา
+- สร้างรายการงาน
+- ติดตามเป้าหมาย
+- ช่วยเตรียมการประชุม
+- สรุปงาน
+- ช่วยจัดการข้อมูลที่ผู้ใช้อนุญาต
 
-ตรวจสอบระบบจริงก่อนพัฒนา:
+การเชื่อมต่อปฏิทิน อีเมล หรือบริการภายนอกต้องใช้ Permission ที่เหมาะสม
 
-FRONTEND
-  ├── App.tsx
-  ├── Diagnostics
-  ├── LocalStorageAuditTool
-  ├── AuditChainVisualizer
-  └── IntelligentDebugging
+2.7 Creative Intelligence
 
-BACKEND
-  ├── server.ts
-  ├── Authentication
-  ├── Authorization
-  ├── RBAC
-  ├── Tenant Isolation
-  └── API Routes
+- ระดมความคิด
+- สร้างแนวคิด
+- เขียนเรื่องราว
+- สร้างเนื้อหา
+- คิดชื่อผลิตภัณฑ์
+- ช่วยออกแบบแนวคิด
+- สร้าง Prompt
+- ช่วยวางแผนงานสร้างสรรค์
 
-SERVICES
-  ├── auditLedger
-  ├── authorizationService
-  ├── tenantScopedStorage
-  ├── repositoryIntelligence
-  ├── safeExecutor
-  └── projectAwareDebugger
+2.8 Document & File Intelligence
 
-แผนภาพนี้เป็น Architecture ที่ต้องนำไปตรวจสอบ ไม่ใช่หลักฐานว่าทุก Module มีอยู่หรือเชื่อมต่อกันแล้ว
+- อ่าน PDF
+- อ่านเอกสาร
+- อ่านไฟล์ข้อความ
+- วิเคราะห์ตาราง
+- สรุปเอกสาร
+- เปรียบเทียบไฟล์
+- ค้นหาข้อมูลภายในเอกสาร
+- สร้างรายงานจากข้อมูลที่ผู้ใช้อัปโหลด
 
-ต้องบันทึกไฟล์จริงและความสัมพันธ์ที่ตรวจพบ
+2.9 Data Intelligence
 
----
+- วิเคราะห์ข้อมูล
+- คำนวณสถิติ
+- สร้างตารางสรุป
+- ตรวจสอบความผิดปกติ
+- เปรียบเทียบข้อมูล
+- อธิบายแนวโน้ม
+- สร้างกราฟจากข้อมูลจริง
 
-4. FEATURE A — AUDIT LEDGER INTEGRITY & FORENSIC DASHBOARD
+2.10 Multimodal Intelligence
 
-4.1 Mission
+พัฒนาตามความสามารถของ Model และ Backend ที่มีจริง:
 
-พัฒนาหน้าตรวจสอบความสมบูรณ์ของ Audit Ledger เพื่อให้ผู้ใช้สามารถตรวจพบ:
+- Image Understanding
+- Image Analysis
+- Image Generation
+- Audio Understanding
+- Speech-to-Text
+- Text-to-Speech
+- Video Understanding
+- File Understanding
 
-- Hash Mismatch
-- Broken Chain
-- Missing Events
-- Invalid Previous Hash
-- Invalid Event Signature
-- Duplicate Event Identifier
-- Invalid Timestamp
-- Unauthorized Ledger Modification
+หากระบบยังไม่มี Model หรือ Adapter สำหรับความสามารถใด ต้องแสดงสถานะว่ายังไม่พร้อมใช้งาน
 
-4.2 Integrity Monitor
+2.11 Everyday Intelligence
 
-แสดงข้อมูลจาก Ledger จริง:
+- ช่วยค้นหาข้อมูลทั่วไป
+- ช่วยเปรียบเทียบสินค้าและบริการ
+- ช่วยวางแผนการเดินทาง
+- ช่วยคิดเมนูอาหาร
+- ช่วยจัดกิจกรรม
+- ช่วยตอบคำถามในชีวิตประจำวัน
+- ช่วยจัดการปัญหาทั่วไป
 
-- Chain Length
-- Genesis Hash
-- Latest Event Hash
-- Latest Verified Position
-- Verification Timestamp
-- Integrity Status
-- Broken Block Position
-- Verification Error
+2.12 Technical Intelligence
 
-สถานะที่รองรับ:
+เก็บความสามารถด้านเทคนิคไว้เป็นหมวดหนึ่ง:
 
-- "INTACT"
-- "TAMPERED"
-- "INCOMPLETE"
-- "UNVERIFIED"
-- "BLOCKED"
-- "ERROR"
+- Software Development
+- Code Generation
+- Debugging
+- Repository Analysis
+- Architecture Analysis
+- Security Analysis
+- Technical Research
 
-ห้ามแสดง "INTACT" หากตรวจสอบเพียงบางส่วน
-
-4.3 Forensic Block Inspection
-
-เมื่อเลือก Event ต้องสามารถตรวจสอบ:
-
-- Event ID
-- Event Type
-- Timestamp
-- Previous Hash
-- Current Hash
-- Payload Digest
-- Signature
-- Key ID
-- Verification Result
-- Source Information
-
-ต้องแสดงข้อมูลที่มีอยู่จริงเท่านั้น
-
-ห้ามสร้าง "nanoAt" หรือ Timestamp ความละเอียดสูงขึ้นมาใหม่ หากระบบเดิมไม่มีข้อมูลดังกล่าว
-
-4.4 Critical Security Rule — No Silent Re-Signing
-
-ห้ามใช้ Re-sign หรือ Rebuild เพื่อเขียนทับ Audit History ที่ตรวจพบว่าถูกแก้ไข
-
-การคำนวณ Hash ใหม่จาก Event ที่ไม่ผ่านการตรวจสอบอาจทำให้หลักฐานการดัดแปลงสูญหาย
-
-เมื่อพบ Ledger ที่ผิดปกติ:
-
-1. หยุดการเขียนข้อมูลลง Chain ที่ได้รับผลกระทบ
-2. เก็บ Original Ledger ไว้ในรูปแบบ Read-Only
-3. คำนวณ Integrity Report โดยไม่แก้ไขข้อมูล
-4. ระบุตำแหน่งและประเภทความผิดปกติ
-5. สร้าง Incident Record แยกจาก Original Ledger
-6. ขออนุมัติจากผู้ใช้หรือผู้ดูแลที่มีสิทธิ์
-7. หากต้องกู้คืน ให้ใช้ Trusted Backup หรือ Verified Snapshot
-8. บันทึก Recovery Operation เป็น Event ใหม่
-9. ตรวจสอบ Ledger หลังการกู้คืน
-10. เก็บความเชื่อมโยงกับ Original Evidence ไว้
-
-หากจำเป็นต้องเริ่ม Chain ใหม่ ต้องสร้าง Genesis ใหม่พร้อม Recovery Manifest ที่อ้างอิง Original Ledger และหลักฐานที่ตรวจสอบได้
-
-ห้ามอ้างว่าประวัติเดิมกลับมาน่าเชื่อถือเพียงเพราะ Hash ถูกคำนวณใหม่
-
-4.5 Repair Workflow
-
-Ledger Integrity Check
-        ↓
-Tampering Detection
-        ↓
-Read-Only Evidence Preservation
-        ↓
-Forensic Analysis
-        ↓
-Recovery Proposal
-        ↓
-Human Approval
-        ↓
-Verified Backup / Snapshot Recovery
-        ↓
-New Recovery Event
-        ↓
-Post-Recovery Verification
-        ↓
-Audit Report
-
-ทุกขั้นตอนต้องมีหลักฐานและ Audit Trail
+ไม่ให้หมวดนี้เป็นศูนย์กลางของผลิตภัณฑ์
 
 ---
 
-5. FEATURE B — INTELLIGENT DEBUGGING & TEST-TO-DEPENDENCY MAPPING
+3. UNIFIED INTELLIGENCE CORE
 
-5.1 Mission
+สร้างระบบกลางที่เข้าใจความต้องการของผู้ใช้และเลือกความสามารถให้เหมาะสม
 
-เชื่อมโยง Test Results กับโครงสร้าง Source Code เพื่อช่วยวิเคราะห์ว่าความผิดพลาดเกิดจากส่วนใดของระบบ
+             USER REQUEST
+                  |
+                  v
+         INTENT UNDERSTANDING
+                  |
+                  v
+          CONTEXT UNDERSTANDING
+                  |
+                  v
+        CAPABILITY SELECTION
+                  |
+          +-------+-------+
+          |       |       |
+          v       v       v
+        KNOW-   WRITING  CREATIVE
+        LEDGE
+          |       |       |
+          +-------+-------+
+                  |
+                  v
+           MODEL ROUTER
+                  |
+                  v
+       TOOL EXECUTION IF NEEDED
+                  |
+                  v
+          RESULT VERIFICATION
+                  |
+                  v
+          RESPONSE GENERATION
+                  |
+                  v
+             USER RESPONSE
 
-5.2 Test Status Integration
+หลักการ:
 
-รับผลทดสอบจาก Test Runner จริง เช่น:
-
-- Vitest
-- Node Test Runner
-- TypeScript Compiler
-- Build Process
-
-แสดง:
-
-- Test Suite
-- Test File
-- Test Name
-- Passed
-- Failed
-- Skipped
-- Error Message
-- Stack Trace
-- Execution Time
-- Test Run Identifier
-
-ต้องแยกผลจากคนละ Test Session
-
-ห้ามนำผลทดสอบเก่ามาแสดงเป็นสถานะปัจจุบัน
-
-5.3 Source Dependency Mapping
-
-เชื่อมโยง Test Files กับ Source Files ผ่านข้อมูลที่ตรวจพบจริง:
-
-- Import / Export Graph
-- Symbol References
-- Module Dependencies
-- Test Imports
-- Static Dependency Analysis
-- Runtime Trace เมื่อมี Instrumentation
-
-ตัวอย่าง:
-
-Test File
-  ├── tenantScopedStorage.test.ts
-  │      └── tenantScopedStorage.ts
-  │
-  ├── authorizationService.test.ts
-  │      └── authorizationService.ts
-  │
-  └── repositoryIntelligence.test.ts
-         └── repositoryIntelligence.ts
-
-ตัวอย่างนี้เป็นรูปแบบการนำเสนอเท่านั้น ต้องตรวจสอบชื่อไฟล์และความสัมพันธ์จาก Repository จริงก่อนแสดง
-
-5.4 Failure Correlation
-
-ระบบต้องวิเคราะห์ความสัมพันธ์ระหว่าง:
-
-- Test Failure
-- Source File
-- Function
-- Class
-- Import
-- Export
-- Interface
-- API Contract
-- Dependency Change
-
-จัดประเภทผลการวิเคราะห์:
-
-- "DIRECT_DEPENDENCY"
-- "TRANSITIVE_DEPENDENCY"
-- "CONTRACT_MISMATCH"
-- "MISSING_EXPORT"
-- "MISSING_MODULE"
-- "RUNTIME_FAILURE"
-- "UNKNOWN"
-
-ห้ามสรุปว่าไฟล์ใดเป็น Root Cause เพียงเพราะมี Dependency เชื่อมโยงกับ Test ที่ล้มเหลว
+- คำถามทั่วไปตอบได้โดยตรง ไม่จำเป็นต้องเรียก Agent ทุกครั้ง
+- งานค้นคว้าใช้ Search Tools เมื่อจำเป็น
+- งานเอกสารใช้ Document Tools
+- งานวิเคราะห์ข้อมูลใช้ Data Tools
+- งานที่ซับซ้อนค่อยใช้ Planning และ Agents
+- งานที่เปลี่ยนแปลงข้อมูลจริงต้องผ่าน Permission และ Approval ที่เหมาะสม
 
 ---
 
-6. CROSS-LAYER ROOT CAUSE INTELLIGENCE
-
-6.1 Architecture
-
-พัฒนาระบบวิเคราะห์ความสัมพันธ์ข้าม Layer:
-
-Frontend Component
-        ↓
-Frontend Service
-        ↓
-API Client
-        ↓
-Backend Route
-        ↓
-Middleware
-        ↓
-Authorization Service
-        ↓
-Application Service
-        ↓
-Storage / Database
-        ↓
-External Adapter
-
-ตรวจสอบเฉพาะ Layer ที่มีอยู่จริง
-
-หากไม่มี Layer หรือไม่มีหลักฐานการเชื่อมต่อ ให้ระบุ "UNKNOWN" หรือ "NOT_INSTRUMENTED"
-
-6.2 Phase 1 — Cross-Layer Dependency Graph
-
-ความสามารถ:
-
-- Component-to-Service Mapping
-- Service-to-API Mapping
-- API-to-Route Mapping
-- Route-to-Middleware Mapping
-- Middleware-to-Authorization Mapping
-- Service-to-Storage Mapping
-- External Adapter Mapping
-
-ต้องแยก Static Dependency ออกจาก Runtime Dependency
-
-Static Import ไม่ได้ยืนยันว่ามีการเรียกใช้งานจริงใน Runtime
-
-6.3 Phase 2 — Request Flow Tracing
-
-ติดตาม Request ตั้งแต่ UI ไปจนถึง Backend และ Storage เมื่อระบบมี Instrumentation รองรับ
-
-ข้อมูลที่ควรรองรับ:
-
-- Trace ID
-- Request ID
-- Parent Span ID
-- Timestamp
-- Route
-- Service
-- Execution Status
-- Error
-- Duration
-
-หากไม่มี Runtime Trace ให้แสดง:
-
-"NOT_INSTRUMENTED"
-
-ห้ามสร้าง Trace จำลองเพื่อแสดงว่า Request ผ่านทุก Layer แล้ว
-
-6.4 Phase 3 — Contract Mismatch Detection
-
-ตรวจสอบความสอดคล้องระหว่าง:
-
-- TypeScript Interfaces
-- API Request Types
-- API Response Types
-- Express Route Handlers
-- Runtime Validation Schemas
-- Database Contracts
-
-ตรวจจับ:
-
-- Missing Fields
-- Incorrect Types
-- Optional / Required Mismatch
-- Invalid Response Shape
-- Missing Runtime Validation
-- Inconsistent Error Contracts
-
-ทุก Finding ต้องมี File Path และ Line Reference เมื่อหาได้
-
-6.5 Phase 4 — Root Cause Correlation
-
-จัดระดับหลักฐาน:
-
-Classification| ความหมาย
-"VERIFIED_FINDING"| มีหลักฐานโดยตรงจาก Source, AST หรือ Test Execution
-"CONFIRMED_CAUSE"| ตรวจสอบ Source และยืนยันความสัมพันธ์กับความผิดพลาดแล้ว
-"HYPOTHESIS"| เป็นข้อสันนิษฐานที่ยังต้องทดสอบ
-"SAMPLE_ONLY"| ข้อมูลตัวอย่างสำหรับ Isolated Test เท่านั้น
-"UNKNOWN"| หลักฐานไม่เพียงพอ
-
-การจัดอันดับ Root Cause ต้องอธิบายหลักฐานที่ใช้ประกอบการตัดสินใจ
-
-ห้ามใช้คะแนนความน่าจะเป็นแทนหลักฐานโดยไม่มีวิธีคำนวณและการประเมินความแม่นยำรองรับ
-
----
-
-7. SECURITY & ISOLATION REQUIREMENTS
-
-ทุก Feature ต้องปฏิบัติตาม:
-
-7.1 Data Protection
-
-- Tenant Isolation
-- Workspace Isolation
-- Access Control
-- Sensitive Data Protection
-- Secret Redaction
-- Safe Export
-- Controlled Data Purge
-
-7.2 Cryptographic Integrity
-
-- SHA-256 สำหรับ Hash Integrity
-- HMAC เมื่อมี Key Management ที่เหมาะสม
-- Digital Signature เมื่อมี Trusted Signing Key
-- Key Rotation
-- Key Revocation
-- Signature Verification
-- Trusted Genesis Anchor
-
-Hash เพียงอย่างเดียวไม่ใช่หลักฐานยืนยันตัวตนผู้สร้างข้อมูล
-
-ห้ามเก็บ Private Signing Keys ใน Frontend หรือ LocalStorage
-
-7.3 Execution Safety
-
-- Read-Only Baseline Audit
-- No Implicit Execution
-- Human Approval
-- Existing Execution Gateway
-- Sandbox Isolation
-- Fail-Closed Behavior
-- Audit Logging
-
-การวิเคราะห์ Repository ต้องไม่ทำให้เกิดการรันโค้ดโดยอัตโนมัติ
-
----
-
-8. IMPLEMENTATION PLAN
-
-ดำเนินงานตามลำดับ:
-
-Step 1 — Baseline Audit
-
-- ตรวจ Git Baseline
-- ตรวจ Architecture
-- ตรวจ Existing Services
-- ตรวจ Test Runner
-- ตรวจ Audit Ledger
-- ตรวจ LocalStorage Tool
-
-ผลลัพธ์:
-
-"BASELINE_AUDIT_REPORT"
-
-Step 2 — Audit Ledger Integrity
-
-- ตรวจ Hash Chain
-- ตรวจ Signature
-- ตรวจ Genesis Anchor
-- เพิ่ม Integrity Status
-- เพิ่ม Forensic Inspection
-- เพิ่ม Safe Recovery Workflow
-
-ผลลัพธ์:
-
-"AUDIT_LEDGER_INTEGRITY"
-
-Step 3 — Test-to-Dependency Mapping
-
-- เชื่อม Test Runner
-- เชื่อม Repository Intelligence
-- สร้าง Dependency Matrix
-- เชื่อมโยง Failure Evidence
-- เพิ่ม Root Cause Classification
-
-ผลลัพธ์:
-
-"INTELLIGENT_DEBUGGING_MAPPING"
-
-Step 4 — Cross-Layer Root Cause Engine
-
-- วิเคราะห์ Layer Relationships
-- ตรวจ API Contracts
-- เชื่อม Runtime Traces
-- วิเคราะห์ Error Propagation
-- จัดระดับหลักฐาน
-
-ผลลัพธ์:
-
-"CROSS_LAYER_ROOT_CAUSE_ENGINE"
-
-Step 5 — Integration & Verification
-
-- ตรวจสอบ Backend Integration
-- ตรวจสอบ Security
-- รัน Regression Tests
-- ตรวจสอบ Build
-- สร้าง Final Report
-
----
-
-9. REGRESSION & SECURITY TEST PLAN
-
-9.1 LocalStorage
-
-- Valid Schema
-- Invalid JSON
-- Invalid Schema
-- Unknown Key
-- Version Mismatch
-- Export Integrity
-- Import Integrity
-- Unauthorized Purge
-- Tenant Isolation
-
-9.2 Audit Ledger
-
-- Valid Chain
-- Modified Payload
-- Invalid Previous Hash
-- Missing Event
-- Duplicate Event ID
-- Invalid Signature
-- Revoked Signing Key
-- Unknown Signing Key
-- Invalid Genesis
-- Interrupted Recovery
-- Recovery Without Approval
-- Original Evidence Preservation
-
-9.3 Intelligent Debugging
-
-- Test Failure Parsing
-- Missing Test File
-- Missing Source Module
-- Missing Export
-- Incorrect Import
-- Contract Mismatch
-- Transitive Dependency
-- Circular Dependency
-- Incomplete Dependency Information
-
-9.4 Cross-Layer Tracing
-
-- Valid Static Dependency
-- Missing Runtime Instrumentation
-- Valid Trace Correlation
-- Missing Parent Span
-- Invalid Trace ID
-- Request Failure
-- Middleware Failure
-- Authorization Failure
-- Storage Failure
-- Incomplete Trace
-
-9.5 Security
-
-- Path Traversal
-- Symlink Protection
-- Tenant Isolation
-- Unauthorized Access
-- Secret Exposure
-- Approval Enforcement
-- Audit Integrity
-
-Synthetic Fixtures ใช้ได้เฉพาะ Isolated Tests
-
-ห้ามนำ Test Fixtures มาแสดงเป็น Production Evidence
-
----
-
-10. VERIFICATION COMMANDS
-
-ตรวจสอบคำสั่งที่มีอยู่ใน "package.json" ก่อนใช้งาน
-
-คำสั่งเป้าหมาย:
-
-npx tsc --noEmit
-npx vitest run
-npm test
-
-หากมีคำสั่ง Build ที่ถูกต้องใน Project ให้รันตาม Configuration จริง
+4. MEMORY & PERSONALIZATION
+
+พัฒนา Memory Center ให้สนับสนุนการใช้งานทั่วไป:
+
+- Conversation Memory
+- User Preferences
+- Task Memory
+- Knowledge Records
+- Context Retrieval
+- Workspace Memory
 
 ข้อกำหนด:
 
-- ห้ามติดตั้ง Package ใหม่โดยไม่ได้รับอนุมัติ
-- ห้ามรันคำสั่งที่มี Side Effects ต่อ Manifest หรือ Audit Data โดยไม่ตรวจสอบก่อน
-- ห้ามอ้างว่าการ Build ผ่านหากไม่ได้รันจริง
-- ห้ามอ้างว่า Tests ผ่านทั้งหมดหากมี Skipped หรือ Failed
-- บันทึก Exit Code และ Command Output
+- แยกความทรงจำของผู้ใช้แต่ละคน
+- แยกข้อมูลจริงออกจากสมมติฐาน
+- ไม่บันทึกข้อมูลที่ยังไม่ผ่านการตรวจสอบเป็นข้อเท็จจริง
+- เคารพสิทธิ์ความเป็นส่วนตัว
+- ให้ผู้ใช้ควบคุมข้อมูลได้
+- ไม่ดึงข้อมูลข้าม Workspace หรือ Tenant โดยไม่ได้รับอนุญาต
 
 ---
 
-11. FINAL ENGINEERING REPORT
+5. FIRST-PARTY MODEL IDENTITY
+
+รักษาอัตลักษณ์ของผลิตภัณฑ์:
+
+- ZYNTHEOR AI ENGINE — แพลตฟอร์ม
+- ZYNTHEOR INTELLIGENCE — ระบบอัจฉริยะ
+- ZYNTHEOR CORE — โมเดลของโครงการ
+
+แยกโมเดลตามสถานะจริง:
+
+- CORE_ADAPTED
+- CORE_NATIVE
+- CORE_DISTILLED
+- EXTERNAL_MODEL_PROVIDER
+
+ข้อกำหนด:
+
+- แสดง Active Model ตามการทำงานจริง
+- แสดง Active Provider ตามการทำงานจริง
+- External Providers ต้องไม่ถูกแสดงเป็น ZYNTHEOR CORE
+- รักษา Local-Only Mode
+- ต้องได้รับ Consent ก่อนส่งข้อมูลไปยัง External Providers
+- ห้ามกล่าวอ้างว่า Native Model ทำงานอยู่หาก Router ใช้ External Model
+
+---
+
+6. PRODUCT EXPERIENCE
+
+ออกแบบให้ผู้ใช้เข้าถึงความสามารถได้ง่าย
+
+Main Chat
+
+พื้นที่สนทนาหลักสำหรับคำถามและงานทุกประเภท
+
+Smart Tools
+
+เครื่องมือที่ปรากฏตามความเหมาะสม เช่น:
+
+- Search
+- File Analysis
+- Image Tools
+- Writing Tools
+- Data Analysis
+- Learning Tools
+- Planning Tools
+
+แสดงเฉพาะเครื่องมือที่ Backend รองรับจริง
+
+Memory Center
+
+จัดการบริบทและข้อมูลความจำ
+
+Model Center
+
+แสดงโมเดลและผู้ให้บริการที่กำลังทำงาน
+
+Activity & History
+
+แสดงประวัติการทำงานและผลลัพธ์จริง
+
+Settings & Privacy
+
+ควบคุมข้อมูล ความยินยอม และการเชื่อมต่อบริการ
+
+รองรับ Android และ Desktop โดยให้ Mobile Experience มีความสำคัญ
+
+ไม่สร้าง Dashboard ที่เต็มไปด้วยตัวเลขและการ์ดสถานะจนผู้ใช้ไม่สามารถเข้าถึง AI ได้สะดวก
+
+---
+
+7. EXISTING ENGINEERING SYSTEMS
+
+ระบบเหล่านี้ยังคงมีความสำคัญ แต่เป็น Infrastructure สนับสนุนแพลตฟอร์ม
+
+7.1 Audit Ledger
+
+- ตรวจสอบความสมบูรณ์ของ Audit History
+- ตรวจสอบ Hash Chain
+- ตรวจสอบ Signature
+- เก็บหลักฐานการดำเนินการ
+- รองรับ Safe Recovery
+
+ห้าม Re-sign ประวัติที่ถูกดัดแปลงเพื่อทำให้ดูเหมือนสมบูรณ์
+
+7.2 Intelligent Debugging
+
+- วิเคราะห์ Error
+- เชื่อม Test Failures กับ Source Files
+- วิเคราะห์ Dependencies
+- เสนอแนวทางแก้ไข
+- ขออนุมัติก่อนแก้ไขไฟล์
+
+7.3 Repository Intelligence
+
+- AST Analysis
+- Symbol Analysis
+- Dependency Mapping
+- Impact Analysis
+- Architecture Understanding
+
+7.4 Security & Verification
+
+- Access Control
+- Tenant Isolation
+- Workspace Isolation
+- Human Approval
+- Sandbox Execution
+- Result Verification
+- Evidence Integrity
+
+ข้อสำคัญ: ระบบเหล่านี้ต้องไม่ครอบงำหน้า Chat หรือทำให้ผลิตภัณฑ์กลายเป็นเครื่องมือสำหรับ Developer เท่านั้น
+
+---
+
+8. IMPLEMENTATION STRATEGY
+
+ก่อนพัฒนา:
+
+1. ตรวจ Repository และ Git Baseline
+2. ตรวจความสามารถที่มีอยู่แล้ว
+3. ทำ Capability Inventory
+4. ตรวจ Model Router
+5. ตรวจ Tool Gateway
+6. ตรวจ Memory Integration
+7. ตรวจ External Provider Integration
+8. ตรวจ Multimodal Support
+9. ตรวจ Mobile Experience
+10. ระบุสิ่งที่ยังขาดจริง
+
+จากนั้นจัดลำดับการพัฒนา:
+
+Priority 1 — Core Assistant
+
+- General Chat
+- Thai-First Conversation
+- Context Understanding
+- Model Routing
+- Conversation History
+
+Priority 2 — Knowledge & Productivity
+
+- Research
+- Writing
+- Translation
+- Learning
+- Reasoning
+- Planning
+
+Priority 3 — Files & Multimodal
+
+- Document Analysis
+- Image Understanding
+- Data Analysis
+- Audio Capabilities
+- Image Generation
+- Video Understanding
+
+Priority 4 — Advanced Intelligence
+
+- Personalization
+- Memory Retrieval
+- Tool Selection
+- Complex Planning
+- Multi-Agent Collaboration
+
+Priority 5 — Trust & Safety Infrastructure
+
+- Audit Ledger
+- Verification
+- Security
+- Intelligent Debugging
+- Repository Intelligence
+
+ใช้ Implementation เดิมให้มากที่สุด ไม่สร้าง Module ซ้ำ
+
+---
+
+9. ZERO-MOCK & SECURITY
+
+ห้าม:
+
+- Fake AI Responses
+- Fake Search Results
+- Fake Model Identity
+- Fake Agent Execution
+- Fake Tool Results
+- Fake Progress
+- Fake Evaluation Scores
+- Fake Security Findings
+- Fake Audit Hashes
+
+ทุกความสามารถต้องมี Backend หรือ Adapter ที่ทำงานจริง
+
+หากยังไม่พร้อมให้แสดง:
+
+- NOT_IMPLEMENTED
+- BLOCKED
+- PARTIAL
+- IMPLEMENTED_NOT_VERIFIED
+
+การใช้ Synthetic Data อนุญาตเฉพาะ Isolated Tests
+
+การดำเนินการที่มีผลต่อข้อมูลจริงต้องมี Permission และ Approval ที่เหมาะสม
+
+---
+
+10. THAI-FIRST EVALUATION
+
+สร้างการประเมินความสามารถภาษาไทย:
+
+- Thai Conversation
+- Thai Instruction Following
+- Thai Reasoning
+- Thai Research
+- Thai Writing
+- Thai Translation
+- Thai Document Understanding
+- Thai Problem Solving
+- Thai-English Mixed Input
+
+วัดผลจาก Test Cases จริง
+
+ห้ามกำหนดคะแนนผ่านล่วงหน้า
+
+---
+
+11. VERIFICATION PLAN
+
+ตรวจสอบตามความสามารถที่มีการเปลี่ยนแปลง:
+
+- TypeScript
+- Unit Tests
+- Integration Tests
+- Model Routing Tests
+- Tool Execution Tests
+- Memory Isolation Tests
+- Thai Language Tests
+- Security Tests
+- Production Build
+
+บันทึก:
+
+- คำสั่งที่ใช้
+- Exit Code
+- Test Count
+- Passed
+- Failed
+- Skipped
+- Build Result
+- Known Limitations
+
+ห้ามอ้างผลสำเร็จหากไม่ได้รันจริง
+
+---
+
+12. FINAL ENGINEERING REPORT
 
 สร้างรายงาน:
 
-"docs/audit/ZYNTHEOR_0_3_IMPLEMENTATION_AND_BASELINE_AUDIT.md"
+"docs/audit/ZYNTHEOR_0_3_GENERAL_PURPOSE_INTELLIGENCE_REPORT.md"
 
-เนื้อหาที่ต้องมี:
+ประกอบด้วย:
 
 1. Executive Summary
-2. Git Baseline
-3. Existing Architecture
-4. LocalStorage Audit Results
-5. Audit Ledger Integrity Results
-6. Test-to-Dependency Mapping
-7. Cross-Layer Dependency Analysis
-8. Runtime Trace Coverage
-9. Contract Mismatch Findings
-10. Root Cause Evidence
-11. Security Verification
-12. Regression Test Results
-13. Build Results
-14. Files Changed
-15. Known Limitations
-16. Remaining Blockers
-17. Overall Engineering Verdict
+2. Repository Baseline
+3. Existing Capability Inventory
+4. Implemented Capabilities
+5. General Chat Integration
+6. Thai-First Evaluation
+7. Model Routing
+8. Knowledge & Research
+9. Writing & Learning
+10. Productivity Tools
+11. Document & Data Intelligence
+12. Multimodal Capabilities
+13. Memory Integration
+14. Security & Privacy
+15. Audit Infrastructure
+16. Test Results
+17. Build Results
+18. Known Limitations
+19. Remaining Blockers
+20. Overall Verdict
 
 ใช้สถานะ:
 
-- "COMPLETED_VERIFIED"
-- "IMPLEMENTED_NOT_VERIFIED"
-- "PARTIAL"
-- "BLOCKED"
-- "FAILED"
-- "NOT_IMPLEMENTED"
-- "NOT_VERIFIED"
-
-ทุก Finding ต้องมีหลักฐาน:
-
-- File Path
-- Line Number
-- Test Name
-- Command Output
-- Trace ID
-- หรือ Missing Prerequisite
-
-ห้ามใช้คำว่า PASS โดยไม่มีหลักฐานสนับสนุน
+- COMPLETED_VERIFIED
+- IMPLEMENTED_NOT_VERIFIED
+- PARTIAL
+- BLOCKED
+- FAILED
+- NOT_IMPLEMENTED
 
 ---
 
-12. COMPLETION CRITERIA
-
-ZYNTHEOR 0.3 จะถือว่าเสร็จเมื่อ:
-
-1. Baseline Audit มีหลักฐานครบถ้วน
-2. LocalStorage Diagnostic Tool ผ่านการตรวจสอบจริง
-3. Audit Ledger สามารถตรวจพบ Integrity Violations ได้
-4. Recovery ไม่ทำลาย Original Evidence
-5. Test-to-Dependency Mapping ใช้ข้อมูล Repository จริง
-6. Root Cause Findings อ้างอิงหลักฐานได้
-7. Runtime Tracing แยก Instrumented กับ Not Instrumented
-8. Security Controls ผ่าน Regression Tests
-9. ไม่มี P0/P1 Defect ที่ยังไม่ได้จัดการ
-10. Final Engineering Report ตรงกับผลการทำงานจริง
-
-หากข้อใดไม่มีหลักฐาน ให้ระบุ "BLOCKED", "PARTIAL" หรือ "NOT_VERIFIED" ตามความเหมาะสม
-
----
-
-13. SCOPE & APPROVAL CONTROL
+13. SCOPE PROTECTION
 
 - ทำงานบน Repository เดิม
-- ไม่ต้อง zip
+- ไม่ต้อง ZIP
 - ไม่สร้างโปรเจกต์ใหม่
-- ไม่เขียนทับไฟล์โดยไม่ตรวจสอบ
-- ไม่ลบข้อมูลหรือประวัติ Audit
-- ไม่เปลี่ยน Model Identity
+- ไม่ลบข้อมูลเดิม
+- ไม่เปลี่ยน Model Identity โดยไม่มีเหตุผล
 - ไม่ลบ External Provider Integration
 - ไม่แก้ Sidebar หรือ CI/CD โดยไม่จำเป็น
-- ไม่เริ่ม Model Training
+- ไม่ติดตั้ง Package โดยไม่ได้รับอนุมัติ
+- ไม่เริ่ม Model Training โดยพลการ
 - ไม่ Commit หรือ Push
 - ไม่เริ่ม Phase ถัดไปโดยอัตโนมัติ
 
-การเปลี่ยนแปลงที่มีผลต่อข้อมูลจริง การกู้คืน Audit Ledger หรือการแก้ไข Source Code ต้องอยู่ภายใต้ Permission และ Approval ที่เหมาะสม
+---
 
-สถานะ Phase ถัดไป: BLOCKED — AWAITING EXPLICIT USER APPROVAL
+14. COMPLETION CRITERIA
+
+ZYNTHEOR 0.3 ต้องแสดงให้เห็นว่าเป็นแพลตฟอร์ม AI อเนกประสงค์ที่ใช้งานได้จริง
+
+เกณฑ์สำคัญ:
+
+1. ผู้ใช้สนทนาและสั่งงานภาษาไทยได้
+2. ระบบเลือกความสามารถตามคำขอได้
+3. งานทั่วไปไม่จำเป็นต้องผ่าน Workflow ซับซ้อน
+4. มีความสามารถด้านความรู้ การเขียน การเรียนรู้ และการวิเคราะห์
+5. รองรับเอกสารและข้อมูลตามเครื่องมือที่มีจริง
+6. Model Router แสดงตัวตนตามจริง
+7. Memory เคารพความเป็นส่วนตัว
+8. Tools ทำงานกับ Backend จริง
+9. Security และ Verification ยังคงทำงาน
+10. รายงานแยกความสามารถที่ผ่านการตรวจสอบแล้วออกจากสิ่งที่ยังขาด
+
+ห้ามประกาศว่าระบบเป็น General-Purpose AI ที่สมบูรณ์ หากมีเพียง UI แต่ไม่มีความสามารถจริงรองรับ
 
 ---
 
-FINAL PRINCIPLE
+FINAL PRODUCT PRINCIPLE
 
-ZYNTHEOR ต้องไม่เพียงตรวจพบว่าระบบมีปัญหา แต่ต้องอธิบายได้ว่าปัญหาอยู่ตรงไหน เกิดจากอะไร มีหลักฐานอะไรสนับสนุน และแนวทางแก้ไขมีผลกระทบอย่างไร
+ZYNTHEOR ไม่ควรถูกจำกัดด้วยประเภทงานเพียงประเภทเดียว
 
-ตรวจสอบก่อนสรุป
-เก็บหลักฐานก่อนซ่อม
-ขออนุมัติก่อนเปลี่ยนแปลง
-ยืนยันผลก่อนประกาศว่าสำเร็จ
+ผู้ใช้ควรสามารถเปิด ZYNTHEOR เพื่อ:
+
+ถาม → เรียนรู้ → ค้นคว้า → คิด → วิเคราะห์ → เขียน → สร้างสรรค์ → วางแผน → จัดการข้อมูล → ทำงาน
+
+ทั้งหมดผ่าน Intelligence Platform เดียว
+
+ONE PLATFORM. MANY CAPABILITIES. FIRST-PARTY INTELLIGENCE.
