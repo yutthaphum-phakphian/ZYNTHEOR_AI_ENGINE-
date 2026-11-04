@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 140" width="840" height="140" role="img" aria-label="ZYNTHEOR AI ENGINE Buffalo Edition Sovereign Footer">
+  <defs>
+    <linearGradient id="ftr-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#060C16" />
+      <stop offset="50%" stop-color="#0A1628" />
+      <stop offset="100%" stop-color="#060E1A" />
+    </linearGradient>
+
+    <linearGradient id="ftr-laser" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="35%" stop-color="#14B8A6" />
+      <stop offset="70%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#2DD4BF" />
+    </linearGradient>
+
+    <linearGradient id="ftr-title" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="40%" stop-color="#2DD4BF" />
+      <stop offset="80%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#60A5FA" />
+    </linearGradient>
+
+    <linearGradient id="seal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14B8A6" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+
+    <filter id="ftr-glow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="b" />
+      <feMerge>
+        <feMergeNode in="b" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <pattern id="ftr-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#102236" stroke-width="0.6" stroke-opacity="0.35" />
+    </pattern>
+  </defs>
+
+  <style>
+    @keyframes ftr-stroke {
+      0% { stroke-dashoffset: 240; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .ftr-anim {
+      stroke-dasharray: 45 195;
+      animation: ftr-stroke 7s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ftr-anim { animation: none; stroke-dasharray: none; }
+    }
+  </style>
+
+  <!-- Card container -->
+  <rect x="4" y="4" width="832" height="132" rx="16" fill="url(#ftr-bg)" stroke="#16324D" stroke-width="1.2" />
+  <rect x="4" y="4" width="832" height="132" rx="16" fill="url(#ftr-grid)" />
+
+  <!-- Center Hexagon Seal with Buffalo Crown -->
+  <g transform="translate(420, 36)">
+    <!-- Outer Hex -->
+    <polygon points="0,-18 16,-9 16,9 0,18 -16,9 -16,-9" fill="#091A2C" stroke="url(#seal-grad)" stroke-width="1.5" filter="url(#ftr-glow)" />
+    <!-- Inner Core Dot -->
+    <circle cx="0" cy="0" r="3" fill="#38BDF8" />
+    <!-- Small horns accent -->
+    <path d="M -8,-6 L -14,-14 L -10,-12 L -5,-6 Z" fill="#2DD4BF" />
+    <path d="M 8,-6 L 14,-14 L 10,-12 L 5,-6 Z" fill="#2DD4BF" />
+  </g>
+
+  <!-- Titles -->
+  <text x="420" y="74" text-anchor="middle" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="20" font-weight="800" letter-spacing="4" fill="url(#ftr-title)">ZYNTHEOR AI ENGINE</text>
+  <text x="420" y="96" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" letter-spacing="2.5" fill="#2DD4BF">BUFFALO EDITION · SOVEREIGN LOCAL-FIRST INTELLIGENCE CORE</text>
+  <text x="420" y="116" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-size="9.5" letter-spacing="1.2" fill="#64748B">AGPL-3.0 · CRYPTOGRAPHIC GOVERNANCE BASELINE · ZERO-SIMULATION ASSURANCE</text>
+
+  <!-- Animated Border Lasers -->
+  <rect x="4" y="4" width="832" height="132" rx="16" fill="none" stroke="url(#ftr-laser)" stroke-width="2" stroke-linecap="round" pathLength="240" class="ftr-anim" filter="url(#ftr-glow)" />
+</svg>

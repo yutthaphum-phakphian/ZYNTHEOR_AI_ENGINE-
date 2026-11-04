@@ -4,13 +4,13 @@ import {
   CheckCircle2, ChevronDown, ChevronRight, CircleHelp, ClipboardCheck, Clock, Code2, Cpu, CreditCard, Download,
   Eye, File, FileCode2, FileText, Files, Gauge, GitBranch, Globe, HardDrive, History, Keyboard, LayoutDashboard,
   LockKeyhole, Menu, MessageSquare, MoreHorizontal, Network, Plus, RefreshCw, RotateCcw, Search, Send, Server,
-  Settings, Shield, ShieldCheck, Sparkles, Split, Square, SquareTerminal, Trash2, Upload, WandSparkles, X, Zap, GitCompare
+  Settings, Shield, ShieldCheck, Sparkles, Split, Square, SquareTerminal, Trash2, Upload, WandSparkles, X, Zap, GitCompare,
+  type LucideIcon
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { readServerEvents, type ChatMode } from '../lib/chat-core.mjs';
 import { useTranslation, type SupportedLanguage } from '../lib/i18n';
 import { HighlightedMessage } from './components/HighlightedMessage';
-import { AuthGate } from './components/AuthGate';
+import { AuthGate, isDevAccessModeActive } from './components/AuthGate';
 import { TeamManagementPage } from './components/TeamManagementPage';
 import { PromptForgePage } from './components/PromptForgePage';
 import { TrainingMonitor } from './components/TrainingMonitor';
@@ -35,12 +35,14 @@ import { GovernanceObservabilityPanels } from './components/GovernanceObservabil
 import { RepositoryIntelligence } from './components/RepositoryIntelligence';
 import { IntelligentDebugging } from './components/IntelligentDebugging';
 import { LocalStorageAuditTool } from './components/LocalStorageAuditTool';
+import { EvaluationLabDashboard } from './components/evaluation/EvaluationLabDashboard';
+import { GitHubSyncWidget } from './components/GitHubSyncWidget';
 import { createAuditEntry, verifyAuditHashChain, repairAndResignAuditLedger, downloadAuditLedgerJson, downloadAuditLedgerCsv, type AuditEntry } from './services/auditLedger';
 import { CodeIntelligence } from '../lib/code-intelligence';
 import { evaluateDiagnosticChecks } from '../lib/diagnostics-evaluator.ts';
 import * as d3 from 'd3';
 
-type Page = 'Chat' | 'Team' | 'Projects' | 'Plans' | 'Files' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings';
+type Page = 'Chat' | 'Team' | 'Projects' | 'Plans' | 'Files' | 'Repository Intelligence' | 'Intelligent Debugging' | 'Prompt Forge' | 'Models' | 'Evaluation Lab' | 'Audit Ledger' | 'Diagnostics' | 'Billing' | 'Settings';
 type ChatMessage = { id: string; role: 'user' | 'assistant'; content: string; at: string; model?: string; error?: boolean; mode?: ChatMode; streaming?: boolean; incomplete?: string; requiresApproval?: boolean; approved?: boolean; rejected?: boolean };
 type ChatSession = { id: string; title: string; createdAt: string; updatedAt: string; messages: ChatMessage[]; mode: ChatMode };
 type ComposerAttachment = { id: string; name: string; size: number; content: string };
@@ -57,7 +59,7 @@ type InferenceResult = { state: string; model?: string; latencyMs?: number; matc
 
 const NAV: { title: string; items: { id: Page; icon: LucideIcon; label: string; desc?: string }[] }[] = [
   { title: 'WORKSPACE', items: [{ id: 'Chat', icon: MessageSquare, label: 'Chat' }, { id: 'Projects', icon: Boxes, label: 'Projects' }, { id: 'Plans', icon: LayoutDashboard, label: 'Plans' }, { id: 'Files', icon: Files, label: 'Files' }] },
-  { title: 'INTELLIGENCE', items: [{ id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }, { id: 'Models', icon: Cpu, label: 'Models' }] },
+  { title: 'INTELLIGENCE', items: [{ id: 'Repository Intelligence', icon: Network, label: 'Repo Intelligence' }, { id: 'Intelligent Debugging', icon: Bug, label: 'Intelligent Debugging' }, { id: 'Prompt Forge', icon: WandSparkles, label: 'Prompt Forge' }, { id: 'Models', icon: Cpu, label: 'Models' }, { id: 'Evaluation Lab', icon: Gauge, label: 'Evaluation Lab' }] },
   { title: 'TRUST & SAFETY', items: [{ id: 'Audit Ledger', icon: ShieldCheck, label: 'Audit Ledger' }, { id: 'Diagnostics', icon: Activity, label: 'Diagnostics' }] },
   { title: 'SYSTEM', items: [{ id: 'Team', icon: ShieldCheck, label: 'Team & Access' }, { id: 'Billing', icon: CreditCard, label: 'Billing & Plans' }, { id: 'Settings', icon: Settings, label: 'Settings' }] },
 ];
@@ -71,6 +73,7 @@ const PAGE_COPY: Record<Page, { eyebrow: string; title: string; subtitle: string
   'Intelligent Debugging': { eyebrow: 'INTELLIGENCE / INTELLIGENT DEBUGGING', title: 'Intelligent Debugging Workflow', subtitle: 'Capture stack traces, fetch workspace code, and rank root cause hypotheses.' },
   'Prompt Forge': { eyebrow: 'INTELLIGENCE / PROMPT FORGE', title: 'Forge, optimize & benchmark prompts.', subtitle: 'Generate production-ready prompts, audit against rubrics, and run test benches.' },
   Models: { eyebrow: 'INTELLIGENCE / MODELS', title: 'Model control center.', subtitle: 'See actual endpoint status. A registered model is not proof of a trained model.' },
+  'Evaluation Lab': { eyebrow: 'INTELLIGENCE / EVALUATION LAB', title: '12-Category Evaluation System', subtitle: 'Measure regression tests, capability gates, and benchmark results with real evidence.' },
   'Audit Ledger': { eyebrow: 'TRUST & SAFETY / AUDIT', title: 'Evidence over assumptions.', subtitle: 'Inspect recorded events and their integrity fingerprints.' },
   Diagnostics: { eyebrow: 'TRUST & SAFETY / DIAGNOSTICS', title: 'Know what is working.', subtitle: 'Check the server and configured model independently.' },
   Billing: { eyebrow: 'SYSTEM / BILLING', title: 'Billing & Subscriptions', subtitle: 'Manage subscriptions, payment providers, invoices, and plan entitlements.' },
@@ -984,6 +987,13 @@ function WorkspaceApp() {
             <span>Shortcuts</span>
             <kbd>?</kbd>
           </button>
+          {isDevAccessModeActive() && (
+            <div className="dev-mode-badge" title="Temporary Development Access Mode — Authentication bypassed for development only. Production login gate strictly preserved.">
+              <span className="status-led green" />
+              <b>DEV MODE</b>
+              <span className="dev-mode-tag">WORKSPACE</span>
+            </div>
+          )}
           <div className={`runtime-pill ${health?.ok ? 'runtime-live' : ''}`}><span className={`status-led ${health?.ok ? 'green' : 'amber'}`}/>{health?.ok ? (t('common.server_ready') || 'Server ready') : 'Runtime unknown'}</div>
           <button className="icon-button help-button" title="Diagnostics" onClick={() => choosePage('Diagnostics')}><CircleHelp size={18}/></button>
         </div>
@@ -998,6 +1008,7 @@ function WorkspaceApp() {
               <button type="button" className="agent-nav-item" onClick={() => choosePage('Files')}><span>▤</span><span><b>Files</b><small>Browse project files</small></span><ChevronRight size={14}/></button>
               <button type="button" className="agent-nav-item" onClick={() => choosePage('Repository Intelligence')}><span>⌘</span><span><b>Repository map</b><small>Inspect code structure</small></span><ChevronRight size={14}/></button>
               <button type="button" className="agent-nav-item" onClick={() => choosePage('Intelligent Debugging')}><span>⌕</span><span><b>Debugging</b><small>Analyze failures</small></span><ChevronRight size={14}/></button>
+              <GitHubSyncWidget />
               <div className="agent-rail-note"><ShieldCheck size={15}/><span>File operations remain subject to workspace and server-side authorization.</span></div>
             </aside>
             <section className="agent-center-panel" aria-label="Agent command center">
@@ -1119,6 +1130,7 @@ function WorkspaceApp() {
           />
         )}
 
+        {page === 'Evaluation Lab' && <EvaluationLabDashboard />}
         {page === 'Diagnostics' && <DiagnosticsPage health={health} settings={settings} models={modelResult} loading={loadingStatus} refresh={() => void refreshStatus(true)} inferenceResult={inferenceResult} testingInference={testingInference} runInference={() => void runInferenceTest()}/>}
         {page === 'Billing' && <BillingCenter authHeaders={authHeaders} setToast={setToast} />}
         {page === 'Settings' && (

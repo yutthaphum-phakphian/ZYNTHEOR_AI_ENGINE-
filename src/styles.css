@@ -263,6 +263,32 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 }
 .runtime-live { border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); color: var(--green); }
 
+.dev-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  padding: 5px 9px;
+  border: 1px solid rgba(20, 184, 166, 0.45);
+  border-radius: 99px;
+  background: rgba(13, 148, 136, 0.12);
+  color: #2DD4BF;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 14px rgba(20, 184, 166, 0.18);
+}
+.dev-mode-badge b { color: #5EEAD4; }
+.dev-mode-tag {
+  font-size: 7.5px;
+  font-weight: 800;
+  background: rgba(20, 184, 166, 0.25);
+  color: #CCFBF1;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+}
+
 .mobile-menu-button { display: none; }
 .page-scroll { flex: 1; overflow: auto; }
 .page-wrap { width: min(1120px, 100%); margin: 0 auto; padding: 28px 32px 38px; }
@@ -1745,6 +1771,125 @@ button,
 .agent-center-panel .chat-topline { padding-top: 2px; }
 @media (max-width: 1120px) { .agent-command-grid { grid-template-columns: minmax(160px, 190px) minmax(320px, 1fr); } .agent-verify-rail { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); } .agent-verify-rail .agent-panel-heading, .agent-verify-rail .agent-terminal-card, .agent-verify-rail .agent-security-card, .agent-verify-rail .agent-audit-link { grid-column: 1 / -1; } .agent-verify-rail .agent-security-card { margin-top: 0; } }
 @media (max-width: 760px) { .agent-command-grid { display: flex; flex-direction: column; gap: 10px; } .agent-workspace-rail { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; } .agent-workspace-rail .agent-panel-heading, .agent-workspace-current, .agent-rail-note { grid-column: 1 / -1; } .agent-nav-item { min-height: 44px; } .agent-center-panel { padding: 10px; } .agent-center-panel .chat-screen { height: min(68dvh, 720px); min-height: 420px; } .agent-verify-rail { display: flex; } .agent-status-card { width: 100%; } }
+
+/* GitHub Sync Widget in Workspace Explorer */
+.github-sync-widget {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line, #243044);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+.github-sync-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.github-sync-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94A3B8;
+}
+.github-sync-refresh {
+  background: transparent;
+  border: 0;
+  color: #64748B;
+  padding: 2px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.github-sync-refresh:hover:not(:disabled) {
+  color: #38BDF8;
+}
+.spin-anim {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+.github-sync-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.github-sync-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+}
+.github-sync-label {
+  color: #64748B;
+  font-size: 9.5px;
+}
+.github-commit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #38BDF8;
+  text-decoration: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  background: rgba(56, 189, 248, 0.08);
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  transition: all 0.15s;
+}
+.github-commit-link:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38BDF8;
+  color: #7DD3FC;
+}
+.github-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  border: 1px solid;
+  background: rgba(15, 23, 42, 0.85);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.status-led-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.github-status-text {
+  font-size: 8.5px;
+  font-weight: 800;
+}
+.github-sync-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  font-size: 9px;
+  color: #64748B;
+}
+.github-sync-footer b {
+  color: #94A3B8;
+}
+.github-sync-time {
+  font-size: 8.5px;
+  color: #475569;
+}
 
 /* CORE X account entry and access-management experience */
 .auth-screen{position:relative;isolation:isolate;min-height:100dvh;display:grid;place-items:center;padding:28px 18px 58px;overflow:hidden;background:#07111e}
