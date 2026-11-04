@@ -64,7 +64,7 @@ type InferenceResult = { state: string; model?: string; latencyMs?: number; matc
 
 const NAV: { title: string; items: { id: Page; icon: LucideIcon; label: string; desc?: string }[] }[] = [
   { title: 'WORKSPACE', items: [
-    { id: 'Chat', icon: MessageSquare, label: 'AI Workspace' },
+    { id: 'Chat', icon: MessageSquare, label: 'Chat & Intelligence' },
     { id: 'Projects', icon: Boxes, label: 'Projects' },
     { id: 'Plans', icon: LayoutDashboard, label: 'Plans' },
     { id: 'Files', icon: Files, label: 'Files' },
@@ -90,7 +90,7 @@ const NAV: { title: string; items: { id: Page; icon: LucideIcon; label: string; 
   ] },
 ];
 const PAGE_COPY: Record<Page, { eyebrow: string; title: string; subtitle: string }> = {
-  Chat: { eyebrow: 'ZYNTHEOR CORE X / ENGINEERING WORKSPACE', title: 'AI Engineering Workspace', subtitle: 'Chat, projects, files and repository intelligence in one governed engineering workspace.' },
+  Chat: { eyebrow: 'ZYNTHEOR CORE X / GENERAL-PURPOSE SOVEREIGN INTELLIGENCE', title: 'Sovereign Intelligence Workspace', subtitle: 'Conversational chat, research, writing, reasoning, and engineering in one unified sovereign platform.' },
   'Memory Center': { eyebrow: 'CORE X / MEMORY GOVERNANCE', title: 'Memory Center', subtitle: 'Inspect workspace-scoped task memory and manage retained records.' },
   Team: { eyebrow: 'SYSTEM / ACCESS CONTROL', title: 'Team & Access Management', subtitle: 'Manage workspace members and role-based permissions.' },
   Projects: { eyebrow: 'WORKSPACE / PROJECTS', title: 'Build in context.', subtitle: 'Organize codebases and ideas into dedicated workspaces.' },

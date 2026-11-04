@@ -23,7 +23,17 @@ interface DashboardProps {
   className?: string;
 }
 
-type ActiveTab = 'control-center' | 'reasoning-lab' | 'code-lab' | 'debugging-lab' | 'security-lab' | 'history';
+type ActiveTab =
+  | 'control-center'
+  | 'reasoning-lab'
+  | 'code-lab'
+  | 'debugging-lab'
+  | 'security-lab'
+  | 'repo-lab'
+  | 'agent-lab'
+  | 'performance-lab'
+  | 'model-compare-lab'
+  | 'history';
 
 export const EvaluationLabDashboard: React.FC<DashboardProps> = ({ className = '' }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('control-center');
@@ -78,6 +88,30 @@ function runUserScript(cmd: string) {
 }`);
   const [securityResult, setSecurityResult] = useState<any>(null);
   const [isSecurityScanning, setIsSecurityScanning] = useState<boolean>(false);
+
+  // 5. REPOSITORY EVALUATION LAB STATE
+  const [repoScanResult, setRepoScanResult] = useState<any>(null);
+  const [isRepoScanning, setIsRepoScanning] = useState<boolean>(false);
+
+  // 6. AGENT EVALUATION LAB STATE
+  const [agentPrompt, setAgentPrompt] = useState<string>('ตรวจสอบและปฏิบัติตามหลักความปลอดภัย Fail-Closed ในโมดูล File Gateway');
+  const [agentRiskTier, setAgentRiskTier] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('HIGH');
+  const [agentResult, setAgentResult] = useState<any>(null);
+  const [isAgentRunning, setIsAgentRunning] = useState<boolean>(false);
+
+  // 7. PERFORMANCE & RELIABILITY LAB STATE
+  const [perfResult, setPerfResult] = useState<any>(null);
+  const [isPerfMeasuring, setIsPerfMeasuring] = useState<boolean>(false);
+  const [perfIterations, setPerfIterations] = useState<number>(5);
+
+  // 8. MODEL COMPARISON LAB STATE
+  const [comparePrompt, setComparePrompt] = useState<string>('อธิบายความแตกต่างระหว่าง Sovereign Local Execution กับ Cloud Inference ในเชิงความปลอดภัย');
+  const [compareResult, setCompareResult] = useState<any>(null);
+  const [isComparing, setIsComparing] = useState<boolean>(false);
+
+  // UNIFIED LAB AUDIT LOGS (Server-Side with SHA-256 Digest)
+  const [serverLogs, setServerLogs] = useState<any[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState<boolean>(false);
 
   // Initial Load with Deduplication Guard
   useEffect(() => {
@@ -286,6 +320,114 @@ function runUserScript(cmd: string) {
     }
   };
 
+  // Run Repository Evaluation
+  const executeRepoScan = async () => {
+    setIsRepoScanning(true);
+    try {
+      const res = await fetch('/api/evaluation/repository/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ options: { parseAst: true, buildDepGraph: true, detectCycles: true } }),
+      });
+      const data = await res.json();
+      setRepoScanResult(data);
+    } catch (err: any) {
+      setRepoScanResult({ ok: false, error: err.message });
+    } finally {
+      setIsRepoScanning(false);
+    }
+  };
+
+  // Run Agent Evaluation
+  const executeAgentEval = async () => {
+    setIsAgentRunning(true);
+    try {
+      const res = await fetch('/api/evaluation/agent/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskPrompt: agentPrompt, riskTier: agentRiskTier }),
+      });
+      const data = await res.json();
+      setAgentResult(data);
+    } catch (err: any) {
+      setAgentResult({ ok: false, error: err.message });
+    } finally {
+      setIsAgentRunning(false);
+    }
+  };
+
+  // Run Performance & Reliability Measurement
+  const executePerfMeasure = async () => {
+    setIsPerfMeasuring(true);
+    try {
+      const res = await fetch('/api/evaluation/performance/measure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ iterations: perfIterations }),
+      });
+      const data = await res.json();
+      setPerfResult(data);
+    } catch (err: any) {
+      setPerfResult({ ok: false, error: err.message });
+    } finally {
+      setIsPerfMeasuring(false);
+    }
+  };
+
+  // Run Model Comparison
+  const executeModelCompare = async () => {
+    setIsComparing(true);
+    try {
+      const res = await fetch('/api/evaluation/models/compare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: comparePrompt,
+          models: ['gemini-2.5-flash', 'zyntheor-core-x-adapted', 'zyntheor-core-x-native-1.1.0'],
+        }),
+      });
+      const data = await res.json();
+      setCompareResult(data);
+    } catch (err: any) {
+      setCompareResult({ ok: false, error: err.message });
+    } finally {
+      setIsComparing(false);
+    }
+  };
+
+  // Fetch Server-side Audited Lab Logs
+  const fetchServerLogs = async () => {
+    setIsLoadingLogs(true);
+    try {
+      const res = await fetch('/api/evaluation/lab-history');
+      const data = await res.json();
+      if (data.ok) {
+        setServerLogs(data.history || []);
+      }
+    } catch (err: any) {
+      console.error('Failed to load server lab logs:', err);
+    } finally {
+      setIsLoadingLogs(false);
+    }
+  };
+
+  // Download Sovereign Audit Manifest
+  const downloadAuditManifest = async () => {
+    try {
+      const res = await fetch('/api/evaluation/export');
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `zyntheor-audit-manifest-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert(`Export failed: ${err.message}`);
+    }
+  };
+
   // Derived Values
   const benchmark = useMemo(() => {
     if (!currentEval) return null;
@@ -415,11 +557,20 @@ function runUserScript(cmd: string) {
           { id: 'code-lab', label: 'Code Evaluation Lab', icon: '💻' },
           { id: 'debugging-lab', label: 'Debugging & Patch Lab', icon: '🔧' },
           { id: 'security-lab', label: 'Security Evaluation Lab', icon: '🛡️' },
-          { id: 'history', label: `History & Regressions (${history.length})`, icon: '📈' },
+          { id: 'repo-lab', label: 'Repository Evaluation Lab', icon: '📁' },
+          { id: 'agent-lab', label: 'Agent Orchestration Lab', icon: '🤖' },
+          { id: 'performance-lab', label: 'Performance & Reliability Lab', icon: '⏱️' },
+          { id: 'model-compare-lab', label: 'Model Comparison Lab', icon: '⚖️' },
+          { id: 'history', label: `History & Sovereign Audits (${history.length})`, icon: '📈' },
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as ActiveTab)}
+            onClick={() => {
+              setActiveTab(tab.id as ActiveTab);
+              if (tab.id === 'history') {
+                fetchServerLogs();
+              }
+            }}
             className={`px-4 py-2.5 text-xs font-medium rounded-t-lg transition flex items-center gap-2 whitespace-nowrap border-b-2 ${
               activeTab === tab.id
                 ? 'bg-[#151821] text-cyan-400 border-cyan-400 font-semibold'
@@ -1151,20 +1302,394 @@ function runUserScript(cmd: string) {
         </div>
       )}
 
-      {/* TAB 6: HISTORY & REGRESSION TIMELINE */}
+      {/* TAB 5: REPOSITORY EVALUATION LAB */}
+      {activeTab === 'repo-lab' && (
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-[#151821] p-4 rounded-lg border border-[#232634]">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>📁</span> Repository Evaluation Lab (การประเมินโครงสร้างและ AST จริง)
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                วิเคราะห์ไฟล์, AST Symbols, Dependency Graph, Entry Points และวงจรพึ่งพา (Cycles) จาก Repository ปัจจุบัน
+              </p>
+            </div>
+            <button
+              onClick={executeRepoScan}
+              disabled={isRepoScanning}
+              className={`px-4 py-2 text-xs font-semibold rounded-lg shadow transition flex items-center gap-2 ${
+                isRepoScanning
+                  ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  : 'bg-cyan-600 hover:bg-cyan-500 text-white'
+              }`}
+            >
+              {isRepoScanning ? 'กำลังสแกนโครงสร้าง AST...' : '▶ เริ่มวิเคราะห์ Repository จริง'}
+            </button>
+          </div>
+
+          {repoScanResult ? (
+            <div className="space-y-4">
+              {/* Summary Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="p-3 bg-[#151821] border border-[#232634] rounded-lg">
+                  <div className="text-[11px] text-gray-400 font-mono">SCANNED FILES</div>
+                  <div className="text-lg font-bold text-cyan-400 font-mono">{repoScanResult.summary?.scannedFiles || 0}</div>
+                </div>
+                <div className="p-3 bg-[#151821] border border-[#232634] rounded-lg">
+                  <div className="text-[11px] text-gray-400 font-mono">AST SYMBOLS</div>
+                  <div className="text-lg font-bold text-emerald-400 font-mono">{repoScanResult.summary?.totalSymbols || 0}</div>
+                </div>
+                <div className="p-3 bg-[#151821] border border-[#232634] rounded-lg">
+                  <div className="text-[11px] text-gray-400 font-mono">SCANNED BYTES</div>
+                  <div className="text-lg font-bold text-purple-400 font-mono">{((repoScanResult.summary?.scannedBytes || 0) / 1024).toFixed(1)} KB</div>
+                </div>
+                <div className="p-3 bg-[#151821] border border-[#232634] rounded-lg">
+                  <div className="text-[11px] text-gray-400 font-mono">CIRCULAR CYCLES</div>
+                  <div className={`text-lg font-bold font-mono ${repoScanResult.circularDependencies?.length > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                    {repoScanResult.circularDependencies?.length || 0}
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Verification Badge */}
+              <div className="p-3 bg-[#151821] border border-[#232634] rounded-lg flex items-center justify-between text-xs font-mono">
+                <span className="text-gray-300">STATUS: <strong className="text-emerald-400">{repoScanResult.status}</strong></span>
+                <span className="text-gray-400">DURATION: {repoScanResult.durationMs}ms</span>
+                <span className="text-cyan-400">ZERO MOCK: REAL AST PARSED</span>
+              </div>
+
+              {/* Circular Dependencies Check */}
+              <div className="p-4 bg-[#151821] border border-[#232634] rounded-lg space-y-2">
+                <div className="text-xs font-bold text-white flex items-center gap-2">
+                  <span>🔄</span> การตรวจสอบ Circular Dependency
+                </div>
+                {repoScanResult.circularDependencies?.length > 0 ? (
+                  <div className="space-y-1">
+                    {repoScanResult.circularDependencies.map((cycle: any, idx: number) => (
+                      <div key={idx} className="p-2 bg-red-950/30 border border-red-800 rounded text-xs text-red-300 font-mono">
+                        {Array.isArray(cycle) ? cycle.join(' → ') : JSON.stringify(cycle)}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-xs text-emerald-400 font-mono bg-emerald-950/20 p-2.5 rounded border border-emerald-900/50">
+                    ✓ ไม่พบ Circular Dependency ใดๆ ในระบบโครงสร้างปัจจุบัน
+                  </div>
+                )}
+              </div>
+
+              {/* Entry Points */}
+              <div className="p-4 bg-[#151821] border border-[#232634] rounded-lg space-y-2">
+                <div className="text-xs font-bold text-white flex items-center gap-2">
+                  <span>🚀</span> Entry Points ที่ตรวจพบ ({repoScanResult.entryPoints?.length || 0})
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {repoScanResult.entryPoints?.map((ep: string, idx: number) => (
+                    <span key={idx} className="px-2.5 py-1 bg-[#0b0d12] border border-cyan-800/60 text-cyan-300 rounded text-xs font-mono">
+                      {ep}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-12 text-center text-xs text-gray-500 border border-dashed border-[#232634] rounded-lg">
+              กดปุ่ม "เริ่มวิเคราะห์ Repository จริง" เพื่อทำการอ่านโครงสร้าง AST และตรวจสอบความสัมพันธ์ของไฟล์
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 6: AGENT EVALUATION LAB */}
+      {activeTab === 'agent-lab' && (
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-[#151821] p-4 rounded-lg border border-[#232634]">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>🤖</span> Agent Orchestration Lab (การทดสอบมัลติเอเจนต์ 4 บทบาท)
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                ทดสอบ Pipeline มัลติเอเจนต์: Architect → Security → Coder → Verifier พร้อมขอบเขต Human-in-the-Loop
+              </p>
+            </div>
+            <button
+              onClick={executeAgentEval}
+              disabled={isAgentRunning}
+              className={`px-4 py-2 text-xs font-semibold rounded-lg shadow transition flex items-center gap-2 ${
+                isAgentRunning
+                  ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  : 'bg-cyan-600 hover:bg-cyan-500 text-white'
+              }`}
+            >
+              {isAgentRunning ? 'กำลังประสานงานเอเจนต์...' : '▶ รัน Multi-Agent Pipeline'}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-xs text-gray-400 font-mono">TASK PROMPT (คำสั่งงานภาษาไทย):</label>
+              <textarea
+                value={agentPrompt}
+                onChange={e => setAgentPrompt(e.target.value)}
+                className="w-full h-24 p-3 bg-[#151821] border border-[#232634] rounded-lg text-xs font-sans text-gray-200 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs text-gray-400 font-mono">RISK TIER (ระดับความเสี่ยง):</label>
+              <select
+                value={agentRiskTier}
+                onChange={e => setAgentRiskTier(e.target.value as any)}
+                className="w-full p-2.5 bg-[#151821] border border-[#232634] rounded-lg text-xs font-mono text-gray-200 focus:outline-none focus:border-cyan-500"
+              >
+                <option value="LOW">LOW — Routine read operations</option>
+                <option value="MEDIUM">MEDIUM — Isolated patch suggestions</option>
+                <option value="HIGH">HIGH — Human Approval Required</option>
+                <option value="CRITICAL">CRITICAL — Human Approval & Strict Sandbox</option>
+              </select>
+              <div className="p-2.5 bg-[#0b0d12] border border-[#232634] rounded text-[11px] text-gray-400">
+                หากระดับเป็น <span className="text-amber-400 font-bold">HIGH</span> หรือ <span className="text-red-400 font-bold">CRITICAL</span> ระบบจะบังคับ Human-in-the-Loop Gate ทันทีตามหลัก Fail-Closed
+              </div>
+            </div>
+          </div>
+
+          {agentResult && (
+            <div className="space-y-4 font-mono text-xs">
+              <div className="p-3 bg-[#151821] border border-[#232634] rounded-lg flex flex-wrap items-center justify-between gap-3">
+                <span className="text-gray-300">STATUS: <strong className="text-emerald-400">{agentResult.status}</strong></span>
+                <span className="text-amber-400 font-bold">HUMAN APPROVAL: {agentResult.humanApprovalRequired ? 'MANDATED (ต้องได้รับอนุมัติ)' : 'AUTOMATED'}</span>
+                <span className="text-cyan-400">LATENCY: {agentResult.durationMs}ms</span>
+                <span className="text-gray-400 truncate max-w-xs">EVIDENCE: {agentResult.evidenceDigest?.slice(0, 16)}...</span>
+              </div>
+
+              {/* Agent Roles Steps */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {agentResult.steps?.map((step: any, idx: number) => (
+                  <div key={idx} className="p-3 bg-[#151821] border border-[#232634] rounded-lg space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-cyan-300">{step.role}</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] ${step.status === 'VERIFIED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-blue-950 text-blue-300 border border-blue-800'}`}>
+                        {step.status}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-gray-300 font-sans">{step.summary}</div>
+                    <div className="text-[10px] text-gray-400">Output Artifact: {step.output}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 7: PERFORMANCE & RELIABILITY LAB */}
+      {activeTab === 'performance-lab' && (
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-[#151821] p-4 rounded-lg border border-[#232634]">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>⏱️</span> Performance & Reliability Lab (วัดประสิทธิภาพจริงระดับ OS)
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Zero Mock: ดึงค่าจาก Node.js process.memoryUsage(), process.cpuUsage(), และ process.uptime() จริง
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <span className="text-gray-400">Iterations:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={perfIterations}
+                  onChange={e => setPerfIterations(parseInt(e.target.value) || 5)}
+                  className="w-16 p-1.5 bg-[#0b0d12] border border-[#232634] rounded text-cyan-400 text-center text-xs"
+                />
+              </div>
+              <button
+                onClick={executePerfMeasure}
+                disabled={isPerfMeasuring}
+                className={`px-4 py-2 text-xs font-semibold rounded-lg shadow transition flex items-center gap-2 ${
+                  isPerfMeasuring
+                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                    : 'bg-cyan-600 hover:bg-cyan-500 text-white'
+                }`}
+              >
+                {isPerfMeasuring ? 'กำลังวัดประสิทธิภาพ...' : '▶ เริ่มวัดประสิทธิภาพจริง'}
+              </button>
+            </div>
+          </div>
+
+          {perfResult ? (
+            <div className="space-y-4">
+              {/* Memory Metrics */}
+              <div className="p-4 bg-[#151821] border border-[#232634] rounded-lg space-y-3 font-mono">
+                <div className="text-xs font-bold text-cyan-400 flex items-center gap-2">
+                  <span>🧠</span> Process Memory Telemetry (Real Node.js process.memoryUsage)
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="p-3 bg-[#0b0d12] border border-[#232634] rounded">
+                    <div className="text-[10px] text-gray-400">HEAP USED</div>
+                    <div className="text-base font-bold text-emerald-400">{perfResult.memoryUsage?.heapUsedMb} MB</div>
+                  </div>
+                  <div className="p-3 bg-[#0b0d12] border border-[#232634] rounded">
+                    <div className="text-[10px] text-gray-400">HEAP TOTAL</div>
+                    <div className="text-base font-bold text-cyan-400">{perfResult.memoryUsage?.heapTotalMb} MB</div>
+                  </div>
+                  <div className="p-3 bg-[#0b0d12] border border-[#232634] rounded">
+                    <div className="text-[10px] text-gray-400">EXTERNAL</div>
+                    <div className="text-base font-bold text-purple-400">{perfResult.memoryUsage?.externalMb} MB</div>
+                  </div>
+                  <div className="p-3 bg-[#0b0d12] border border-[#232634] rounded">
+                    <div className="text-[10px] text-gray-400">RSS RESIDENT</div>
+                    <div className="text-base font-bold text-yellow-400">{perfResult.memoryUsage?.rssMb} MB</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CPU & Sandbox Overhead */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono">
+                <div className="p-4 bg-[#151821] border border-[#232634] rounded-lg space-y-2">
+                  <div className="text-xs font-bold text-blue-400">💻 CPU USAGE (Microseconds)</div>
+                  <div className="text-xs text-gray-300">User: <strong className="text-white">{perfResult.cpuUsage?.userMs} μs</strong></div>
+                  <div className="text-xs text-gray-300">System: <strong className="text-white">{perfResult.cpuUsage?.systemMs} μs</strong></div>
+                </div>
+                <div className="p-4 bg-[#151821] border border-[#232634] rounded-lg space-y-2">
+                  <div className="text-xs font-bold text-emerald-400">⚡ VM SANDBOX OVERHEAD</div>
+                  <div className="text-lg font-bold text-emerald-400">{perfResult.sandboxOverhead?.averageLatencyMs} ms</div>
+                  <div className="text-[10px] text-gray-400">Min: {perfResult.sandboxOverhead?.minLatencyMs}ms / Max: {perfResult.sandboxOverhead?.maxLatencyMs}ms</div>
+                </div>
+                <div className="p-4 bg-[#151821] border border-[#232634] rounded-lg space-y-2">
+                  <div className="text-xs font-bold text-purple-400">🕒 PROCESS UPTIME</div>
+                  <div className="text-lg font-bold text-purple-400">{perfResult.processUptimeSec} วินาที</div>
+                  <div className="text-[10px] text-gray-400">Zero Mock OS telemetry guarantee</div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-12 text-center text-xs text-gray-500 border border-dashed border-[#232634] rounded-lg">
+              กดปุ่ม "เริ่มวัดประสิทธิภาพจริง" เพื่อดึงข้อมูล Memory, CPU และ Sandbox Overhead จากระบบปฏิบัติการจริง
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 8: MODEL COMPARISON LAB */}
+      {activeTab === 'model-compare-lab' && (
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-[#151821] p-4 rounded-lg border border-[#232634]">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>⚖️</span> Model Comparison Lab (เปรียบเทียบโมเดลพร้อมระบุ Identity ตามจริง)
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                แยกชัดเจนระหว่าง First-Party ZYNTHEOR กับผู้ให้บริการภายนอก พร้อมสถานะ Phase 10 BLOCKED
+              </p>
+            </div>
+            <button
+              onClick={executeModelCompare}
+              disabled={isComparing}
+              className={`px-4 py-2 text-xs font-semibold rounded-lg shadow transition flex items-center gap-2 ${
+                isComparing
+                  ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  : 'bg-cyan-600 hover:bg-cyan-500 text-white'
+              }`}
+            >
+              {isComparing ? 'กำลังเปรียบเทียบผลลัพธ์...' : '▶ เริ่มเปรียบเทียบโมเดล'}
+            </button>
+          </div>
+
+          {/* Strict Identity Notice */}
+          <div className="p-3 bg-[#151821] border border-amber-900/60 rounded-lg text-xs space-y-1 font-mono text-gray-300">
+            <div className="text-amber-400 font-bold flex items-center gap-1.5">
+              <span>⚠️</span> STRICT FIRST-PARTY IDENTITY & BOUNDARY POLICY:
+            </div>
+            <div>• <strong className="text-red-400">CORE_NATIVE:</strong> สถานะ NOT_TRAINED (Phase 10 BLOCKED อย่างเข้มงวด ไม่อ้างว่าฝึกโมเดลแล้วจนกว่าจะมี Training Artifact จริง)</div>
+            <div>• <strong className="text-cyan-400">CORE_ADAPTED:</strong> ZYNTHEOR First-Party Adapted Weights และ Sovereign Engine ในระบบ</div>
+            <div>• <strong className="text-gray-400">EXTERNAL_API:</strong> Google Gemini, OpenAI, Claude เป็นผู้ให้บริการภายนอก ไม่ใช่ตัวตนของ ZYNTHEOR</div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs text-gray-400 font-mono">EVALUATION PROMPT (คำถามทดสอบภาษาไทย):</label>
+            <textarea
+              value={comparePrompt}
+              onChange={e => setComparePrompt(e.target.value)}
+              className="w-full h-20 p-3 bg-[#151821] border border-[#232634] rounded-lg text-xs font-sans text-gray-200 focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+
+          {compareResult && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {compareResult.comparison?.map((m: any, idx: number) => (
+                <div
+                  key={idx}
+                  className={`p-4 rounded-lg border font-mono text-xs flex flex-col justify-between space-y-3 ${
+                    m.identityType === 'CORE_NATIVE'
+                      ? 'bg-red-950/20 border-red-800'
+                      : m.identityType === 'CORE_ADAPTED'
+                      ? 'bg-cyan-950/20 border-cyan-800'
+                      : 'bg-[#151821] border-[#232634]'
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white text-sm">{m.modelId}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-black/40 border border-gray-700 text-gray-300">
+                        {m.identityType}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-gray-800">
+                      <span className="text-gray-400">STATUS:</span>
+                      <span className={`font-bold ${m.status === 'NOT_TRAINED' ? 'text-red-400' : 'text-emerald-400'}`}>
+                        {m.status}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-gray-400">LATENCY:</span>
+                      <span className="text-cyan-400 font-bold">{m.latencyMs} ms</span>
+                    </div>
+
+                    {m.notice && (
+                      <div className="text-[10px] text-amber-300 bg-amber-950/40 p-2 rounded border border-amber-900/60 font-sans">
+                        {m.notice}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-2 border-t border-gray-800">
+                    <div className="text-[10px] text-gray-400 uppercase font-mono mb-1">Response Output:</div>
+                    <div className="p-2.5 bg-[#0b0d12] rounded border border-gray-900 text-[11px] text-gray-200 font-sans max-h-40 overflow-y-auto whitespace-pre-wrap">
+                      {m.output || '(ไม่มีผลลัพธ์)'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 9: HISTORY & SOVEREIGN AUDIT TRAIL */}
       {activeTab === 'history' && (
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4 bg-[#151821] p-4 rounded-lg border border-[#232634]">
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span>📈</span> Evaluation Run History ({history.length} รายการ)
+                <span>📈</span> Evaluation Run History & Sovereign Audits
               </h2>
               <p className="text-xs text-gray-400 mt-0.5">
-                ประวัติการประเมินแบบ Deduplicated & Idempotent ป้องกันการบันทึกซ้ำซ้อน
+                ประวัติการประเมินแบบ Deduplicated & Idempotent พร้อมบันทึก Audit SHA-256 Digest จากเซิร์ฟเวอร์จริง
               </p>
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={downloadAuditManifest}
+                className="px-3 py-1.5 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 rounded border border-cyan-800 text-xs font-mono flex items-center gap-1.5"
+              >
+                <span>💾</span> Download Audit Manifest (SHA-256)
+              </button>
               <button
                 onClick={() => {
                   const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
@@ -1177,7 +1702,7 @@ function runUserScript(cmd: string) {
                 }}
                 className="px-3 py-1.5 bg-[#0b0d12] hover:bg-[#232634] text-gray-300 rounded border border-[#232634] text-xs font-mono"
               >
-                💾 Export JSON
+                💾 Export Runs
               </button>
               <button
                 onClick={handleClearHistory}
@@ -1188,6 +1713,58 @@ function runUserScript(cmd: string) {
             </div>
           </div>
 
+          {/* Server-side Lab Audit Log */}
+          <div className="p-4 bg-[#151821] border border-[#232634] rounded-lg space-y-3 font-mono text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-cyan-400 flex items-center gap-2">
+                <span>🛡️</span> Server Audited Lab Executions ({serverLogs.length} รายการ)
+              </span>
+              <button
+                onClick={fetchServerLogs}
+                disabled={isLoadingLogs}
+                className="text-[11px] text-gray-400 hover:text-cyan-300 underline"
+              >
+                {isLoadingLogs ? 'กำลังโหลด...' : 'รีเฟรชประวัติ'}
+              </button>
+            </div>
+
+            {serverLogs.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#232634] text-[10px] text-gray-400 uppercase">
+                      <th className="py-2 pr-3">Timestamp</th>
+                      <th className="py-2 pr-3">Lab Name</th>
+                      <th className="py-2 pr-3">Action</th>
+                      <th className="py-2 pr-3">Status</th>
+                      <th className="py-2">SHA-256 Evidence Digest</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#232634] text-[11px]">
+                    {serverLogs.slice(0, 15).map((log, idx) => (
+                      <tr key={idx} className="hover:bg-[#0b0d12]/50">
+                        <td className="py-2 pr-3 text-gray-400">{new Date(log.timestamp).toLocaleTimeString()}</td>
+                        <td className="py-2 pr-3 font-bold text-white">{log.labName}</td>
+                        <td className="py-2 pr-3 text-cyan-300">{log.action}</td>
+                        <td className="py-2 pr-3">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] ${log.status === 'SUCCESS' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-red-950 text-red-300 border border-red-800'}`}>
+                            {log.status}
+                          </span>
+                        </td>
+                        <td className="py-2 text-gray-400 truncate max-w-xs">{log.evidenceDigest}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-4 text-center text-gray-500 text-[11px]">
+                ยังไม่มีบันทึกการรัน Operational Lab ในเซสชันนี้
+              </div>
+            )}
+          </div>
+
+          {/* Unified Runs Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {history.map((entry, idx) => (
               <div
