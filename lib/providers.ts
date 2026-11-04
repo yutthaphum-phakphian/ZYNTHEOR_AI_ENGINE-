@@ -76,12 +76,14 @@ export interface ChatOptions {
   mode: ChatMode;
   messages: ModelMessage[];
   signal?: AbortSignal;
+  enableGrounding?: boolean;
 }
 
 export type StreamItem =
   | { type: 'delta'; text: string }
+  | { type: 'grounding'; chunks: Array<{ uri: string; title: string }>; searchQueries?: string[] }
   | { type: 'error'; message: string }
-  | { type: 'done'; chars: number };
+  | { type: 'done'; chars: number; groundingChunks?: Array<{ uri: string; title: string }> };
 
 export interface DiagnosticResult {
   state: string;
@@ -213,16 +215,26 @@ export class GeminiProvider implements ModelProvider {
     }
   }
 
-  async chat(options: ChatOptions): Promise<{ reply: string; model: string; provider: string }> {
+  async chat(options: ChatOptions): Promise<{
+    reply: string;
+    model: string;
+    provider: string;
+    groundingUsed?: boolean;
+    groundingChunks?: Array<{ uri: string; title: string }>;
+    searchQueries?: string[];
+  }> {
     options.signal?.throwIfAborted();
     const client = this.getClient();
     const { systemInstruction, contents } = this.formatContents(options.messages);
+
+    const tools = options.enableGrounding ? [{ googleSearch: {} }] : undefined;
 
     const response = await client.models.generateContent({
       model: this.configuredModel,
       contents,
       config: {
         ...(systemInstruction ? { systemInstruction } : {}),
+        ...(tools ? { tools } : {}),
         abortSignal: options.signal,
       },
     });
@@ -232,10 +244,23 @@ export class GeminiProvider implements ModelProvider {
       throw new Error('empty_model_response');
     }
 
+    const rawChunks = (response as any).candidates?.[0]?.groundingMetadata?.groundingChunks;
+    const groundingChunks: Array<{ uri: string; title: string }> = Array.isArray(rawChunks)
+      ? rawChunks.map((c: any) => ({
+          uri: c.web?.uri || '',
+          title: c.web?.title || 'แหล่งข้อมูลอ้างอิง',
+        })).filter((c: any) => Boolean(c.uri))
+      : [];
+
+    const searchQueries: string[] = (response as any).candidates?.[0]?.groundingMetadata?.webSearchQueries || [];
+
     return {
       reply,
       model: this.configuredModel,
       provider: this.id,
+      groundingUsed: Boolean(options.enableGrounding && groundingChunks.length > 0),
+      groundingChunks: groundingChunks.length > 0 ? groundingChunks : undefined,
+      searchQueries: searchQueries.length > 0 ? searchQueries : undefined,
     };
   }
 
@@ -244,16 +269,20 @@ export class GeminiProvider implements ModelProvider {
     const client = this.getClient();
     const { systemInstruction, contents } = this.formatContents(options.messages);
 
+    const tools = options.enableGrounding ? [{ googleSearch: {} }] : undefined;
+
     const stream = await client.models.generateContentStream({
       model: this.configuredModel,
       contents,
       config: {
         ...(systemInstruction ? { systemInstruction } : {}),
+        ...(tools ? { tools } : {}),
         abortSignal: options.signal,
       },
     });
 
     let chars = 0;
+    let recordedGrounding: Array<{ uri: string; title: string }> = [];
     try {
       for await (const chunk of stream) {
         if (options.signal?.aborted) {
@@ -263,6 +292,18 @@ export class GeminiProvider implements ModelProvider {
         if (text) {
           chars += text.length;
           yield { type: 'delta', text };
+        }
+
+        const rawChunks = (chunk as any).candidates?.[0]?.groundingMetadata?.groundingChunks;
+        if (Array.isArray(rawChunks) && rawChunks.length > 0 && recordedGrounding.length === 0) {
+          recordedGrounding = rawChunks.map((c: any) => ({
+            uri: c.web?.uri || '',
+            title: c.web?.title || 'แหล่งข้อมูลอ้างอิง',
+          })).filter((c: any) => Boolean(c.uri));
+          if (recordedGrounding.length > 0) {
+            const searchQueries: string[] = (chunk as any).candidates?.[0]?.groundingMetadata?.webSearchQueries || [];
+            yield { type: 'grounding', chunks: recordedGrounding, searchQueries };
+          }
         }
       }
     } catch (err) {
@@ -276,7 +317,7 @@ export class GeminiProvider implements ModelProvider {
       return;
     }
 
-    yield { type: 'done', chars };
+    yield { type: 'done', chars, groundingChunks: recordedGrounding.length > 0 ? recordedGrounding : undefined };
   }
 
   async testInference(signal?: AbortSignal): Promise<DiagnosticResult> {

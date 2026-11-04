@@ -40,7 +40,8 @@ export interface LabExecutionRecord {
     | 'REPOSITORY'
     | 'AGENT'
     | 'PERFORMANCE'
-    | 'MODEL_COMPARE';
+    | 'MODEL_COMPARE'
+    | 'GENERAL_KNOWLEDGE';
   action: string;
   model: string;
   provider: string;
@@ -1110,6 +1111,80 @@ router.post('/models/compare', async (req: Request, res: Response) => {
     evidenceDigest: record.evidenceDigest,
     timestamp: new Date().toISOString(),
   });
+});
+
+// 3.9 General Knowledge & Grounding Evaluation
+router.post('/general-knowledge', async (req: Request, res: Response) => {
+  const { query, enableSearch = true, language = 'th' } = req.body || {};
+  if (!query || typeof query !== 'string' || !query.trim()) {
+    return res.status(400).json({ ok: false, error: 'query_required', message: 'กรุณาระบุหัวข้อหรือคำถาม' });
+  }
+
+  const startTime = performance.now();
+  try {
+    const provider = createProvider();
+    const systemPrompt = language === 'th'
+      ? 'คุณคือ ZYNTHEOR General Knowledge Intelligence ให้คำตอบที่ถูกต้อง ครบถ้วน มีหลักการ และเป็นภาษาไทยเป็นหลัก เมื่อมีผลการค้นหาเว็บ ให้อ้างอิงข้อมูลจริงอย่างโปร่งใส'
+      : 'You are ZYNTHEOR General Knowledge Intelligence. Provide accurate, well-grounded answers.';
+
+    const result = await provider.chat({
+      mode: 'research',
+      enableGrounding: Boolean(enableSearch),
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: query.trim() }
+      ],
+      signal: AbortSignal.timeout(60000)
+    });
+
+    const durationMs = Math.round(performance.now() - startTime);
+    const groundingChunks = (result as any).groundingChunks || [];
+    const searchQueries = (result as any).searchQueries || [];
+
+    const record = recordLabAction(
+      'GENERAL_KNOWLEDGE',
+      'EVALUATE_GENERAL_KNOWLEDGE',
+      result.model,
+      result.provider,
+      durationMs,
+      'SUCCESS',
+      { query: query.slice(0, 100), groundingCount: groundingChunks.length, model: result.model }
+    );
+
+    res.json({
+      ok: true,
+      query,
+      answer: result.reply,
+      model: result.model,
+      provider: result.provider,
+      modelCategory: 'EXTERNAL_MODEL_PROVIDER',
+      groundingUsed: Boolean((result as any).groundingUsed),
+      groundingChunks,
+      searchQueries,
+      evidenceDigest: record.evidenceDigest,
+      durationMs,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    const durationMs = Math.round(performance.now() - startTime);
+    const record = recordLabAction(
+      'GENERAL_KNOWLEDGE',
+      'EVALUATE_GENERAL_KNOWLEDGE_FAILED',
+      'unknown',
+      'gemini',
+      durationMs,
+      'FAILED',
+      { error: error?.message }
+    );
+
+    res.status(503).json({
+      ok: false,
+      error: 'general_knowledge_evaluation_failed',
+      message: error?.message || 'การประเมินผลความรู้ทั่วไปล้มเหลว',
+      evidenceDigest: record.evidenceDigest,
+      durationMs
+    });
+  }
 });
 
 // =========================================================================

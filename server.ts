@@ -57,6 +57,7 @@ import { globalConsensus } from './lib/governance-consensus.ts';
 import { globalResilience } from './lib/governance-resilience.ts';
 import { globalScalability } from './lib/governance-scalability.ts';
 import { globalFederation } from './lib/governance-federation.ts';
+import { enforceModelResponseMetadata } from './src/contracts/modelIdentityContract.ts';
 
 const globalEvidence = new EvidenceManager();
 const globalGovernance = new GovernanceRegistry();
@@ -961,14 +962,14 @@ app.post('/api/models/benchmark-compare', rateLimit(10, 60_000), async (_req, re
   }
 });
 
-type ChatRequest = { ok: true; message: string; mode: ChatMode; history: unknown } | { ok: false; status: number; body: Record<string, unknown> };
+type ChatRequest = { ok: true; message: string; mode: ChatMode; history: unknown; enableGrounding?: boolean } | { ok: false; status: number; body: Record<string, unknown> };
 function parseChatRequest(req: Request): ChatRequest {
   const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
   if (!message) return { ok: false, status: 400, body: { error: 'message_required', message: 'กรุณาพิมพ์ข้อความก่อนส่ง' } };
   if (message.length > 30000) return { ok: false, status: 413, body: { error: 'message_too_long' } };
   const mode = normalizeMode(req.body?.mode);
   if (!mode) return { ok: false, status: 400, body: { error: 'invalid_mode', message: `mode ต้องเป็นหนึ่งใน: ${CHAT_MODES.join(', ')}` } };
-  return { ok: true, message, mode, history: req.body?.history };
+  return { ok: true, message, mode, history: req.body?.history, enableGrounding: Boolean(req.body?.enableGrounding) };
 }
 
 app.post('/api/chat', rateLimit(20, 60_000), async (req, res) => {
@@ -984,14 +985,36 @@ app.post('/api/chat', rateLimit(20, 60_000), async (req, res) => {
     const effectiveMode = autoSelection?.mode || parsed.mode;
     const messages = buildChatMessages(effectiveMode, parsed.history, parsed.message);
     const inferenceStartedAt = performance.now();
-    const result = await provider.chat({ mode: effectiveMode, messages, signal: AbortSignal.timeout(90000) });
+    const result = await provider.chat({ mode: effectiveMode, messages, enableGrounding: parsed.enableGrounding, signal: AbortSignal.timeout(90000) });
     const inferenceLatencyMs = performance.now() - inferenceStartedAt;
     providerHealth.recordSuccess(provider.id, inferenceLatencyMs);
     requestObservability.record({ userId: resolveRequestUser(req).id, workspaceId: String(req.headers['x-workspace-id'] || 'default'), provider: result.provider, model: result.model, mode: parsed.mode, effectiveMode, status: 'success', latencyMs: inferenceLatencyMs, ...(result as any).usage, cost: (result as any).cost });
     inferenceVerified = true;
     lastInferenceError = null;
-    addAudit('MODEL_RESPONSE_RECEIVED', `provider=${result.provider}; model=${result.model}; mode=${parsed.mode}`);
-    res.json({ reply: result.reply, model: result.model, provider: result.provider, mode: parsed.mode, effectiveMode, modeReason: autoSelection?.reason, generatedAt: new Date().toISOString() });
+
+    const identity = enforceModelResponseMetadata({
+      modelId: result.model,
+      providerId: result.provider,
+      groundingUsed: Boolean((result as any).groundingUsed),
+      groundingSourcesCount: ((result as any).groundingChunks || []).length,
+    });
+
+    addAudit('MODEL_RESPONSE_RECEIVED', `provider=${result.provider}; model=${result.model}; mode=${parsed.mode}; category=${identity.modelCategory}`);
+    res.json({
+      reply: result.reply,
+      model: result.model,
+      provider: result.provider,
+      mode: parsed.mode,
+      effectiveMode,
+      modeReason: autoSelection?.reason,
+      intentType: autoSelection?.intentType,
+      intentLabelTh: autoSelection?.labelTh,
+      groundingUsed: (result as any).groundingUsed,
+      groundingChunks: (result as any).groundingChunks,
+      searchQueries: (result as any).searchQueries,
+      identity,
+      generatedAt: new Date().toISOString()
+    });
   } catch (error) {
     inferenceVerified = false;
     lastInferenceError = errorMessage(error);
@@ -1033,7 +1056,7 @@ app.post('/api/chat/stream', rateLimit(20, 60_000), async (req, res) => {
     const effectiveMode = autoSelection?.mode || parsed.mode;
     const messages = buildChatMessages(effectiveMode, parsed.history, parsed.message);
     const streamStartedAt = performance.now();
-    const stream = provider.chatStream({ mode: effectiveMode, messages, signal: controller.signal });
+    const stream = provider.chatStream({ mode: effectiveMode, messages, enableGrounding: parsed.enableGrounding, signal: controller.signal });
     const iterator = stream[Symbol.asyncIterator]();
     const firstResult = await iterator.next();
 
@@ -1051,17 +1074,36 @@ app.post('/api/chat/stream', rateLimit(20, 60_000), async (req, res) => {
       return;
     }
 
+    const initialIdentity = enforceModelResponseMetadata({
+      modelId: provider.configuredModel,
+      providerId: provider.id,
+      groundingUsed: parsed.enableGrounding,
+    });
+
     res.status(200);
     res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store, no-transform');
     res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders();
-    send('start', { model: provider.configuredModel, provider: provider.id, mode: parsed.mode, effectiveMode, modeReason: autoSelection?.reason });
+    send('start', {
+      model: provider.configuredModel,
+      provider: provider.id,
+      mode: parsed.mode,
+      effectiveMode,
+      modeReason: autoSelection?.reason,
+      intentType: autoSelection?.intentType,
+      intentLabelTh: autoSelection?.labelTh,
+      identity: initialIdentity,
+    });
 
     let chars = 0;
+    let streamGroundingChunks: Array<{ uri: string; title: string }> = [];
     if (firstItem.type === 'delta') {
       chars += firstItem.text.length;
       send('delta', { text: firstItem.text });
+    } else if (firstItem.type === 'grounding') {
+      streamGroundingChunks = firstItem.chunks;
+      send('grounding', { chunks: firstItem.chunks, searchQueries: firstItem.searchQueries });
     }
 
     let finished = false;
@@ -1072,13 +1114,19 @@ app.post('/api/chat/stream', rateLimit(20, 60_000), async (req, res) => {
       if (item.type === 'delta') {
         chars += item.text.length;
         send('delta', { text: item.text });
+      } else if (item.type === 'grounding') {
+        streamGroundingChunks = item.chunks;
+        send('grounding', { chunks: item.chunks, searchQueries: item.searchQueries });
       } else if (item.type === 'error') {
         providerHealth.recordFailure(provider.id, 'stream_failed');
         addAudit('MODEL_STREAM_FAILED', item.message.slice(0, 120));
-        send('error', { error: 'model_stream_error', message: item.message.slice(0, 300) });
+        send('error', { error: 'model_stream_error', message: item.message.slice(300) });
         res.end();
         return;
       } else if (item.type === 'done') {
+        if (item.groundingChunks) {
+          streamGroundingChunks = item.groundingChunks;
+        }
         finished = true;
         break;
       }
@@ -1097,11 +1145,31 @@ app.post('/api/chat/stream', rateLimit(20, 60_000), async (req, res) => {
     }
     inferenceVerified = true;
     lastInferenceError = null;
-    addAudit('MODEL_STREAM_COMPLETED', `provider=${provider.id}; model=${provider.configuredModel}; mode=${parsed.mode}; chars=${chars}`);
+
+    const finalIdentity = enforceModelResponseMetadata({
+      modelId: provider.configuredModel,
+      providerId: provider.id,
+      groundingUsed: Boolean(parsed.enableGrounding && streamGroundingChunks.length > 0),
+      groundingSourcesCount: streamGroundingChunks.length,
+    });
+
+    addAudit('MODEL_STREAM_COMPLETED', `provider=${provider.id}; model=${provider.configuredModel}; mode=${parsed.mode}; chars=${chars}; category=${finalIdentity.modelCategory}`);
     const streamLatencyMs = performance.now() - streamStartedAt;
     providerHealth.recordSuccess(provider.id, streamLatencyMs);
     requestObservability.record({ userId: resolveRequestUser(req).id, workspaceId: String(req.headers['x-workspace-id'] || 'default'), provider: provider.id, model: provider.configuredModel, mode: parsed.mode, effectiveMode, status: 'success', latencyMs: streamLatencyMs });
-    send('done', { model: provider.configuredModel, provider: provider.id, mode: parsed.mode, effectiveMode, modeReason: autoSelection?.reason, chars, generatedAt: new Date().toISOString() });
+    send('done', {
+      model: provider.configuredModel,
+      provider: provider.id,
+      mode: parsed.mode,
+      effectiveMode,
+      modeReason: autoSelection?.reason,
+      intentType: autoSelection?.intentType,
+      intentLabelTh: autoSelection?.labelTh,
+      chars,
+      groundingChunks: streamGroundingChunks.length > 0 ? streamGroundingChunks : undefined,
+      identity: finalIdentity,
+      generatedAt: new Date().toISOString()
+    });
     res.end();
   } catch (error) {
     inferenceVerified = false;
@@ -1118,6 +1186,90 @@ app.post('/api/chat/stream', rateLimit(20, 60_000), async (req, res) => {
     }
   } finally {
     clearTimeout(timer);
+  }
+});
+
+// Real LLM Document & Long-Text Summarization
+app.post('/api/chat/summarize', rateLimit(15, 60_000), async (req: Request, res: Response) => {
+  const text = typeof req.body?.text === 'string' ? req.body.text.trim() : '';
+  const style = typeof req.body?.style === 'string' ? req.body.style : 'brief';
+  const language = req.body?.language === 'en' ? 'en' : 'th';
+
+  if (!text) {
+    return res.status(400).json({ ok: false, error: 'text_required', message: 'กรุณาระบุข้อความหรือเนื้อหาที่ต้องการสรุป' });
+  }
+
+  if (text.length > 50000) {
+    return res.status(413).json({ ok: false, error: 'text_too_large', message: 'ข้อความยาวเกิน 50,000 ตัวอักษร' });
+  }
+
+  if (!remoteAllowed()) {
+    addAudit('SUMMARIZATION_BLOCKED', 'Blocked by local-only / consent policy');
+    return res.status(403).json({
+      ok: false,
+      error: 'online_provider_blocked_by_policy',
+      message: 'การสรุปเนื้อหาผ่านโมเดลคลาวด์ถูกบล็อกโดยนโยบาย Local-only หรือยังไม่ได้ให้ความยินยอม',
+    });
+  }
+
+  const stylePrompts: Record<string, string> = {
+    brief: 'สรุปเนื้อหาหลักให้กระชับ ชัดเจน เข้าใจง่ายใน 3-5 ประโยค และสกัดประเด็นหลักสั้นๆ',
+    detailed: 'สรุปเนื้อหาอย่างละเอียด วิเคราะห์โครงสร้างประเด็น บริบทสำคัญ และข้อสรุปอย่างเป็นระบบและครอบคลุม',
+    key_points: 'สกัดประเด็นสำคัญทั้งหมดเป็นหัวข้อย่อย (Bullet points) ชี้ชัดข้อเท็จจริง ตัวเลข และสาระสำคัญ',
+    action_items: 'สกัดขั้นตอนการปฏิบัติการ (Action items) สิ่งที่ต้องดำเนินการต่อ ผู้รับผิดชอบ และเงื่อนไขสำคัญที่พบในเนื้อหา',
+  };
+
+  const instruction = stylePrompts[style] || stylePrompts.brief;
+  const langRule = language === 'th' ? 'ตอบเป็นภาษาไทยที่สุภาพ เป็นธรรมชาติ และถูกต้องตามหลักภาษา' : 'Reply in clear, professional English.';
+
+  try {
+    const summaryPrompt = `${instruction}\n${langRule}\n\n[ข้อความต้นฉบับ]:\n${text}`;
+    const result = await provider.chat({
+      mode: 'chat',
+      messages: [
+        { role: 'system', content: 'You are ZYNTHEOR Summarization Engine. Provide accurate, high-fidelity summaries strictly grounded in the source text. Never hallucinate facts outside the provided document.' },
+        { role: 'user', content: summaryPrompt }
+      ],
+      signal: AbortSignal.timeout(60000),
+    });
+
+    const summaryText = result.reply?.trim() || '';
+    if (!summaryText) {
+      throw new Error('empty_model_response');
+    }
+
+    const originalChars = text.length;
+    const summaryChars = summaryText.length;
+    const compressionRatio = Math.max(0, Math.round((1 - (summaryChars / originalChars)) * 100));
+
+    const identity = enforceModelResponseMetadata({
+      modelId: result.model,
+      providerId: result.provider,
+    });
+
+    const auditDetail = `style=${style}; origChars=${originalChars}; summaryChars=${summaryChars}; ratio=${compressionRatio}%; model=${result.model}; category=${identity.modelCategory}`;
+    addAudit('CHAT_SUMMARIZATION_COMPLETED', auditDetail);
+
+    return res.json({
+      ok: true,
+      summary: summaryText,
+      style,
+      originalChars,
+      summaryChars,
+      compressionRatio: `${compressionRatio}%`,
+      model: result.model,
+      provider: result.provider,
+      identity,
+      createdAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    const msg = errorMessage(error).slice(0, 180);
+    addAudit('CHAT_SUMMARIZATION_FAILED', msg);
+    return res.status(503).json({
+      ok: false,
+      error: 'summarization_failed',
+      message: `${msg}. ตรวจสอบสถานะการเชื่อมต่อโมเดล`,
+    });
   }
 });
 
