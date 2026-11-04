@@ -2,8 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Bot, ShieldCheck, CheckCircle2, Clock, AlertTriangle, Play,
   Lock, ArrowRight, RefreshCw, Cpu, FileCode2,
-  Check, X, FileText, Sparkles, AlertCircle
+  Check, X, FileText, Sparkles, AlertCircle, Pause, Square, Eye, Activity, Radio
 } from 'lucide-react';
+import {
+  AgentStatusDot,
+  AgentStatusBadge,
+  LiveTaskIndicator,
+  getAgentVisualStatus
+} from './AgentStatusIndicator';
 
 export interface AgentRole {
   id: string;
@@ -14,6 +20,8 @@ export interface AgentRole {
   allowedTools: string[];
   requiresApprovalFor: string[];
   status: string;
+  currentStatus?: string;
+  assignedTask?: any;
 }
 
 export interface AgentStep {
@@ -60,27 +68,75 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
   const [loadingRoles, setLoadingRoles] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchRoles = useCallback(async () => {
+  // Quick Action & Logs Modal State
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+  const [logsModalAgent, setLogsModalAgent] = useState<AgentRole | null>(null);
+  const [agentLogs, setAgentLogs] = useState<any[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string>('Just now');
+  const [isSseConnected, setIsSseConnected] = useState(false);
+
+  const fetchActivity = useCallback(async () => {
     try {
       setLoadingRoles(true);
-      const res = await fetch('/api/intelligence/agent/roles', {
-        headers: authHeaders ? authHeaders() : {},
-      });
+      const headers = authHeaders ? authHeaders() : {};
+      const res = await fetch('/api/intelligence/agent/activity', { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data.ok && Array.isArray(data.roles)) {
-        setRoles(data.roles);
+      if (data.ok && Array.isArray(data.activeAgents)) {
+        setRoles(data.activeAgents);
+        setLastSyncTime(new Date().toLocaleTimeString());
+      } else {
+        // Fallback to roles
+        const roleRes = await fetch('/api/intelligence/agent/roles', { headers });
+        const roleData = await roleRes.json();
+        if (roleData.ok && Array.isArray(roleData.roles)) {
+          setRoles(roleData.roles.map((r: any) => ({ ...r, currentStatus: 'IDLE' })));
+        }
       }
     } catch (err: any) {
-      setError(err?.message || 'Failed to load agent roles');
+      setError(err?.message || 'Failed to load agent activity');
     } finally {
       setLoadingRoles(false);
     }
   }, [authHeaders]);
 
   useEffect(() => {
-    fetchRoles();
-  }, [fetchRoles]);
+    fetchActivity();
+
+    // SSE Real-time synchronization
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource('/api/intelligence/agent/activity/stream');
+      eventSource.onopen = () => setIsSseConnected(true);
+      eventSource.addEventListener('snapshot', (e: any) => {
+        try {
+          const payload = JSON.parse(e.data);
+          if (Array.isArray(payload.activeAgents)) {
+            setRoles(payload.activeAgents);
+            setLastSyncTime(new Date().toLocaleTimeString());
+          }
+        } catch {}
+      });
+      eventSource.addEventListener('agent:task_started', () => fetchActivity());
+      eventSource.addEventListener('agent:task_completed', () => fetchActivity());
+      eventSource.addEventListener('agent:task_paused', () => fetchActivity());
+      eventSource.addEventListener('agent:task_resumed', () => fetchActivity());
+      eventSource.addEventListener('agent:task_cancelled', () => fetchActivity());
+      eventSource.addEventListener('agent:waiting_approval', () => fetchActivity());
+      eventSource.addEventListener('agent:decision_recorded', () => fetchActivity());
+      eventSource.onerror = () => setIsSseConnected(false);
+    } catch {
+      setIsSseConnected(false);
+    }
+
+    const interval = setInterval(fetchActivity, 4000);
+
+    return () => {
+      if (eventSource) eventSource.close();
+      clearInterval(interval);
+    };
+  }, [fetchActivity]);
 
   const handleExecuteAgent = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -113,6 +169,7 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
       if (setToast) {
         setToast(data.humanApprovalRequired ? '⚠️ งานสำเร็จบางส่วนและต้องการการอนุมัติโดยมนุษย์' : '✅ กระบวนการ Agent ทำงานสำเร็จ');
       }
+      fetchActivity();
     } catch (err: any) {
       setError(err.message || 'Execution error');
       if (setToast) setToast(`เกิดข้อผิดพลาด: ${err.message}`);
@@ -128,7 +185,70 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
     }
   };
 
+  // Quick Action Handler (Pause, Resume, Cancel)
+  const handleAgentAction = async (agentRoleId: string, action: 'pause' | 'resume' | 'cancel') => {
+    try {
+      setActionInProgress(agentRoleId);
+      const res = await fetch('/api/intelligence/agent/action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authHeaders ? authHeaders() : {}),
+        },
+        body: JSON.stringify({
+          agentRoleId,
+          action,
+          reason: 'Manual command from Agent Command Center',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Action failed');
+      }
+
+      if (setToast) {
+        const actionLabel = action === 'pause' ? 'หยุดชั่วคราว (Paused)' : action === 'resume' ? 'ดำเนินการต่อ (Resumed)' : 'ยกเลิกคำสั่ง (Cancelled)';
+        setToast(`✅ Agent ${agentRoleId}: ${actionLabel} สำเร็จ`);
+      }
+      fetchActivity();
+    } catch (err: any) {
+      if (setToast) setToast(`เกิดข้อผิดพลาด: ${err.message}`);
+    } finally {
+      setActionInProgress(null);
+    }
+  };
+
+  // View Logs Handler
+  const handleViewLogs = async (agent: AgentRole) => {
+    try {
+      setLogsModalAgent(agent);
+      setLoadingLogs(true);
+      const headers = authHeaders ? authHeaders() : {};
+      const res = await fetch(`/api/intelligence/agent/logs?agentId=${encodeURIComponent(agent.id)}`, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.logs)) {
+          setAgentLogs(data.logs);
+        }
+      }
+    } catch (err: any) {
+      if (setToast) setToast(`Failed to load logs: ${err.message}`);
+    } finally {
+      setLoadingLogs(false);
+    }
+  };
+
   const currentRole = roles.find(r => r.id === selectedRole) || roles[0];
+  const currentTask = currentRole?.assignedTask;
+  const isCurrentActive = ['RUNNING', 'ASSIGNED', 'WAITING_FOR_APPROVAL', 'PAUSED'].includes(currentRole?.currentStatus || '');
+  const isCurrentPaused = currentRole?.currentStatus === 'PAUSED';
+
+  // Fleet counts
+  const workingCount = roles.filter(r => ['RUNNING', 'ASSIGNED'].includes(r.currentStatus || '')).length;
+  const blockedCount = roles.filter(r => ['WAITING_FOR_APPROVAL', 'BLOCKED', 'PAUSED'].includes(r.currentStatus || '')).length;
+  const errorCount = roles.filter(r => ['FAILED', 'ERROR'].includes(r.currentStatus || '')).length;
+  const idleCount = roles.filter(r => !['RUNNING', 'ASSIGNED', 'WAITING_FOR_APPROVAL', 'BLOCKED', 'PAUSED', 'FAILED', 'ERROR'].includes(r.currentStatus || '')).length;
 
   return (
     <div className="w-full space-y-6 p-4 max-w-7xl mx-auto">
@@ -140,18 +260,24 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
           </div>
           <h1 className="text-2xl font-bold text-zinc-100 mt-1">Autonomous Agent Orchestrator</h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Governed 7-stage multi-step intelligence engine with strict Human-in-the-Loop approval gate & fail-closed sandbox.
+            Governed 7-stage multi-step intelligence engine with strict Human-in-the-Loop approval gate &amp; fail-closed sandbox.
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-400 font-mono">
+            <Radio size={11} className={isSseConnected ? 'text-emerald-400 animate-pulse' : 'text-zinc-500'} />
+            <span>{isSseConnected ? 'LIVE SYNC' : 'POLLING'}</span>
+            <span className="text-zinc-600">·</span>
+            <span>{lastSyncTime}</span>
+          </div>
           <button
             type="button"
-            onClick={fetchRoles}
+            onClick={fetchActivity}
             disabled={loadingRoles}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-xs text-zinc-200 hover:bg-zinc-750 transition"
           >
             <RefreshCw size={13} className={loadingRoles ? 'animate-spin' : ''} />
-            <span>Reload Roles</span>
+            <span>Reload Status</span>
           </button>
           {onOpenAuditLedger && (
             <button
@@ -173,37 +299,104 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
         </div>
       )}
 
-      {/* Role Selector Grid */}
+      {/* Quick Monitoring Bar (Fleet Status Overview) */}
+      <div className="p-3.5 rounded-xl bg-zinc-900/70 border border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="text-xs font-bold text-zinc-200 flex items-center gap-1.5">
+            <Activity size={14} className="text-teal-400 animate-pulse" />
+            <span>Fleet Health Monitor:</span>
+          </span>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-950/70 border border-sky-800/60 text-sky-300 font-mono text-[11px]">
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+              Working: <b>{workingCount}</b>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-950/70 border border-amber-800/60 text-amber-300 font-mono text-[11px]">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              Blocked: <b>{blockedCount}</b>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-[11px]">
+              <span className="w-2 h-2 rounded-full bg-zinc-400" />
+              Idle: <b>{idleCount}</b>
+            </span>
+            {errorCount > 0 && (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-950/70 border border-rose-800/60 text-rose-300 font-mono text-[11px]">
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                Error: <b>{errorCount}</b>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Agent Dots Strip */}
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          {roles.map(r => (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => setSelectedRole(r.id)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono transition border ${
+                selectedRole === r.id
+                  ? 'bg-teal-950/80 border-teal-500/70 text-teal-200 shadow-sm'
+                  : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
+              }`}
+              title={`${r.name}: ${getAgentVisualStatus(r.currentStatus).labelEn} (${getAgentVisualStatus(r.currentStatus).labelTh})`}
+            >
+              <AgentStatusDot status={r.currentStatus} size="sm" />
+              <span className="font-semibold">{r.name.replace(' Agent', '')}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Role Selector Grid with Visual Status Indicators */}
       <div>
-        <div className="text-xs font-semibold text-zinc-300 mb-2 flex items-center justify-between">
+        <div className="text-xs font-semibold text-zinc-300 mb-2.5 flex items-center justify-between">
           <span>Active Agent Roles (Strict Least-Privilege Separation)</span>
           <span className="text-[11px] text-zinc-500">{roles.length} Governed Roles</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {roles.map(r => {
             const isSelected = r.id === selectedRole;
+            const task = r.assignedTask;
+            const statusCfg = getAgentVisualStatus(r.currentStatus);
+
             return (
-              <button
+              <div
                 key={r.id}
-                type="button"
                 onClick={() => setSelectedRole(r.id)}
-                className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                className={`p-3.5 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
                   isSelected
-                    ? 'border-teal-400/60 bg-teal-950/30 shadow-lg shadow-teal-950/40'
+                    ? 'border-teal-400/70 bg-teal-950/30 shadow-lg shadow-teal-950/40 ring-1 ring-teal-500/40'
                     : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 hover:bg-zinc-850/60'
                 }`}
               >
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-bold text-zinc-200">{r.name}</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-800/40">
-                      {r.status}
-                    </span>
+                  {/* Status Indicator & Role Name */}
+                  <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <AgentStatusDot status={r.currentStatus} size="md" />
+                      <span className="text-xs font-bold text-zinc-100 truncate">{r.name}</span>
+                    </div>
+                    <AgentStatusBadge status={r.currentStatus} size="sm" showDot={false} />
                   </div>
+
                   <div className="text-[11px] text-teal-400 font-medium mb-1">{r.nameTh}</div>
                   <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">{r.description}</p>
+
+                  {/* Assigned Task Preview if active */}
+                  {task && (
+                    <div className="mt-2 p-2 rounded-lg bg-zinc-950/80 border border-zinc-800/80 text-[10px] space-y-1">
+                      <div className="flex items-center justify-between text-zinc-300">
+                        <span className="font-semibold truncate max-w-[110px]">{task.goal}</span>
+                        <LiveTaskIndicator status={r.currentStatus} toolInUse={task.toolInUse} />
+                      </div>
+                      <div className="text-zinc-500 truncate">{task.currentStepTitle}</div>
+                    </div>
+                  )}
                 </div>
-                <div className="mt-2.5 pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-500">
+
+                <div className="mt-3 pt-2.5 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-500">
                   <span>{r.allowedTools.length} tools allowed</span>
                   {r.requiresApprovalFor.length > 0 && (
                     <span className="text-amber-400 flex items-center gap-1">
@@ -211,26 +404,74 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
                     </span>
                   )}
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
       </div>
 
-      {/* Selected Role Capabilities Bar */}
+      {/* Selected Role Capabilities Bar with Quick-Actions */}
       {currentRole && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 space-y-3.5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-zinc-800 text-xs">
-            <div className="flex items-center gap-2 text-zinc-300">
-              <span className="font-semibold text-teal-300">{currentRole.name}</span>
+            <div className="flex flex-wrap items-center gap-2 text-zinc-300">
+              <AgentStatusDot status={currentRole.currentStatus} size="lg" />
+              <span className="font-bold text-teal-300 text-sm">{currentRole.name}</span>
+              <span className="text-zinc-600">|</span>
+              <AgentStatusBadge status={currentRole.currentStatus} size="md" />
               <span className="text-zinc-600">|</span>
               <span className="text-zinc-400">{currentRole.description}</span>
             </div>
-            <div className="text-[11px] text-zinc-400">
-              Workspace Context: <b className="text-zinc-200">{workspaceId}</b>
+
+            {/* Quick Action Buttons for Current Agent */}
+            <div className="flex items-center gap-2">
+              {/* Pause / Resume */}
+              <button
+                type="button"
+                disabled={!isCurrentActive || actionInProgress === currentRole.id}
+                onClick={() => handleAgentAction(currentRole.id, isCurrentPaused ? 'resume' : 'pause')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition border ${
+                  isCurrentActive
+                    ? isCurrentPaused
+                      ? 'bg-emerald-950/70 border-emerald-700 text-emerald-300 hover:bg-emerald-900/70'
+                      : 'bg-amber-950/70 border-amber-700 text-amber-300 hover:bg-amber-900/70'
+                    : 'bg-zinc-950 border-zinc-850 text-zinc-600 opacity-40 cursor-not-allowed'
+                }`}
+                title={isCurrentActive ? (isCurrentPaused ? 'Resume Agent execution' : 'Pause Agent execution') : 'Agent is idle — only active agents can be paused'}
+              >
+                {isCurrentPaused ? <Play size={11} fill="currentColor" /> : <Pause size={11} />}
+                <span>{isCurrentPaused ? 'Resume' : 'Pause'}</span>
+              </button>
+
+              {/* Cancel */}
+              <button
+                type="button"
+                disabled={!isCurrentActive || actionInProgress === currentRole.id}
+                onClick={() => handleAgentAction(currentRole.id, 'cancel')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition border ${
+                  isCurrentActive
+                    ? 'bg-rose-950/70 border-rose-700 text-rose-300 hover:bg-rose-900/70'
+                    : 'bg-zinc-950 border-zinc-850 text-zinc-600 opacity-40 cursor-not-allowed'
+                }`}
+                title={isCurrentActive ? 'Abort Agent execution safely' : 'Agent is idle — only active agents can be cancelled'}
+              >
+                <Square size={11} />
+                <span>Cancel</span>
+              </button>
+
+              {/* View Logs */}
+              <button
+                type="button"
+                onClick={() => handleViewLogs(currentRole)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-zinc-200 text-xs font-semibold transition"
+              >
+                <Eye size={11} />
+                <span>View Logs</span>
+              </button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 text-xs">
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
             <div>
               <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Granted Permissions</span>
               <div className="flex flex-wrap gap-1.5 mt-1.5">
@@ -252,18 +493,16 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
               </div>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-amber-500/90 tracking-wider flex items-center gap-1">
-                <Lock size={11} /> Human Approval Mandatory For
-              </span>
+              <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Human-In-The-Loop Approval Gates</span>
               <div className="flex flex-wrap gap-1.5 mt-1.5">
-                {currentRole.requiresApprovalFor.length === 0 ? (
-                  <span className="text-[10px] text-zinc-500 italic">None (Read-only / Safe operations only)</span>
-                ) : (
+                {currentRole.requiresApprovalFor.length > 0 ? (
                   currentRole.requiresApprovalFor.map(a => (
-                    <span key={a} className="text-[10px] px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/40 text-amber-300 font-mono">
-                      {a}
+                    <span key={a} className="text-[10px] px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/40 text-amber-300 font-mono flex items-center gap-1">
+                      <Lock size={9} /> {a}
                     </span>
                   ))
+                ) : (
+                  <span className="text-[11px] text-zinc-500 italic">No restrictive approval gate required for read-only tools</span>
                 )}
               </div>
             </div>
@@ -271,96 +510,49 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
         </div>
       )}
 
-      {/* Goal Dispatch Form */}
-      <form onSubmit={handleExecuteAgent} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
-        <label className="block text-xs font-semibold text-zinc-200">
-          Agent Command / Goal
+      {/* Goal Dispatcher */}
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-4">
+        <div className="text-xs font-semibold text-zinc-200">
+          Dispatch Goal to <span className="text-teal-400 font-bold">{currentRole?.name}</span>
+        </div>
+        <form onSubmit={handleExecuteAgent} className="space-y-3">
           <textarea
             value={goal}
             onChange={e => setGoal(e.target.value)}
-            placeholder="เช่น: ตรวจสอบโครงสร้างโปรเจกต์ วางแผนปรับปรุง Security Isolation และสร้าง Patch สำหรับระบบจัดการความจำ..."
-            rows={3}
-            className="w-full mt-1.5 px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-teal-500"
+            placeholder="ป้อนเป้าหมายการทำงานของ Agent เช่น 'ตรวจสอบความถูกต้องของ Merkle Hash Chain ใน Audit Ledger' หรือ 'สแกน Dependency Graph'..."
+            className="w-full h-24 p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-teal-500 resize-none font-mono"
+            disabled={running}
           />
-        </label>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-          <div className="flex items-center gap-4 text-xs">
-            <label className="flex items-center gap-2 cursor-pointer text-zinc-300">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer">
               <input
                 type="checkbox"
                 checked={isDryRun}
                 onChange={e => setIsDryRun(e.target.checked)}
                 className="rounded border-zinc-700 text-teal-500 focus:ring-0"
               />
-              <span>Dry Run Simulation (Pre-flight only, zero state mutation)</span>
+              <span>Dry-Run Simulation (Do not commit modifications to disk)</span>
             </label>
-          </div>
 
-          <div className="flex items-center gap-2">
             <button
               type="submit"
-              disabled={running || !goal.trim()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white text-xs font-bold transition shadow-lg shadow-teal-900/30"
+              disabled={!goal.trim() || running}
+              className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white font-semibold text-xs transition"
             >
               {running ? (
                 <>
                   <RefreshCw size={13} className="animate-spin" />
-                  <span>Orchestrating 7-Stage Workflow…</span>
+                  <span>Executing Plan...</span>
                 </>
               ) : (
                 <>
-                  <Play size={13} />
-                  <span>Execute Goal via {currentRole?.name}</span>
+                  <Play size={13} fill="currentColor" />
+                  <span>Execute Governed Workflow</span>
                 </>
               )}
             </button>
           </div>
-        </div>
-      </form>
-
-      {/* 7-Stage Workflow Visualization Bar */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
-        <div className="text-xs font-semibold text-zinc-300 mb-3 flex items-center justify-between">
-          <span>7-Stage Governed Autonomous Pipeline</span>
-          <span className="text-[11px] text-zinc-500">Fail-Closed Verification Contract</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-          {[
-            { id: 'understand', num: '1', title: 'Understand', desc: 'Intent & Scope' },
-            { id: 'inspect', num: '2', title: 'Inspect', desc: 'Workspace Context' },
-            { id: 'plan', num: '3', title: 'Plan', desc: 'Atomic Breakdown' },
-            { id: 'route', num: '4', title: 'Route', desc: 'Tool & Model' },
-            { id: 'execute', num: '5', title: 'Execute', desc: 'Sandbox Run' },
-            { id: 'verify', num: '6', title: 'Verify', desc: 'Evidence Gate' },
-            { id: 'respond', num: '7', title: 'Respond', desc: 'Audit Ledger' },
-          ].map(s => {
-            const isCompleted = activeTask?.stagesCompleted?.includes(s.id);
-            return (
-              <div
-                key={s.id}
-                className={`p-2.5 rounded-lg border text-center transition ${
-                  isCompleted
-                    ? 'border-emerald-500/50 bg-emerald-950/20 text-emerald-300'
-                    : 'border-zinc-800 bg-zinc-950 text-zinc-500'
-                }`}
-              >
-                <div className="text-[10px] font-bold text-zinc-400">STAGE {s.num}</div>
-                <div className="text-xs font-bold text-zinc-200 mt-0.5">{s.title}</div>
-                <div className="text-[10px] text-zinc-500 mt-0.5">{s.desc}</div>
-                <div className="mt-2 text-[10px]">
-                  {isCompleted ? (
-                    <span className="text-emerald-400 font-semibold flex items-center justify-center gap-1">
-                      <Check size={11} /> Pass
-                    </span>
-                  ) : (
-                    <span className="text-zinc-600">Pending</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        </form>
       </div>
 
       {/* Execution Results & Steps */}
@@ -405,7 +597,7 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
 
           {/* Atomic Step Breakdown with Approval Gates */}
           <div className="space-y-2.5">
-            <div className="text-xs font-semibold text-zinc-300">Atomic Steps & Human Approval Status</div>
+            <div className="text-xs font-semibold text-zinc-300">Atomic Steps &amp; Human Approval Status</div>
             {activeTask.steps?.map((step: AgentStep, idx: number) => {
               const isApproved = humanApprovals[step.id] === true;
               const isRejected = humanApprovals[step.id] === false;
@@ -492,6 +684,73 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
               <div className="text-zinc-200 whitespace-pre-wrap leading-relaxed">{activeTask.finalAnswer}</div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Agent Execution Logs Modal */}
+      {logsModalAgent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+              <div className="flex items-center gap-2.5">
+                <AgentStatusDot status={logsModalAgent.currentStatus} size="md" />
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                    <span>{logsModalAgent.name}</span>
+                    <AgentStatusBadge status={logsModalAgent.currentStatus} size="sm" />
+                  </h3>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">Real Orchestrator Execution Log &amp; Verification Evidence</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLogsModalAgent(null)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 text-xs">
+              {loadingLogs ? (
+                <div className="flex items-center justify-center py-12 text-zinc-500 gap-2">
+                  <RefreshCw size={16} className="animate-spin text-teal-400" />
+                  <span>Loading orchestrator logs...</span>
+                </div>
+              ) : agentLogs.length > 0 ? (
+                agentLogs.map((log: any, idx: number) => (
+                  <div key={log.id || idx} className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 space-y-1 font-mono text-[11px]">
+                    <div className="flex items-center justify-between text-zinc-400 text-[10px]">
+                      <span className="font-bold text-teal-300">{log.action}</span>
+                      <span>{new Date(log.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div className="text-zinc-200">{log.detail}</div>
+                    <div className="flex items-center justify-between pt-1 border-t border-zinc-900 text-[10px] text-zinc-500">
+                      <span>Status: <b className="text-zinc-300">{log.status}</b></span>
+                      {log.evidenceHash && (
+                        <span className="text-emerald-400">SHA-256: {log.evidenceHash}</span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-12 text-center text-zinc-500 text-xs">
+                  ยังไม่มีประวัติการทำงานสำหรับเอเจนต์นี้ในเซสชันปัจจุบัน
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 border-t border-zinc-800 bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-500">
+              <span>Fail-closed audit ledger recording verified</span>
+              <button
+                type="button"
+                onClick={() => setLogsModalAgent(null)}
+                className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

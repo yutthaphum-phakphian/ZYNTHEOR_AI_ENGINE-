@@ -5,17 +5,23 @@ import {
   Play, CheckCircle2, Clock, Check, X, Search, FileCode2,
   Lock, ArrowUpRight, Shield, Layers, HardDrive, Terminal,
   Sliders, Bug, WandSparkles, AlertCircle, ChevronDown, Paperclip,
-  Activity, Radio, Zap, ArrowRight, CornerDownLeft
+  Activity, Radio, Zap, ArrowRight, CornerDownLeft, Pause, Eye
 } from 'lucide-react';
 import { HighlightedMessage } from './HighlightedMessage';
 import type { ChatMode } from '../../lib/chat-core.mjs';
+import {
+  AgentStatusDot,
+  AgentStatusBadge,
+  LiveTaskIndicator,
+  getAgentVisualStatus
+} from './AgentStatusIndicator';
 
 export interface LiveAssignedTask {
   taskId: string;
   goal: string;
   agentRoleId: string;
   agentRoleName: string;
-  status: 'IDLE' | 'ASSIGNED' | 'RUNNING' | 'WAITING_FOR_APPROVAL' | 'COMPLETED' | 'FAILED';
+  status: 'IDLE' | 'ASSIGNED' | 'RUNNING' | 'WAITING_FOR_APPROVAL' | 'COMPLETED' | 'FAILED' | 'PAUSED';
   currentStepIndex: number;
   totalSteps: number;
   currentStepTitle: string;
@@ -185,6 +191,12 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
   const [dispatchedTaskResult, setDispatchedTaskResult] = useState<any | null>(null);
   const [approvingStep, setApprovingStep] = useState<string | null>(null);
 
+  // Agent Quick-Action & Logs Modal State
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+  const [logsModalAgent, setLogsModalAgent] = useState<any | null>(null);
+  const [agentLogs, setAgentLogs] = useState<any[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
+
   // Fetch Live Agent Activity
   const fetchLiveAgentActivity = useCallback(async () => {
     try {
@@ -229,6 +241,15 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
       eventSource.addEventListener('agent:task_completed', () => {
         fetchLiveAgentActivity();
       });
+      eventSource.addEventListener('agent:task_paused', () => {
+        fetchLiveAgentActivity();
+      });
+      eventSource.addEventListener('agent:task_resumed', () => {
+        fetchLiveAgentActivity();
+      });
+      eventSource.addEventListener('agent:task_cancelled', () => {
+        fetchLiveAgentActivity();
+      });
       eventSource.addEventListener('agent:waiting_approval', () => {
         fetchLiveAgentActivity();
       });
@@ -251,6 +272,59 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
       clearInterval(pollInterval);
     };
   }, [fetchLiveAgentActivity]);
+
+  // Quick Action Handler (Pause, Resume, Cancel)
+  const handleAgentQuickAction = async (agentRoleId: string, action: 'pause' | 'resume' | 'cancel') => {
+    try {
+      setActionInProgress(agentRoleId);
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(authHeaders ? authHeaders() : {}),
+      };
+      const res = await fetch('/api/intelligence/agent/action', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          agentRoleId,
+          action,
+          reason: 'Quick action triggered from Homepage Engineering Center',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Agent action failed');
+      }
+      if (setToast) {
+        const actionLabel = action === 'pause' ? 'หยุดชั่วคราว (Paused)' : action === 'resume' ? 'ดำเนินการต่อ (Resumed)' : 'ยกเลิกคำสั่ง (Cancelled)';
+        setToast(`✅ Agent ${agentRoleId}: ${actionLabel} สำเร็จ`);
+      }
+      await fetchLiveAgentActivity();
+    } catch (err: any) {
+      if (setToast) setToast(`เกิดข้อผิดพลาด: ${err.message}`);
+    } finally {
+      setActionInProgress(null);
+    }
+  };
+
+  // View Logs Handler
+  const handleOpenAgentLogs = async (agent: any) => {
+    try {
+      setLogsModalAgent(agent);
+      setLoadingLogs(true);
+      const headers = authHeaders ? authHeaders() : {};
+      const res = await fetch(`/api/intelligence/agent/logs?agentId=${encodeURIComponent(agent.id)}`, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.logs)) {
+          setAgentLogs(data.logs);
+        }
+      }
+    } catch (err: any) {
+      if (setToast) setToast(`Failed to load logs: ${err.message}`);
+    } finally {
+      setLoadingLogs(false);
+    }
+  };
 
   // Dispatch Agent Task
   const handleDispatchAgentTask = async (customGoal?: string) => {
@@ -1146,6 +1220,8 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                   {liveAgents.length > 0 ? (
                     liveAgents.map((agent: any) => {
                       const task: LiveAssignedTask | null = agent.assignedTask;
+                      const isActive = ['RUNNING', 'ASSIGNED', 'WAITING_FOR_APPROVAL', 'PAUSED'].includes(agent.currentStatus);
+                      const isPaused = agent.currentStatus === 'PAUSED';
                       const isRunning = agent.currentStatus === 'RUNNING';
                       const isWaiting = agent.currentStatus === 'WAITING_FOR_APPROVAL';
                       const isCompleted = agent.currentStatus === 'COMPLETED';
@@ -1153,50 +1229,44 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                       return (
                         <div
                           key={agent.id}
-                          className={`p-3 rounded-lg border transition ${
+                          className={`p-3.5 rounded-xl border transition ${
                             isWaiting
                               ? 'bg-amber-950/20 border-amber-800/60'
                               : isRunning
-                              ? 'bg-teal-950/20 border-teal-700/60'
+                              ? 'bg-teal-950/20 border-teal-700/60 ring-1 ring-teal-500/30'
+                              : isPaused
+                              ? 'bg-amber-950/15 border-amber-800/50'
                               : 'bg-zinc-950 border-zinc-800'
                           }`}
                         >
-                          <div className="flex items-center justify-between pb-1.5 border-b border-zinc-850">
-                            <div>
-                              <div className="font-semibold text-zinc-200 text-xs flex items-center gap-1.5">
-                                <Bot size={13} className={isRunning ? 'text-teal-400 animate-spin' : isWaiting ? 'text-amber-400' : 'text-zinc-400'} />
-                                <span>{agent.name}</span>
-                                {agent.nameTh && <span className="text-[10px] text-zinc-500 font-normal">({agent.nameTh})</span>}
+                          <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <AgentStatusDot status={agent.currentStatus} size="md" />
+                              <div className="min-w-0">
+                                <div className="font-semibold text-zinc-100 text-xs flex items-center gap-1.5 truncate">
+                                  <span>{agent.name}</span>
+                                  {agent.nameTh && <span className="text-[10px] text-zinc-400 font-normal">({agent.nameTh})</span>}
+                                </div>
+                                <div className="text-[10px] text-zinc-400 mt-0.5 truncate">{agent.description}</div>
                               </div>
-                              <div className="text-[10px] text-zinc-400 mt-0.5">{agent.description}</div>
                             </div>
-                            <span
-                              className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${
-                                isRunning
-                                  ? 'bg-teal-950 text-teal-300 border border-teal-700 animate-pulse'
-                                  : isWaiting
-                                  ? 'bg-amber-950 text-amber-300 border border-amber-700 animate-pulse'
-                                  : isCompleted
-                                  ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                                  : 'bg-zinc-900 text-zinc-500 border border-zinc-800'
-                              }`}
-                            >
-                              {agent.currentStatus || 'IDLE'}
-                            </span>
+                            <AgentStatusBadge status={agent.currentStatus} size="sm" />
                           </div>
 
                           {/* Currently Assigned Task from Orchestrator */}
                           {task ? (
-                            <div className="pt-2 space-y-1.5 text-xs">
+                            <div className="pt-2.5 space-y-2 text-xs">
                               <div className="flex items-start justify-between gap-2">
-                                <div>
+                                <div className="min-w-0">
                                   <div className="text-[11px] font-semibold text-zinc-200 line-clamp-1">
                                     {task.goal}
                                   </div>
-                                  <div className="text-[10px] text-zinc-400 flex items-center gap-2 mt-0.5">
+                                  <div className="text-[10px] text-zinc-400 flex flex-wrap items-center gap-2 mt-1">
                                     <span>Step: <b className="text-teal-300">{task.currentStepIndex || 1}/{task.totalSteps || 3}</b></span>
                                     <span>Tool: <code className="text-zinc-300 font-mono">[{task.toolInUse || 'core'}]</code></span>
                                     <span>Risk: <b className={task.riskTier === 'HIGH' ? 'text-rose-400' : 'text-zinc-400'}>{task.riskTier || 'LOW'}</b></span>
+                                    {/* Live-updating indicator */}
+                                    <LiveTaskIndicator status={agent.currentStatus} toolInUse={task.toolInUse} />
                                   </div>
                                 </div>
                                 <span className="text-[9px] font-mono text-zinc-500 shrink-0">
@@ -1208,7 +1278,7 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                               <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
                                 <div
                                   className={`h-full transition-all duration-500 ${
-                                    isCompleted ? 'bg-emerald-500' : isWaiting ? 'bg-amber-500' : 'bg-teal-500'
+                                    isCompleted ? 'bg-emerald-500' : isWaiting ? 'bg-amber-500' : isPaused ? 'bg-amber-400' : 'bg-teal-500'
                                   }`}
                                   style={{
                                     width: `${Math.round(((task.currentStepIndex || 1) / (task.totalSteps || 3)) * 100)}%`,
@@ -1227,16 +1297,16 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
 
                               {/* In-Card Approval Action if Waiting */}
                               {isWaiting && (
-                                <div className="p-2 rounded bg-amber-950/40 border border-amber-800/60 flex items-center justify-between mt-1.5">
+                                <div className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-800/60 flex items-center justify-between mt-1.5">
                                   <span className="text-[10px] text-amber-300 font-semibold flex items-center gap-1">
-                                    <AlertTriangle size={11} /> Approval Required
+                                    <AlertTriangle size={12} /> Approval Required
                                   </span>
                                   <div className="flex items-center gap-1.5">
                                     <button
                                       type="button"
                                       disabled={approvingStep === task.taskId}
                                       onClick={() => handleStepApproval(task.taskId, agent.id, 'approve')}
-                                      className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[10px] transition"
+                                      className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[10px] transition"
                                     >
                                       Approve
                                     </button>
@@ -1244,7 +1314,7 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                                       type="button"
                                       disabled={approvingStep === task.taskId}
                                       onClick={() => handleStepApproval(task.taskId, agent.id, 'reject')}
-                                      className="px-2 py-0.5 rounded bg-zinc-800 hover:bg-rose-950 text-zinc-300 font-semibold text-[10px] transition"
+                                      className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-rose-950 text-zinc-300 font-semibold text-[10px] transition"
                                     >
                                       Reject
                                     </button>
@@ -1253,10 +1323,82 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
                               )}
                             </div>
                           ) : (
-                            <div className="pt-2 text-[10px] text-zinc-500 italic">
-                              ไม่มีงานที่ได้รับมอบหมายในขณะนี้ — พร้อมรับคำสั่งงาน
+                            <div className="pt-2.5 text-[10px] text-zinc-500 flex items-center gap-1.5 italic">
+                              <AgentStatusDot status="IDLE" size="sm" />
+                              <span>ไม่มีงานที่ได้รับมอบหมายในขณะนี้ — พร้อมรับคำสั่งงาน</span>
                             </div>
                           )}
+
+                          {/* Quick-action buttons interfacing directly with Agent Orchestrator */}
+                          <div className="pt-2.5 mt-2.5 border-t border-zinc-850 flex items-center justify-between text-xs">
+                            <div className="text-[10px] font-mono">
+                              {isActive ? (
+                                <span className="text-teal-400 font-semibold flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+                                  ACTIVE
+                                </span>
+                              ) : (
+                                <span className="text-zinc-500">STANDBY</span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                              {/* Pause / Resume button */}
+                              <button
+                                type="button"
+                                disabled={!isActive || actionInProgress === agent.id}
+                                onClick={() => handleAgentQuickAction(agent.id, isPaused ? 'resume' : 'pause')}
+                                className={`px-2.5 py-1 rounded-md text-[10px] font-semibold flex items-center gap-1 transition border ${
+                                  isActive
+                                    ? isPaused
+                                      ? 'bg-emerald-950/70 border-emerald-700 text-emerald-300 hover:bg-emerald-900/70'
+                                      : 'bg-amber-950/70 border-amber-700 text-amber-300 hover:bg-amber-900/70'
+                                    : 'bg-zinc-900/40 border-zinc-800 text-zinc-600 opacity-40 cursor-not-allowed'
+                                }`}
+                                title={
+                                  isActive
+                                    ? isPaused
+                                      ? 'Resume agent execution'
+                                      : 'Pause active agent execution'
+                                    : 'Agent is idle — only active agents can be paused'
+                                }
+                              >
+                                {isPaused ? <Play size={10} fill="currentColor" /> : <Pause size={10} />}
+                                <span>{isPaused ? 'Resume' : 'Pause'}</span>
+                              </button>
+
+                              {/* Cancel button */}
+                              <button
+                                type="button"
+                                disabled={!isActive || actionInProgress === agent.id}
+                                onClick={() => handleAgentQuickAction(agent.id, 'cancel')}
+                                className={`px-2.5 py-1 rounded-md text-[10px] font-semibold flex items-center gap-1 transition border ${
+                                  isActive
+                                    ? 'bg-rose-950/70 border-rose-700 text-rose-300 hover:bg-rose-900/70'
+                                    : 'bg-zinc-900/40 border-zinc-800 text-zinc-600 opacity-40 cursor-not-allowed'
+                                }`}
+                                title={
+                                  isActive
+                                    ? 'Cancel active agent task'
+                                    : 'Agent is idle — only active agents can be cancelled'
+                                }
+                              >
+                                <Square size={10} />
+                                <span>Cancel</span>
+                              </button>
+
+                              {/* View Logs button */}
+                              <button
+                                type="button"
+                                onClick={() => handleOpenAgentLogs(agent)}
+                                className="px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-zinc-200 text-[10px] font-semibold flex items-center gap-1 transition"
+                                title="View real orchestrator execution logs"
+                              >
+                                <Eye size={10} />
+                                <span>View Logs</span>
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       );
                     })
@@ -1418,6 +1560,73 @@ export const HomepageEngineeringCenter: React.FC<HomepageEngineeringCenterProps>
           )}
         </div>
       </div>
+
+      {/* Real Agent Execution Logs Modal */}
+      {logsModalAgent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+              <div className="flex items-center gap-2.5">
+                <AgentStatusDot status={logsModalAgent.currentStatus} size="md" />
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                    <span>{logsModalAgent.name}</span>
+                    <AgentStatusBadge status={logsModalAgent.currentStatus} size="sm" />
+                  </h3>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">Real Orchestrator Execution Log &amp; Verification Evidence</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLogsModalAgent(null)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 text-xs">
+              {loadingLogs ? (
+                <div className="flex items-center justify-center py-12 text-zinc-500 gap-2">
+                  <RefreshCw size={16} className="animate-spin text-teal-400" />
+                  <span>Loading orchestrator logs...</span>
+                </div>
+              ) : agentLogs.length > 0 ? (
+                agentLogs.map((log: any, idx: number) => (
+                  <div key={log.id || idx} className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 space-y-1 font-mono text-[11px]">
+                    <div className="flex items-center justify-between text-zinc-400 text-[10px]">
+                      <span className="font-bold text-teal-300">{log.action}</span>
+                      <span>{new Date(log.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div className="text-zinc-200">{log.detail}</div>
+                    <div className="flex items-center justify-between pt-1 border-t border-zinc-900 text-[10px] text-zinc-500">
+                      <span>Status: <b className="text-zinc-300">{log.status}</b></span>
+                      {log.evidenceHash && (
+                        <span className="text-emerald-400">SHA-256: {log.evidenceHash}</span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-12 text-center text-zinc-500 text-xs">
+                  ยังไม่มีประวัติการทำงานสำหรับเอเจนต์นี้ในเซสชันปัจจุบัน
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 border-t border-zinc-800 bg-zinc-950/60 flex items-center justify-between text-xs text-zinc-500">
+              <span>Fail-closed audit ledger recording verified</span>
+              <button
+                type="button"
+                onClick={() => setLogsModalAgent(null)}
+                className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-750 text-zinc-200 font-semibold transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

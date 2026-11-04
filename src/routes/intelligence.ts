@@ -251,7 +251,7 @@ export interface LiveAssignedTask {
   goal: string;
   agentRoleId: string;
   agentRoleName: string;
-  status: 'IDLE' | 'ASSIGNED' | 'RUNNING' | 'WAITING_FOR_APPROVAL' | 'COMPLETED' | 'FAILED';
+  status: 'IDLE' | 'ASSIGNED' | 'RUNNING' | 'WAITING_FOR_APPROVAL' | 'COMPLETED' | 'FAILED' | 'PAUSED';
   currentStepIndex: number;
   totalSteps: number;
   currentStepTitle: string;
@@ -272,7 +272,7 @@ export interface LiveActivityEvent {
   agentName: string;
   action: string;
   detail: string;
-  status: 'RUNNING' | 'COMPLETED' | 'WAITING_FOR_APPROVAL' | 'FAILED';
+  status: 'RUNNING' | 'COMPLETED' | 'WAITING_FOR_APPROVAL' | 'FAILED' | 'PAUSED';
   riskTier?: 'LOW' | 'MEDIUM' | 'HIGH';
   timestamp: string;
   evidenceHash?: string;
@@ -592,6 +592,116 @@ r.post('/api/intelligence/agent/step-approval', (req, res) => {
   broadcastActivityUpdate('agent:decision_recorded', { agentId: roleId, task });
 
   res.json({ ok: true, task, decision: isApproved ? 'APPROVED' : 'REJECTED' });
+});
+
+r.post('/api/intelligence/agent/action', (req, res) => {
+  const { agentRoleId, action, reason } = req.body || {};
+  const roleId = String(agentRoleId || '').trim();
+  const role = AGENT_ROLES.find(r => r.id === roleId);
+  if (!role) {
+    return res.status(404).json({ ok: false, error: 'Agent role not found' });
+  }
+
+  const task = liveAgentTasks.get(roleId);
+  if (!task) {
+    return res.status(400).json({ ok: false, error: 'No task assigned to this agent' });
+  }
+
+  const isActive = ['RUNNING', 'ASSIGNED', 'WAITING_FOR_APPROVAL', 'PAUSED'].includes(task.status);
+  if (!isActive) {
+    return res.status(400).json({
+      ok: false,
+      error: 'Agent is not in an active state',
+      currentStatus: task.status,
+    });
+  }
+
+  if (action === 'pause') {
+    if (task.status !== 'RUNNING') {
+      return res.status(400).json({ ok: false, error: `Cannot pause agent in ${task.status} status` });
+    }
+    task.status = 'PAUSED';
+    task.currentStepTitle = 'Paused by operator';
+    const event: LiveActivityEvent = {
+      id: `act-${Date.now().toString(36)}`,
+      taskId: task.taskId,
+      agentId: roleId,
+      agentName: role.name,
+      action: 'TASK_PAUSED',
+      detail: `Execution paused by operator: ${reason || 'Operator pause'}`,
+      status: 'PAUSED',
+      riskTier: task.riskTier,
+      timestamp: new Date().toISOString(),
+    };
+    liveActivityLog.unshift(event);
+    broadcastActivityUpdate('agent:task_paused', { agentId: roleId, task });
+    return res.json({ ok: true, task, action: 'PAUSED' });
+  }
+
+  if (action === 'resume') {
+    if (task.status !== 'PAUSED') {
+      return res.status(400).json({ ok: false, error: `Cannot resume agent in ${task.status} status` });
+    }
+    task.status = 'RUNNING';
+    task.currentStepTitle = 'Resumed by operator';
+    const event: LiveActivityEvent = {
+      id: `act-${Date.now().toString(36)}`,
+      taskId: task.taskId,
+      agentId: roleId,
+      agentName: role.name,
+      action: 'TASK_RESUMED',
+      detail: `Execution resumed by operator`,
+      status: 'RUNNING',
+      riskTier: task.riskTier,
+      timestamp: new Date().toISOString(),
+    };
+    liveActivityLog.unshift(event);
+    broadcastActivityUpdate('agent:task_resumed', { agentId: roleId, task });
+    return res.json({ ok: true, task, action: 'RESUMED' });
+  }
+
+  if (action === 'cancel') {
+    task.status = 'FAILED';
+    task.completedAt = new Date().toISOString();
+    task.currentStepTitle = `Cancelled by operator: ${reason || 'Operator request'}`;
+    const evidenceHash = createHash('sha256').update(`${task.taskId}:cancel:${Date.now()}`).digest('hex').slice(0, 16);
+    task.evidenceDigest = evidenceHash;
+    const event: LiveActivityEvent = {
+      id: `act-${Date.now().toString(36)}`,
+      taskId: task.taskId,
+      agentId: roleId,
+      agentName: role.name,
+      action: 'TASK_CANCELLED',
+      detail: `Cancelled: ${reason || 'Operator aborted execution'}`,
+      status: 'FAILED',
+      riskTier: task.riskTier,
+      timestamp: new Date().toISOString(),
+      evidenceHash,
+    };
+    liveActivityLog.unshift(event);
+    broadcastActivityUpdate('agent:task_cancelled', { agentId: roleId, task });
+    return res.json({ ok: true, task, action: 'CANCELLED' });
+  }
+
+  return res.status(400).json({ ok: false, error: 'Invalid action. Supported actions: pause, resume, cancel' });
+});
+
+r.get('/api/intelligence/agent/logs', (req, res) => {
+  const agentId = String(req.query.agentId || '').trim();
+  const role = AGENT_ROLES.find(r => r.id === agentId);
+  const task = agentId ? liveAgentTasks.get(agentId) : null;
+  const logs = agentId
+    ? liveActivityLog.filter(l => l.agentId === agentId)
+    : liveActivityLog;
+
+  res.json({
+    ok: true,
+    agent: role || null,
+    currentTask: task || null,
+    logs: logs.slice(0, 50),
+    totalCount: logs.length,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // 7. GET /api/intelligence/scan & POST /api/intelligence/scan
