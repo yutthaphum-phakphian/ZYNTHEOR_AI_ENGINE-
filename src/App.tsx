@@ -4,7 +4,7 @@ import {
   CheckCircle2, ChevronDown, ChevronRight, CircleHelp, ClipboardCheck, Clock, Code2, Cpu, CreditCard, Download,
   Eye, File, FileCode2, FileText, Files, Gauge, GitBranch, Globe, HardDrive, History, Keyboard, LayoutDashboard,
   LockKeyhole, Menu, MessageSquare, MoreHorizontal, Network, Plus, RefreshCw, RotateCcw, Search, Send, Server,
-  Settings, Shield, ShieldCheck, Sparkles, Split, Square, SquareTerminal, Trash2, Upload, WandSparkles, X, Zap, GitCompare,
+  Settings, Shield, ShieldCheck, Sparkles, Split, Square, SquareTerminal, Star, Trash2, Upload, WandSparkles, X, Zap, GitCompare,
   type LucideIcon
 } from 'lucide-react';
 import { readServerEvents, type ChatMode } from '../lib/chat-core.mjs';
@@ -80,7 +80,8 @@ const PAGE_COPY: Record<Page, { eyebrow: string; title: string; subtitle: string
   Billing: { eyebrow: 'SYSTEM / BILLING', title: 'Billing & Subscriptions', subtitle: 'Manage subscriptions, payment providers, invoices, and plan entitlements.' },
   Settings: { eyebrow: 'SYSTEM / SETTINGS', title: 'Control the boundaries.', subtitle: 'Set local-first behavior and understand the current runtime configuration.' },
 };
-const STORAGE = { messages: 'zyntheor.rebuild.chat.v1', sessions: 'zyntheor.rebuild.chat_sessions.v2', projects: 'zyntheor.rebuild.projects.v1', plans: 'zyntheor.rebuild.plans.v1', audit: 'zyntheor.rebuild.audit.v1' };
+type FavoriteItem = { id: string; type: 'project' | 'session'; title: string; createdAt: string };
+const STORAGE = { messages: 'zyntheor.rebuild.chat.v1', sessions: 'zyntheor.rebuild.chat_sessions.v2', projects: 'zyntheor.rebuild.projects.v1', plans: 'zyntheor.rebuild.plans.v1', audit: 'zyntheor.rebuild.audit.v1', favorites: 'zyntheor.favorites.v1' };
 const ACCESS_KEY = 'zyntheor.access.v1';
 const CHAT_MODE_OPTIONS: { id: ChatMode; label: string; hint: string; icon: LucideIcon }[] = [
   { id: 'auto', label: 'Auto', hint: 'ให้ AI เลือกโหมดตามลักษณะงาน', icon: WandSparkles },
@@ -140,6 +141,18 @@ function WorkspaceApp() {
     const cur = sessions.find(s => s.id === (sessions[0]?.id || 'session-main'));
     return cur ? cur.messages : readStore(STORAGE.messages, []);
   });
+  const [favorites, setFavorites] = useState<FavoriteItem[]>(() => readStore<FavoriteItem[]>(STORAGE.favorites, []));
+  useEffect(() => { writeStore(STORAGE.favorites, favorites); }, [favorites]);
+
+  const toggleFavorite = useCallback((type: 'project' | 'session', id: string, title: string) => {
+    setFavorites(prev => {
+      const exists = prev.some(f => f.id === id);
+      if (exists) {
+        return prev.filter(f => f.id !== id);
+      }
+      return [...prev, { id, type, title: title || (type === 'project' ? 'Untitled Project' : 'Untitled Session'), createdAt: new Date().toISOString() }];
+    });
+  }, []);
   const [draft, setDraft] = useState('');
   const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
   const [analysisMode, setAnalysisMode] = useState(false);
@@ -945,6 +958,51 @@ function WorkspaceApp() {
         collapsed={collapsed}
       />
       <button className="new-chat-button" onClick={() => { choosePage('Chat'); createNewChatSession(); }}><Plus size={17}/>{!collapsed && <><span>{t('common.new_chat')}</span><kbd>⌘ K</kbd></>}</button>
+      {!collapsed && (
+        <div className="sidebar-favorites-container">
+          <div className="sidebar-favorites-header">
+            <span className="sidebar-favorites-title"><Star size={12} className="sidebar-favorites-icon" /> FAVORITES</span>
+            <span className="sidebar-favorites-count">{favorites.length}</span>
+          </div>
+          {favorites.length === 0 ? (
+            <div className="sidebar-favorites-empty">
+              <span>ติดดาวเซสชันหรือโปรเจกต์เพื่อเปิดใช้งานด่วน</span>
+            </div>
+          ) : (
+            <div className="sidebar-favorites-list">
+              {favorites.map(fav => (
+                <div
+                  key={fav.id}
+                  className="sidebar-favorite-item"
+                  onClick={() => {
+                    if (fav.type === 'session') {
+                      choosePage('Chat');
+                      switchChatSession(fav.id);
+                    } else {
+                      choosePage('Projects');
+                    }
+                  }}
+                  title={fav.title}
+                >
+                  <span className="sidebar-favorite-type-tag">{fav.type === 'session' ? 'CHAT' : 'PROJ'}</span>
+                  <span className="sidebar-favorite-name">{fav.title}</span>
+                  <button
+                    type="button"
+                    className="sidebar-favorite-remove"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(fav.type, fav.id, fav.title);
+                    }}
+                    title="ลบออกจากรายการโปรด"
+                  >
+                    <X size={11} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <nav className="navigation">{NAV.map(group => <div className="nav-group" key={group.title}><div className="nav-group-label">{!collapsed && (t('nav.' + group.title.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')) || group.title)}</div>{group.items.map(item => { const itemLabel = t('nav.' + item.id.toLowerCase().replace(/ /g, '_')) || item.label; return <button key={item.id} onClick={() => choosePage(item.id)} className={`nav-item ${page === item.id ? 'active' : ''}`} title={collapsed ? itemLabel : undefined}><item.icon size={18}/>{!collapsed && <span>{itemLabel}</span>}{!collapsed && item.id === 'Audit Ledger' && audit.length > 0 && <small className="nav-count">{audit.length > 99 ? '99+' : audit.length}</small>}</button>; })}</div>)}</nav>
       {!collapsed && <div className="sidebar-bottom"><div className="sidebar-cicd-container"><CicdStatusWidget compact={true} /></div><div className="local-mode-card"><div className="local-card-icon"><LockKeyhole size={16}/></div><div><b>{settings?.localOnly ?? true ? t('common.status_local') : t('common.status_remote')}</b><span>{settings?.localOnly ?? true ? 'External calls restricted' : settings?.onlineConsent ? 'Explicit consent recorded' : 'Consent not confirmed'}</span></div><span className={`status-led ${settings?.localOnly ?? true ? 'green' : 'amber'}`}/></div><div className="user-workspace"><div className="workspace-avatar">Z</div><div className="workspace-user"><b>Signed-in account</b><span>{serverSession?.role?.toUpperCase() || 'ROLE UNKNOWN'} · verified session</span></div><button className="icon-button" onClick={() => choosePage('Settings')} aria-label="Open settings"><MoreHorizontal size={18}/></button></div></div>}
     </aside>
@@ -1282,6 +1340,17 @@ function WorkspaceApp() {
         </div>
       </Modal>
     )}
+    <button
+      type="button"
+      className="persistent-shortcut-hint-btn"
+      onClick={() => {
+        setToast('คีย์ลัดด่วน: ⌘K ค้นหา/แชตใหม่ · Enter ส่งข้อความ · Shift+Enter ขึ้นบรรทัดใหม่ · Esc ปิดหน้าต่าง · ? รายการคีย์ลัดทั้งหมด');
+      }}
+      title="คีย์ลัดระบบ (Keyboard Shortcuts Hint)"
+      aria-label="Keyboard shortcuts reminder"
+    >
+      <CircleHelp size={16} />
+    </button>
   </div>;
 }
 

@@ -8,7 +8,13 @@ import { crossFileReasoningEngine } from '../services/crossFileReasoning.ts';
 import { changeImpactEngine } from '../services/changeImpactEngine.ts';
 import { workspaceMemoryService } from '../services/workspaceMemory.ts';
 import { projectAwareDebugger } from '../services/projectAwareDebugger.ts';
-import { buildFocusedRepositoryContext, scanRepositoryFiles, type RepositoryScanResult } from '../services/repositoryIntelligence.ts';
+import {
+  buildFocusedRepositoryContext,
+  scanRepositoryFiles,
+  buildSymbolIndex,
+  searchSymbols,
+  type RepositoryScanResult
+} from '../services/repositoryIntelligence.ts';
 
 const r = Router();
 const orchestrator = new IntelligenceOrchestrationEngine();
@@ -194,6 +200,37 @@ r.post('/api/intelligence/context', (req, res) => {
     });
   } catch (err: any) {
     return res.status(400).json({ ok: false, error: err.message || 'Focused context unavailable' });
+  }
+});
+
+r.get('/api/intelligence/symbols', (req, res) => {
+  try {
+    const scan = latestRepositoryScan || runRepositoryScan();
+    const query = typeof req.query.q === 'string' ? req.query.q : '';
+    const typeFilter = typeof req.query.type === 'string' ? req.query.type : undefined;
+
+    const symbols = searchSymbols(scan, query, typeFilter);
+    res.json({
+      ok: true,
+      query,
+      typeFilter: typeFilter || 'all',
+      count: symbols.length,
+      symbols,
+    });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: err.message || 'Symbols query failed' });
+  }
+});
+
+r.get('/api/intelligence/dependencies', (_req, res) => {
+  try {
+    const scan = latestRepositoryScan || runRepositoryScan();
+    res.json({
+      ok: true,
+      dependencyGraph: scan.dependencyGraph,
+    });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: err.message || 'Dependency graph retrieval failed' });
   }
 });
 

@@ -109,24 +109,47 @@ export function compareEvaluations(prev: UnifiedEvaluation, curr: UnifiedEvaluat
   };
 }
 
-// History management - REAL storage, no mock
+// History management - REAL storage with in-memory fallback for Node/tests
 const HISTORY_KEY = 'zyntheor-eval-history';
+let memoryHistory: EvaluationHistoryEntry[] = [];
 
 export function loadHistory(): EvaluationHistoryEntry[] {
   try {
-    if (typeof localStorage === 'undefined') return [];
-    const raw = localStorage.getItem(HISTORY_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+    if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }
+  } catch {}
+  return [...memoryHistory];
 }
 
 export function saveToHistory(entry: EvaluationHistoryEntry): EvaluationHistoryEntry[] {
   const history = loadHistory();
+
+  // Deduplication check: Do not append if identical to the latest entry
+  if (history.length > 0) {
+    const latest = history[0];
+    const isSameId = latest.evaluation.evaluationId === entry.evaluation.evaluationId;
+    const isSameScore = latest.evaluation.overallScore === entry.evaluation.overallScore;
+    const isRecent = Math.abs(new Date(entry.timestamp).getTime() - new Date(latest.timestamp).getTime()) < 30_000;
+
+    if (isSameId || (isSameScore && isRecent && latest.evaluation.benchmarkId === entry.evaluation.benchmarkId)) {
+      // Update in place rather than duplicate
+      history[0] = entry;
+      memoryHistory = [...history];
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        }
+      } catch {}
+      return history;
+    }
+  }
+
   history.unshift(entry);
   // Keep last 50 evaluations
   const trimmed = history.slice(0, 50);
+  memoryHistory = [...trimmed];
   try {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
@@ -136,9 +159,11 @@ export function saveToHistory(entry: EvaluationHistoryEntry): EvaluationHistoryE
 }
 
 export function clearHistory() {
+  memoryHistory = [];
   try {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(HISTORY_KEY);
     }
   } catch {}
 }
+

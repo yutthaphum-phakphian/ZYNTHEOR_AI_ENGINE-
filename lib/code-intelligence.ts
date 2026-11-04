@@ -1,11 +1,28 @@
 import ts from 'typescript';
 
+export type SymbolType =
+  | 'function'
+  | 'class'
+  | 'interface'
+  | 'type'
+  | 'variable'
+  | 'constant'
+  | 'method'
+  | 'property'
+  | 'import'
+  | 'react-component'
+  | 'api-route';
+
 export interface SymbolInfo {
   name: string;
-  type: 'function' | 'class' | 'interface' | 'type' | 'variable' | 'constant' | 'method' | 'property' | 'import';
+  type: SymbolType;
   line: number;
+  character?: number;
+  endLine?: number;
+  endCharacter?: number;
   exported?: boolean;
   visibility?: 'public' | 'protected' | 'private' | 'internal';
+  signature?: string;
 }
 
 export interface ComplexityMetrics {
@@ -45,6 +62,12 @@ export interface EvidenceGateResult {
 }
 
 export class CodeIntelligence {
+  static analyzeSourceFile(fileName: string, code: string): CodeAnalysis & { language: string } {
+    const instance = new CodeIntelligence();
+    const result = instance.analyze(code, fileName);
+    const lang = fileName.endsWith('.tsx') || fileName.endsWith('.ts') ? 'typescript' : 'javascript';
+    return { ...result, language: lang };
+  }
   private parse(code: string, fileName = 'file.ts'): ts.SourceFile {
     const extension = fileName.toLowerCase().split('.').pop();
     const scriptKind = extension === 'tsx' ? ts.ScriptKind.TSX
@@ -122,13 +145,26 @@ export class CodeIntelligence {
   extractSymbols(code: string, fileName = 'file.ts'): SymbolInfo[] {
     const symbols: SymbolInfo[] = [];
     const sourceFile = this.parse(code, fileName);
-    const add = (name: string, type: SymbolInfo['type'], node: ts.Node, exported = false, visibility: SymbolInfo['visibility'] = exported ? 'public' : 'internal') => {
+    const add = (
+      name: string,
+      type: SymbolInfo['type'],
+      node: ts.Node,
+      exported = false,
+      visibility: SymbolInfo['visibility'] = exported ? 'public' : 'internal',
+      signature?: string
+    ) => {
+      const start = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+      const end = sourceFile.getLineAndCharacterOfPosition(node.getEnd());
       symbols.push({
         name,
         type,
-        line: sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1,
+        line: start.line + 1,
+        character: start.character + 1,
+        endLine: end.line + 1,
+        endCharacter: end.character + 1,
         exported,
         visibility,
+        signature,
       });
     };
     const isExported = (node: ts.Node) => ts.canHaveModifiers(node) && (ts.getModifiers(node) || []).some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
@@ -139,9 +175,34 @@ export class CodeIntelligence {
       if (modifiers.some(modifier => modifier.kind === ts.SyntaxKind.ProtectedKeyword)) return 'protected';
       return 'public';
     };
-    const addBindingNames = (name: ts.BindingName, node: ts.Node, type: SymbolInfo['type'], exported: boolean) => {
-      if (ts.isIdentifier(name)) add(name.text, type, node, exported);
-      else for (const element of name.elements) if (ts.isBindingElement(element)) addBindingNames(element.name, element, type, exported);
+    const hasJsx = (root: ts.Node): boolean => {
+      let found = false;
+      const scan = (n: ts.Node) => {
+        if (ts.isJsxElement(n) || ts.isJsxSelfClosingElement(n) || ts.isJsxFragment(n)) {
+          found = true;
+          return;
+        }
+        if (!found) ts.forEachChild(n, scan);
+      };
+      scan(root);
+      return found;
+    };
+    const isComponentCandidate = (name: string, node: ts.Node): boolean => {
+      if (!/^[A-Z][a-zA-Z0-9]*$/.test(name)) return false;
+      const isReactExt = fileName.endsWith('.tsx') || fileName.endsWith('.jsx');
+      if (hasJsx(node)) return true;
+      if (isReactExt && (ts.isFunctionDeclaration(node) || ts.isArrowFunction(node) || ts.isFunctionExpression(node))) {
+        return true;
+      }
+      return false;
+    };
+    const addBindingNames = (name: ts.BindingName, node: ts.Node, type: SymbolInfo['type'], exported: boolean, originalNode?: ts.Node) => {
+      if (ts.isIdentifier(name)) {
+        const symbolType = isComponentCandidate(name.text, originalNode || node) ? 'react-component' : type;
+        add(name.text, symbolType, node, exported);
+      } else {
+        for (const element of name.elements) if (ts.isBindingElement(element)) addBindingNames(element.name, element, type, exported, originalNode);
+      }
     };
     const visit = (node: ts.Node) => {
       if (ts.isImportClause(node)) {
@@ -151,7 +212,8 @@ export class CodeIntelligence {
           for (const element of node.namedBindings.elements) add(element.name.text, 'import', element);
         }
       } else if (ts.isFunctionDeclaration(node) && node.name) {
-        add(node.name.text, 'function', node, isExported(node));
+        const type = isComponentCandidate(node.name.text, node) ? 'react-component' : 'function';
+        add(node.name.text, type, node, isExported(node));
       } else if (ts.isClassDeclaration(node) && node.name) {
         add(node.name.text, 'class', node, isExported(node));
       } else if (ts.isInterfaceDeclaration(node)) {
@@ -165,12 +227,25 @@ export class CodeIntelligence {
         const exported = ts.isVariableDeclarationList(declarationList) && ts.isVariableStatement(declarationList.parent) && isExported(declarationList.parent);
         const isFunctionValue = Boolean(node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer)));
         const isConst = ts.isVariableDeclarationList(declarationList) && (declarationList.flags & ts.NodeFlags.Const) !== 0;
-        addBindingNames(node.name, node, isFunctionValue ? 'function' : isConst ? 'constant' : 'variable', exported);
+        addBindingNames(node.name, node, isFunctionValue ? 'function' : isConst ? 'constant' : 'variable', exported, node.initializer || node);
       } else if (ts.isMethodDeclaration(node) || ts.isMethodSignature(node) || ts.isConstructorDeclaration(node)) {
         const name = node.name ? node.name.getText(sourceFile) : 'constructor';
         add(name, 'method', node, isExported(node), getVisibility(node));
       } else if (ts.isPropertyDeclaration(node) || ts.isPropertySignature(node)) {
         add(node.name.getText(sourceFile), 'property', node, isExported(node), getVisibility(node));
+      } else if (ts.isCallExpression(node)) {
+        // API Route detection: e.g. router.get('/api/users', ...), app.post(...)
+        if (ts.isPropertyAccessExpression(node.expression)) {
+          const propName = node.expression.name.text.toLowerCase();
+          const targetObj = node.expression.expression.getText(sourceFile).toLowerCase();
+          const httpMethods = ['get', 'post', 'put', 'delete', 'patch'];
+          if (httpMethods.includes(propName) && (targetObj === 'router' || targetObj === 'app' || targetObj === 'r')) {
+            if (node.arguments.length > 0 && ts.isStringLiteralLike(node.arguments[0])) {
+              const routePath = node.arguments[0].text;
+              add(`${propName.toUpperCase()} ${routePath}`, 'api-route', node, true, 'public');
+            }
+          }
+        }
       }
       ts.forEachChild(node, visit);
     };

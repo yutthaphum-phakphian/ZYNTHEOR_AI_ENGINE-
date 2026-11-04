@@ -28,6 +28,7 @@ import intelligenceRoute from './src/routes/intelligence.js';
 import authRoute from './src/routes/auth.js';
 import billingRoute from './src/routes/billing.js';
 import githubRoute from './src/routes/github.js';
+import evaluationRoute from './src/routes/evaluation.js';
 import { getSystemErrors, logSystemError, resolveSystemError, clearSystemErrors } from './src/services/errorLogger.js';
 import { resolveRequestUser, serverSessionMiddleware } from './src/services/authService.js';
 import { tenantMiddleware } from './src/middleware/tenant.ts';
@@ -2884,6 +2885,7 @@ app.use(workspaceRoute);
 app.use(editingRoute);
 app.use(intelligenceRoute);
 app.use(githubRoute);
+app.use('/api/evaluation', evaluationRoute);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'api_route_not_found' }));
 
 const isProd = process.env.NODE_ENV === 'production';

@@ -12,6 +12,7 @@ export interface RepositoryFileRecord {
   name: string;
   path: string;
   size: number;
+  sha256?: string;
   kind: RepositoryFileKind;
   language: string;
   analysis: CodeAnalysis | null;
@@ -24,6 +25,23 @@ export interface DependencyGraphResult {
   externalDependencies: Array<{ source: string; specifier: string; packageName: string }>;
   unresolvedDependencies: Array<{ source: string; specifier: string }>;
   circularDependencies: string[][];
+  reverseDependencies?: Record<string, string[]>;
+  changePropagationMap?: Record<string, string[]>;
+}
+
+export interface SymbolIndexEntry {
+  id: string;
+  name: string;
+  type: SymbolInfo['type'];
+  file: string;
+  line: number;
+  character?: number;
+  endLine?: number;
+  endCharacter?: number;
+  exported: boolean;
+  visibility: string;
+  signature?: string;
+  referencesCount?: number;
 }
 
 export interface RepositoryContext {
@@ -32,7 +50,7 @@ export interface RepositoryContext {
   scanIdentifier: string;
   repository: { name: string; version: string | null };
   scan: { timestamp: string; status: RepositoryScanStatus; scannedFiles: number; totalBytes: number };
-  fileInventory: Array<{ path: string; sizeBytes: number; kind: RepositoryFileKind; language: string }>;
+  fileInventory: Array<{ path: string; sizeBytes: number; sha256?: string; kind: RepositoryFileKind; language: string }>;
   moduleHierarchy: Array<{ path: string; parent: string | null; kind: 'directory' | 'module' }>;
   symbolTable: Array<{ file: string; symbols: SymbolInfo[] }>;
   moduleExports: Array<{ file: string; exports: string[] }>;
@@ -72,6 +90,8 @@ export interface RepositoryScanResult {
     totalSymbols: number;
     totalExports: number;
     totalImports: number;
+    totalReactComponents?: number;
+    totalApiRoutes?: number;
     averageComplexity: number | null;
     scannedBytes: number;
     scannedAt: string;
@@ -91,12 +111,13 @@ export interface RepositoryScanLimits {
   maxContextBytes: number;
 }
 
-const DEFAULT_LIMITS: RepositoryScanLimits = {
+export const DEFAULT_LIMITS: RepositoryScanLimits = {
   maxFiles: 2000,
   maxFileBytes: 256 * 1024,
   maxTotalBytes: 8 * 1024 * 1024,
   maxContextBytes: 3 * 1024 * 1024,
 };
+export const DEFAULT_REPOSITORY_SCAN_LIMITS = DEFAULT_LIMITS;
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.mts', '.cjs']);
 const CONFIG_FILENAMES = new Set(['package.json', 'tsconfig.json', 'jsconfig.json', 'vite.config.ts', 'vitest.config.ts']);
 const EXCLUDED_DIRECTORIES = new Set([
@@ -437,6 +458,34 @@ function dependencyGraph(files: RepositoryFileRecord[], aliases: ReturnType<type
     if (component.length > 1 || (adjacency.get(node) || []).includes(node)) graph.circularDependencies.push(component.sort());
   };
   for (const node of graph.nodes) if (!indexes.has(node)) visit(node);
+
+  const reverseDependencies: Record<string, string[]> = {};
+  for (const node of graph.nodes) reverseDependencies[node] = [];
+  for (const edge of graph.edges) {
+    if (!reverseDependencies[edge.target]) reverseDependencies[edge.target] = [];
+    if (!reverseDependencies[edge.target].includes(edge.source)) {
+      reverseDependencies[edge.target].push(edge.source);
+    }
+  }
+
+  const changePropagationMap: Record<string, string[]> = {};
+  for (const node of graph.nodes) {
+    const visited = new Set<string>();
+    const queue = [...(reverseDependencies[node] || [])];
+    while (queue.length > 0) {
+      const cur = queue.shift()!;
+      if (!visited.has(cur)) {
+        visited.add(cur);
+        for (const next of reverseDependencies[cur] || []) {
+          if (!visited.has(next)) queue.push(next);
+        }
+      }
+    }
+    changePropagationMap[node] = Array.from(visited);
+  }
+
+  graph.reverseDependencies = reverseDependencies;
+  graph.changePropagationMap = changePropagationMap;
   return graph;
 }
 
@@ -475,7 +524,7 @@ export function validateRepositoryContext(value: unknown): value is RepositoryCo
   const complexity = context.complexityMetrics;
   const provenance = context.provenance;
   const truncation = context.truncation;
-  const symbolTypes = new Set(['function', 'class', 'interface', 'type', 'variable', 'constant', 'method', 'property', 'import']);
+  const symbolTypes = new Set(['function', 'class', 'interface', 'type', 'variable', 'constant', 'method', 'property', 'import', 'react-component', 'api-route']);
 
   return context.schemaVersion === '1.0' && typeof context.workspaceIdentifier === 'string' &&
     typeof context.scanIdentifier === 'string' && isRecord(repository) && typeof repository.name === 'string' &&
@@ -531,7 +580,7 @@ function buildContext(
   const dependencyGraphForContext = graph;
   const selectedAnalyzed = selectedFiles.filter(file => file.analysis);
   const symbolsByFile = selectedAnalyzed.map(file => [...file.analysis!.symbols].sort((left, right) => {
-    const typeOrder: Record<SymbolInfo['type'], number> = { function: 0, method: 1, class: 2, interface: 3, type: 4, constant: 5, variable: 6, property: 7, import: 8 };
+    const typeOrder: Record<SymbolInfo['type'], number> = { 'react-component': 0, 'api-route': 1, function: 2, method: 3, class: 4, interface: 5, type: 6, constant: 7, variable: 8, property: 9, import: 10 };
     return Number(Boolean(right.exported)) - Number(Boolean(left.exported)) || typeOrder[left.type] - typeOrder[right.type] || left.line - right.line;
   }));
   const symbolsForContext = selectedAnalyzed.map(file => ({ file: file.path, symbols: [] as SymbolInfo[] }));
@@ -557,7 +606,7 @@ function buildContext(
     scanIdentifier: scanId,
     repository: packageInfo,
     scan: { timestamp, status, scannedFiles: files.length, totalBytes },
-    fileInventory: selectedFiles.map(file => ({ path: file.path, sizeBytes: file.size, kind: file.kind, language: file.language })),
+    fileInventory: selectedFiles.map(file => ({ path: file.path, sizeBytes: file.size, sha256: file.sha256, kind: file.kind, language: file.language })),
     moduleHierarchy: buildModuleHierarchy(selectedFiles),
     symbolTable: symbolsForContext,
     moduleExports: selectedAnalyzed.map(file => ({ file: file.path, exports: file.analysis!.exports })),
@@ -645,11 +694,13 @@ export function scanRepositoryFiles(rootDir = process.cwd(), suppliedLimits: Par
     } else if (path.posix.extname(candidate.path).toLowerCase() === '.json') {
       try { JSON.parse(read.content); } catch { warnings.push(`Malformed JSON configuration: ${candidate.path}`); }
     }
+    const sha256 = createHash('sha256').update(read.content).digest('hex');
     files.push({
       id: candidate.path,
       name: path.posix.basename(candidate.path),
       path: candidate.path,
       size: read.size,
+      sha256,
       kind,
       language: languageFor(candidate.path),
       analysis,
@@ -694,6 +745,8 @@ export function scanRepositoryFiles(rootDir = process.cwd(), suppliedLimits: Par
       totalSymbols: analyzed.reduce((sum, file) => sum + file.analysis!.symbols.length, 0),
       totalExports: analyzed.reduce((sum, file) => sum + file.analysis!.exports.length, 0),
       totalImports: analyzed.reduce((sum, file) => sum + file.analysis!.imports.length + file.analysis!.reExports.length, 0),
+      totalReactComponents: analyzed.reduce((sum, file) => sum + file.analysis!.symbols.filter(s => s.type === 'react-component').length, 0),
+      totalApiRoutes: analyzed.reduce((sum, file) => sum + file.analysis!.symbols.filter(s => s.type === 'api-route').length, 0),
       averageComplexity: analyzed.length ? Math.round((branchTotal / analyzed.length) * 10) / 10 : null,
       scannedBytes: totalBytes,
       scannedAt: timestamp,
@@ -704,6 +757,17 @@ export function scanRepositoryFiles(rootDir = process.cwd(), suppliedLimits: Par
     context: parsedContext,
     contextJson,
     contextValidation: { valid: true, schemaVersion: '1.0', bytes: Buffer.byteLength(contextJson, 'utf8') },
+  };
+}
+
+export function scanRepository(options: { workspaceRoot?: string; limits?: Partial<RepositoryScanLimits> } = {}): RepositoryScanResult & { inventory: string[]; fileInventory: Array<{ path: string; size: number; sha256?: string }> } {
+  const result = scanRepositoryFiles(options.workspaceRoot || process.cwd(), options.limits);
+  const inventory = result.files.map(f => f.path);
+  const fileInventory = result.files.map(f => ({ path: f.path, size: f.size, sha256: f.sha256 }));
+  return {
+    ...result,
+    inventory,
+    fileInventory,
   };
 }
 
@@ -798,4 +862,42 @@ export function buildFocusedRepositoryContext(
     throw new Error(`Focused repository context could not be validated within ${maxContextBytes} bytes`);
   }
   return { context, contextJson, validation: { valid: true, schemaVersion: '1.0', bytes: Buffer.byteLength(contextJson, 'utf8') } };
+}
+
+export function buildSymbolIndex(scan: RepositoryScanResult): SymbolIndexEntry[] {
+  const entries: SymbolIndexEntry[] = [];
+  for (const file of scan.files) {
+    if (!file.analysis) continue;
+    for (const sym of file.analysis.symbols) {
+      entries.push({
+        id: `${file.path}#${sym.name}`,
+        name: sym.name,
+        type: sym.type,
+        file: file.path,
+        line: sym.line,
+        character: sym.character || 1,
+        endLine: sym.endLine || sym.line,
+        endCharacter: sym.endCharacter || 1,
+        exported: Boolean(sym.exported),
+        visibility: sym.visibility || 'public',
+        signature: sym.signature,
+        referencesCount: 0,
+      });
+    }
+  }
+  return entries;
+}
+
+export function searchSymbols(
+  scan: RepositoryScanResult,
+  query: string,
+  typeFilter?: string
+): SymbolIndexEntry[] {
+  const index = buildSymbolIndex(scan);
+  const q = query.trim().toLowerCase();
+  return index.filter(entry => {
+    const matchesQuery = !q || entry.name.toLowerCase().includes(q) || entry.file.toLowerCase().includes(q);
+    const matchesType = !typeFilter || typeFilter === 'all' || entry.type === typeFilter;
+    return matchesQuery && matchesType;
+  });
 }
