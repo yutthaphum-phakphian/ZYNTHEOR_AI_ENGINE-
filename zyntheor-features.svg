@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 170" width="840" height="170" role="img" aria-label="ZYNTHEOR AI ENGINE Core Engineering Pillars">
+  <defs>
+    <linearGradient id="feat-card-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D1E33" />
+      <stop offset="100%" stop-color="#081424" />
+    </linearGradient>
+
+    <linearGradient id="feat-teal-bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#14B8A6" />
+    </linearGradient>
+
+    <linearGradient id="feat-cyan-bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#14B8A6" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+
+    <linearGradient id="feat-indigo-bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#818CF8" />
+    </linearGradient>
+
+    <linearGradient id="feat-emerald-bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+  </defs>
+
+  <!-- 4 Feature Cards Layout: 840 wide, cards ~196 wide, gap 12 -->
+
+  <!-- Card 1: Sovereign Local-First -->
+  <g transform="translate(6, 6)">
+    <rect x="0" y="0" width="198" height="158" rx="12" fill="url(#feat-card-bg)" stroke="#163450" stroke-width="1.2" />
+    <rect x="12" y="10" width="34" height="3" rx="1.5" fill="url(#feat-teal-bar)" />
+    <!-- Icon Glyph -->
+    <g transform="translate(156, 16)">
+      <circle cx="14" cy="14" r="14" fill="#0E2B38" />
+      <polygon points="14,6 22,10 22,18 14,22 6,18 6,10" fill="none" stroke="#2DD4BF" stroke-width="1.4" />
+      <circle cx="14" cy="14" r="2.5" fill="#10B981" />
+    </g>
+    <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#2DD4BF">PILLAR 01</text>
+    <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13" font-weight="700" fill="#F1F5F9">Sovereign Local-First</text>
+    <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ระบบปลอดภัยสูงสุด</text>
+    <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B" width="170">
+      <tspan x="14" dy="0">• Air-gap พร้อมใช้งาน 100%</tspan>
+      <tspan x="14" dy="14">• HOST=127.0.0.1 Locked</tspan>
+      <tspan x="14" dy="14">• ไร้การรั่วไหลของ Telemetry</tspan>
+    </text>
+  </g>
+
+  <!-- Card 2: Cryptographic Evidence -->
+  <g transform="translate(216, 6)">
+    <rect x="0" y="0" width="198" height="158" rx="12" fill="url(#feat-card-bg)" stroke="#163450" stroke-width="1.2" />
+    <rect x="12" y="10" width="34" height="3" rx="1.5" fill="url(#feat-cyan-bar)" />
+    <!-- Icon Glyph -->
+    <g transform="translate(156, 16)">
+      <circle cx="14" cy="14" r="14" fill="#0C263D" />
+      <rect x="9" y="9" width="10" height="10" rx="2" fill="none" stroke="#38BDF8" stroke-width="1.4" />
+      <line x1="14" y1="6" x2="14" y2="9" stroke="#38BDF8" stroke-width="1.2" />
+      <line x1="14" y1="19" x2="14" y2="22" stroke="#38BDF8" stroke-width="1.2" />
+    </g>
+    <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#38BDF8">PILLAR 02</text>
+    <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13" font-weight="700" fill="#F1F5F9">SHA-256 Evidence</text>
+    <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">สมุดบัญชีตรวจสอบแกรนูล่า</text>
+    <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B">
+      <tspan x="14" dy="0">• Hash Chain Matrix เรียงลำดับ</tspan>
+      <tspan x="14" dy="14">• ตรวจจับ Tampering ทันที</tspan>
+      <tspan x="14" dy="14">• Export หลักฐาน Forensic CSV</tspan>
+    </text>
+  </g>
+
+  <!-- Card 3: Visual Analytics & Governance -->
+  <g transform="translate(426, 6)">
+    <rect x="0" y="0" width="198" height="158" rx="12" fill="url(#feat-card-bg)" stroke="#163450" stroke-width="1.2" />
+    <rect x="12" y="10" width="34" height="3" rx="1.5" fill="url(#feat-indigo-bar)" />
+    <!-- Icon Glyph -->
+    <g transform="translate(156, 16)">
+      <circle cx="14" cy="14" r="14" fill="#152144" />
+      <circle cx="14" cy="14" r="7" fill="none" stroke="#818CF8" stroke-width="2" stroke-dasharray="14 10" />
+      <circle cx="14" cy="14" r="2.5" fill="#818CF8" />
+    </g>
+    <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#818CF8">PILLAR 03</text>
+    <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13" font-weight="700" fill="#F1F5F9">Visual Governance</text>
+    <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">สถิติและแผนผังเชิงโต้ตอบ</text>
+    <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B">
+      <tspan x="14" dy="0">• Recharts Role Distribution</tspan>
+      <tspan x="14" dy="14">• D3.js AST Dependency Map</tspan>
+      <tspan x="14" dy="14">• แยกแยะ Tenant RBAC ชัดเจน</tspan>
+    </text>
+  </g>
+
+  <!-- Card 4: Dual-Engine Intelligence -->
+  <g transform="translate(636, 6)">
+    <rect x="0" y="0" width="198" height="158" rx="12" fill="url(#feat-card-bg)" stroke="#163450" stroke-width="1.2" />
+    <rect x="12" y="10" width="34" height="3" rx="1.5" fill="url(#feat-emerald-bar)" />
+    <!-- Icon Glyph -->
+    <g transform="translate(156, 16)">
+      <circle cx="14" cy="14" r="14" fill="#0C2B22" />
+      <path d="M 8 18 L 14 8 L 20 18 Z" fill="none" stroke="#34D399" stroke-width="1.4" />
+      <circle cx="14" cy="15" r="1.5" fill="#34D399" />
+    </g>
+    <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#34D399">PILLAR 04</text>
+    <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13" font-weight="700" fill="#F1F5F9">Dual-Engine Core</text>
+    <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ประมวลผลสองระดับ</text>
+    <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B">
+      <tspan x="14" dy="0">• Ollama Local Engine อิสระ</tspan>
+      <tspan x="14" dy="14">• Google Gemini Cloud Gateway</tspan>
+      <tspan x="14" dy="14">• Consent Gate อนุมัติล่วงหน้า</tspan>
+    </text>
+  </g>
+</svg>
