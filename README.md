@@ -29,7 +29,7 @@ ZYNTHEOR AI ENGINE is a local-first AI engineering workspace for software develo
 
 > Engineering principle: real implementation, no fabricated evidence, fail-closed gates, human approval for consequential actions, and explicit separation of implemented foundations from accepted capabilities.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Evidence-Based Status
 
@@ -68,7 +68,7 @@ These are distinct evidence sources and must not be added together as if they we
 
 The implementation report records 15 dataset records (8 train / 3 validation / 4 test), but also says training was blocked by source/license verification and human-review gates. **No training run or checkpoint creation is claimed.** Run `npm run corex:p20:status` to inspect the current release gate; `BLOCKED` is the documented outcome while required evidence is missing.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Engineering Highlights
 
@@ -77,8 +77,9 @@ The implementation report records 15 dataset records (8 train / 3 validation / 4
 - Persistent-memory and native CPU training/inference code exists, but its presence is not acceptance, a trained model, or production approval.
 - **Midnight Teal / Zero-Purple is a design specification, not a verified audit of every UI surface.** The current `TeamRoleDistributionChart` source still assigns Developer the indigo color `#818cf8`; the desired specification color is Teal `#0d9488`. No claim is made that the UI itself has been corrected by this documentation change.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
+<a id="core-x-vision"></a>
 ## CORE X Vision — First-Party AI Independence
 
 CORE X is a **long-term roadmap**, not a statement that first-party AI capabilities are complete. Model identity must remain explicit:
@@ -99,7 +100,7 @@ Long-term capability objectives (none of these headings imply completion):
 
 Current P16 evidence says training has not been run, no checkpoint exists, and the model is not inference-ready or production-approved. CORE X independence remains a goal, not a completed capability.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Architecture Matrix
 
@@ -117,7 +118,7 @@ Current P16 evidence says training has not been run, no checkpoint exists, and t
 - **Network-Isolated Environment:** an environment with network paths restricted and independently verified by an isolation/egress test. Such evidence is not currently established here.
 - **Air-Gapped Environment:** a stronger, verified absence of external network connectivity for the defined system boundary. The repository does not claim an air gap or “100% offline” operation.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Intelligence & Models
 
@@ -125,7 +126,7 @@ The project includes AI provider configuration for local Ollama and Google Gemin
 
 Native pipeline status is **blocked** pending dataset governance and human review. The current audit does not establish an accepted native checkpoint, checkpoint-based benchmark, or model promotion. See [the native training report](docs/audit/P16_TRAINING_REPORT.json), [native architecture audit](docs/audit/P16_ARCHITECTURE_AUDIT.md), and [model evaluation status](docs/audit/P16_NATIVE_MODEL_EVALUATION.json).
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Security & Governance
 
@@ -137,7 +138,7 @@ Native pipeline status is **blocked** pending dataset governance and human revie
 - High-impact actions and model lifecycle operations are subject to approval/evidence gates where implemented. No blanket production-security certification is claimed.
 - The identity/storage audit calls out remaining requirements, including live PostgreSQL/ACID migration, multi-instance tests, browser token handling, and dependency-backed integration/E2E validation. See [the audit](docs/audit/IDENTITY_STORAGE_HARDENING_2026-11-03.md).
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Team Management
 
@@ -155,7 +156,7 @@ The account-role authorization matrix distinguishes `DEVELOPER` from `MEMBER` an
 
 The chart source currently defines four display buckets (Owner is not a bucket) and has a Developer color of `#818cf8`. The requested Zero-Purple Teal value `#0d9488` is documented as a **design specification only**; UI-wide compliance has not been verified. See [`TeamRoleDistributionChart.tsx`](src/components/TeamRoleDistributionChart.tsx), [`authService.ts`](src/services/authService.ts), and [`authorizationService.ts`](src/services/authorizationService.ts).
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Installation & Testing
 
@@ -186,7 +187,7 @@ npm run build
 
 These are commands to run, not a guarantee of success. Test evidence above is scoped to its stated report/source version; user-provided aggregate figures without raw logs and a source SHA remain `NOT_VERIFIED` for the repository snapshot.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## P4–P20 Roadmap
 
@@ -199,19 +200,19 @@ The existing roadmap/audit materials cover P4–P10 and P11–P20. Their status 
 
 A successful documentation update does not change any engineering phase gate and does not imply production readiness.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Screenshots
 
 No verified application screenshots are included here. Add genuine captures from the running application under `docs/screenshots/` before embedding them; do not use mockups as evidence of implemented UI.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## Contribution
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development guidance. Contributions should include scoped changes, relevant tests, security/tenant-boundary consideration, and evidence for claims made in documentation. Keep design specifications distinct from verified UI behavior.
 
----
+<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 ## License & Attribution
 
