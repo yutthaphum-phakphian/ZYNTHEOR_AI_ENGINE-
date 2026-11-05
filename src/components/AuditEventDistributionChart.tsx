@@ -1,264 +1,397 @@
 import React, { useMemo } from 'react';
 import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
+ResponsiveContainer,
+AreaChart,
+Area,
+XAxis,
+YAxis,
+CartesianGrid,
+Tooltip,
 } from 'recharts';
-import { BarChart3, Clock, Calendar, Activity, Zap } from 'lucide-react';
+import { BarChart3, Calendar } from 'lucide-react';
 import type { AuditEntry } from '../services/auditLedger';
 
 interface AuditEventDistributionChartProps {
-  records: AuditEntry[];
-  startDate?: string;
-  endDate?: string;
+records: AuditEntry[];
+startDate?: string;
+endDate?: string;
 }
 
-export function AuditEventDistributionChart({ records, startDate, endDate }: AuditEventDistributionChartProps) {
-  // Aggregate event counts dynamically based on filtered records timestamps
-  const { chartData, timeUnitLabel, totalEvents, peakBucket, avgPerBucket } = useMemo(() => {
-    if (!records || records.length === 0) {
-      return {
-        chartData: [],
-        timeUnitLabel: 'Date',
-        totalEvents: 0,
-        peakBucket: 'None',
-        avgPerBucket: 0,
-      };
-    }
+interface ChartBucket {
+label: string;
+count: number;
+actions: Record<string, number>;
+timestampMs: number;
+}
 
-    // Determine time span to choose appropriate grouping granularity (Hours vs Days)
-    const timestamps = records
-      .map((r) => new Date(r.at).getTime())
-      .filter((t) => !isNaN(t))
-      .sort((a, b) => a - b);
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-    const minTime = timestamps[0] || Date.now();
-    const maxTime = timestamps[timestamps.length - 1] || Date.now();
-    const rangeSpanDays = (maxTime - minTime) / (1000 * 60 * 60 * 24);
+function parseDate(value?: string, endOfDay = false): number | undefined {
+if (!value) return undefined;
 
-    const isIntraday = rangeSpanDays <= 2;
-    const timeBucketMap = new Map<string, { label: string; count: number; actions: Record<string, number>; timestampMs: number }>();
+// Date-only filters are interpreted in local time.
+const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+const date = dateOnly
+? new Date("${value}T${endOfDay ? '23:59:59.999' : '00:00:00'}")
+: new Date(value);
 
-    records.forEach((rec) => {
-      const d = new Date(rec.at);
-      if (isNaN(d.getTime())) return;
+const timestamp = date.getTime();
+return Number.isFinite(timestamp) ? timestamp : undefined;
+}
 
-      let key: string;
-      let label: string;
+export function AuditEventDistributionChart({
+records,
+startDate,
+endDate,
+}: AuditEventDistributionChartProps) {
+const {
+chartData,
+timeUnitLabel,
+totalEvents,
+peakBucket,
+avgPerBucket,
+} = useMemo(() => {
+const start = parseDate(startDate);
+const end = parseDate(endDate, true);
 
-      if (isIntraday) {
-        // Group by hour: "14:00"
-        const hourStr = d.getHours().toString().padStart(2, '0');
-        key = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${hourStr}:00`;
-        label = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      } else {
-        // Group by day: "Nov 01"
-        key = d.toISOString().split('T')[0];
-        label = d.toLocaleDateString([], { month: 'short', day: '2-digit' });
-      }
+const filteredRecords = (records ?? [])
+  .map((record) => ({
+    record,
+    timestamp: new Date(record.at).getTime(),
+  }))
+  .filter(({ timestamp }) => {
+    if (!Number.isFinite(timestamp)) return false;
+    if (start !== undefined && timestamp < start) return false;
+    if (end !== undefined && timestamp > end) return false;
+    return true;
+  })
+  .sort((a, b) => a.timestamp - b.timestamp);
 
-      let bucket = timeBucketMap.get(key);
-      if (!bucket) {
-        bucket = { label, count: 0, actions: {}, timestampMs: d.getTime() };
-        timeBucketMap.set(key, bucket);
-      }
-      bucket.count += 1;
-      const actionKey = rec.action || 'GENERAL';
-      bucket.actions[actionKey] = (bucket.actions[actionKey] || 0) + 1;
-    });
+if (filteredRecords.length === 0) {
+  return {
+    chartData: [] as ChartBucket[],
+    timeUnitLabel: 'Date',
+    totalEvents: 0,
+    peakBucket: 'None',
+    avgPerBucket: 0,
+  };
+}
 
-    const sortedBuckets = Array.from(timeBucketMap.entries())
-      .sort((a, b) => a[1].timestampMs - b[1].timestampMs)
-      .map(([_, val]) => val);
+const minTime = filteredRecords[0].timestamp;
+const maxTime = filteredRecords[filteredRecords.length - 1].timestamp;
+const rangeSpanDays = (maxTime - minTime) / DAY_MS;
+const isIntraday = rangeSpanDays <= 2;
 
-    let maxCount = 0;
-    let peakLabel = 'None';
-    let totalCount = 0;
+const buckets = new Map<string, ChartBucket>();
 
-    sortedBuckets.forEach((b) => {
-      totalCount += b.count;
-      if (b.count > maxCount) {
-        maxCount = b.count;
-        peakLabel = `${b.label} (${b.count} events)`;
-      }
-    });
+for (const { record, timestamp } of filteredRecords) {
+  const date = new Date(timestamp);
 
-    const avg = sortedBuckets.length > 0 ? (totalCount / sortedBuckets.length).toFixed(1) : '0';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
 
-    return {
-      chartData: sortedBuckets,
-      timeUnitLabel: isIntraday ? 'Hour' : 'Day',
-      totalEvents: totalCount,
-      peakBucket: peakLabel,
-      avgPerBucket: Number(avg),
+  const key = isIntraday
+    ? `${year}-${month}-${day}-${hour}`
+    : `${year}-${month}-${day}`;
+
+  const label = isIntraday
+    ? date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : date.toLocaleDateString([], {
+        month: 'short',
+        day: '2-digit',
+      });
+
+  let bucket = buckets.get(key);
+
+  if (!bucket) {
+    bucket = {
+      label,
+      count: 0,
+      actions: {},
+      timestampMs: timestamp,
     };
-  }, [records]);
+    buckets.set(key, bucket);
+  }
 
-  return (
-    <div
-      style={{
-        background: '#0a0f1d',
-        border: '1px solid #1e293b',
-        borderRadius: '12px',
-        padding: '18px 20px',
-        marginBottom: '20px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
-      }}
-    >
-      {/* Header Bar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '12px',
-          marginBottom: '14px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid #1e293b',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
-              background: 'rgba(56, 189, 248, 0.15)',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
-              display: 'grid',
-              placeItems: 'center',
-              color: '#38bdf8',
-            }}
-          >
-            <BarChart3 size={18} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <b style={{ fontSize: '13px', color: '#f1f5f9' }}>Audit Event Distribution Over Time</b>
-              <span
-                style={{
-                  fontSize: '9px',
-                  fontWeight: 700,
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  background: '#0284c7',
-                  color: '#ffffff',
-                }}
-              >
-                DYNAMIC RECHARTS
-              </span>
-            </div>
-            <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94a3b8' }}>
-              Chronological frequency grouped by {timeUnitLabel.toLowerCase()} · Updates dynamically with date range filters
-            </p>
-          </div>
-        </div>
+  bucket.count += 1;
 
-        {(startDate || endDate) && (
-          <div
-            style={{
-              fontSize: '10px',
-              padding: '4px 10px',
-              borderRadius: '6px',
-              background: 'rgba(2, 132, 199, 0.15)',
-              border: '1px solid #0284c7',
-              color: '#7dd3fc',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            <Calendar size={12} />
-            <span>
-              Active Filter Span: {startDate || 'Start'} → {endDate || 'Present'}
-            </span>
-          </div>
-        )}
-      </div>
+  const action = record.action || 'GENERAL';
+  bucket.actions[action] = (bucket.actions[action] || 0) + 1;
+}
 
-      {/* Metric Cards Row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-          gap: '10px',
-          marginBottom: '16px',
-        }}
-      >
-        <div style={{ padding: '10px 12px', borderRadius: '8px', background: '#111927', border: '1px solid #1e293b' }}>
-          <span style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>Total Filtered Events</span>
-          <div style={{ fontSize: '16px', fontWeight: 700, color: '#f8fafc', marginTop: '2px' }}>{totalEvents}</div>
-        </div>
-        <div style={{ padding: '10px 12px', borderRadius: '8px', background: '#111927', border: '1px solid #1e293b' }}>
-          <span style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>Time Buckets ({timeUnitLabel})</span>
-          <div style={{ fontSize: '16px', fontWeight: 700, color: '#38bdf8', marginTop: '2px' }}>{chartData.length}</div>
-        </div>
-        <div style={{ padding: '10px 12px', borderRadius: '8px', background: '#111927', border: '1px solid #1e293b' }}>
-          <span style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>Avg Events / {timeUnitLabel}</span>
-          <div style={{ fontSize: '16px', fontWeight: 700, color: '#2dd4bf', marginTop: '2px' }}>{avgPerBucket}</div>
-        </div>
-        <div style={{ padding: '10px 12px', borderRadius: '8px', background: '#111927', border: '1px solid #1e293b' }}>
-          <span style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>Peak Activity</span>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#a78bfa', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {peakBucket}
-          </div>
-        </div>
-      </div>
+const sortedBuckets = Array.from(buckets.values()).sort(
+  (a, b) => a.timestampMs - b.timestampMs,
+);
 
-      {/* Recharts Area / Bar Chart */}
-      <div style={{ width: '100%', height: 180 }}>
-        {chartData.length === 0 ? (
-          <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: '#64748b', fontSize: '12px' }}>
-            No audit records available within the selected date range.
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="auditEventGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.45} />
-                  <stop offset="95%" stopColor="#0284c7" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="label" stroke="#64748b" fontSize={10} tickLine={false} />
-              <YAxis stroke="#38bdf8" fontSize={10} tickLine={false} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{
-                  background: '#0d1828',
-                  border: '1px solid #1e293b',
-                  borderRadius: '8px',
-                  color: '#f1f5f9',
-                  fontSize: '11px',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-                }}
-                formatter={(val: any) => [`${val} Recorded Events`, 'Frequency']}
-                labelFormatter={(label: any) => `${timeUnitLabel}: ${label}`}
-              />
-              <Area
-                type="monotone"
-                dataKey="count"
-                name="Audit Events"
-                stroke="#38bdf8"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#auditEventGradient)"
-                dot={{ r: 3, fill: '#38bdf8', stroke: '#0284c7', strokeWidth: 1.5 }}
-                activeDot={{ r: 6, fill: '#60a5fa', stroke: '#ffffff', strokeWidth: 2 }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        )}
+const total = sortedBuckets.reduce(
+  (sum, bucket) => sum + bucket.count,
+  0,
+);
+
+const peak = sortedBuckets.reduce<ChartBucket | undefined>(
+  (highest, bucket) =>
+    !highest || bucket.count > highest.count ? bucket : highest,
+  undefined,
+);
+
+const average = sortedBuckets.length
+  ? Number((total / sortedBuckets.length).toFixed(1))
+  : 0;
+
+return {
+  chartData: sortedBuckets,
+  timeUnitLabel: isIntraday ? 'Hour' : 'Day',
+  totalEvents: total,
+  peakBucket: peak
+    ? `${peak.label} (${peak.count} events)`
+    : 'None',
+  avgPerBucket: average,
+};
+
+}, [records, startDate, endDate]);
+
+return (
+<section
+style={{
+background: '#0a0f1d',
+border: '1px solid #1e293b',
+borderRadius: '12px',
+padding: 'clamp(12px, 3vw, 20px)',
+marginBottom: '20px',
+boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
+minWidth: 0,
+}}
+>
+<header
+style={{
+display: 'flex',
+alignItems: 'center',
+justifyContent: 'space-between',
+flexWrap: 'wrap',
+gap: '12px',
+marginBottom: '14px',
+paddingBottom: '12px',
+borderBottom: '1px solid #1e293b',
+}}
+>
+<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+<div
+style={{
+width: '36px',
+height: '36px',
+flexShrink: 0,
+borderRadius: '8px',
+background: 'rgba(56, 189, 248, 0.15)',
+border: '1px solid rgba(56, 189, 248, 0.35)',
+display: 'grid',
+placeItems: 'center',
+color: '#38bdf8',
+}}
+>
+<BarChart3 size={18} />
+</div>
+
+      <div>
+        <b style={{ fontSize: '13px', color: '#f1f5f9' }}>
+          Audit Event Distribution Over Time
+        </b>
+        <p style={{ margin: '3px 0 0', fontSize: '11px', color: '#94a3b8' }}>
+          Chronological frequency grouped by {timeUnitLabel.toLowerCase()}
+        </p>
       </div>
     </div>
-  );
+
+    {(startDate || endDate) && (
+      <div
+        style={{
+          fontSize: '10px',
+          padding: '5px 9px',
+          borderRadius: '6px',
+          background: 'rgba(2, 132, 199, 0.15)',
+          border: '1px solid #0284c7',
+          color: '#7dd3fc',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <Calendar size={12} />
+        <span>
+          {startDate || 'Start'} → {endDate || 'Present'}
+        </span>
+      </div>
+    )}
+  </header>
+
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+      gap: '10px',
+      marginBottom: '16px',
+    }}
+  >
+    {[
+      {
+        label: 'Total Filtered Events',
+        value: totalEvents,
+        color: '#f8fafc',
+      },
+      {
+        label: `Time Buckets (${timeUnitLabel})`,
+        value: chartData.length,
+        color: '#38bdf8',
+      },
+      {
+        label: `Avg Events / ${timeUnitLabel}`,
+        value: avgPerBucket,
+        color: '#2dd4bf',
+      },
+      {
+        label: 'Peak Activity',
+        value: peakBucket,
+        color: '#a78bfa',
+      },
+    ].map((metric) => (
+      <div
+        key={metric.label}
+        style={{
+          padding: '10px 12px',
+          borderRadius: '8px',
+          background: '#111927',
+          border: '1px solid #1e293b',
+          minWidth: 0,
+        }}
+      >
+        <span
+          style={{
+            fontSize: '10px',
+            color: '#94a3b8',
+            textTransform: 'uppercase',
+          }}
+        >
+          {metric.label}
+        </span>
+        <div
+          title={String(metric.value)}
+          style={{
+            fontSize: typeof metric.value === 'number' ? '16px' : '12px',
+            fontWeight: 700,
+            color: metric.color,
+            marginTop: '4px',
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {metric.value}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div style={{ width: '100%', height: 200, minWidth: 0 }}>
+    {chartData.length === 0 ? (
+      <div
+        role="status"
+        style={{
+          display: 'grid',
+          placeItems: 'center',
+          height: '100%',
+          color: '#64748b',
+          fontSize: '12px',
+          textAlign: 'center',
+        }}
+      >
+        No audit records available within the selected date range.
+      </div>
+    ) : (
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          data={chartData}
+          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+        >
+          <defs>
+            <linearGradient
+              id="auditEventGradient"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.45} />
+              <stop offset="95%" stopColor="#0284c7" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#1e293b"
+          />
+
+          <XAxis
+            dataKey="label"
+            stroke="#64748b"
+            fontSize={10}
+            tickLine={false}
+            minTickGap={20}
+          />
+
+          <YAxis
+            stroke="#38bdf8"
+            fontSize={10}
+            tickLine={false}
+            allowDecimals={false}
+          />
+
+          <Tooltip
+            contentStyle={{
+              background: '#0d1828',
+              border: '1px solid #1e293b',
+              borderRadius: '8px',
+              color: '#f1f5f9',
+              fontSize: '11px',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+            }}
+            formatter={(value) => [
+              `${value ?? 0} Recorded Events`,
+              'Frequency',
+            ]}
+            labelFormatter={(label) => `${timeUnitLabel}: ${label}`}
+          />
+
+          <Area
+            type="monotone"
+            dataKey="count"
+            name="Audit Events"
+            stroke="#38bdf8"
+            strokeWidth={2}
+            fillOpacity={1}
+            fill="url(#auditEventGradient)"
+            dot={{
+              r: 3,
+              fill: '#38bdf8',
+              stroke: '#0284c7',
+              strokeWidth: 1.5,
+            }}
+            activeDot={{
+              r: 6,
+              fill: '#60a5fa',
+              stroke: '#ffffff',
+              strokeWidth: 2,
+            }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    )}
+  </div>
+</section>
+
+);
 }
 
 export default AuditEventDistributionChart;
