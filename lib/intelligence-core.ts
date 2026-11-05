@@ -269,6 +269,14 @@ export class IntelligenceCore {
     this.cache.clear(workspaceId);
   }
 
+  answerSource: string = 'local_base_model';
+  nativeRuntimeStatus: string = '0.13.0-buffalo';
+
+  isRemoteAllowed(): boolean {
+    if (this.localOnly) return false;
+    return this.onlineConsent;
+  }
+
   /**
    * Bilingual Task Classifier: detects intent and classification signals.
    * Note: This classification is a deterministic heuristic rule system, not a trained model.
@@ -287,15 +295,16 @@ export class IntelligenceCore {
     const isThai = language === 'th' || /[\u0E00-\u0E7F]/.test(query);
     const targetLanguage = isThai ? 'th' : 'en';
     const q = query.toLowerCase();
+    const normalized = q.trim();
 
     const rules = [
-      { pattern: /stack trace|exception|error:\s|บั๊ก|แก้/i, category: 'bug_analysis', tools: ['code.analyze'] },
-      { pattern: /system instruction|prompt|พรอมป์ต์/i, category: 'prompt_forge', tools: ['prompt.forge'] },
-      { pattern: /automation|agent|pipeline|workflow|เอเจนต์/i, category: 'agent_automation', tools: ['repo.inspect'] },
-      { pattern: /refactor|clean code|ปรับปรุงโค้ด|ตรวจ/i, category: 'code_refactor', tools: ['code.analyze'] },
-      { pattern: /infrastructure|architecture|boundaries|สถาปัตยกรรม/i, category: 'system_architecture', tools: ['repo.inspect'] },
-      { pattern: /sources|search|grounding|ค้นคว้า/i, category: 'research_grounding', tools: [] },
-      { pattern: /implement|feature|build app|สร้างแอป/i, category: 'feature_implementation', tools: ['workspace.mutate'] },
+      { pattern: /stack trace|exception|error:\s|บั๊ก|แก้/i, category: 'bug_analysis', tools: ['code.analyze'], confidence: 0.88 },
+      { pattern: /system instruction|prompt|พรอมป์ต์/i, category: 'prompt_forge', tools: ['prompt.forge'], confidence: 0.85 },
+      { pattern: /automation|agent|pipeline|workflow|เอเจนต์/i, category: 'agent_automation', tools: ['repo.inspect'], confidence: 0.82 },
+      { pattern: /refactor|clean code|ปรับปรุงโค้ด|ตรวจ/i, category: 'code_refactor', tools: ['code.analyze'], confidence: 0.84 },
+      { pattern: /infrastructure|architecture|boundaries|สถาปัตยกรรม/i, category: 'system_architecture', tools: ['repo.inspect'], confidence: 0.86 },
+      { pattern: /sources|search|grounding|ค้นคว้า/i, category: 'research_grounding', tools: [], confidence: 0.80 },
+      { pattern: /implement|feature|build app|สร้างแอป/i, category: 'feature_implementation', tools: ['workspace.mutate'], confidence: 0.85 },
     ];
 
     const matched = rules.find(r => r.pattern.test(q));
@@ -307,7 +316,7 @@ export class IntelligenceCore {
 
     return {
       category,
-      confidence: matched ? 0.95 : 0.80,
+      confidence: matched?.confidence ?? (normalized.length < 18 ? 0.42 : 0.55),
       intent: query.slice(0, 100),
       targetLanguage,
       requiresTools: Boolean(matched?.tools.length),

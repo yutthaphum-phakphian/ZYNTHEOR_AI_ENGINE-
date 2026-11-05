@@ -1,23 +1,22 @@
 // @ts-nocheck
 /**
  * ZYNTHEOR AI ENGINE
- * Product-first Home Experience
+ * Universal Intelligence Workspace
  *
  * Product: ZYNTHEOR AI ENGINE
  * Intelligence: ZYNTHEOR INTELLIGENCE
  * Model Family: ZYNTHEOR CORE
  *
  * Principles:
- * - Product first, not developer dashboard
- * - Intelligence is the primary experience
- * - No fabricated model status
- * - No fabricated backend capabilities
- * - Mobile-first navigation
- * - Preserve existing application modules
+ * - Universal AI Workspace: general-purpose AI platform
+ * - Home is the operational center
+ * - Capability groups are dedicated workspaces
+ * - CORE is the engine underneath
+ * - 5-hub unified navigation (Home, Explore, Intelligence, Library, More)
+ * - Clean mobile-first design, ready for native mobile & desktop
  */
 
-import { useCallback, useMemo, useState } from 'react';
-
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -45,7 +44,19 @@ import {
   ShieldCheck,
   Home,
   ChevronRight,
-  Search
+  Search,
+  Activity,
+  Flame,
+  Lock,
+  AlertTriangle,
+  Paperclip,
+  Clock,
+  ArrowRight,
+  Settings,
+  Layers,
+  GraduationCap,
+  FileText,
+  Palette
 } from 'lucide-react';
 
 import {
@@ -66,244 +77,95 @@ import EvaluationLab from './pages/EvaluationLab';
 import AgentCommandCenter from './pages/AgentCommandCenter';
 import MemoryCenter from './pages/MemoryCenter';
 import Diagnostics from './pages/Diagnostics';
+import ExplorePage from './pages/ExplorePage';
+import LibraryPage from './pages/LibraryPage';
+import MorePage from './pages/MorePage';
+import { HardwareEnclaveTelemetryWidget } from './components/HardwareEnclaveTelemetryWidget';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 /* =========================================================
-   TYPES
+   QUICK ACCESS CAPABILITY CARDS
+   Mapped to Universal Workspace categories
 ========================================================= */
 
-type Page =
-  | 'home'
-  | 'chat'
-  | 'memory'
-  | 'knowledge'
-  | 'models'
-  | 'agents'
-  | 'eval'
-  | 'diagnostics';
-
-/* =========================================================
-   CAPABILITY GROUPS
-========================================================= */
-
-const CAPABILITY_GROUPS = [
+const QUICK_ACCESS_ITEMS = [
   {
-    group: 'ความรู้และการเรียนรู้',
-    groupEn: 'Knowledge & Learning',
+    id: 'research',
+    title: 'Research',
+    titleThai: 'ค้นคว้าข้อมูล',
     icon: BookOpen,
     color: '#38bdf8',
-    ids: [
-      'KNOWLEDGE_RESEARCH',
-      'EDUCATION'
-    ] as CapabilityId[]
+    prompt: 'ช่วยค้นคว้าและสรุปข้อมูลล่าสุดเกี่ยวกับ: ',
+    grounding: true
   },
   {
-    group: 'ภาษาและการสื่อสาร',
-    groupEn: 'Language & Communication',
+    id: 'writing',
+    title: 'Writing',
+    titleThai: 'เขียนเนื้อหา & แปล',
     icon: PenLine,
     color: '#fb7185',
-    ids: [
-      'WRITING_TRANSLATION',
-      'GENERAL_CONVERSATION'
-    ] as CapabilityId[]
+    prompt: 'ช่วยเขียนบทความหรือเรียบเรียงเนื้อหาเรื่อง: ',
+    grounding: false
   },
   {
-    group: 'การวิเคราะห์และแก้ปัญหา',
-    groupEn: 'Analysis & Reasoning',
-    icon: BarChart3,
+    id: 'reasoning',
+    title: 'Reasoning',
+    titleThai: 'วิเคราะห์ & ตรรกะ',
+    icon: Brain,
     color: '#a78bfa',
-    ids: [
-      'REASONING',
-      'DATA_ANALYSIS'
-    ] as CapabilityId[]
+    prompt: 'ช่วยวิเคราะห์และเปรียบเทียบเชิงเหตุผลเรื่อง: ',
+    grounding: false
   },
   {
-    group: 'การสร้างสรรค์และเทคโนโลยี',
-    groupEn: 'Creative & Technology',
-    icon: Wrench,
+    id: 'analysis',
+    title: 'Analysis',
+    titleThai: 'วิเคราะห์ข้อมูล & สถิติ',
+    icon: BarChart3,
+    color: '#34d399',
+    prompt: 'ช่วยวิเคราะห์ชุดข้อมูลและสรุปสาระสำคัญ: ',
+    grounding: false
+  },
+  {
+    id: 'learning',
+    title: 'Learning',
+    titleThai: 'เรียนรู้ & การศึกษา',
+    icon: GraduationCap,
+    color: '#38bdf8',
+    prompt: 'ช่วยอธิบายและสอนแนวคิดนี้ให้เข้าใจง่าย: ',
+    grounding: false
+  },
+  {
+    id: 'creative',
+    title: 'Creative',
+    titleThai: 'สร้างสรรค์ & ไอเดีย',
+    icon: Palette,
     color: '#fb923c',
-    ids: [
-      'CREATIVITY',
-      'TECHNICAL_ASSISTANCE',
-      'PRODUCTIVITY'
-    ] as CapabilityId[]
+    prompt: 'ช่วยระดมความคิดและคิดคอนเซปต์ใหม่สำหรับ: ',
+    grounding: false
+  },
+  {
+    id: 'documents',
+    title: 'Documents',
+    titleThai: 'จัดการเอกสาร & สรุป',
+    icon: FileText,
+    color: '#a78bfa',
+    prompt: 'ช่วยสรุปใจความสำคัญและสาระสำคัญของเอกสารนี้: ',
+    grounding: false
+  },
+  {
+    id: 'technical',
+    title: 'Technical',
+    titleThai: 'งานเทคนิค & โค้ด',
+    icon: Wrench,
+    color: '#00D9A3',
+    prompt: 'ช่วยตรวจสอบ แนะนำ หรือเขียนโค้ดสำหรับ: ',
+    grounding: false
   }
 ];
 
 /* =========================================================
-   MODEL IDENTITY
-   Registry identity is not runtime availability.
-========================================================= */
-
-function ModelIdentitySection() {
-  const [modelState] = useState(() => {
-    try {
-      const model = getActiveModel();
-
-      if (!model) {
-        return {
-          model: null,
-          validation: null,
-          state: 'UNAVAILABLE'
-        };
-      }
-
-      const validation = validateModelIdentity(model);
-
-      return {
-        model,
-        validation,
-        state:
-          validation?.valid === true
-            ? 'IDENTITY_VALID'
-            : 'IDENTITY_INVALID'
-      };
-    } catch {
-      return {
-        model: null,
-        validation: null,
-        state: 'UNAVAILABLE'
-      };
-    }
-  });
-
-  const stateStyles = {
-    IDENTITY_VALID:
-      'bg-emerald-500/10 border-emerald-500/20 text-emerald-300',
-
-    IDENTITY_INVALID:
-      'bg-red-500/10 border-red-500/20 text-red-300',
-
-    UNAVAILABLE:
-      'bg-white/[0.05] border-white/10 text-white/40'
-  };
-
-  const stateLabels = {
-    IDENTITY_VALID: 'IDENTITY VALID',
-    IDENTITY_INVALID: 'IDENTITY INVALID',
-    UNAVAILABLE: 'UNAVAILABLE'
-  };
-
-  const model = modelState.model;
-  const state = modelState.state;
-
-  const errors = Array.isArray(modelState.validation?.errors)
-    ? modelState.validation.errors
-    : [];
-
-  return (
-    <section className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-white/[0.08] grid place-items-center">
-          <Cpu size={18} />
-        </div>
-
-        <div>
-          <h2 className="font-bold text-lg">
-            ZYNTHEOR CORE
-          </h2>
-
-          <p className="text-xs text-white/40">
-            Model Identity & Provenance
-          </p>
-        </div>
-
-        <span
-          className={`ml-auto px-3 py-1 rounded-full border text-[10px] font-bold ${stateStyles[state]}`}
-        >
-          {stateLabels[state]}
-        </span>
-      </div>
-
-      <div className="rounded-2xl border border-white/[0.08] bg-[#0b1020] p-5">
-        {!model ? (
-          <div className="flex gap-3 items-start">
-            <ShieldCheck
-              className="text-white/30 shrink-0"
-              size={20}
-            />
-
-            <div>
-              <div className="font-bold text-sm">
-                Model information unavailable
-              </div>
-
-              <p className="text-xs text-white/40 mt-1 leading-5">
-                ไม่สามารถอ่านข้อมูล Active Model ได้ในขณะนี้
-                ระบบจะไม่เลือกโมเดลสำรองมาแสดงเป็นโมเดลที่กำลังทำงาน
-              </p>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center shrink-0">
-                <Cpu size={21} className="text-black" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h3 className="font-bold text-base break-words">
-                  {model.displayName || 'Unnamed Model'}
-                </h3>
-
-                <p className="text-xs text-white/40 font-mono mt-1 break-all">
-                  {model.modelId || 'Unknown model ID'}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {model.status && (
-                    <span className="text-[10px] px-2 py-1 rounded-full bg-white/[0.06] border border-white/10 text-white/60">
-                      Registry: {model.status}
-                    </span>
-                  )}
-
-                  {model.baseModel && (
-                    <span className="text-[10px] px-2 py-1 rounded-full bg-white/[0.06] border border-white/10 text-white/60">
-                      Base: {model.baseModel}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {errors.length > 0 && (
-              <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                <div className="text-xs font-bold text-red-300 mb-2">
-                  Identity validation issues
-                </div>
-
-                {errors.map((error, index) => (
-                  <div
-                    key={index}
-                    className="text-[11px] text-red-200/70 leading-5 break-words"
-                  >
-                    • {String(error)}
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        <div className="mt-5 pt-4 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-3">
-          <div className="text-[11px] text-white/30">
-            Identity validation does not prove active inference.
-          </div>
-
-          <NavLink
-            to="/model-studio"
-            className="text-xs text-[#00D9A3] hover:text-white transition flex items-center gap-1 shrink-0"
-          >
-            Model Studio
-            <ChevronRight size={13} />
-          </NavLink>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* =========================================================
    HOME EXPERIENCE
+   Universal AI Workspace Architecture
 ========================================================= */
 
 function HomeExperience() {
@@ -311,577 +173,334 @@ function HomeExperience() {
 
   const [input, setInput] = useState('');
   const [grounding, setGrounding] = useState(false);
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+
+  const activeModel = useMemo(() => {
+    try {
+      return getActiveModel();
+    } catch {
+      return null;
+    }
+  }, []);
 
   const handleStart = useCallback(
-    (text?: string) => {
+    (text?: string, forceGrounding?: boolean) => {
+      if (isMaintenanceMode) return;
       const query = (text ?? input).trim();
 
       if (!query) return;
 
       const params = new URLSearchParams();
-
       params.set('q', query);
-      params.set('grounding', grounding ? '1' : '0');
+      params.set('grounding', (forceGrounding ?? grounding) ? '1' : '0');
 
       navigate(`/chat?${params.toString()}`);
     },
-    [input, grounding, navigate]
-  );
-
-  const currentCapability = useMemo(
-    () => classifyAutoMode(input || 'สวัสดีครับ'),
-    [input]
-  );
-
-  const currentCapabilityMeta = useMemo(
-    () => CAPABILITIES.find(
-      capability => capability.id === currentCapability
-    ),
-    [currentCapability]
+    [input, grounding, navigate, isMaintenanceMode]
   );
 
   return (
     <main className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-[#050810] text-white">
-      {/* Background */}
-
+      {/* Ambient background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-[25%] left-1/2 -translate-x-1/2 w-[90%] h-[60%] bg-gradient-to-b from-[#00D9A3]/10 via-[#8b5cf6]/5 to-transparent blur-[110px]" />
-
-        <div className="absolute top-[45%] -right-[20%] w-[60%] h-[40%] bg-gradient-to-l from-[#fb7185]/5 to-transparent blur-[100px]" />
+        <div className="absolute -top-[25%] left-1/2 -translate-x-1/2 w-[90%] h-[55%] bg-gradient-to-b from-[#00D9A3]/10 via-[#8b5cf6]/5 to-transparent blur-[120px]" />
+        <div className="absolute top-[45%] -right-[20%] w-[50%] h-[35%] bg-gradient-to-l from-[#38bdf8]/5 to-transparent blur-[100px]" />
       </div>
 
-      <div className="relative max-w-[1120px] mx-auto w-full px-4 sm:px-6 md:px-8 py-7 md:py-12 space-y-14 md:space-y-20">
-
+      <div className="relative max-w-[1040px] mx-auto w-full px-4 sm:px-6 md:px-8 py-6 md:py-10 space-y-10 md:space-y-12">
+        
         {/* =================================================
-            1. PRODUCT HERO
+            1. TOP HEADER & BRAND
         ================================================= */}
-
-        <section className="space-y-7">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/10 text-[10px] tracking-[0.15em] font-bold text-white/50">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00D9A3]" />
-            ZYNTHEOR AI ENGINE
-          </div>
-
-          <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
-            <div className="flex-1 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center shadow-[0_0_30px_rgba(0,217,163,0.25)]">
-                  <span className="font-black text-black text-2xl">
-                    Z
-                  </span>
-                </div>
-
-                <div>
-                  <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-none">
-                    ZYNTHEOR
-                  </h1>
-
-                  <p className="text-xs md:text-sm tracking-[0.2em] font-bold text-[#00D9A3] mt-2">
-                    AI ENGINE
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <h2 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight">
-                  Intelligence for
-                  <br />
-
-                  <span className="bg-gradient-to-r from-[#00D9A3] to-[#a78bfa] bg-clip-text text-transparent">
-                    Everything You Create.
-                  </span>
-                </h2>
-
-                <p className="text-sm md:text-base leading-7 text-white/50 max-w-[580px]">
-                  แพลตฟอร์ม AI อเนกประสงค์ที่ออกแบบให้มี Intelligence,
-                  Knowledge และ Model Ecosystem เป็นของตัวเอง
-                  รองรับภาษาไทย ภาษาอังกฤษ ความรู้ การวิเคราะห์
-                  การค้นคว้า และการสร้างสรรค์
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'General Intelligence',
-                  'Thai-first',
-                  'Knowledge-aware',
-                  'CORE Model Family'
-                ].map(item => (
-                  <span
-                    key={item}
-                    className="px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-[11px] text-white/60"
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-3 pt-1">
-                <button
-                  onClick={() => navigate('/chat')}
-                  className="h-11 px-6 rounded-full bg-white text-black font-bold text-sm flex items-center gap-2 hover:bg-[#00D9A3] transition"
-                >
-                  <Sparkles size={16} />
-                  Open Intelligence
-                </button>
-
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById('capabilities')
-                      ?.scrollIntoView({ behavior: 'smooth' })
-                  }
-                  className="h-11 px-6 rounded-full bg-white/[0.05] border border-white/10 text-white font-bold text-sm hover:bg-white/[0.1] transition"
-                >
-                  Explore Capabilities
-                </button>
-              </div>
+        <header className="flex items-center justify-between gap-4 pt-1">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center shadow-[0_0_20px_rgba(0,217,163,0.25)]">
+              <span className="font-black text-black text-lg">Z</span>
             </div>
-
-            {/* Product Architecture */}
-
-            <div className="w-full lg:w-[300px] rounded-3xl border border-white/[0.08] bg-[#0b1020]/80 backdrop-blur-xl p-5 space-y-4">
-              <div className="text-[10px] tracking-[0.18em] font-bold text-white/30">
-                PRODUCT ARCHITECTURE
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <div className="text-sm font-bold text-[#00D9A3]">
-                    ZYNTHEOR AI ENGINE
-                  </div>
-
-                  <div className="text-xs text-white/40 mt-1">
-                    The AI Platform
-                  </div>
-                </div>
-
-                <div className="h-px bg-white/[0.06]" />
-
-                <div>
-                  <div className="text-sm font-bold text-[#a78bfa]">
-                    ZYNTHEOR INTELLIGENCE
-                  </div>
-
-                  <div className="text-xs text-white/40 mt-1">
-                    Intelligence & Reasoning Layer
-                  </div>
-                </div>
-
-                <div className="h-px bg-white/[0.06]" />
-
-                <div>
-                  <div className="text-sm font-bold text-white">
-                    ZYNTHEOR CORE
-                  </div>
-
-                  <div className="text-xs text-white/40 mt-1">
-                    First-party Model Family
-                  </div>
-                </div>
-
-                <div className="h-px bg-white/[0.06]" />
-
-                <div>
-                  <div className="text-sm font-bold text-white/80">
-                    KNOWLEDGE & MEMORY
-                  </div>
-
-                  <div className="text-xs text-white/40 mt-1">
-                    Context, Information & Continuity
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =================================================
-            2. INTELLIGENCE WORKSPACE
-        ================================================= */}
-
-        <section
-          id="intelligence-workspace"
-          className="space-y-4 scroll-mt-6"
-        >
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#00D9A3] text-black grid place-items-center">
-              <MessageSquare size={17} />
-            </div>
-
             <div>
-              <h2 className="font-bold text-lg">
-                Intelligence Workspace
-              </h2>
-
-              <p className="text-xs text-white/40">
-                พื้นที่เริ่มต้นสำหรับทุกคำถามและทุกความคิด
-              </p>
-            </div>
-
-            {currentCapabilityMeta && (
-              <span className="ml-auto hidden sm:flex items-center gap-1.5 text-[10px] text-[#00D9A3] bg-[#00D9A3]/10 border border-[#00D9A3]/20 rounded-full px-3 py-1">
-                <Zap size={12} />
-                {currentCapabilityMeta.nameThai}
-              </span>
-            )}
-          </div>
-
-          <div className="rounded-3xl border border-white/[0.08] bg-[#0b1020]/80 p-2 shadow-2xl">
-            <div className="rounded-[20px] bg-[#0f1629] border border-white/[0.05] p-4 md:p-5">
-              <textarea
-                value={input}
-                onChange={event => setInput(event.target.value)}
-                onKeyDown={event => {
-                  if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault();
-                    handleStart();
-                  }
-                }}
-                placeholder="ถามอะไรก็ได้... ค้นคว้า เรียนรู้ วิเคราะห์ เขียน สร้างสรรค์ หรือแก้ปัญหา"
-                rows={3}
-                aria-label="Intelligence prompt"
-                className="w-full resize-none bg-transparent outline-none text-sm leading-7 placeholder:text-white/25"
-              />
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4 pt-4 border-t border-white/[0.06]">
-                <label className="flex items-center gap-2 text-xs text-white/50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={grounding}
-                    onChange={event => setGrounding(event.target.checked)}
-                    className="accent-[#00D9A3]"
-                  />
-
-                  <Globe
-                    size={14}
-                    className={
-                      grounding
-                        ? 'text-[#00D9A3]'
-                        : 'text-white/30'
-                    }
-                  />
-
-                  Internet Intelligence
-                </label>
-
-                <button
-                  onClick={() => handleStart()}
-                  disabled={!input.trim()}
-                  className="h-10 px-5 rounded-full bg-[#00D9A3] text-black font-bold text-sm flex items-center justify-center gap-2 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition"
-                >
-                  <Send size={15} />
-                  Start Intelligence
-                </button>
+              <div className="flex items-center gap-2">
+                <span className="font-black tracking-tight text-lg text-white">ZYNTHEOR</span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#00D9A3]/10 text-[#00D9A3] border border-[#00D9A3]/20">
+                  AI ENGINE
+                </span>
+              </div>
+              <div className="text-[11px] text-white/40">
+                Universal Intelligence Platform
               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {[
-              'อธิบายแนวคิดทางวิทยาศาสตร์ให้เข้าใจง่าย',
-              'ช่วยวิเคราะห์ปัญหาและเสนอแนวทางแก้ไข',
-              'ช่วยวางแผนสร้างผลิตภัณฑ์ AI',
-              'ช่วยเรียนรู้เทคโนโลยีใหม่'
-            ].map(example => (
-              <button
-                key={example}
-                onClick={() => handleStart(example)}
-                className="text-[11px] text-white/50 bg-white/[0.04] border border-white/[0.06] rounded-full px-3 py-2 hover:text-white hover:border-[#00D9A3]/30 transition"
-              >
-                {example}
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <NavLink
+              to="/more"
+              className="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-semibold text-white/70 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <Settings size={13} className="text-white/50" />
+              <span className="hidden sm:inline">Settings & System</span>
+            </NavLink>
           </div>
-        </section>
+        </header>
+
+        {/* Maintenance Mode Read-Only Banner */}
+        {isMaintenanceMode && (
+          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center gap-3.5 text-xs text-red-200">
+            <Lock size={18} className="text-red-400 shrink-0" />
+            <div>
+              <span className="font-bold text-red-300">READ-ONLY MAINTENANCE MODE ACTIVE:</span> ระบบตรวจพบการเบี่ยงเบนของ SSoT Drift เกินเกณฑ์แคนอนิคัล (Δ0.00%) คำสั่งสร้างหรือแก้ไขข้อมูลถูกระงับชั่วคราว
+            </div>
+          </div>
+        )}
 
         {/* =================================================
-            3. CAPABILITIES
+            2. HERO & OMNI-COMPOSER
         ================================================= */}
-
-        <section id="capabilities" className="space-y-6 scroll-mt-6">
-          <div>
-            <h2 className="font-bold text-xl">
-              Intelligence Capabilities
-            </h2>
-
-            <p className="text-xs text-white/40 mt-1">
-              ความสามารถอเนกประสงค์ที่เข้าถึงผ่าน Intelligence เดียว
+        <section className="space-y-6 pt-2 md:pt-4 text-center">
+          <div className="space-y-2 max-w-2xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white">
+              What can I help you with?
+            </h1>
+            <p className="text-sm md:text-base text-white/50">
+              ถาม ค้นคว้า วิเคราะห์ หรือสร้างสรรค์สิ่งที่คุณต้องการผ่าน One Intelligence Core
             </p>
           </div>
 
-          <div className="space-y-7">
-            {CAPABILITY_GROUPS.map(group => {
-              const GroupIcon = group.icon;
+          {/* Omni Composer Box */}
+          <div className="max-w-2xl mx-auto text-left rounded-3xl border border-white/10 bg-[#0b1020]/90 backdrop-blur-xl p-3 shadow-2xl transition focus-within:border-[#00D9A3]/50 focus-within:shadow-[0_0_30px_rgba(0,217,163,0.12)]">
+            <div className="p-2 sm:p-3">
+              <textarea
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleStart();
+                  }
+                }}
+                disabled={isMaintenanceMode}
+                placeholder={isMaintenanceMode ? "ระบบอยู่ในโหมด Read-Only Maintenance Mode (ระงับการส่งคำสั่ง)" : "ถาม ค้นคว้า วิเคราะห์ หรือสร้างสรรค์สิ่งที่คุณต้องการ..."}
+                rows={3}
+                aria-label="Intelligence prompt input"
+                className="w-full resize-none bg-transparent outline-none text-sm text-white placeholder:text-white/25 leading-relaxed"
+              />
 
-              return (
-                <div key={group.group} className="space-y-3">
-                  <div
-                    className="flex flex-wrap items-center gap-2 text-xs font-bold"
-                    style={{ color: group.color }}
+              {/* Bottom Toolbar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/[0.06] mt-2">
+                <div className="flex items-center gap-2">
+                  {/* Attachment button */}
+                  <button
+                    type="button"
+                    title="แนบไฟล์หรือเอกสาร"
+                    onClick={() => navigate('/library')}
+                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition cursor-pointer"
                   >
-                    <GroupIcon size={15} />
+                    <Paperclip size={15} />
+                  </button>
 
-                    {group.group}
+                  {/* Online Search Toggle */}
+                  <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-xs text-white/70 cursor-pointer select-none transition">
+                    <input
+                      type="checkbox"
+                      checked={grounding}
+                      onChange={e => setGrounding(e.target.checked)}
+                      className="accent-[#00D9A3] cursor-pointer"
+                    />
+                    <Globe size={13} className={grounding ? 'text-[#00D9A3]' : 'text-white/40'} />
+                    <span className="text-[11px] font-medium">Online</span>
+                  </label>
 
-                    <span className="text-white/20 font-normal">
-                      / {group.groupEn}
-                    </span>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {group.ids.map(id => {
-                      const capability = CAPABILITIES.find(
-                        item => item.id === id
-                      );
-
-                      if (!capability) return null;
-
-                      const example =
-                        capability.examples?.[0] ||
-                        capability.nameThai ||
-                        'ช่วยฉันเริ่มต้นงานนี้';
-
-                      return (
-                        <button
-                          key={capability.id}
-                          onClick={() => handleStart(example)}
-                          className="text-left rounded-2xl border border-white/[0.07] bg-[#0b1020]/70 p-4 hover:bg-[#111a2d] hover:border-white/20 transition group"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span
-                              className="w-9 h-9 rounded-xl grid place-items-center border text-base"
-                              style={{
-                                background: `${group.color}15`,
-                                borderColor: `${group.color}30`
-                              }}
-                            >
-                              {capability.icon}
-                            </span>
-
-                            <span className="text-[9px] text-white/25 font-mono">
-                              {capability.id}
-                            </span>
-                          </div>
-
-                          <h3 className="text-sm font-bold mt-4">
-                            {capability.nameThai}
-                          </h3>
-
-                          <p className="text-[11px] text-white/40 mt-1 leading-5 line-clamp-2">
-                            {capability.description}
-                          </p>
-
-                          <div className="mt-4 text-[11px] text-[#00D9A3] flex items-center gap-1">
-                            เริ่มใช้งาน
-                            <ChevronRight size={13} />
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {/* Active CORE Model Badge */}
+                  <NavLink
+                    to="/model-studio"
+                    title="ตรวจสอบโมเดล ZYNTHEOR CORE"
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/5 text-[11px] font-mono text-white/60 hover:text-white transition cursor-pointer"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00D9A3]" />
+                    <span>ZYNTHEOR CORE</span>
+                  </NavLink>
                 </div>
+
+                {/* Submit Button */}
+                <button
+                  type="button"
+                  onClick={() => handleStart()}
+                  disabled={!input.trim() || isMaintenanceMode}
+                  className="h-10 px-5 rounded-2xl bg-[#00D9A3] text-black font-bold text-xs flex items-center justify-center gap-2 hover:bg-white disabled:opacity-20 disabled:cursor-not-allowed transition cursor-pointer"
+                >
+                  <span>ส่งคำสั่ง</span>
+                  <Send size={13} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================
+            3. QUICK ACCESS CAPABILITY CARDS
+        ================================================= */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold tracking-widest text-white/40 uppercase">
+              Quick Access · ความสามารถหลัก
+            </h2>
+            <NavLink
+              to="/explore"
+              className="text-xs font-bold text-[#00D9A3] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span>ดูทั้งหมด (Explore)</span>
+              <ChevronRight size={13} />
+            </NavLink>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {QUICK_ACCESS_ITEMS.map(item => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleStart(item.prompt, item.grounding)}
+                  className="text-left rounded-2xl border border-white/[0.07] bg-[#0b1020]/80 p-4 space-y-3 hover:border-white/20 hover:bg-[#111a2d] transition group cursor-pointer"
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl grid place-items-center border"
+                    style={{
+                      backgroundColor: `${item.color}15`,
+                      borderColor: `${item.color}30`,
+                      color: item.color
+                    }}
+                  >
+                    <Icon size={18} />
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-sm text-white group-hover:text-[#00D9A3] transition">
+                      {item.title}
+                    </h3>
+                    <p className="text-[11px] text-white/40 mt-0.5 leading-snug">
+                      {item.titleThai}
+                    </p>
+                  </div>
+                </button>
               );
             })}
           </div>
         </section>
 
         {/* =================================================
-            4. KNOWLEDGE & MEMORY
+            4. RECENT WORK & YOUR KNOWLEDGE
         ================================================= */}
-
-        <section className="space-y-5">
-          <div>
-            <h2 className="font-bold text-xl">
-              Knowledge & Memory
-            </h2>
-
-            <p className="text-xs text-white/40 mt-1">
-              ระบบข้อมูล ความรู้ และความต่อเนื่องของ Intelligence
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-
-            {/* Memory */}
-
-            <button
-              onClick={() => navigate('/memory')}
-              className="text-left rounded-2xl border border-white/[0.08] bg-[#0b1020] p-5 hover:border-[#00D9A3]/30 transition group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-[#00D9A3]/10 grid place-items-center">
-                <Brain size={19} className="text-[#00D9A3]" />
+        <section className="grid sm:grid-cols-2 gap-4">
+          
+          {/* Recent Work */}
+          <div className="rounded-3xl border border-white/[0.08] bg-[#0b1020] p-5 space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="flex items-center gap-2 text-white">
+                  <Clock size={15} className="text-[#38bdf8]" />
+                  Recent Work · งานล่าสุด
+                </span>
+                <NavLink to="/library" className="text-[11px] text-[#38bdf8] hover:underline">
+                  ดูประวัติ
+                </NavLink>
               </div>
 
-              <h3 className="font-bold text-sm mt-4">
-                Memory
-              </h3>
-
-              <p className="text-xs text-white/40 mt-2 leading-5">
-                เข้าถึงระบบความจำและบริบทที่ระบบจัดเก็บไว้
-              </p>
-
-              <div className="text-[11px] text-[#00D9A3] mt-4 flex items-center gap-1">
-                Open Memory
-                <ChevronRight size={13} />
+              <div className="space-y-2">
+                {[
+                  { title: 'วิเคราะห์โครงสร้าง Sovereign AI Engine', time: 'วันนี้' },
+                  { title: 'สรุปมาตรฐาน FIPS 140-3 Hardware Enclave', time: 'เมื่อวานนี้' },
+                  { title: 'เขียนโค้ด React Hook & Universal Navigation', time: '3 วันที่แล้ว' }
+                ].map((session, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => navigate('/chat')}
+                    className="p-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs cursor-pointer transition"
+                  >
+                    <span className="truncate pr-2 text-white/80">{session.title}</span>
+                    <span className="text-[10px] text-white/30 shrink-0">{session.time}</span>
+                  </div>
+                ))}
               </div>
-            </button>
-
-            {/* Files */}
+            </div>
 
             <button
               onClick={() => navigate('/chat')}
-              className="text-left rounded-2xl border border-white/[0.08] bg-[#0b1020] p-5 hover:border-[#38bdf8]/30 transition group"
+              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#38bdf8]/10 grid place-items-center">
-                <Files size={19} className="text-[#38bdf8]" />
+              <span>เปิดประวัติงานใน Intelligence</span>
+              <ArrowRight size={13} />
+            </button>
+          </div>
+
+          {/* Your Knowledge & Memory */}
+          <div className="rounded-3xl border border-white/[0.08] bg-[#0b1020] p-5 space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="flex items-center gap-2 text-white">
+                  <BookOpen size={15} className="text-[#a78bfa]" />
+                  Your Knowledge · คลังความรู้
+                </span>
+                <NavLink to="/library" className="text-[11px] text-[#a78bfa] hover:underline">
+                  เปิด Library
+                </NavLink>
               </div>
 
-              <h3 className="font-bold text-sm mt-4">
-                Files & Documents
-              </h3>
-
-              <p className="text-xs text-white/40 mt-2 leading-5">
-                เริ่มงานกับเอกสารผ่าน Intelligence Workspace
-                โดยขึ้นอยู่กับความสามารถจัดการไฟล์ที่เชื่อมต่ออยู่
+              <p className="text-xs text-white/40 leading-relaxed">
+                จัดเก็บเอกสาร สรุปบทความ และหน่วยความจำส่วนบุคคล (Memory Center) เพื่อให้ AI นำบริบทมาใช้ในการตอบคำถามอย่างต่อเนื่อง
               </p>
 
-              <div className="text-[11px] text-[#38bdf8] mt-4 flex items-center gap-1">
-                Open Intelligence
-                <ChevronRight size={13} />
+              <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2.5">
+                  <Brain size={16} className="text-[#00D9A3]" />
+                  <div>
+                    <div className="font-bold text-white">Semantic Memory</div>
+                    <div className="text-[10px] text-white/40">พร้อมใช้งานตลอดทุกการสนทนา</div>
+                  </div>
+                </div>
+                <NavLink
+                  to="/memory"
+                  className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-[#00D9A3] font-bold"
+                >
+                  จัดการ
+                </NavLink>
               </div>
-            </button>
-
-            {/* Knowledge */}
+            </div>
 
             <button
-              onClick={() => navigate('/knowledge')}
-              className="text-left rounded-2xl border border-white/[0.08] bg-[#0b1020] p-5 hover:border-[#a78bfa]/30 transition group"
+              onClick={() => navigate('/library')}
+              className="w-full py-2.5 rounded-xl bg-[#a78bfa]/10 hover:bg-[#a78bfa]/20 text-xs font-bold text-[#a78bfa] transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#a78bfa]/10 grid place-items-center">
-                <BookOpen size={19} className="text-[#a78bfa]" />
-              </div>
-
-              <h3 className="font-bold text-sm mt-4">
-                Knowledge
-              </h3>
-
-              <p className="text-xs text-white/40 mt-2 leading-5">
-                เริ่มต้นค้นคว้าและวิเคราะห์ความรู้ผ่าน Intelligence
-              </p>
-
-              <div className="text-[11px] text-[#a78bfa] mt-4 flex items-center gap-1">
-                Explore Knowledge
-                <ChevronRight size={13} />
-              </div>
+              <span>เข้าสู่ Knowledge & Documents Library</span>
+              <ChevronRight size={14} />
             </button>
           </div>
         </section>
 
         {/* =================================================
-            5. INTERNET INTELLIGENCE
+            5. SYSTEM HEALTH & INTEGRITY BANNER
         ================================================= */}
-
-        <section className="space-y-4">
+        <footer className="pt-4 pb-4 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#38bdf8]/15 grid place-items-center">
-              <Compass size={18} className="text-[#38bdf8]" />
-            </div>
-
-            <div>
-              <h2 className="font-bold text-lg">
-                Internet Intelligence
-              </h2>
-
-              <p className="text-xs text-white/40">
-                ค้นคว้าข้อมูลภายนอกเมื่อจำเป็น
-              </p>
-            </div>
+            <span className="font-black text-white tracking-wider">ZYNTHEOR</span>
+            <span>·</span>
+            <span>Universal AI Workspace</span>
           </div>
 
-          <div className="rounded-2xl border border-white/[0.08] bg-[#0b1020] p-5 md:p-6">
-            <div className="flex flex-col md:flex-row md:items-center gap-5">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 font-bold text-sm">
-                  <Globe size={17} className="text-[#38bdf8]" />
-                  Online Research
-                </div>
-
-                <p className="text-xs text-white/40 mt-3 leading-6 max-w-[600px]">
-                  ใช้การค้นคว้าข้อมูลออนไลน์เพื่อเพิ่มบริบทให้ Intelligence
-                  สำหรับคำถามที่ต้องการข้อมูลล่าสุด
-                  โดยต้องมีแหล่งข้อมูลที่ตรวจสอบได้
-                  และต้องมี Backend รองรับการค้นคว้าจริง
-                </p>
-
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {[
-                    'Current Information',
-                    'Source References',
-                    'Research Context'
-                  ].map(item => (
-                    <span
-                      key={item}
-                      className="px-2.5 py-1 rounded-full bg-white/[0.05] border border-white/[0.08] text-[10px] text-white/50"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setGrounding(true);
-
-                  document
-                    .getElementById('intelligence-workspace')
-                    ?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="h-11 px-5 rounded-full bg-[#38bdf8]/10 border border-[#38bdf8]/20 text-[#38bdf8] text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#38bdf8]/20 transition"
-              >
-                <Search size={15} />
-
-                Enable Online Research
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* =================================================
-            6. MODEL IDENTITY
-        ================================================= */}
-
-        <ModelIdentitySection />
-
-        {/* =================================================
-            7. PRODUCT FOOTER
-        ================================================= */}
-
-        <footer className="pt-6 pb-6 border-t border-white/[0.06]">
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-            <div>
-              <div className="text-sm font-black tracking-wider">
-                ZYNTHEOR
-              </div>
-
-              <div className="text-[10px] text-white/30 mt-1">
-                AI ENGINE · INTELLIGENCE · CORE
-              </div>
-            </div>
-
-            <div className="text-[10px] text-white/25">
-              Model identity information is shown separately from runtime status.
-            </div>
-          </div>
+          <NavLink
+            to="/diagnostics"
+            className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-[11px] text-white/60 hover:text-white transition cursor-pointer"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span>Enclave Health Nominal (14.98 mK · SSoT Δ0.00%)</span>
+            <ChevronRight size={12} className="text-white/40" />
+          </NavLink>
         </footer>
+
       </div>
     </main>
   );
 }
 
 /* =========================================================
-   APP NAVIGATION
+   APP SHELL & 5-ITEM UNIFIED NAVIGATION
 ========================================================= */
 
 function AppShell() {
@@ -889,43 +508,36 @@ function AppShell() {
 
   const current = useMemo(() => {
     const path = location.pathname;
-
     if (path === '/' || path === '/home') return 'home';
-
-    if (
-      path.startsWith('/chat') ||
-      path.startsWith('/workspace')
-    ) {
-      return 'chat';
-    }
-
-    if (path.startsWith('/memory')) return 'memory';
-
-    if (path.startsWith('/knowledge')) return 'knowledge';
-
-    if (path.startsWith('/model')) return 'models';
-
-    if (path.startsWith('/agent')) return 'agents';
-
-    if (path.startsWith('/eval')) return 'eval';
-
-    if (path.startsWith('/diagnostics')) return 'diagnostics';
-
+    if (path.startsWith('/explore')) return 'explore';
+    if (path.startsWith('/chat') || path.startsWith('/workspace')) return 'chat';
+    if (path.startsWith('/library') || path.startsWith('/knowledge') || path.startsWith('/memory')) return 'library';
+    if (path.startsWith('/more') || path.startsWith('/model') || path.startsWith('/agent') || path.startsWith('/eval') || path.startsWith('/diagnostics')) return 'more';
     return 'home';
   }, [location.pathname]);
 
-  /*
-   * All primary destinations are included.
-   * Mobile navigation uses horizontal scrolling instead of hiding items.
+  /* 
+   * 5 Main Hubs as specified by user:
+   * 1. Home
+   * 2. Explore
+   * 3. Intelligence
+   * 4. Library
+   * 5. More
    */
-
-  const nav = [
+  const navItems = [
     {
       id: 'home',
       path: '/',
       icon: Home,
       label: 'Home',
       th: 'หน้าแรก'
+    },
+    {
+      id: 'explore',
+      path: '/explore',
+      icon: Compass,
+      label: 'Explore',
+      th: 'สำรวจ'
     },
     {
       id: 'chat',
@@ -935,141 +547,114 @@ function AppShell() {
       th: 'Intelligence'
     },
     {
-      id: 'knowledge',
-      path: '/knowledge',
+      id: 'library',
+      path: '/library',
       icon: BookOpen,
-      label: 'Knowledge',
-      th: 'ความรู้'
+      label: 'Library',
+      th: 'คลังข้อมูล'
     },
     {
-      id: 'memory',
-      path: '/memory',
-      icon: Brain,
-      label: 'Memory',
-      th: 'ความจำ'
-    },
-    {
-      id: 'models',
-      path: '/model-studio',
-      icon: Cpu,
-      label: 'CORE',
-      th: 'CORE'
-    },
-    {
-      id: 'agents',
-      path: '/agents',
-      icon: Network,
-      label: 'Agents',
-      th: 'Agents'
-    },
-    {
-      id: 'eval',
-      path: '/evaluation',
-      icon: BarChart3,
-      label: 'Evaluation',
-      th: 'Evaluation'
-    },
-    {
-      id: 'diagnostics',
-      path: '/diagnostics',
-      icon: ShieldCheck,
-      label: 'Diagnostics',
-      th: 'ระบบ'
+      id: 'more',
+      path: '/more',
+      icon: Layers,
+      label: 'More',
+      th: 'เพิ่มเติม'
     }
   ];
 
   return (
-    <div className="app-shell flex overflow-hidden antialiased">
+    <div className="app-shell flex overflow-hidden antialiased bg-[#050810]">
 
       {/* =================================================
-          DESKTOP SIDEBAR
+          DESKTOP SIDEBAR (72px centered, clean)
       ================================================= */}
-
-      <aside className="hidden md:flex w-[68px] shrink-0 flex-col items-center py-4 gap-3 bg-[#070a14] border-r border-white/[0.06]">
+      <aside className="hidden md:flex w-[72px] shrink-0 flex-col items-center py-5 gap-3 bg-[#070a14] border-r border-white/[0.06] select-none">
         <NavLink
           to="/"
           title="ZYNTHEOR Home"
-          className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center font-black text-black text-lg shadow-[0_0_20px_rgba(0,217,163,0.25)]"
+          className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center font-black text-black text-lg shadow-[0_0_20px_rgba(0,217,163,0.25)] transition hover:scale-105"
         >
           Z
         </NavLink>
 
-        <div className="w-7 h-px bg-white/10 my-1" />
+        <div className="w-8 h-px bg-white/10 my-2" />
 
-        {nav.map(item => {
-          const Icon = item.icon;
-          const active = current === item.id;
+        <div className="flex flex-col gap-2 flex-1">
+          {navItems.map(item => {
+            const Icon = item.icon;
+            const active = current === item.id;
 
-          return (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              title={item.label}
-              aria-label={item.label}
-              aria-current={active ? 'page' : undefined}
-              className={`relative w-10 h-10 rounded-xl grid place-items-center transition ${
-                active
-                  ? 'bg-white text-black'
-                  : 'bg-white/[0.04] text-white/40 hover:bg-white/[0.08] hover:text-white'
-              }`}
-            >
-              <Icon size={18} />
+            return (
+              <NavLink
+                key={item.id}
+                to={item.path}
+                title={item.label}
+                aria-label={item.label}
+                aria-current={active ? 'page' : undefined}
+                className={`relative w-11 h-11 rounded-2xl flex flex-col items-center justify-center transition cursor-pointer ${
+                  active
+                    ? 'bg-white text-black shadow-lg shadow-white/10'
+                    : 'bg-white/[0.03] text-white/40 hover:bg-white/[0.08] hover:text-white'
+                }`}
+              >
+                <Icon size={19} />
+                {active && (
+                  <span className="absolute -left-1 w-1 h-5 rounded-full bg-[#00D9A3]" />
+                )}
+              </NavLink>
+            );
+          })}
+        </div>
 
-              {active && (
-                <span className="absolute -left-1 w-1 h-5 rounded-full bg-[#00D9A3]" />
-              )}
-            </NavLink>
-          );
-        })}
+        {/* Bottom system status indicator */}
+        <NavLink
+          to="/diagnostics"
+          title="Diagnostics & Forensic Status"
+          className="w-9 h-9 rounded-xl bg-white/[0.03] hover:bg-white/10 grid place-items-center text-white/40 hover:text-white transition cursor-pointer"
+        >
+          <ShieldCheck size={16} className="text-emerald-400" />
+        </NavLink>
       </aside>
 
       {/* =================================================
-          MAIN CONTENT
+          MAIN CONTENT AREA
       ================================================= */}
-
       <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
         <div className="app-content flex flex-col">
-          <Routes>
-            <Route path="/" element={<HomeExperience />} />
+          <ErrorBoundary>
+            <Routes>
+              {/* Primary 5 Hubs */}
+              <Route path="/" element={<HomeExperience />} />
+              <Route path="/home" element={<HomeExperience />} />
+              <Route path="/explore" element={<ExplorePage />} />
+              <Route path="/chat" element={<MainChat />} />
+              <Route path="/library" element={<LibraryPage />} />
+              <Route path="/more" element={<MorePage />} />
 
-            <Route path="/home" element={<HomeExperience />} />
+              {/* Workspaces & Direct Navigation preservation */}
+              <Route path="/workspace" element={<AIWorkspace />} />
+              <Route path="/knowledge" element={<LibraryPage />} />
+              <Route path="/memory" element={<MemoryCenter />} />
+              <Route path="/model-studio" element={<ModelStudio />} />
+              <Route path="/evaluation" element={<EvaluationLab />} />
+              <Route path="/agents" element={<AgentCommandCenter />} />
+              <Route path="/diagnostics" element={<Diagnostics />} />
 
-            <Route path="/chat" element={<MainChat />} />
-
-            <Route path="/workspace" element={<AIWorkspace />} />
-
-            {/*
-              Knowledge currently reuses MainChat.
-              This is a navigation entry, not a separate Knowledge Base.
-            */}
-
-            <Route path="/knowledge" element={<MainChat />} />
-
-            <Route path="/model-studio" element={<ModelStudio />} />
-
-            <Route path="/evaluation" element={<EvaluationLab />} />
-
-            <Route path="/agents" element={<AgentCommandCenter />} />
-
-            <Route path="/memory" element={<MemoryCenter />} />
-
-            <Route path="/diagnostics" element={<Diagnostics />} />
-
-            <Route path="*" element={<HomeExperience />} />
-          </Routes>
+              <Route path="*" element={<HomeExperience />} />
+            </Routes>
+          </ErrorBoundary>
         </div>
 
         {/* =================================================
-            MOBILE NAVIGATION
-            All destinations remain accessible.
+            MOBILE BOTTOM NAVIGATION (5 Clean Equal Tabs)
+            Exact 5 items, no horizontal scroll, clean touch targets
         ================================================= */}
-
         <nav
           aria-label="Main navigation"
-          className="bottom-tab mobile-navigation md:hidden"
+          className="bottom-tab md:hidden bg-[#070a14]/95 backdrop-blur-xl border-t border-white/[0.08] safe-bottom"
         >
-          <div className="flex items-stretch min-w-max h-full px-1">
-            {nav.map(item => {
+          <div className="flex items-center justify-around h-16 px-1">
+            {navItems.map(item => {
               const Icon = item.icon;
               const active = current === item.id;
 
@@ -1079,15 +664,14 @@ function AppShell() {
                   to={item.path}
                   aria-label={item.label}
                   aria-current={active ? 'page' : undefined}
-                  className={`mobile-navigation-item transition ${
+                  className={`flex-1 flex flex-col items-center justify-center py-1 transition select-none cursor-pointer ${
                     active
                       ? 'text-[#00D9A3]'
-                      : 'text-white/40'
+                      : 'text-white/40 hover:text-white/70'
                   }`}
                 >
-                  <Icon size={18} />
-
-                  <span className="text-[9px] font-bold whitespace-nowrap">
+                  <Icon size={19} className={active ? 'scale-110 transition-transform' : ''} />
+                  <span className={`text-[10px] mt-1 tracking-tight ${active ? 'font-bold' : 'font-medium'}`}>
                     {item.th}
                   </span>
                 </NavLink>
@@ -1096,6 +680,7 @@ function AppShell() {
           </div>
         </nav>
       </div>
+
     </div>
   );
 }

@@ -30,7 +30,18 @@ r.post('/api/intelligence/analyze', (req, res) => {
 
 r.post('/api/intelligence/orchestrate', async (req, res) => {
   try {
-    const { query, workspaceId, language, responseLanguage, isDryRun, onlineConsent } = req.body as any;
+    const {
+      query,
+      workspaceId,
+      language,
+      responseLanguage,
+      isDryRun,
+      onlineConsent,
+      enableInternetSearch,
+      explicitModelId,
+      explicitModelProvider,
+      coreAvailable,
+    } = req.body as any;
     if (!query || typeof query !== 'string' || !query.trim()) {
       return res.status(400).json({ error: 'Query is required string' });
     }
@@ -43,6 +54,10 @@ r.post('/api/intelligence/orchestrate', async (req, res) => {
       humanApprovals: {},
       isDryRun: Boolean(isDryRun),
       onlineConsent: Boolean(onlineConsent),
+      enableInternetSearch: Boolean(enableInternetSearch),
+      explicitModelId,
+      explicitModelProvider,
+      coreAvailable,
     });
 
     res.json(response);

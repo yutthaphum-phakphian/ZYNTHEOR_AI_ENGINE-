@@ -296,6 +296,19 @@ export class InternetGateway {
     const started = Date.now();
     const cleaned = this.sanitizeSearchQuery(query);
 
+    if (options?.signal?.aborted) {
+      return {
+        ok: false,
+        query: cleaned,
+        mode,
+        sources: [],
+        totalResults: 0,
+        searchDurationMs: Date.now() - started,
+        evidenceDigest: this.computeDigest('CANCELLED'),
+        error: 'SEARCH_CANCELLED: Operation cancelled by signal',
+      };
+    }
+
     if (mode === 'AIRGAP_MODE') {
       return {
         ok: false,

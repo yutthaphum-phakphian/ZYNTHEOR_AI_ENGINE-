@@ -98,9 +98,14 @@ export function createAuditEntry(action: string, detail: any, prevEntry?: any): 
   const detailStr = typeof detail === 'string' ? detail : JSON.stringify(detail || {});
   const hash = computeItemHash(prevHash, action, detailStr, at);
 
+  const nanoAt = (typeof process !== 'undefined' && process.hrtime?.bigint)
+    ? process.hrtime.bigint().toString()
+    : `${Date.now()}000000`;
+
   return {
     id,
     at,
+    nanoAt,
     timestamp: at,
     action,
     detail: detailStr,

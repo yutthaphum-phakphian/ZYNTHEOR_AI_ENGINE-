@@ -134,9 +134,9 @@ export function classifyAutoMode(input: string): CapabilityId & { mode?: string;
     reason = 'Data analysis';
   }
 
-  const res = String(id) as any;
+  const res = new String(id) as any;
+  res.id = id;
   res.mode = mode;
   res.reason = reason;
-  res.id = id;
   return res;
 }
