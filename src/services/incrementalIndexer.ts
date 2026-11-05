@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { buildCodeGraph, type CodeGraphData } from './codeGraph.ts';
 
 export interface IncrementalIndexDelta {

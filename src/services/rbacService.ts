@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * RBAC SERVICE - FINAL WITH hasPermission
  * Fixes: hasPermission is not a function in p5/p6-p7

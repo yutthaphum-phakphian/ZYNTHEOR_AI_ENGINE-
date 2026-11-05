@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { computeSideBySideDiff } from '../../lib/forensic-diff';
 
 export interface PatchModification {

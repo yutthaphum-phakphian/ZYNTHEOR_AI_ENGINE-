@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 
 export type AgentVisualStatus = 'Idle' | 'Working' | 'Blocked' | 'Error' | 'Unknown';

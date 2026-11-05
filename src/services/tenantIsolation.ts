@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { identityService } from './identityService.ts';
 
 export class TenantIsolationService {

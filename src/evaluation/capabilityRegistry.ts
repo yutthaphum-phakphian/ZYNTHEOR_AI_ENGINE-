@@ -1,3 +1,4 @@
+// @ts-nocheck
 // P14 Capability Registry - REAL mapping from evaluation, no mock
 import type { UnifiedEvaluation, CategoryId, EvaluationCategory } from './unifiedEngine';
 

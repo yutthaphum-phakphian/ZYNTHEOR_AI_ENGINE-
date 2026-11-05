@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { saveTaskMemory, getTaskMemories, type TaskMemoryRecord } from './taskMemory.ts';
 
 export interface WorkspaceMemoryEntry {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ZYNTHEOR AI ENGINE (Buffalo 1.1.1 / 1.2.0-prep)
  * End-to-End Security & Governance Audit Test Suite

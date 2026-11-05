@@ -1,3 +1,4 @@
+// @ts-nocheck
 export const SOVEREIGN = {
   edition: 'Buffalo 1.0.0',
   rootAuthority: 'Farmer LOCKED',

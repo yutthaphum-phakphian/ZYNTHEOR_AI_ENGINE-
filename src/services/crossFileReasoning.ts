@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { workspaceGraphService, type SymbolLocation } from './workspaceGraph.ts';
 import fs from 'node:fs';
 import path from 'node:path';

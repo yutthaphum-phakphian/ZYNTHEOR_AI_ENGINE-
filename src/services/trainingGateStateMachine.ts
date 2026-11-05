@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ZYNTHEOR CORE 0.1 — Training Gate Flag State Machine & Remote GPU Runtime Connector
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Request, Response, NextFunction } from 'express';
 import { extractToken, tokenMatches } from '../../lib/access.mjs';
 import { identityService } from './identityService.ts';

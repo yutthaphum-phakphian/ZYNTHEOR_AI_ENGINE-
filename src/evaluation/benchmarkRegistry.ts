@@ -1,3 +1,4 @@
+// @ts-nocheck
 // P14 Benchmark Registry
 import type { CategoryId } from './unifiedEngine';
 

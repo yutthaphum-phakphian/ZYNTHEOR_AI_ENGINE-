@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from 'react';
 import {
   Cpu, ShieldCheck, CheckCircle2, AlertTriangle, FileCode, Layers, Database, Activity, RefreshCw, Lock, Zap

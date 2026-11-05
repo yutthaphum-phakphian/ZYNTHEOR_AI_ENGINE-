@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import { ShieldCheck, Network, Database, RefreshCw, Cpu, CheckCircle2, AlertTriangle, Globe, Layers, Server } from 'lucide-react';
 

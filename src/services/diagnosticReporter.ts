@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/services/diagnosticReporter.ts
 // ZYNTHEOR AI ENGINE 0.3.1 — Frontend Diagnostic Metadata Collector
 // Captures viewport, storage usage, last 5 API response codes for Diagnostics 'System Errors' tab

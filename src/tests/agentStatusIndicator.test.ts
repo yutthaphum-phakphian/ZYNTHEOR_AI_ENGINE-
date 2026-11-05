@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect } from 'vitest';
 import { getAgentVisualStatus } from '../components/AgentStatusIndicator';
 

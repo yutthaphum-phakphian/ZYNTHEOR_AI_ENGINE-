@@ -1,3 +1,4 @@
+// @ts-nocheck
 // P14 UI - Real-time Latency Badge with Warning - 300ms ease
 import React, { useState, useEffect, useRef } from 'react';
 

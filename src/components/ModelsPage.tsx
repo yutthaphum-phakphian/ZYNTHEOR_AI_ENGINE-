@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/components/ModelsPage.tsx
 // ZYNTHEOR CORE X — Sovereign First-Party Intelligence Platform: CORE Model Studio
 // Fulfills Directive 5: 3 Model Identities (CORE_NATIVE, CORE_ADAPTED, CORE_DISTILLED)

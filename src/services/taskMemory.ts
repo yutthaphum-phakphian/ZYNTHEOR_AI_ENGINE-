@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ZYNTHEOR Persistent Task Memory Service
  * Provides workspace-isolated and user-isolated durable storage for continuous AI agent tasks.

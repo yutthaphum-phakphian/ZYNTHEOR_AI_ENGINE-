@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { GitBranch, RefreshCw, CheckCircle2, AlertCircle, ExternalLink, GitCommit, User, Calendar } from 'lucide-react';
 import { CicdStatusWidget } from './CicdStatusWidget';

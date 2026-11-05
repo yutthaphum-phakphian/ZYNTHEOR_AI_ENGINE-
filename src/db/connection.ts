@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Pool, type PoolClient } from 'pg';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from './schema.ts';

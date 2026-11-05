@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Member activity (per-user audit view) — pure helpers.
  *

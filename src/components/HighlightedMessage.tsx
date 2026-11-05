@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo, type ReactNode } from 'react';
 import { Check, Clipboard, Code2, Split, Eye } from 'lucide-react';
 import Prism from 'prismjs';

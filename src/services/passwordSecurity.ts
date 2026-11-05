@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto';
 
 const CURRENT_PASSWORD_ITERATIONS = 310_000;

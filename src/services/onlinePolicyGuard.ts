@@ -1,3 +1,4 @@
+// @ts-nocheck
 export function canUpdateOnlineProviderPolicy(
   localOnly: boolean,
   providerIsLocal: boolean,

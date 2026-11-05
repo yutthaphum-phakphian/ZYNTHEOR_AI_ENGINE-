@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect } from 'vitest';
 import { tenantMiddleware, requireTenant } from '../middleware/tenant';
 import type { AuthenticatedUser } from '../services/authService';

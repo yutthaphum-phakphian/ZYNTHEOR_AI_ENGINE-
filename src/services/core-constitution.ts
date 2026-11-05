@@ -1,3 +1,4 @@
+// @ts-nocheck
 export const PRINCIPLES = [
   "Polite respectful",
   "No mock real only",

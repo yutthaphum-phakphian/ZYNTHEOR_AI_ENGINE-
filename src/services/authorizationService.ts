@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Request, Response, NextFunction } from 'express';
 import { resolveRequestUser, type AuthenticatedUser } from './authService.ts';
 

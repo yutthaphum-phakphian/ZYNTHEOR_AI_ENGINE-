@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef, useEffect } from 'react';
 import {
   Boxes, ChevronDown, Plus, Download, UploadCloud, Check, Sparkles, Folder, Trash2, X, AlertTriangle

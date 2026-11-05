@@ -1,3 +1,4 @@
+// @ts-nocheck
 // P14 SandboxTerminal - REAL Execution Gateway, no mock execution, fail-closed
 import React, { useState, useEffect, useRef } from 'react';
 

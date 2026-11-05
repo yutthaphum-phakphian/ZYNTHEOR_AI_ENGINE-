@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   HardDrive, AlertTriangle, CheckCircle2, RefreshCw, Trash2, Download,

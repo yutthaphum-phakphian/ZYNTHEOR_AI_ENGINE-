@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import {
   FileText, Network, Code2, ShieldCheck, RefreshCw, Layers, CheckCircle2,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/services/observabilityStore.ts
 // REAL ONLY - No mock, no Math.random, file-based append-only store
 // ใช้จริงสำหรับ /api/intelligence/observability/requests

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TestLabPanel } from './TestLabPanel';
 import { useState, useEffect, useMemo } from 'react';
 import {

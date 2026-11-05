@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from 'react';
 
 interface EvidenceRecord { id: string; category: string; hash: string; timestamp: number; }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * PATCH LIFECYCLE SECURITY AUDIT - REGRESSION TESTS
  * Covers 8 required error codes

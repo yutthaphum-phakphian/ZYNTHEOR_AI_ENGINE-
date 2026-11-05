@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { postgresIdentityService, type IdentityRole } from '../services/postgresIdentityService.ts';

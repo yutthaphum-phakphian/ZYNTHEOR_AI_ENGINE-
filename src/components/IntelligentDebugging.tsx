@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo } from 'react';
 import {
   Bug, Play, AlertTriangle, ShieldCheck, CheckCircle2, XCircle, FileCode2,

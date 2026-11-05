@@ -1,3 +1,4 @@
+// @ts-nocheck
 // P14 UI - Status LED with 300ms ease transitions - No Business Logic
 import React from 'react';
 

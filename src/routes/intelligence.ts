@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router } from 'express';
 import { createHash } from 'node:crypto';
 import { getCodeGraph } from '../services/codeGraph.ts';

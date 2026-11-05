@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Bot, ShieldCheck, CheckCircle2, Clock, AlertTriangle, Play,

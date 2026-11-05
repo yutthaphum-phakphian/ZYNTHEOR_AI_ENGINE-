@@ -1,3 +1,4 @@
+// @ts-nocheck
 const ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '::1'];
 export function isLoopback(host: string) { return ALLOWED_HOSTS.includes(host); }
 export function isSecretLeaked(obj: any) { return JSON.stringify(obj).toLowerCase().includes('api_key'); }

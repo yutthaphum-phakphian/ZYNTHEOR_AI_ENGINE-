@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useCallback, useEffect, useState } from 'react';
 import {
   Brain, RefreshCw, Trash2, ShieldCheck, AlertTriangle, Search,

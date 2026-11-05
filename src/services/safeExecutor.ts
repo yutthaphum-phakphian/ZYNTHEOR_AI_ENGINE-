@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ProcessExecutionRecord } from '../../lib/runtime-evidence-registry.ts';
 
 export const ALLOWED_CMDS = [

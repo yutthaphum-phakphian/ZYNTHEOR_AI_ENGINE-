@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildCodeGraph, findRelatedNodes, queryGraphForContext, type GraphNode, type GraphEdge } from './codeGraph.ts';

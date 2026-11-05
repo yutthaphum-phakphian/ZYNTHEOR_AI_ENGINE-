@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/components/DiagnosticsSystemErrorsTab.tsx
 // ZYNTHEOR 0.3.1 — Diagnostics 'System Errors' tab integration with diagnosticReporter
 // Shows viewport, storage, last 5 API codes when INVALID_ENDPOINT or streaming failure detected

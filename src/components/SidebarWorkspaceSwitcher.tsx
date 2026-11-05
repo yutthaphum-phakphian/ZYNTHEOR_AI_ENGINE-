@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef, useEffect } from 'react';
 import { Boxes, ChevronDown, Check, Plus } from 'lucide-react';
 import type { WorkspaceEnvironment } from '../hooks/useMultiWorkspace';

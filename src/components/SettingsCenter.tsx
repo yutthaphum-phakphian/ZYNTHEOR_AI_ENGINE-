@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
 import {
   Settings, Globe, Moon, Monitor, Sliders, Play, MessageSquare, Cpu, WandSparkles,

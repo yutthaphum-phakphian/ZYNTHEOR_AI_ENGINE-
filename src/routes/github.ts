@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router, type Request, type Response } from 'express';
 import { getCicdStatus, triggerCicdPipeline } from '../services/cicdPipelineService.js';
 

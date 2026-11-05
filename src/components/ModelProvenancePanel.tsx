@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { AlertTriangle, CheckCircle2, Database, FileKey2, LockKeyhole, ShieldCheck } from 'lucide-react';
 

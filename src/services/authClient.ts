@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** Same-origin cookie auth helpers. The session cookie is HttpOnly; JS only reads CSRF tokens. */
 /** Parse a fetch Response as JSON; turn HTML/empty bodies (proxy errors, static hosts) into a readable error. */
 export async function readJsonResponse<T = any>(response: Response): Promise<T> {

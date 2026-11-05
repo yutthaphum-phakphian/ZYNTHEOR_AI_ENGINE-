@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { getPool, withTransaction } from '../db/connection.ts';

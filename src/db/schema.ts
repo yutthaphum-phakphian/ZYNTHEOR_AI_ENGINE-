@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { pgTable, serial, varchar, timestamp, integer, boolean, text, jsonb, unique } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 

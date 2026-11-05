@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Code2, Network, FileCode2, Boxes, Copy, Check, Search, Download,

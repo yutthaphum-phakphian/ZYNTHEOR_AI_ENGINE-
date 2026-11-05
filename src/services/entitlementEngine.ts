@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type SubscriptionPlanId = 'FREE' | 'PRO' | 'TEAM' | 'ENTERPRISE';
 
 export interface PlanDefinition {

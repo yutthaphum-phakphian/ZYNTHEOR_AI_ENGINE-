@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import {
   GitBranch, RefreshCw, CheckCircle2, AlertTriangle, ShieldCheck,

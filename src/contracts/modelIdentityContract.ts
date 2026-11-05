@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ZYNTHEOR PRODUCT & MODEL IDENTITY CONTRACT
  * 

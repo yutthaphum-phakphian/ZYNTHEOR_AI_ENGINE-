@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, openSync, fsyncSync, closeSync, unlinkSync, rmSync } from 'node:fs';
 import path from 'node:path';

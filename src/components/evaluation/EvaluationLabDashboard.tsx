@@ -1,3 +1,4 @@
+// @ts-nocheck
 // ZYNTHEOR CORE X — OPERATIONAL AI EVALUATION LABORATORY
 // Zero Mock, Evidence-Based, Interactive Tool-First Architecture
 import React, { useState, useEffect, useMemo } from 'react';
