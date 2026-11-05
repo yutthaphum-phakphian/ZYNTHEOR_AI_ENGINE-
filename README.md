@@ -1,238 +1,510 @@
 <p align="center">
   <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-">
-    <img src="public/zyntheor-buffalo-mark.svg" alt="ZYNTHEOR Buffalo Edition mark" width="80" height="80" />
+    <img src="public/zyntheor-buffalo-mark.svg" alt="ZYNTHEOR Buffalo Edition" width="84" height="84" />
   </a>
-</p>
+</p><p align="center">
+  <img src="public/zyntheor-header.svg?v=3" alt="ZYNTHEOR AI ENGINE" width="840" />
+</p><p align="center">
+  <b>ZYNTHEOR AI ENGINE</b><br />
+  <b>Intelligence Without Boundaries.</b><br />
+  One Platform. One Intelligence Ecosystem. Unlimited Capabilities.
+</p><p align="center">
+  <b>🌐 Built to Compete Globally</b><br />
+  Online-First · Sovereign Intelligence · First-Party Ecosystem · Evidence-Based Performance
+</p><p align="center">
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml">
+    <img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE checks" />
+  </a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/pages.yml">
+    <img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/pages.yml/badge.svg" alt="Pages workflow" />
+  </a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml">
+    <img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml/badge.svg" alt="CodeQL" />
+  </a>
+  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml">
+    <img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Audit workflow" />
+  </a>
+</p>---
 
-<p align="center">
-  <img src="public/zyntheor-header.svg?v=2" alt="ZYNTHEOR AI ENGINE - Sovereign Local-First Intelligence Core" width="840" />
-</p>
+1. 🌐 The Vision — Intelligence Without Boundaries
 
-<p align="center">
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE checks" /></a>
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/pages.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/pages.yml/badge.svg" alt="Pages workflow" /></a>
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/codeql.yml/badge.svg" alt="CodeQL" /></a>
-  <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Audit workflow" /></a>
-</p>
+ZYNTHEOR AI ENGINE is an Online-First Sovereign General Intelligence Platform designed to bring multiple forms of intelligence, knowledge, reasoning, memory, and capabilities into one unified ecosystem.
 
-<p align="center"><b>ZYNTHEOR AI ENGINE — Intelligence Without Boundaries.</b><br />
-One Platform. One Intelligence Ecosystem. Unlimited Capabilities.<br />
-<b>🌐 Built to Compete Globally</b> · Online-First Sovereign General Intelligence · Evidence-Based Integrity</p>
+Our mission is to build an AI platform capable of competing in the global AI landscape through measurable intelligence, continuous improvement, and first-party technological ownership.
 
-<p align="center">
-  <img src="public/status-cards.svg" alt="Local status cards" width="840" />
-</p>
+We are not building another chatbot interface.
 
-<p align="center">
-  <img src="public/zyntheor-features.svg" alt="ZYNTHEOR AI ENGINE intelligence pillars" width="840" />
-</p>
+We are building an intelligence platform.
 
-<p align="center">
-  <a href="#1-what-is-zyntheor">What is ZYNTHEOR?</a> ·
-  <a href="#2-what-can-zyntheor-do">Capabilities</a> ·
-  <a href="#3-core-intelligence-features">Core Features</a> ·
-  <a href="#4-thai-first-experience">Thai-First</a> ·
-  <a href="#5-model--provider-transparency">Model Transparency</a> ·
-  <a href="#6-privacy-and-local-only-mode">Privacy &amp; Sovereign Mode</a> ·
-  <a href="#7-installation--getting-started">Getting Started</a> ·
-  <a href="#8-architecture--security">Architecture</a> ·
-  <a href="#9-development-status--evidence-based-verification">Evidence &amp; Status</a> ·
-  <a href="#10-advanced--developer-documentation">Developer Docs</a>
-</p>
+Our Philosophy
 
----
+- Unified Intelligence: One central intelligence architecture coordinates the platform's capabilities.
+- Online-First: Internet connectivity and cloud resources enable access to current information, advanced models, and scalable computation.
+- Sovereign Architecture: ZYNTHEOR owns and governs its orchestration, routing, memory, knowledge, execution policies, and platform identity.
+- First-Party Evolution: ZYNTHEOR CORE is developed as its own model family, with transparent model provenance.
+- Evidence-Based Performance: Capabilities must be measured, evaluated, and supported by reproducible evidence.
+- User-Controlled Privacy: Online, Hybrid, and Local-Only operation are governed by explicit user policies.
 
-# 🌐 ZYNTHEOR AI ENGINE — Intelligence Without Boundaries (Global Edition)
-
-> **Core Philosophy:** One Platform. One Intelligence Ecosystem. Unlimited Capabilities.  
-> **Global Mission:** สร้าง Sovereign General Intelligence Platform ที่มีสมองกล สถาปัตยกรรมโมเดล ความรู้ และความจำ ที่สามารถลงสนามแข่งขันในตลาด AI ระดับโลกได้อย่างแท้จริง (Online-First, First-Party Ecosystem, Evidence-Based Verification).
-
----
-
-## 1. What is ZYNTHEOR?
-
-**ZYNTHEOR AI ENGINE** เป็นแพลตฟอร์มปัญญาประดิษฐ์อเนกประสงค์แบบพึ่งพาตนเอง (General-Purpose Sovereign Intelligence) ที่ถูกออกแบบมาเพื่อเป็น **AI Assistant ประจำตัวและประจำองค์กร** รองรับการใช้งานที่หลากหลายในชีวิตประจำวันและการทำงานระดับมืออาชีพ 
-
-ZYNTHEOR แตกต่างจาก AI ทั่วไปด้วยหลักการ **Sovereignty & Evidence-Based Integrity**:
-- **Sovereign First-Party Identity:** มีสถาปัตยกรรม Intelligence, Reasoning, Planning, Memory และ Verification เป็นของตนเอง ไม่ใช่เป็นเพียง Wrapper ครอบ API ของผู้อื่น
-- **Zero-Mock Policy:** ไม่มีการสร้างผลลัพธ์จำลอง ไม่ใช้คะแนนปลอม และไม่มีปุ่มหลอก ทุกสถานะและข้อมูลมาจากการประมวลผลจริง
-- **Local-First & Privacy Sovereign:** สามารถทำงานในโหมด `ZYNTHEOR_LOCAL_ONLY` บนเครื่องผู้ใช้ได้ 100% โดยไม่ส่งข้อมูลออกนอกระบบ
-- **General-Purpose Flexibility:** ตอบคำถามทั่วไปได้อย่างรวดเร็วเป็นธรรมชาติ โดยไม่ต้องเรียกใช้ Agent หรือเครื่องมือหนักโดยไม่จำเป็น พร้อมทั้งสลับไปใช้ความสามารถขั้นสูงเมื่อผู้ใช้ต้องการ
+«Built to Compete. Measured by Intelligence. Proven by Performance.»
 
 ---
 
-## 2. What can ZYNTHEOR do?
+2. 🧠 ZYNTHEOR INTELLIGENCE — The Central Intelligence Layer
 
-งานวิศวกรรมซอฟต์แวร์เป็นเพียงหนึ่งในความสามารถของ ZYNTHEOR ระบบรองรับงานอเนกประสงค์หลากหลายมิติ:
+ZYNTHEOR INTELLIGENCE is the central processing and orchestration layer of the platform.
 
-| โดเมนการใช้งาน | ความสามารถหลัก | คำอธิบาย |
-|---|---|---|
-| 💬 **General Chat** | สนทนาและตอบคำถามทั่วไป | พูดคุย ปรึกษา แลกเปลี่ยนความคิดเห็น และตอบข้อสงสัยทั่วไปอย่างเป็นธรรมชาติ |
-| 📚 **Knowledge & Research** | ค้นคว้าและอธิบายความรู้ | สังเคราะห์เนื้อหา สรุปประเด็นสำคัญ และอธิบายหัวข้อที่ซับซ้อนให้เข้าใจง่าย |
-| ✍️ **Writing & Language** | เขียน แก้ไข และแปลภาษา | ร่างบทความ จดหมาย รายงาน ตรวจสอบไวยากรณ์ และแปลภาษาระหว่างไทย-อังกฤษ |
-| 🧠 **Reasoning & Problem Solving** | วิเคราะห์และแก้ปัญหาเชิงตรรกะ | แยกแยะสมมติฐาน เปรียบเทียบตัวเลือก (Trade-offs) และให้เหตุผลทีละขั้นตอน |
-| 🎓 **Education & Learning** | ผู้ช่วยด้านการศึกษา | อธิบายบทเรียน ตั้งคำถามทบทวนความเข้าใจ และสรุปแนวคิดสำคัญในเชิงวิชาการ |
-| 📄 **Document Intelligence** | อ่านและสรุปเอกสาร | อ่าน วิเคราะห์โครงสร้าง สรุปสาระสำคัญ และสกัดข้อมูลสำคัญจากเอกสาร |
-| 📊 **Data & Analytical Thinking** | วิเคราะห์ข้อมูลเชิงเหตุผล | ตีความสถิติ วิเคราะห์แนวโน้ม และจัดระเบียบข้อมูลให้อยู่ในรูปแบบที่นำไปใช้งานได้ |
-| 🎨 **Creativity & Ideation** | ระดมความคิดและสร้างสรรค์ | เสนอไอเดียโครงการ คิดคำโปรย วางเค้าโครงเรื่อง และสร้างสรรค์เนื้อหาแปลกใหม่ |
-| 🗂️ **Planning & Organization** | ช่วยวางแผนและจัดการงาน | แตกเป้าหมายใหญ่เป็น Action Plan ลำดับความสำคัญ และติดตามความก้าวหน้า |
-| 💻 **Engineering & Technical** | เขียนโค้ดและวิเคราะห์ระบบ | ตรวจสอบบั๊ก วิเคราะห์ความสัมพันธ์ของโค้ด ออกแบบระบบ และให้คำแนะนำทางเทคนิค |
+It coordinates models, knowledge sources, reasoning systems, memory, and tools to solve different categories of user problems.
 
----
+Its purpose is to provide one coherent intelligence experience rather than a collection of disconnected AI features.
 
-## 3. Core Intelligence Features
+Core responsibilities
 
-1. **Direct Conversational Fluidity:** สำหรับคำถามและบทสนทนาทั่วไป ระบบตอบสนองทันทีโดยตรง (Direct Inference) ไม่ต้องผ่านกระบวนการ Agent ที่ซับซ้อน ช่วยให้ตอบได้เร็วและไม่สิ้นเปลืองทรัพยากร
-2. **Dynamic Capability Engine:** ระบบสามารถประเมินเจตนาของผู้ใช้ (Intent Classification) และเลือกโหมดที่เหมาะสมโดยอัตโนมัติ:
-   - `chat`: สนทนาทั่วไป กระชับ สุภาพ และตรงประเด็น
-   - `reasoning`: วิเคราะห์ตรรกะ แจกแจงขั้นตอน และระบุสมมติฐาน
-   - `research`: สังเคราะห์ข้อมูล สรุปสาระ และแยกแยะข้อเท็จจริงออกจากข้อสันนิษฐาน
-   - `coding`: เขียนโค้ด ดีบัก และวิเคราะห์ความปลอดภัยของซอฟต์แวร์
-   - `agent`: ปฏิบัติการงานที่ต้องใช้เครื่องมือหรือแก้ปัญหาหลายขั้นตอนภายใต้การอนุมัติ
-3. **Workspace-Scoped Memory:** จดจำบริบท ความชอบ และข้อมูลสำคัญตามขอบเขตของ Workspace โดยเคารพสิทธิ์และความเป็นส่วนตัวของผู้ใช้
-4. **Governed Execution Gateway:** การกระทำที่มีผลกระทบสูง (เช่น การแก้ไขไฟล์จริง หรือการรันคำสั่งระบบ) จะต้องผ่าน **Human Approval Gate** เสมอตามหลักความปลอดภัย `Fail-Closed`
+Component| Responsibility
+Intent Understanding| Interpret user requests, context, and objectives
+Intelligence Orchestration| Coordinate the appropriate capabilities
+Adaptive Reasoning| Select suitable reasoning and verification strategies
+Context Management| Maintain relevant conversational and task context
+Model Routing| Select models according to capability and policy
+Knowledge Integration| Retrieve and synthesize relevant information
+Tool Coordination| Invoke authorized tools when required
+Response Verification| Check results, evidence, and execution outcomes
 
----
+Intelligence Modes
 
-## 4. Thai-First Experience
+- "DIRECT" — Handle straightforward requests efficiently.
+- "REASONING" — Analyze complex problems and compare possible solutions.
+- "RESEARCH" — Investigate topics using available information sources.
+- "CREATION" — Generate and refine content.
+- "TECHNICAL" — Perform technical and software engineering tasks.
+- "AGENTIC" — Execute multi-step tasks under permission and verification policies.
 
-ZYNTHEOR ถือว่า **ภาษาไทยเป็นภาษาหลักระดับ First-Class Citizen** ของระบบ:
-- **Natural Thai Conversational Tone:** สนทนาภาษาไทยได้อย่างลื่นไหล เป็นธรรมชาติ เข้าใจบริบทและคำทับศัพท์
-- **Bilingual Technical Precision:** รองรับการทำงานแบบผสมผสานระหว่างภาษาไทยและภาษาอังกฤษ โดยยังคงรักษาชื่อฟังก์ชัน ตัวแปร และมาตรฐานสากลไว้อย่างถูกต้อง
-- **Objective Thai Reasoning:** ผ่านการทดสอบชุดคำสั่งตรรกะและคณิตศาสตร์ภาษาไทยใน Operational Reasoning Lab พร้อมตรวจสอบความถูกต้องของผลลัพธ์
-- **Sovereign Bilingual Prompt Forge:** แม่แบบคำสั่งและระบบช่วยคิดรองรับภาษาไทยในทุกมิติ
+The system should select the appropriate processing strategy without forcing every request through an expensive agent workflow.
 
 ---
 
-## 5. Model & Provider Transparency
+3. 🧬 ZYNTHEOR CORE — First-Party Model Ecosystem
 
-ZYNTHEOR ปฏิบัติตามหลักความจริงใจทางวิศวกรรม (Engineering Honesty) โดยระบุที่มาของโมเดลอย่างโปร่งใส ไม่แอบอ้าง:
+ZYNTHEOR CORE is the first-party model family within the ZYNTHEOR ecosystem.
 
-| ประเภทโมเดล | รหัสสถานะ | คำอธิบายความจริง |
-|---|---|---|
-| **CORE_NATIVE** | `NOT_TRAINED` | โมเดล First-Party Native ของ ZYNTHEOR **ยังไม่ได้ทำการฝึกฝน (Training)** โดย Phase 10 ถูก **BLOCKED** ไว้อย่างเข้มงวดจนกว่าจะได้รับอนุมัติชุดข้อมูลและสภาพแวดล้อมที่ตรวจสอบได้จริง |
-| **CORE_ADAPTED** | `READY_OPERATIONAL` | อะแดปเตอร์และเครื่องยนต์ตรรกะ First-Party ภายในระบบ ทำงานแบบ Deterministic บนเครื่องท้องถิ่น |
-| **EXTERNAL_API** | `CONFIGURED` / `BLOCKED_BY_LOCAL_ONLY` | โมเดลจากภายนอก เช่น Google Gemini หรือ OpenAI เป็นผู้ให้บริการภายนอก (Third-Party Provider) ไม่ใช่ตัวตนของ ZYNTHEOR และจะถูกระงับการเชื่อมต่อทันทีเมื่อเปิดโหมด Local-Only |
+The long-term objective is to develop increasingly capable models with their own training, evaluation, identity, and inference infrastructure.
+
+Model Identity
+
+ZYNTHEOR distinguishes models by their actual origin and development status.
+
+Identity| Definition
+"CORE_NATIVE"| Model trained by ZYNTHEOR from its own model-training process
+"CORE_ADAPTED"| Third-party base model adapted or fine-tuned for ZYNTHEOR
+"CORE_DISTILLED"| Model derived through a documented distillation process
+"EXTERNAL_PROVIDER"| Model operated by an external provider
+
+Current Development Truth
+
+Component| Status
+CORE Native Training| "NOT_TRAINED"
+Native Model Checkpoint| Not yet verified
+Native Model Inference| Not production-ready
+Adapted Model Runtime| Operational status must be verified against the current environment
+External Model Routing| Subject to provider configuration and user consent
+Model Evaluation| Requires reproducible benchmark evidence
+
+Engineering rule: Deterministic software logic, model adapters, and orchestration components must never be represented as trained model intelligence.
+
+Long-Term CORE Objectives
+
+- First-party model architecture and training pipeline.
+- Thai-English multilingual intelligence.
+- General-purpose reasoning and problem solving.
+- Coding and technical capabilities.
+- Multimodal model development.
+- Reproducible evaluation and model versioning.
+- Transparent model provenance and checkpoint integrity.
 
 ---
 
-## 6. Privacy and Local-Only Mode
+4. 🌍 ZYNTHEOR KNOWLEDGE — Global Knowledge & Research
 
-ZYNTHEOR ให้ความสำคัญสูงสุดกับความเป็นส่วนตัวของข้อมูล:
-- **Local-First Architecture:** รันบนเครื่องของคุณ (Loopback `127.0.0.1`) ข้อมูล แชท และไฟล์ถูกเก็บไว้ในเครื่องของคุณ — do not expose it directly to the internet unless protected by a reverse proxy and authentication.
-- **Strict `ZYNTHEOR_LOCAL_ONLY` Enforcement:** เมื่อเปิดใช้งานโหมดนี้ เกตเวย์จะตัดการเชื่อมต่อไปยัง API ภายนอกทั้งหมด และใช้งานเฉพาะอะแดปเตอร์ท้องถิ่นและ Ollama เท่านั้น
-- **No Silent Tracking:** ไม่มีการส่ง Telemetry, ไม่มี Tracking Script และไม่มีการเก็บข้อมูลเบื้องหลังโดยที่ผู้ใช้ไม่อนุญาต
+ZYNTHEOR KNOWLEDGE provides the platform with access to information and the ability to investigate, retrieve, organize, and synthesize knowledge.
+
+Core capabilities
+
+- Online information retrieval.
+- Research across multiple sources.
+- Document understanding.
+- Evidence extraction and comparison.
+- Knowledge synthesis.
+- Source attribution.
+- Information freshness assessment.
+- Workspace-scoped knowledge organization.
+
+Evidence-Based Research
+
+Research results should distinguish:
+
+1. Verified information supported by sources.
+2. Reasonable interpretations based on available evidence.
+3. Unverified claims and hypotheses.
+4. Information that could not be established.
+
+The platform must not present unsupported statements as verified facts.
+
+Online research is a core capability, not an optional development constraint.
 
 ---
 
-## 7. Installation & Getting Started
+5. 🧩 ZYNTHEOR REASONING — Adaptive Intelligence
 
-### ความต้องการของระบบ (Prerequisites)
-- **Node.js 20+** (แนะนำ Node 22.x LTS)
-- **npm** หรือ **bun**
-- **Ollama** (ทางเลือกเสริม สำหรับการรันโมเดล Local LLM)
+ZYNTHEOR REASONING is responsible for structured problem solving and analytical processing.
 
-### วิธีติดตั้งและเริ่มใช้งาน (Quick Start)
+Target capabilities
 
-```bash
-# 1. Clone repository
+- Logical reasoning.
+- Mathematical problem solving.
+- Scientific analysis.
+- Multi-step planning.
+- Constraint analysis.
+- Decision support.
+- Hypothesis evaluation.
+- Result verification.
+- Error detection and correction.
+
+Reasoning Principles
+
+- Identify the actual problem before selecting a solution.
+- Separate facts, assumptions, and unknowns.
+- Evaluate alternative approaches.
+- Validate important intermediate and final results.
+- Communicate uncertainty when evidence is insufficient.
+
+Reasoning performance must be evaluated through repeatable tests rather than subjective claims.
+
+---
+
+6. 🚀 ZYNTHEOR CAPABILITIES — One Intelligence, Multiple Domains
+
+ZYNTHEOR is designed as a general-purpose platform.
+
+Software engineering is one capability among many, not the entire product identity.
+
+Domain| Capabilities
+General Intelligence| Conversation, questions, explanations, problem solving
+Research| Online research, source comparison, knowledge synthesis
+Reasoning| Logic, mathematics, analysis, decision support
+Writing & Language| Writing, editing, translation, multilingual communication
+Education| Learning support, explanations, concept analysis
+Documents| Document understanding, extraction, summarization
+Data Intelligence| Data interpretation, statistical analysis, structured insights
+Creativity| Ideation, content creation, creative problem solving
+Planning| Goal decomposition, scheduling, task organization
+Technical Intelligence| Programming, debugging, architecture, engineering analysis
+Multimodal Intelligence| Text, voice, images, and document understanding as supported by implemented models
+
+Capabilities must connect to actual processing systems. A user-interface element alone does not constitute an implemented capability.
+
+---
+
+7. 🧠 ZYNTHEOR MEMORY — Context & Knowledge Continuity
+
+ZYNTHEOR MEMORY provides persistent context management across supported conversations and workspaces.
+
+Design principles
+
+- Workspace-scoped memory.
+- Explicit data ownership and access boundaries.
+- Context retrieval based on relevance.
+- Controlled memory updates.
+- Data lifecycle and deletion policies.
+- Separation between temporary context and persistent memory.
+- Protection against cross-workspace data leakage.
+
+Memory must improve continuity without compromising user privacy or data isolation.
+
+---
+
+8. 🛡️ ZYNTHEOR TRUST — Security, Privacy & Governance
+
+Sovereign intelligence requires more than model ownership.
+
+It requires control over how information is accessed, processed, stored, and acted upon.
+
+Security Architecture
+
+- Fail-Closed security policies.
+- Explicit consent for external providers.
+- Workspace isolation.
+- Path traversal protection.
+- Sensitive-file protection.
+- Controlled tool execution.
+- Human Approval Gates.
+- Sandboxed execution.
+- Audit Ledger.
+- Data governance.
+
+Operating Modes
+
+Mode| Description
+"ONLINE_FIRST"| Default operating strategy using authorized online resources and configured models
+"HYBRID"| Combines online and local resources under user-defined policies
+"LOCAL_ONLY"| Blocks external model and knowledge-provider requests
+
+Privacy Guarantees
+
+Local-only mode must be enforced at the backend and network boundaries, not merely displayed as a frontend setting.
+
+No external request should occur without satisfying the applicable consent and policy requirements.
+
+The platform must disclose any external services used for speech recognition, model inference, storage, or other processing.
+
+---
+
+9. 🏆 GLOBAL INTELLIGENCE BENCHMARK — Competing Through Evidence
+
+ZYNTHEOR measures intelligence through reproducible evaluation.
+
+Our objective is not simply to report that the platform works. It is to understand how well it performs against established evaluation standards and competing systems.
+
+Competition Arenas
+
+Arena| Evaluation Focus| Candidate Benchmarks
+General Intelligence| Knowledge and broad problem solving| MMLU-Pro
+Research & Knowledge| Web research and information retrieval| BrowseComp
+Advanced Reasoning| Mathematics and scientific reasoning| AIME, GPQA Diamond
+Multimodal Intelligence| Visual and multimodal understanding| MMMU, MathVista
+Agentic Capabilities| Real-world multi-step task completion| WebArena, OSWorld
+Coding Intelligence| Software engineering problem solving| SWE-bench Verified
+Thai Intelligence| Thai language, reasoning, and technical understanding| ZYNTHEOR Thai Benchmark
+
+Benchmark selection is subject to dataset licensing, access conditions, evaluation suitability, and reproducibility requirements.
+
+ZYNTHEOR Global Intelligence Score
+
+An internal composite evaluation framework:
+
+Category| Weight
+General Intelligence| 20%
+Knowledge & Research| 15%
+Advanced Reasoning| 20%
+Multimodal Intelligence| 10%
+Agentic Capabilities| 15%
+Coding & Technical Intelligence| 10%
+Thai & Multilingual Intelligence| 10%
+Total| 100%
+
+This is an internal ZYNTHEOR scoring framework, not an industry-certified ranking.
+
+Required Performance Metrics
+
+- Accuracy.
+- Task Success Rate.
+- Hallucination Rate.
+- Evidence Accuracy.
+- Tool Execution Success.
+- Reliability.
+- Failure Rate.
+- Latency.
+- Cost per Task.
+
+Benchmark Integrity
+
+Every reported score must include:
+
+- Model and version.
+- Benchmark and dataset version.
+- Evaluation configuration.
+- Tool access and execution conditions.
+- Number of test samples.
+- Scoring methodology.
+- Raw results.
+- Reproducible test records.
+
+Unevaluated categories must be marked "NOT_EVALUATED".
+
+No estimated, fabricated, or simulated benchmark score may be presented as a real result.
+
+---
+
+10. 🏗️ ARCHITECTURE & DEVELOPMENT
+
+ZYNTHEOR is designed around a unified intelligence architecture.
+
+Seven Architectural Layers
+
+1. Experience Layer — User interaction, Omni Composer, and capability access.
+2. Intelligence Layer — Intent understanding, orchestration, and context management.
+3. Reasoning & Planning Layer — Analysis, planning, and verification strategies.
+4. Model Layer — CORE models and authorized external model routing.
+5. Knowledge & Tool Layer — Online research, retrieval, documents, and authorized tools.
+6. Memory Layer — Persistent context and workspace knowledge.
+7. Trust Layer — Security, governance, approval, and audit.
+
+These are logical architectural responsibilities. Their actual implementation status must be documented independently.
+
+Development Principles
+
+- Intelligence before interface decoration.
+- Real implementations before feature announcements.
+- First-party ownership wherever strategically valuable.
+- Model-agnostic architecture.
+- Online-first development and deployment.
+- Security and privacy by design.
+- Backward compatibility where practical.
+- Reproducible testing.
+- No mock intelligence.
+- No silent model substitution.
+- No unsupported production claims.
+
+Global Development Priorities
+
+1. Strengthen the unified Intelligence Runtime.
+2. Develop the Online Knowledge Engine.
+3. Advance adaptive reasoning and verification.
+4. Improve model routing and evaluation.
+5. Strengthen memory and contextual understanding.
+6. Expand multimodal intelligence.
+7. Advance governed agentic capabilities.
+8. Develop and train ZYNTHEOR CORE.
+9. Establish reproducible global benchmarks.
+10. Optimize performance, reliability, and operating costs.
+
+---
+
+11. 🔬 Development Status & Verification
+
+ZYNTHEOR follows an evidence-based engineering policy.
+
+Reported test results describe specific test runs and do not automatically establish production readiness or global competitive performance.
+
+Repository Snapshot
+
+Attribute| Reported Information
+Edition| Buffalo Edition v1.3.1 LTS
+Version Label| "1.3.1-clean-first-party"
+Commit| "07c1d50556b3602e5dbbde067cd8dfe8fd9dcb09"
+Frontend| React 19
+Build System| Vite
+Backend| Express 5
+Language| TypeScript
+Test Framework| Vitest
+
+Previously Reported Test Results
+
+The following results are historical repository reports and should be rerun against the current commit before being treated as current release evidence.
+
+Test| Reported Result
+Core Vitest Suite| 151/151 PASS
+Operational Evaluation Lab| 13/13 PASS
+Repository Intelligence & AST| 9/9 PASS
+Type Integrity| 0 errors
+Production Build| PASS
+
+Verification Levels
+
+Every feature should be assigned an explicit evidence level:
+
+- "IMPLEMENTED" — Code exists.
+- "UNIT_TESTED" — Unit tests pass.
+- "INTEGRATION_TESTED" — Integrated components pass.
+- "BROWSER_TESTED" — Browser behavior has been verified.
+- "PRODUCTION_VERIFIED" — Production behavior has been validated.
+- "NOT_VERIFIED" — Evidence is insufficient.
+
+Current Model Development Disclosure
+
+Component| Reported Status
+CORE Native Training| "NOT_TRAINED"
+CORE Native Checkpoint| Not verified
+CORE Native Inference| Not production-ready
+CORE Adapted| Existing adapted-model implementation; verify current runtime
+External Providers| Third-party integrations subject to configuration and consent
+
+A successful application build does not prove model intelligence. A passing unit test does not prove real-world task performance.
+
+---
+
+12. 🚀 Installation & Getting Started
+
+Requirements
+
+- Node.js 20+
+- npm or bun
+- Git
+- Ollama (optional, for supported local model execution)
+
+Quick Start
+
+# Clone repository
 git clone https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-.git
+
+# Enter project directory
 cd ZYNTHEOR_AI_ENGINE-
 
-# 2. ติดตั้ง Dependencies
+# Install dependencies
 npm install
 
-# 3. ตั้งค่าสภาพแวดล้อม (Environment Config)
+# Configure environment
 cp .env.example .env
 
-# 4. เริ่มเซิร์ฟเวอร์สำหรับใช้งาน (รันบนพอร์ต 3000 ผูกกับ 127.0.0.1)
+# Start development server
 npm run dev
-```
 
-เปิดเว็บเบราว์เซอร์ไปที่ `http://localhost:3000` เพื่อเริ่มสนทนาและใช้งาน ZYNTHEOR AI ENGINE ได้ทันที
+Open:
+
+http://localhost:3000
+
+The actual startup configuration, port, and network binding should be checked against the current repository settings.
+
+Development Commands
+
+# Run tests
+npm run test:vitest
+
+# Type checking
+npm run typecheck
+
+# Production build
+npm run build
+
+Use the commands defined in the current "package.json" as the authoritative source for available scripts.
 
 ---
 
-## 8. Architecture & Security
+13. 📚 Developer Documentation
+
+Additional engineering documentation:
+
+- "Contributing Guidelines" (CONTRIBUTING.md)
+- "Security Policy" (SECURITY.md)
+- "Multi-Workspace Security Specification" (docs/multi_workspace_security_spec.md)
+- "Phase 9 Operational Evaluation" (docs/audit/CORE_X_OPERATIONAL_EVALUATION_WORKSPACE.md)
+- "Phase 8 Repository Intelligence Audit" (docs/audit/CORE_X_PHASE_8_REPOSITORY_INTELLIGENCE.md)
+
+Repository Development Standards
+
+All architectural changes should include:
+
+- Design rationale.
+- Implementation scope.
+- Security impact assessment.
+- Test coverage.
+- Performance impact.
+- Backward compatibility assessment.
+- Verification evidence.
+
+---
+
+License & Attribution
+
+ZYNTHEOR AI ENGINE is distributed under the AGPL-3.0 License.
+
+Third-party models, datasets, libraries, and services retain their respective licenses and attribution requirements.
+
+---
 
 <p align="center">
-  <img src="public/zyntheor-architecture.svg" alt="ZYNTHEOR AI ENGINE 7-Tier Architecture" width="840" />
-</p>
-
-ZYNTHEOR ทำงานผ่านสถาปัตยกรรม **7-Tier Sovereign Intelligence Matrix**:
-
-1. **User Experience Layer:** หน้าจอสนทนาและเครื่องมือแบบ React 19 SPA ที่ปรับโหมดได้รวดเร็ว ตอบสนองได้ลื่นไหลทั้งบนเดสก์ท็อปและมือถือ
-2. **Intelligence Core:** แกนกลางทำความเข้าใจบริบท ถอดรหัสเจตนา และจัดลำดับขั้นตอนการตัดสินใจอย่างเป็นระบบ
-3. **Capability Engine:** ประเมินและเลือกความสามารถที่เหมาะสมกับงาน (Chat, Reasoning, Research, Writing, Coding, Automation)
-4. **Model Router:** เลือกระหว่าง Local CORE หรือ External Provider ภายใต้นโยบายความปลอดภัยและความยินยอมของผู้ใช้
-5. **Tool & Knowledge Layer:** เรียกใช้เครื่องมือเฉพาะทาง การค้นหา และการจัดการไฟล์เฉพาะเมื่อมีคำสั่งที่จำเป็นเท่านั้น
-6. **Memory System:** จัดเก็บและเรียกคืนบริบทการสนทนาตามขอบเขตและสิทธิ์ของแต่ละ Workspace
-7. **Verification & Security Gate:** บังคับใช้ความปลอดภัยแบบ `Fail-Closed`, การขออนุมัติจากมนุษย์ (Human Approval Gate) ก่อนแก้ไฟล์จริง, และการบันทึก Audit Ledger
-
----
-
-## 9. Development Status & Evidence-Based Verification
-
-ZYNTHEOR ยึดมั่นในหลักฐานทางวิศวกรรมจริง ทุกรายงานผลทดสอบต้องระบุคำสั่ง สภาพแวดล้อม และระดับการตรวจสอบอย่างตรงไปตรงมา:
-
-### ผลการทดสอบล่าสุด (Inspected Test Runs)
-- **เวอร์ชัน:** Buffalo Edition v1.3.1 LTS (`1.3.1-clean-first-party`)
-- **สภาพแวดล้อม:** Linux x86_64, Node.js v22.x
-- **Repository Snapshot:** [`07c1d50556b3602e5dbbde067cd8dfe8fd9dcb09`](https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/commit/07c1d50556b3602e5dbbde067cd8dfe8fd9dcb09)
-- **ความสมบูรณ์ของ Merkle Root:** Genesis `#849202` (14,902 Verified Seals · Δ0.00% Drift · Court Ready)
-
-| ระดับการทดสอบ | คำสั่งที่ใช้ทดสอบจริง | จำนวนการทดสอบ | ผลลัพธ์ | ขอบเขตการยืนยัน |
-|---|---|---|---|---|
-| **Core Vitest Suite** | `npm run test:vitest` | 18 test files (151 tests) | **PASS (151/151)** | Unified evaluation engine, AST call graphs, model registry, isolation, reasoning gates |
-| **Operational Evaluation Lab** | `node --import tsx --test tests/operational-evaluation-lab.test.ts` | 13 tests | **PASS (13/13)** | ทดสอบการทำงานจริงของ 8 ห้องปฏิบัติการ (Reasoning, Sandbox, Debug, Security, Repo, Agent, Performance, Model Compare) |
-| **Repository Intelligence & AST** | `node --import tsx --test tests/phase8-repository-intelligence.test.ts` | 9 tests | **PASS (9/9)** | ทดสอบ AST parsing, Call Graph, Symbol Query, Entry Points, Circular Dependency, และ Human Approval Gate |
-| **Type Integrity Check** | `npm run typecheck` | Strict TS | **PASS (0 errors)** | ตรวจสอบ Type Safety ทั่วทั้งระบบ TypeScript |
-| **Production Build** | `npm run build` | Vite 6 + Rollup | **PASS** | คอมไพล์และสร้าง Production Bundle สำเร็จ |
-
-### ตารางสถานะ Phase Gates
-
-| หมวดหมู่ | สถานะ | ขอบเขตหลักฐานและข้อจำกัด |
-|---|---|---|
-| **Universal Task Engine (9 Tasks)** | `COMPLETED_VERIFIED` | รองรับ Research, Analysis, Reasoning, Writing, Learning, Creative, Documents, Data, Technical |
-| **Operational Evaluation Labs (1-8)** | `COMPLETED_VERIFIED` | Backend และ UI เชื่อมต่อระบบจริง 8 แล็บ มีผลการทดสอบผ่าน 100% |
-| **Control Center (10 Categories)** | `COMPLETED_VERIFIED` | แยก 10 หมวดหมู่การตั้งค่า พร้อมสถานะ Real-time Telemetry และการป้องกัน Airgap |
-| **Repository & Code Intelligence** | `COMPLETED_VERIFIED` | สแกนไฟล์ สกัด AST สร้าง Call Graph และประเมินผลกระทบก่อนแก้โค้ดจริง |
-| **Safe VM Sandbox Execution** | `COMPLETED_VERIFIED` | แยก Context ปลอดภัย บล็อก Token อันตราย (`process`, `eval`, `child_process`) |
-| **Human Approval & Governance** | `COMPLETED_VERIFIED` | ปฏิเสธการแก้ไฟล์จริงทันทีหากไม่ได้รับการอนุมัติจากมนุษย์ |
-| **Tamper-Evident Audit Ledger** | `COMPLETED_VERIFIED` | มีระบบ Hash Chaining (SHA-256) ตรวจจับการแก้ไขย้อนหลังได้จริง |
-| **P16 Native Model Training** | `STRICTLY BLOCKED` | ยังไม่มีการฝึกโมเดล ไม่มีการสร้าง Checkpoint ปลอม และระบุสถานะชัดเจนว่า `NOT_TRAINED` |
-| **P17 Native Model Inference** | `STRICTLY BLOCKED` | ไม่มีน้ำหนักโมเดล Native ที่ฝึกแล้ว จึงระบุตามจริงว่ายังไม่พร้อมใช้งาน |
-
-> **หมายเหตุเรื่อง Audit Ledger:** ระบบใช้โครงสร้าง **Tamper-evident SHA-256 hash-chained audit ledger** ซึ่งช่วยรับประกันการตรวจจับการแก้ไขย้อนหลัง (Tamper-detection) แต่ไม่ถือว่าเป็น Immutable ถาวรในระดับฮาร์ดแวร์หากไม่มีการเชื่อมโยงหลักฐานภายนอก (External anchoring)
-
----
-
-## 10. Advanced / Developer Documentation
-
-สำหรับนักพัฒนา ผู้ดูแลระบบ และทีมงานวิศวกรรม สามารถศึกษาข้อมูลเชิงลึกเพิ่มเติมได้จากเอกสารเฉพาะทาง:
-
-- **Team Management & Role-Based Access Control (RBAC):**
-  - `OWNER`: สิทธิ์สูงสุดในการบริหารจัดการ Workspace และกำหนดนโยบาย
-  - `ADMIN`: จัดการสมาชิกและกำหนดสิทธิ์ในทีม
-  - `DEVELOPER`: ใช้งานเครื่องมือวิศวกรรม ซอร์สโค้ด และการดีบัก
-  - `MEMBER`: สนทนา สร้างเนื้อหา และใช้งานความสามารถทั่วไป
-  - `VIEWER`: อ่านข้อมูลและตรวจสอบรายงาน Audit เท่านั้น
-- **Audit Reports & Architecture Records:**
-  - [Phase 9 Operational Evaluation Workspace Report](docs/audit/CORE_X_OPERATIONAL_EVALUATION_WORKSPACE.md)
-  - [Phase 8 Repository Intelligence Audit](docs/audit/CORE_X_PHASE_8_REPOSITORY_INTELLIGENCE.md)
-  - [Multi-Workspace Security Spec](docs/multi_workspace_security_spec.md)
-  - [Contributing Guidelines](CONTRIBUTING.md) · [Security Policy](SECURITY.md)
-
----
-
-## License & Attribution
-
-Distributed under the **AGPL-3.0 License**.
-
-<p align="center">
-  <img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition Footer" width="840" />
-</p>
-
-<p align="center">
-  <img src="public/zyntheor-buffalo-mark.svg" alt="ZYNTHEOR Buffalo Edition mark" width="72" height="72" />
+  <b>ZYNTHEOR AI ENGINE</b><br />
+  <b>Intelligence Without Boundaries.</b><br /><br />
+  One Platform. One Intelligence Ecosystem. Unlimited Capabilities.<br />
+  <b>Built to Compete. Measured by Intelligence. Proven by Performance.</b>
+</p><p align="center">
+  <img src="public/zyntheor-buffalo-mark.svg" alt="ZYNTHEOR Buffalo Edition" width="76" height="76" />
 </p>

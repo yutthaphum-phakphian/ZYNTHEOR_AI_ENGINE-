@@ -17,6 +17,8 @@ export type ComplexityTier =
   | 'TIER_3_DEEP'
   | 'TIER_4_CRITICAL';
 
+export type ComplexityLevel = 'L1' | 'L2' | 'L3' | 'L4';
+
 export type ReasoningEffort = 'minimal' | 'low' | 'medium' | 'high' | 'maximum';
 
 export interface ReasoningParameters {
@@ -35,6 +37,7 @@ export interface ReasoningParameters {
 
 export interface AdaptiveReasoningResult {
   tier: ComplexityTier;
+  level: ComplexityLevel; // Canonical L1, L2, L3, L4
   complexityScore: number; // 0 to 100
   tierLabel: string;
   tierLabelThai: string;
@@ -238,8 +241,14 @@ export class AdaptiveReasoningEngine {
       explanation = 'ตรวจพบการกระทำที่มีความเสี่ยงสูงหรือการเปลี่ยนแปลงโครงสร้างหลัก ระบบจัดสรร Reasoning Budget 4,096 tokens, Planning Depth 8 ขั้น, Verification Budget 5 รอบ และบังคับผ่านประตูการอนุมัติ';
     }
 
+    const level: ComplexityLevel =
+      tier === 'TIER_1_DIRECT' ? 'L1' :
+      tier === 'TIER_2_BALANCED' ? 'L2' :
+      tier === 'TIER_3_DEEP' ? 'L3' : 'L4';
+
     return {
       tier,
+      level,
       complexityScore: score,
       tierLabel,
       tierLabelThai,
@@ -257,6 +266,96 @@ export class AdaptiveReasoningEngine {
       },
       reasoningPlan,
       explanation,
+    };
+  }
+
+  /**
+   * Sanitizes reasoning traces before user delivery.
+   * Strips raw internal chain-of-thought tokens while preserving verified conclusions and evidence citations.
+   */
+  public sanitizeReasoningOutput(rawOutput: string): {
+    sanitizedSummary: string;
+    evidenceReferences: string[];
+    hasPrivateCoT: boolean;
+  } {
+    if (!rawOutput) {
+      return { sanitizedSummary: '', evidenceReferences: [], hasPrivateCoT: false };
+    }
+
+    const hasPrivateCoT = /<think>[\s\S]*?<\/think>|\[REASONING_TRACE\][\s\S]*?\[\/REASONING_TRACE\]/i.test(rawOutput);
+    // Strip private internal thoughts
+    let sanitized = rawOutput
+      .replace(/<think>[\s\S]*?<\/think>/gi, '')
+      .replace(/\[REASONING_TRACE\][\s\S]*?\[\/REASONING_TRACE\]/gi, '')
+      .trim();
+
+    // Extract citations and source references
+    const evidenceReferences: string[] = [];
+    const urlMatches = sanitized.match(/https?:\/\/[^\s)]+/g);
+    if (urlMatches) {
+      evidenceReferences.push(...Array.from(new Set(urlMatches)));
+    }
+
+    return {
+      sanitizedSummary: sanitized,
+      evidenceReferences,
+      hasPrivateCoT,
+    };
+  }
+
+  /**
+   * Evaluates if reasoning token budget is exhausted; enforces fail-closed boundary.
+   */
+  public evaluateBudgetExhaustion(
+    usedTokens: number,
+    allocatedBudget: number
+  ): {
+    exhausted: boolean;
+    degraded: boolean;
+    failClosedMessage?: string;
+  } {
+    if (allocatedBudget <= 0) {
+      return { exhausted: false, degraded: false };
+    }
+
+    if (usedTokens > allocatedBudget) {
+      return {
+        exhausted: true,
+        degraded: true,
+        failClosedMessage: `Reasoning budget exceeded (${usedTokens} > ${allocatedBudget} tokens). Fail-closed: intermediate unverified inferences suppressed.`,
+      };
+    }
+
+    return { exhausted: false, degraded: false };
+  }
+
+  /**
+   * Enforces verification gates for high-impact mutations (Level 4 Critical).
+   */
+  public validateVerificationGate(
+    tier: ComplexityTier,
+    verificationsPerformed: string[],
+    humanApproved: boolean = false
+  ): {
+    passed: boolean;
+    missingGates: string[];
+    requiresHumanApproval: boolean;
+  } {
+    if (tier !== 'TIER_4_CRITICAL') {
+      return { passed: true, missingGates: [], requiresHumanApproval: false };
+    }
+
+    const required = ['LOGICAL_CONSISTENCY', 'EVIDENCE_PROVENANCE', 'FAIL_CLOSED_GATE'];
+    const missing = required.filter(g => !verificationsPerformed.includes(g));
+
+    if (!humanApproved) {
+      missing.push('HUMAN_APPROVAL_GATE');
+    }
+
+    return {
+      passed: missing.length === 0,
+      missingGates: missing,
+      requiresHumanApproval: !humanApproved,
     };
   }
 }

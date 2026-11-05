@@ -29,7 +29,11 @@ import {
   type ArenaBenchmarkResult,
   type ArenaEvaluationStatus,
 } from '../evaluation/globalBenchmarkSuite';
-import { getActiveModel, ZYNTHEOR_CANONICAL_MODELS } from '../contracts/modelIdentityContract';
+import {
+  getActiveModel,
+  ZYNTHEOR_CANONICAL_MODELS,
+  type CanonicalModelOption,
+} from '../contracts/modelIdentityContract';
 
 export interface BenchmarkSuiteProps {
   className?: string;
@@ -58,7 +62,7 @@ export const BenchmarkSuite: React.FC<BenchmarkSuiteProps> = ({ className = '', 
   });
 
   const activeModel = useMemo(() => {
-    return ZYNTHEOR_CANONICAL_MODELS.find(m => m.id === selectedModelId) || getActiveModel();
+    return ZYNTHEOR_CANONICAL_MODELS.find((m: CanonicalModelOption) => m.id === selectedModelId) || getActiveModel();
   }, [selectedModelId]);
 
   // Total points calculation adhering to Zero-Mock rules
@@ -237,7 +241,7 @@ export const BenchmarkSuite: React.FC<BenchmarkSuiteProps> = ({ className = '', 
               onChange={(e) => setSelectedModelId(e.target.value)}
               className="bg-[#0e1628] border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#00D9A3]"
             >
-              {ZYNTHEOR_CANONICAL_MODELS.map(m => (
+              {ZYNTHEOR_CANONICAL_MODELS.map((m: CanonicalModelOption) => (
                 <option key={m.id} value={m.id}>
                   {m.name} ({m.category})
                 </option>

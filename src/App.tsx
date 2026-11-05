@@ -79,6 +79,7 @@ import {
 } from './lib/modelIdentityContract';
 
 import { ZyntheorCoreHealthWidget } from './components/ZyntheorCoreHealthWidget';
+import { ZyntheorIntelligenceRuntime } from './components/ZyntheorIntelligenceRuntime';
 import { ControlCenterModal } from './components/ControlCenterModal';
 import { MainChat } from './components/MainChat';
 import AIWorkspace from './pages/AIWorkspace';
@@ -594,12 +595,13 @@ function HomeExperience() {
         </section>
 
         {/* =========================================================
-            4. CORE INTELLIGENCE STATUS (COMPACT & COLLAPSIBLE)
+            4. CORE INTELLIGENCE STATUS & UNIFIED RUNTIME
         ========================================================= */}
-        <section>
+        <section className="space-y-4">
           <ZyntheorCoreHealthWidget
             onMaintenanceModeChange={setIsMaintenanceMode}
           />
+          <ZyntheorIntelligenceRuntime defaultExpanded={false} />
         </section>
 
         {/* =========================================================

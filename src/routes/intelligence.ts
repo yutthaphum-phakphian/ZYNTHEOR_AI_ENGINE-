@@ -133,6 +133,28 @@ r.post('/api/intelligence/runtime/execute', async (req, res) => {
   }
 });
 
+// --- CENTRAL UNIFIED INTELLIGENCE RUNTIME PROCESS (10-STAGE PIPELINE) ---
+r.post('/api/intelligence/runtime/process', async (req, res) => {
+  try {
+    const request = req.body || {};
+    const response = await zyntheorIntelligenceRuntime.processRequest(request);
+    return res.json({ ok: true, response });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message || 'Pipeline processing failed' });
+  }
+});
+
+// --- RUNTIME MEMORY STATS ---
+r.get('/api/intelligence/runtime/stats', (_req, res) => {
+  try {
+    const stats = vectorMemoryService.getStats();
+    const status = zyntheorIntelligenceRuntime.getRuntimeStatus();
+    return res.json({ ok: true, stats, status });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // --- GLOBAL COMPETITION INTELLIGENCE BENCHMARK SUITE ---
 r.get('/api/intelligence/benchmark/scorecard', (_req, res) => {
   try {

@@ -310,3 +310,135 @@ export function enforceModelResponseMetadata(params: {
       : 'ประมวลผลผ่านผู้ให้บริการภายนอกที่ได้รับอนุญาต — ไม่ใช่โมเดล ZYNTHEOR CORE',
   };
 }
+
+export type ModelIdentity =
+  | 'CORE_NATIVE'
+  | 'CORE_ADAPTED'
+  | 'CORE_DISTILLED'
+  | 'EXTERNAL_PROVIDER';
+
+export interface CanonicalModelOption {
+  id: string;
+  name: string;
+  identity: ModelIdentity;
+  category: ModelCategory;
+  provider: string;
+  capabilities: string[];
+  availability: 'READY' | 'BLOCKED' | 'UNAVAILABLE';
+  provenance: string;
+}
+
+export const ZYNTHEOR_CANONICAL_MODELS: CanonicalModelOption[] = [
+  {
+    id: 'gemini-3.8-flash',
+    name: 'Gemini 3.8 Flash (Cloud Gateway)',
+    identity: 'EXTERNAL_PROVIDER',
+    category: 'EXTERNAL_MODEL_PROVIDER',
+    provider: 'GOOGLE',
+    capabilities: [
+      'General Intelligence',
+      'Live Web Research',
+      'Advanced Reasoning',
+      'Multimodal Understanding',
+      'Coding & Technical Systems',
+    ],
+    availability: 'READY',
+    provenance: 'Authorized frontier cloud gateway with live web grounding and zero-mock evidence.',
+  },
+  {
+    id: 'zyntheor-core-adapted-v1',
+    name: 'ZYNTHEOR CORE ADAPTED v1 (Sovereign Traces)',
+    identity: 'CORE_ADAPTED',
+    category: 'CORE_ADAPTED',
+    provider: 'ZYNTHEOR',
+    capabilities: [
+      'Sovereign Reasoning',
+      'Domain Analysis',
+      'Safe Tool Orchestration',
+    ],
+    availability: 'READY',
+    provenance: 'Base weights fine-tuned on first-party sovereign datasets & verification traces.',
+  },
+  {
+    id: 'zyntheor-core-native-1.1.0',
+    name: 'ZYNTHEOR CORE NATIVE 1.1.0 (Local CPU/Enclave)',
+    identity: 'CORE_NATIVE',
+    category: 'CORE_NATIVE',
+    provider: 'ZYNTHEOR',
+    capabilities: [
+      'Local Deterministic Inference',
+      'Air-Gapped Privacy',
+      'Hardware Enclave Sealing',
+    ],
+    availability: 'READY',
+    provenance: 'Trained first-party native model checkpoint weights running on local hardware enclave.',
+  },
+  {
+    id: 'zyntheor-core-distilled-edge',
+    name: 'ZYNTHEOR CORE DISTILLED (Edge Engine)',
+    identity: 'CORE_DISTILLED',
+    category: 'CORE_DISTILLED',
+    provider: 'ZYNTHEOR',
+    capabilities: [
+      'Low-Latency Edge Reasoning',
+      'Fast Tokenization',
+      'Lightweight Tasks',
+    ],
+    availability: 'READY',
+    provenance: 'Distilled from verified high-budget reasoning traces into compact architecture.',
+  },
+];
+
+export interface ActiveModelInfo {
+  id: string;
+  modelId: string;
+  name: string;
+  displayName: string;
+  identity: ModelIdentity;
+  category: ModelCategory;
+  status: string;
+  baseModel?: string;
+  provider: string;
+  provenance: string;
+  isVerified: boolean;
+  license: string;
+}
+
+export function getActiveModel(): ActiveModelInfo {
+  const configuredModelName = (typeof process !== 'undefined' && process.env?.GEMINI_MODEL) 
+    || (typeof process !== 'undefined' && process.env?.ZYNTHEOR_MODEL_NAME)
+    || 'gemini-3.8-flash';
+  
+  const isLocalOnly = typeof process !== 'undefined' && process.env?.ZYNTHEOR_LOCAL_ONLY === 'true';
+  
+  if (isLocalOnly) {
+    return {
+      id: 'zyntheor-core-native-1.1.0',
+      modelId: 'zyntheor-core-native-1.1.0',
+      name: 'ZYNTHEOR CORE NATIVE 1.1.0 (Local CPU/Enclave)',
+      displayName: 'ZYNTHEOR CORE NATIVE 1.1.0 (Local CPU/Enclave)',
+      identity: 'CORE_NATIVE',
+      category: 'CORE_NATIVE',
+      status: 'LOCAL_ENCLAVE_READY',
+      provider: 'ZYNTHEOR',
+      provenance: 'Local CPU & hardware enclave first-party model runtime.',
+      isVerified: true,
+      license: 'First-Party Proprietary',
+    };
+  }
+
+  return {
+    id: configuredModelName,
+    modelId: configuredModelName,
+    name: 'Gemini 3.8 Flash (Cloud Gateway)',
+    displayName: 'Gemini 3.8 Flash (Cloud Gateway)',
+    identity: 'EXTERNAL_PROVIDER',
+    category: 'EXTERNAL_MODEL_PROVIDER',
+    status: 'ONLINE_ACTIVE',
+    provider: 'GOOGLE',
+    provenance: 'External cloud intelligence provider under sovereign gateway governance.',
+    isVerified: true,
+    license: 'Commercial API Gateway',
+  };
+}
+
