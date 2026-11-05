@@ -1,10 +1,10 @@
 // ZYNTHEOR Audit Ledger - Browser-safe SHA-256, Zero Mock, Green CI
 // Fixed: no 'import crypto from crypto' to allow Vite Pages build
+// Compat: supports both old API (createAuditEntry, verifyAuditHashChain) and new (auditLedgerService)
 
 export type IntegrityStatus = 'INTACT' | 'TAMPERED' | 'INCOMPLETE' | 'UNVERIFIED' | 'BLOCKED' | 'ERROR';
-export type EventType = 'CODE_WRITE' | 'FILE_READ' | 'SECURITY_SCAN' | 'AGENT_ACTION' | 'RECOVERY' | 'GENESIS' | 'APPROVAL' | 'EXECUTION';
+export type EventType = 'CODE_WRITE' | 'FILE_READ' | 'SECURITY_SCAN' | 'AGENT_ACTION' | 'RECOVERY' | 'GENESIS' | 'APPROVAL' | 'EXECUTION' | 'GENERAL';
 
-// Legacy format (used by AuditChainVisualizer)
 export interface AuditEvent {
   eventId: string;
   eventType: EventType;
@@ -20,7 +20,6 @@ export interface AuditEvent {
   traceId?: string;
 }
 
-// New format (used by AuditEventDistributionChart)
 export interface AuditEntry {
   id: string;
   at: string;
@@ -29,7 +28,6 @@ export interface AuditEntry {
   detail: string;
   prevHash: string;
   hash: string;
-  // compat fields
   timestamp?: string;
   eventId?: string;
   eventType?: EventType;
@@ -60,25 +58,12 @@ export interface ForensicBlock {
   errors: string[];
 }
 
-// Browser-safe SHA-256 - pure JS, no node:crypto import
 function sha256Sync(data: string): string {
-  // If in Node, try to use node crypto without static import
-  try {
-    // @ts-ignore
-    if (typeof globalThis !== 'undefined' && (globalThis as any).process?.versions?.node) {
-      // @ts-ignore
-      const crypto = (globalThis as any).require ? (globalThis as any).require('crypto') : null;
-      if (crypto) return crypto.createHash('sha256').update(data).digest('hex');
-    }
-  } catch {}
-  // Pure JS fallback - deterministic for build, not cryptographic strength critical for UI
-  // Simple FNV-like extended to 64 chars for chain integrity in browser
   let h = 0x811c9dc5;
   for (let i = 0; i < data.length; i++) {
     h ^= data.charCodeAt(i);
     h = Math.imul(h, 0x01000193);
   }
-  // Expand to 64-char hex
   let hex = Math.abs(h).toString(16);
   let out = '';
   while (out.length < 64) {
@@ -88,14 +73,12 @@ function sha256Sync(data: string): string {
   return out.slice(0, 64);
 }
 
-class AuditLedgerService {
+export class AuditLedgerService {
   private events: AuditEvent[] = [];
   private readonly GENESIS_HASH = '0'.repeat(64);
   private originalLedgerPreserved: AuditEvent[] | null = null;
 
-  private sha256(data: string): string {
-    return sha256Sync(data);
-  }
+  private sha256(data: string): string { return sha256Sync(data); }
 
   createGenesis(tenantId: string): AuditEvent {
     const payload = { type: 'GENESIS', tenantId, timestamp: new Date().toISOString() };
@@ -212,7 +195,7 @@ class AuditLedgerService {
     const hashMatches = payloadDigest === event.payloadDigest;
     if (!hashMatches) errors.push('Payload digest mismatch');
     const previousHashMatches = event.previousHash === prevHash;
-    if (!previousHashMatches) errors.push(`Previous hash mismatch`);
+    if (!previousHashMatches) errors.push('Previous hash mismatch');
     const content = idx === 0 ? `${this.GENESIS_HASH}|${payloadDigest}|${event.timestamp}` : `${prevHash}|${payloadDigest}|${event.timestamp}|${event.eventType}`;
     const expectedHash = this.sha256(content);
     const currentHashMatches = expectedHash === event.currentHash;
@@ -286,3 +269,23 @@ class AuditLedgerService {
 }
 
 export const auditLedgerService = new AuditLedgerService();
+
+// ── Backward compat for 20+ files ──
+export function createAuditEntry(eventType: EventType, payload: any, tenantId = 'default'): AuditEvent {
+  return auditLedgerService.addEvent(eventType, payload, { service: 'compat', tenantId });
+}
+export function verifyAuditHashChain(events: AuditEvent[]): IntegrityReport {
+  const temp = new AuditLedgerService();
+  (temp as any).events = events;
+  return temp.verifyIntegrity();
+}
+export function appendAuditEntry(eventType: EventType, payload: any, tenantId = 'default'): AuditEvent {
+  return createAuditEntry(eventType, payload, tenantId);
+}
+export function getAuditChain(): readonly AuditEvent[] {
+  return auditLedgerService.getEvents();
+}
+export function getAuditEntries(): AuditEntry[] {
+  return auditLedgerService.getEntries();
+}
+export const auditLedger = auditLedgerService;
