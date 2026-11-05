@@ -60,8 +60,11 @@ import {
   Sliders,
   User,
   Mic,
-  MicOff
+  MicOff,
+  Info
 } from 'lucide-react';
+
+import { useVoiceIntelligenceInput, appendTranscriptWithSmartSpacing } from './hooks/useVoiceIntelligenceInput';
 
 import {
   CAPABILITIES,
@@ -170,96 +173,26 @@ function HomeExperience() {
   const [grounding, setGrounding] = useState(false);
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
 
-  // Web Speech API Voice-to-Text State
-  const [isListening, setIsListening] = useState(false);
-  const [speechSupported, setSpeechSupported] = useState(true);
-  const [speechError, setSpeechError] = useState<string | null>(null);
-  const recognitionRef = useRef<any>(null);
-
-  // Check speech recognition support and clean up on unmount
-  useEffect(() => {
-    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRec) {
-      setSpeechSupported(false);
-    }
-    return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch {}
-      }
-    };
-  }, []);
-
-  const toggleVoiceInput = useCallback(() => {
-    if (isListening) {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch {}
-      }
-      setIsListening(false);
-      return;
-    }
-
-    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRec) {
-      setSpeechError('เบราว์เซอร์นี้ยังไม่รองรับ Web Speech API (แนะนำ Chromium / Safari / Chrome)');
-      setTimeout(() => setSpeechError(null), 4500);
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRec();
-      // Support Thai-first with continuous capture
-      recognition.lang = 'th-TH';
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      recognition.onstart = () => {
-        setIsListening(true);
-        setSpeechError(null);
-      };
-
-      recognition.onresult = (event: any) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            transcript += event.results[i][0].transcript;
-          }
-        }
-        if (transcript) {
-          setInput(prev => {
-            const trimmed = prev.trim();
-            return trimmed ? `${trimmed} ${transcript.trim()}` : transcript.trim();
-          });
-        }
-      };
-
-      recognition.onerror = (event: any) => {
-        console.warn('[Voice Input] Speech recognition notice:', event.error);
-        if (event.error === 'not-allowed') {
-          setSpeechError('กรุณาอนุญาตการเข้าถึงไมโครโฟนเพื่อใช้งานพิมพ์ด้วยเสียง');
-        } else if (event.error !== 'no-speech') {
-          setSpeechError(`ข้อผิดพลาดการรับเสียง: ${event.error}`);
-        }
-        setIsListening(false);
-        setTimeout(() => setSpeechError(null), 4500);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = recognition;
-      recognition.start();
-    } catch (err: any) {
-      console.error('[Voice Input] Could not initialize voice recognition:', err);
-      setSpeechError('ไม่สามารถเริ่มต้นรับเสียงได้');
-      setIsListening(false);
-      setTimeout(() => setSpeechError(null), 4500);
-    }
-  }, [isListening]);
+  // Voice Intelligence Input 1.1 Hook
+  const {
+    lifecycle: voiceLifecycle,
+    isListening,
+    isSupported: speechSupported,
+    language: voiceLang,
+    interimTranscript,
+    errorMessage: speechError,
+    showPrivacyNotice,
+    privacyDisclosure,
+    toggleListening: toggleVoiceInput,
+    setLanguage: setVoiceLang,
+    dismissError,
+    togglePrivacyNotice,
+  } = useVoiceIntelligenceInput({
+    initialLanguage: 'th-TH',
+    onFinalTranscript: useCallback((finalText: string) => {
+      setInput(prev => appendTranscriptWithSmartSpacing(prev, finalText));
+    }, []),
+  });
 
   // Live recent work & project state fetched from real backend services
   const [recentWork, setRecentWork] = useState<Array<{ id: string; title: string; time: string }>>([
@@ -496,35 +429,57 @@ function HomeExperience() {
                     <span className="sm:hidden">Search</span>
                   </label>
 
-                  {/* Voice-to-Text Microphone Button */}
-                  <button
-                    type="button"
-                    onClick={toggleVoiceInput}
-                    title={
-                      !speechSupported
-                        ? 'เบราว์เซอร์นี้ยังไม่รองรับ Web Speech API'
-                        : isListening
-                        ? 'กำลังฟังเสียง... คลิกเพื่อหยุด'
-                        : 'พิมพ์ด้วยเสียง (Voice-to-Text ภาษาไทย/อังกฤษ)'
-                    }
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] text-[11px] font-medium transition cursor-pointer select-none ${
-                      isListening
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.25)]'
-                        : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/5'
-                    }`}
-                  >
-                    {isListening ? (
-                      <>
-                        <MicOff size={12} className="text-rose-400" />
-                        <span className="text-rose-300 font-semibold">กำลังฟัง...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Mic size={12} className="text-white/50" />
-                        <span className="hidden sm:inline">Voice</span>
-                      </>
-                    )}
-                  </button>
+                  {/* Voice Intelligence Input 1.1 Microphone Button */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={toggleVoiceInput}
+                      title={
+                        !speechSupported
+                          ? 'เบราว์เซอร์นี้ยังไม่รองรับ Web Speech API'
+                          : isListening
+                          ? 'กำลังฟังเสียง... คลิกเพื่อหยุด'
+                          : `พิมพ์ด้วยเสียง (${voiceLang === 'th-TH' ? 'ภาษาไทย' : 'English'})`
+                      }
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] text-[11px] font-medium transition cursor-pointer select-none ${
+                        isListening
+                          ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.25)]'
+                          : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/5'
+                      }`}
+                    >
+                      {isListening ? (
+                        <>
+                          <MicOff size={12} className="text-rose-400" />
+                          <span className="text-rose-300 font-semibold">กำลังฟัง...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mic size={12} className="text-white/50" />
+                          <span className="hidden sm:inline">Voice</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Language Switcher (TH / EN) */}
+                    <button
+                      type="button"
+                      onClick={() => setVoiceLang(voiceLang === 'th-TH' ? 'en-US' : 'th-TH')}
+                      title={`สลับภาษาการฟังเสียง: ปัจจุบันคือ ${voiceLang === 'th-TH' ? 'ภาษาไทย (th-TH)' : 'English (en-US)'}`}
+                      className="px-1.5 py-1 rounded-[8px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 text-[10px] font-mono text-white/60 hover:text-white transition cursor-pointer"
+                    >
+                      {voiceLang === 'th-TH' ? 'TH' : 'EN'}
+                    </button>
+
+                    {/* Privacy & Engine Transparency Disclosure Toggle */}
+                    <button
+                      type="button"
+                      onClick={togglePrivacyNotice}
+                      title="ตรวจสอบคำชี้แจงความเป็นส่วนตัวของระบบรับเสียง (Web Speech API Transparency)"
+                      className="p-1 rounded-[8px] bg-white/[0.02] hover:bg-white/[0.06] text-white/40 hover:text-cyan-400 transition cursor-pointer"
+                    >
+                      <Info size={11} />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Submit Button (↑) */}
@@ -539,17 +494,71 @@ function HomeExperience() {
                 </button>
               </div>
 
-              {/* Voice recognition status indicator */}
+              {/* Live Interim Transcript Preview Banner */}
               {isListening && (
-                <div className="flex items-center gap-2 px-3 py-1.5 mt-2.5 rounded-[10px] bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[11px] animate-pulse">
-                  <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping inline-block" />
-                  <span>กำลังฟังเสียงภาษาไทย/อังกฤษ... พูดข้อความที่ต้องการสั่งการ จากนั้นคลิกหยุดหรือรอระบบแปลงผล</span>
+                <div className="mt-2.5 p-2.5 rounded-[10px] bg-rose-500/10 border border-rose-500/25 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] text-rose-300">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping inline-block" />
+                      <span className="font-medium">
+                        กำลังฟัง ({voiceLang === 'th-TH' ? 'ภาษาไทย th-TH' : 'English en-US'})... พูดคำสั่งแล้วระบบจะประมวลผลข้อความเมื่อจบประโยค
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={toggleVoiceInput}
+                      className="px-2 py-0.5 rounded-[6px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-[10px] font-medium cursor-pointer"
+                    >
+                      เสร็จสิ้น / หยุด
+                    </button>
+                  </div>
+                  {interimTranscript && (
+                    <div className="text-xs italic text-white/80 bg-black/30 px-2 py-1.5 rounded-[6px] border border-white/5">
+                      "{interimTranscript}"
+                    </div>
+                  )}
                 </div>
               )}
+
+              {/* Temporary Speech Error Notice */}
               {speechError && (
-                <div className="flex items-center gap-2 px-3 py-1.5 mt-2.5 rounded-[10px] bg-amber-500/10 border border-amber-500/25 text-amber-300 text-[11px]">
-                  <AlertTriangle size={12} className="text-amber-400 shrink-0" />
-                  <span>{speechError}</span>
+                <div className="flex items-center justify-between gap-2 px-3 py-1.5 mt-2.5 rounded-[10px] bg-amber-500/10 border border-amber-500/25 text-amber-300 text-[11px]">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle size={12} className="text-amber-400 shrink-0" />
+                    <span>{speechError}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={dismissError}
+                    className="text-amber-300/60 hover:text-amber-300 text-[11px] cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              {/* Sovereign Privacy Disclosure Card */}
+              {showPrivacyNotice && (
+                <div className="mt-2.5 p-3 rounded-[12px] bg-cyan-950/20 border border-cyan-500/30 text-xs text-cyan-200/90 space-y-1.5">
+                  <div className="flex items-center justify-between font-bold text-cyan-300 text-[11px] tracking-wide uppercase">
+                    <div className="flex items-center gap-1.5">
+                      <Info size={12} className="text-cyan-400" />
+                      <span>Web Speech API Privacy & Sovereign Disclosure</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={togglePrivacyNotice}
+                      className="text-cyan-400/60 hover:text-white cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-white/70">
+                    {privacyDisclosure.providerDisclosure}
+                  </p>
+                  <div className="text-[10px] font-mono text-cyan-400/80">
+                    • นโยบายจัดเก็บ: {privacyDisclosure.dataRetention}
+                  </div>
                 </div>
               )}
             </div>
