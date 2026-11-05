@@ -15,7 +15,9 @@
   <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/audit-1.1.0.yml/badge.svg" alt="Audit workflow" /></a>
 </p>
 
-<p align="center"><b>One AI Platform. Many Capabilities. First-Party Intelligence.</b><br />General-Purpose Sovereign Intelligence · Evidence-Based Engineering · Fail-Closed Security</p>
+<p align="center"><b>ZYNTHEOR AI ENGINE — Intelligence Without Boundaries.</b><br />
+One Platform. One Intelligence Ecosystem. Unlimited Capabilities.<br />
+<b>🌐 Built to Compete Globally</b> · Online-First Sovereign General Intelligence · Evidence-Based Integrity</p>
 
 <p align="center">
   <img src="public/status-cards.svg" alt="Local status cards" width="840" />
@@ -40,10 +42,10 @@
 
 ---
 
-# ZYNTHEOR AI ENGINE — General-Purpose Sovereign Intelligence (Buffalo Edition)
+# 🌐 ZYNTHEOR AI ENGINE — Intelligence Without Boundaries (Global Edition)
 
-> **Core Philosophy:** One AI Platform. Many Capabilities. First-Party Intelligence.  
-> Real implementation, zero mock data, transparent model provenance, fail-closed safety gates, and human approval for consequential actions.
+> **Core Philosophy:** One Platform. One Intelligence Ecosystem. Unlimited Capabilities.  
+> **Global Mission:** สร้าง Sovereign General Intelligence Platform ที่มีสมองกล สถาปัตยกรรมโมเดล ความรู้ และความจำ ที่สามารถลงสนามแข่งขันในตลาด AI ระดับโลกได้อย่างแท้จริง (Online-First, First-Party Ecosystem, Evidence-Based Verification).
 
 ---
 

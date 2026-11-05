@@ -170,7 +170,7 @@ function HomeExperience() {
   const navigate = useNavigate();
 
   const [input, setInput] = useState('');
-  const [grounding, setGrounding] = useState(false);
+  const [grounding, setGrounding] = useState(true);
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
 
   // Voice Intelligence Input 1.1 Hook

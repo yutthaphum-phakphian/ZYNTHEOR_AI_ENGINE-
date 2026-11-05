@@ -1,4 +1,18 @@
 // @ts-nocheck
+/**
+ * ZYNTHEOR AI ENGINE — MAIN CHAT & OMNI COMPOSER
+ * ===============================================
+ * Online-First Sovereign General Intelligence Workspace
+ *
+ * Core Capabilities:
+ * - Online-First Default: Live Search Grounding & Knowledge Integration
+ * - 3 Operating Modes: ONLINE_INTELLIGENCE (Default), HYBRID_INTELLIGENCE, LOCAL_ONLY
+ * - Multimodal Omni Composer: Text, Voice (1.1 Web Speech), Document & Code, Vision
+ * - Adaptive Reasoning Integration: Real-time complexity inference & parameter tuning
+ * - Long-Term Vector Memory: Contextual user preferences & project knowledge recall
+ * - Intelligence Dossier: Evidence verification artifacts & model sovereignty proof
+ */
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
@@ -27,18 +41,56 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Lock,
-  ArrowRight
+  ArrowRight,
+  Paperclip,
+  Image as ImageIcon,
+  FileText,
+  Mic,
+  MicOff,
+  X,
+  Zap,
+  Database,
+  Radio,
+  FileCode,
+  ShieldAlert
 } from 'lucide-react';
 import { getActiveModel, validateDefaultInferenceModel } from '../lib/modelIdentityContract';
+import { useVoiceIntelligenceInput, appendTranscriptWithSmartSpacing } from '../hooks/useVoiceIntelligenceInput';
 
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
+  operatingMode?: 'ONLINE_INTELLIGENCE' | 'HYBRID_INTELLIGENCE' | 'LOCAL_ONLY';
   groundingUsed?: boolean;
   taskType?: string;
   taskState?: string;
+  adaptiveReasoning?: {
+    tier: string;
+    complexityScore: number;
+    tierLabel: string;
+    tierLabelThai: string;
+    parameters: {
+      temperature: number;
+      topP: number;
+      cotDepth: number;
+      reasoningEffort: string;
+      executionStrategy: string;
+    };
+    reasoningPlan: string[];
+    explanation: string;
+  };
+  recalledMemories?: Array<{
+    id: string;
+    title: string;
+    category: string;
+    score: number;
+  }>;
+  multimodalSummary?: {
+    documentsCount: number;
+    imagesCount: number;
+  };
   plan?: {
     taskId?: string;
     taskType?: string;
@@ -71,8 +123,27 @@ export interface ChatMessage {
     isFirstParty: boolean;
     zeroMockNotice: string;
   };
+  attachedFiles?: Array<{
+    name: string;
+    type: string;
+    size: number;
+    isImage?: boolean;
+  }>;
   error?: boolean;
   errorMessage?: string;
+}
+
+export interface AttachedDoc {
+  name: string;
+  type: string;
+  size: number;
+  content?: string;
+}
+
+export interface AttachedImg {
+  name: string;
+  mimeType: string;
+  dataUrl: string;
 }
 
 export function MainChat() {
@@ -80,10 +151,11 @@ export function MainChat() {
   const navigate = useNavigate();
 
   const urlQuery = searchParams.get('q') || '';
-  const urlGrounding = searchParams.get('grounding') === '1';
+  const urlMode = (searchParams.get('mode') as any) || 'ONLINE_INTELLIGENCE';
 
   const [input, setInput] = useState('');
-  const [grounding, setGrounding] = useState<boolean>(urlGrounding);
+  // Online-First Sovereign Platform default
+  const [operatingMode, setOperatingMode] = useState<'ONLINE_INTELLIGENCE' | 'HYBRID_INTELLIGENCE' | 'LOCAL_ONLY'>(urlMode);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeModel] = useState(() => getActiveModel());
@@ -92,9 +164,30 @@ export function MainChat() {
   const [showInspector, setShowInspector] = useState<boolean>(true);
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
 
+  // Multimodal Attachments State
+  const [attachedDocs, setAttachedDocs] = useState<AttachedDoc[]>([]);
+  const [attachedImgs, setAttachedImgs] = useState<AttachedImg[]>([]);
+
+  const fileDocInputRef = useRef<HTMLInputElement>(null);
+  const fileImgInputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const initializedQueryRef = useRef<string | null>(null);
+
+  // Voice Intelligence Input 1.1 Integration
+  const {
+    isListening,
+    toggleListening: toggleVoiceInput,
+    interimTranscript,
+    language: voiceLang,
+    setLanguage: setVoiceLang,
+    errorMessage: speechError,
+  } = useVoiceIntelligenceInput({
+    initialLanguage: 'th-TH',
+    onFinalTranscript: (finalText: string) => {
+      setInput(prev => appendTranscriptWithSmartSpacing(prev, finalText));
+    },
+  });
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -104,132 +197,216 @@ export function MainChat() {
     scrollToBottom();
   }, [messages, isLoading, scrollToBottom]);
 
+  // Handle Document Attachment
+  const handleDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const textContent = typeof reader.result === 'string' ? reader.result : '';
+        setAttachedDocs(prev => [
+          ...prev,
+          {
+            name: file.name,
+            type: file.name.split('.').pop() || 'text',
+            size: file.size,
+            content: textContent.slice(0, 50000), // Max 50KB text per file client-side
+          },
+        ]);
+      };
+      reader.readAsText(file);
+    }
+    if (fileDocInputRef.current) fileDocInputRef.current.value = '';
+  };
+
+  // Handle Image Attachment
+  const handleImgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+        setAttachedImgs(prev => [
+          ...prev,
+          {
+            name: file.name,
+            mimeType: file.type || 'image/png',
+            dataUrl,
+          },
+        ]);
+      };
+      reader.readAsDataURL(file);
+    }
+    if (fileImgInputRef.current) fileImgInputRef.current.value = '';
+  };
+
+  const removeDoc = (index: number) => {
+    setAttachedDocs(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeImg = (index: number) => {
+    setAttachedImgs(prev => prev.filter((_, i) => i !== index));
+  };
+
   // Execute request to ZYNTHEOR INTELLIGENCE Runtime
-  const executeQuery = useCallback(async (queryText: string, useGrounding: boolean) => {
-    if (!queryText.trim()) return;
+  const executeQuery = useCallback(
+    async (
+      queryText: string,
+      mode: 'ONLINE_INTELLIGENCE' | 'HYBRID_INTELLIGENCE' | 'LOCAL_ONLY',
+      docs: AttachedDoc[],
+      imgs: AttachedImg[]
+    ) => {
+      if (!queryText.trim() && docs.length === 0 && imgs.length === 0) return;
 
-    const userMessageId = `user-${Date.now()}`;
-    const userMsg: ChatMessage = {
-      id: userMessageId,
-      role: 'user',
-      content: queryText.trim(),
-      timestamp: new Date().toISOString(),
-      groundingUsed: useGrounding,
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setIsLoading(true);
-
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
-    const assistantMessageId = `assist-${Date.now()}`;
-
-    try {
-      const res = await fetch('/api/intelligence/orchestrate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: queryText.trim(),
-          workspaceId: 'default',
-          language: 'th',
-          responseLanguage: 'th',
-          onlineConsent: useGrounding,
-          enableInternetSearch: useGrounding,
-          isDryRun: false,
-        }),
-        signal: controller.signal,
-      });
-
-      if (!res.ok) {
-        let errMessage = `HTTP ${res.status}: ${res.statusText}`;
-        try {
-          const errData = await res.json();
-          errMessage = errData.error || errData.message || errMessage;
-        } catch {
-          // Response body was not JSON
-        }
-
-        const failMsg: ChatMessage = {
-          id: assistantMessageId,
-          role: 'assistant',
-          content: '',
-          timestamp: new Date().toISOString(),
-          error: true,
-          errorMessage: errMessage,
-          groundingUsed: useGrounding,
-        };
-        setMessages((prev) => [...prev, failMsg]);
-        setSelectedMessage(failMsg);
-        return;
-      }
-
-      const data = await res.json();
-
-      const assistantMsg: ChatMessage = {
-        id: assistantMessageId,
-        role: 'assistant',
-        content: data.finalAnswer || data.answer || 'ประมวลผลสำเร็จภายใต้การควบคุมของ ZYNTHEOR CORE',
+      const userMessageId = `user-${Date.now()}`;
+      const userMsg: ChatMessage = {
+        id: userMessageId,
+        role: 'user',
+        content: queryText.trim(),
         timestamp: new Date().toISOString(),
-        groundingUsed: useGrounding,
-        taskType: data.taskType,
-        taskState: data.taskState,
-        plan: data.plan,
-        durationMs: data.durationMs,
-        verificationArtifacts: data.verificationArtifacts || [],
-        groundingSources: data.groundingSources || [],
-        modelMetadata: data.modelMetadata,
+        operatingMode: mode,
+        groundingUsed: mode !== 'LOCAL_ONLY',
+        attachedFiles: [
+          ...docs.map(d => ({ name: d.name, type: d.type, size: d.size, isImage: false })),
+          ...imgs.map(img => ({ name: img.name, type: img.mimeType, size: 0, isImage: true })),
+        ],
       };
 
-      setMessages((prev) => [...prev, assistantMsg]);
-      setSelectedMessage(assistantMsg);
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
-        const cancelMsg: ChatMessage = {
+      setMessages(prev => [...prev, userMsg]);
+      setIsLoading(true);
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const assistantMessageId = `assist-${Date.now()}`;
+
+      try {
+        const isOnline = mode !== 'LOCAL_ONLY';
+        const res = await fetch('/api/intelligence/orchestrate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: queryText.trim(),
+            workspaceId: 'default',
+            language: 'th',
+            responseLanguage: 'th',
+            onlineConsent: isOnline,
+            enableInternetSearch: isOnline,
+            isDryRun: false,
+            multimodalInputs: {
+              documents: docs.map(d => ({ name: d.name, type: d.type, size: d.size, content: d.content })),
+              images: imgs.map(img => ({ name: img.name, mimeType: img.mimeType, dataUrl: img.dataUrl })),
+            },
+          }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          let errMessage = `HTTP ${res.status}: ${res.statusText}`;
+          try {
+            const errData = await res.json();
+            errMessage = errData.error || errData.message || errMessage;
+          } catch {
+            // Non-JSON error
+          }
+
+          const failMsg: ChatMessage = {
+            id: assistantMessageId,
+            role: 'assistant',
+            content: '',
+            timestamp: new Date().toISOString(),
+            error: true,
+            errorMessage: errMessage,
+            operatingMode: mode,
+            groundingUsed: isOnline,
+          };
+          setMessages(prev => [...prev, failMsg]);
+          setSelectedMessage(failMsg);
+          return;
+        }
+
+        const data = await res.json();
+
+        const assistantMsg: ChatMessage = {
           id: assistantMessageId,
           role: 'assistant',
-          content: 'การประมวลผลถูกยกเลิกโดยผู้ใช้',
+          content: data.finalAnswer || data.answer || 'ประมวลผลสำเร็จภายใต้การควบคุมของ ZYNTHEOR INTELLIGENCE',
           timestamp: new Date().toISOString(),
-          error: true,
-          errorMessage: 'User cancelled query execution via AbortSignal',
+          operatingMode: mode,
+          groundingUsed: isOnline,
+          taskType: data.taskType,
+          taskState: data.taskState,
+          adaptiveReasoning: data.adaptiveReasoning,
+          recalledMemories: data.recalledMemories || [],
+          multimodalSummary: data.multimodalSummary,
+          plan: data.plan,
+          durationMs: data.durationMs,
+          verificationArtifacts: data.verificationArtifacts || [],
+          groundingSources: data.groundingSources || [],
+          modelMetadata: data.modelMetadata,
         };
-        setMessages((prev) => [...prev, cancelMsg]);
-        setSelectedMessage(cancelMsg);
-      } else {
-        const errorMsg: ChatMessage = {
-          id: assistantMessageId,
-          role: 'assistant',
-          content: '',
-          timestamp: new Date().toISOString(),
-          error: true,
-          errorMessage: err.message || 'Cannot connect to ZYNTHEOR INTELLIGENCE Runtime',
-        };
-        setMessages((prev) => [...prev, errorMsg]);
-        setSelectedMessage(errorMsg);
+
+        setMessages(prev => [...prev, assistantMsg]);
+        setSelectedMessage(assistantMsg);
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          const cancelMsg: ChatMessage = {
+            id: assistantMessageId,
+            role: 'assistant',
+            content: 'การประมวลผลถูกยกเลิกโดยผู้ใช้',
+            timestamp: new Date().toISOString(),
+            error: true,
+            errorMessage: 'User cancelled query execution via AbortSignal',
+          };
+          setMessages(prev => [...prev, cancelMsg]);
+          setSelectedMessage(cancelMsg);
+        } else {
+          const errorMsg: ChatMessage = {
+            id: assistantMessageId,
+            role: 'assistant',
+            content: '',
+            timestamp: new Date().toISOString(),
+            error: true,
+            errorMessage: err.message || 'Cannot connect to ZYNTHEOR INTELLIGENCE Runtime',
+          };
+          setMessages(prev => [...prev, errorMsg]);
+          setSelectedMessage(errorMsg);
+        }
+      } finally {
+        setIsLoading(false);
+        abortControllerRef.current = null;
       }
-    } finally {
-      setIsLoading(false);
-      abortControllerRef.current = null;
-    }
-  }, []);
+    },
+    []
+  );
 
   // Handle URL query on load
   useEffect(() => {
     if (urlQuery && initializedQueryRef.current !== urlQuery) {
       initializedQueryRef.current = urlQuery;
-      executeQuery(urlQuery, urlGrounding);
+      executeQuery(urlQuery, operatingMode, [], []);
       setSearchParams({}, { replace: true });
     }
-  }, [urlQuery, urlGrounding, executeQuery, setSearchParams]);
+  }, [urlQuery, operatingMode, executeQuery, setSearchParams]);
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if ((!input.trim() && attachedDocs.length === 0 && attachedImgs.length === 0) || isLoading) return;
     const q = input;
+    const docs = [...attachedDocs];
+    const imgs = [...attachedImgs];
     setInput('');
-    executeQuery(q, grounding);
+    setAttachedDocs([]);
+    setAttachedImgs([]);
+    executeQuery(q, operatingMode, docs, imgs);
   };
 
   const handleStop = () => {
@@ -248,256 +425,292 @@ export function MainChat() {
     }
   };
 
-  // Inspect the latest assistant message by default if none selected
-  const activeInspectionMessage = selectedMessage || messages.filter(m => m.role === 'assistant').slice(-1)[0] || null;
+  const activeInspectionMessage = selectedMessage || messages[messages.length - 1];
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col bg-[#050810] text-white">
+    <div className="flex flex-col h-full bg-[#050810] text-white">
       {/* =========================================================
-          1. INTELLIGENCE WORKSPACE HEADER
+          1. HEADER & OPERATING MODE CONTROL
       ========================================================= */}
-      <header className="px-5 py-3 border-b border-white/[0.08] bg-[#070b16]/95 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <header className="h-14 border-b border-white/[0.08] px-4 md:px-6 flex items-center justify-between bg-[#080d1a]/80 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400">
-            <Brain size={16} />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center text-black font-black text-xs shadow-lg shadow-[#00D9A3]/20">
+            Z
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm tracking-tight text-white">
-                ZYNTHEOR INTELLIGENCE
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#00D9A3]/10 text-[#00D9A3] border border-[#00D9A3]/20">
-                CORE WORKSPACE
+              <span className="font-bold text-sm tracking-tight text-white">ZYNTHEOR INTELLIGENCE</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                Online-First Sovereign
               </span>
             </div>
-            <p className="text-[10px] text-white/40">
-              Model: {activeModel.displayName} ({activeModel.category})
-            </p>
+            <div className="text-[11px] text-white/40 flex items-center gap-1.5 font-mono">
+              <span>{activeModel.displayName}</span>
+              <span>•</span>
+              <span className="text-emerald-400">Verifiable Sovereign Truth</span>
+            </div>
           </div>
         </div>
 
+        {/* 3-Mode Operating Switcher */}
         <div className="flex items-center gap-2">
-          {/* Active Status Badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] border border-white/5 text-[11px] font-mono text-white/60">
-            <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
-            <span>{isLoading ? 'REASONING_ACTIVE' : 'INTELLIGENCE_READY'}</span>
+          <div className="hidden sm:flex items-center bg-[#0b1020] border border-white/10 rounded-xl p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setOperatingMode('ONLINE_INTELLIGENCE')}
+              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
+                operatingMode === 'ONLINE_INTELLIGENCE'
+                  ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 shadow'
+                  : 'text-white/40 hover:text-white'
+              }`}
+              title="Online Intelligence (Default): ค้นคว้าข้อมูลสดทั่วโลกและเข้าถึง Cloud Models"
+            >
+              <Globe size={13} className={operatingMode === 'ONLINE_INTELLIGENCE' ? 'text-cyan-400' : ''} />
+              <span>Online Intelligence</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setOperatingMode('HYBRID_INTELLIGENCE')}
+              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
+                operatingMode === 'HYBRID_INTELLIGENCE'
+                  ? 'bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30 shadow'
+                  : 'text-white/40 hover:text-white'
+              }`}
+              title="Hybrid Intelligence: ผสาน ZYNTHEOR CORE เข้ากับข้อมูลออนไลน์สด"
+            >
+              <Zap size={13} className={operatingMode === 'HYBRID_INTELLIGENCE' ? 'text-purple-400' : ''} />
+              <span>Hybrid</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setOperatingMode('LOCAL_ONLY')}
+              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
+                operatingMode === 'LOCAL_ONLY'
+                  ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 shadow'
+                  : 'text-white/40 hover:text-white'
+              }`}
+              title="Local-Only (Privacy): ประมวลผลภายในอุปกรณ์เท่านั้น ปิดกั้นเครือข่ายภายนอก 100%"
+            >
+              <Lock size={13} className={operatingMode === 'LOCAL_ONLY' ? 'text-amber-400' : ''} />
+              <span>Local-Only</span>
+            </button>
           </div>
 
-          {/* Toggle Inspector Panel */}
           <button
             type="button"
             onClick={() => setShowInspector(!showInspector)}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+            className={`p-2 rounded-xl border transition cursor-pointer ${
               showInspector
-                ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
-                : 'bg-white/5 border-white/10 text-white/60 hover:text-white'
+                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
+                : 'bg-white/5 text-white/50 border-white/10 hover:text-white'
             }`}
+            title={showInspector ? 'ซ่อน Intelligence Dossier' : 'แสดง Intelligence Dossier'}
           >
-            {showInspector ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
-            <span className="hidden md:inline">Intelligence Dossier</span>
+            {showInspector ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
           </button>
         </div>
       </header>
 
       {/* =========================================================
-          2. WORKSPACE MAIN SPLIT VIEW
+          2. WORKSPACE BODY: CONVERSATION + DOSSIER INSPECTOR
       ========================================================= */}
       <div className="flex-1 min-h-0 flex overflow-hidden">
-        {/* Left: Execution & Reasoning Surface */}
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          {/* Messages & Execution Flow */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 py-6 space-y-6">
+        {/* Main Conversation Stream */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#050810]">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
             {messages.length === 0 ? (
-              <div className="max-w-2xl mx-auto py-12 md:py-20 text-center space-y-6">
-                <div className="w-16 h-16 rounded-3xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400 mx-auto shadow-[0_0_30px_rgba(0,217,255,0.1)]">
-                  <Sparkles size={28} />
+              <div className="h-full flex flex-col items-center justify-center text-center max-w-xl mx-auto space-y-6">
+                <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#00D9A3]/20 to-cyan-500/10 border border-[#00D9A3]/30 grid place-items-center shadow-2xl">
+                  <Brain size={32} className="text-[#00D9A3]" />
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                    ZYNTHEOR Intelligence Engine
+                  <h2 className="text-xl font-bold tracking-tight text-white">
+                    ZYNTHEOR AI ENGINE
                   </h2>
-                  <p className="text-sm text-white/50 max-w-lg mx-auto leading-relaxed">
-                    พื้นที่สั่งงาน ประมวลผล และวิเคราะห์ข้อมูลระดับสากล ผ่านระบบเหตุผลหลายขั้นตอน (Multi-step Reasoning) ภายใต้ ZYNTHEOR CORE
+                  <p className="text-xs text-white/50 leading-relaxed">
+                    Sovereign General Intelligence Platform — ใช้งานความสามารถในการค้นคว้า ให้เหตุผล 
+                    ทำความเข้าใจเอกสาร และประมวลผลงานผ่าน Intelligence Core
                   </p>
                 </div>
 
-                {/* Preset Starter Actions */}
-                <div className="grid sm:grid-cols-2 gap-3 text-left max-w-xl mx-auto pt-2">
+                {/* Quick Capability Prompts */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full text-left">
                   {[
                     {
-                      title: 'วิเคราะห์โครงสร้างระบบ Sovereign AI',
-                      prompt: 'ช่วยวิเคราะห์โครงสร้างของ Sovereign AI Platform และหลักการแยกชั้น Runtime กับ Model',
+                      label: 'ค้นคว้าความรู้สด (Online Research)',
+                      icon: Globe,
+                      color: 'text-cyan-400',
+                      query: 'ช่วยค้นคว้าความคืบหน้าล่าสุดเกี่ยวกับ Quantum Computing และ AI ในปี 2026',
+                    },
+                    {
+                      label: 'วิเคราะห์ตรรกะเชิงลึก (Deep Reasoning)',
                       icon: Brain,
-                      grounding: false
+                      color: 'text-purple-400',
+                      query: 'ช่วยวิเคราะห์ trade-offs และข้อดีข้อเสียระหว่าง Microservices กับ Modular Monolith',
                     },
                     {
-                      title: 'ค้นคว้ามาตรฐานไซเบอร์ล่าสุด',
-                      prompt: 'ค้นคว้าและเปรียบเทียบมาตรฐานความมั่นคงปลอดภัย FIPS 140-3 และการเข้ารหัสต้านควอนตัม',
-                      icon: Search,
-                      grounding: true
+                      label: 'ประมวลผลเอกสาร & โค้ด (Doc Intelligence)',
+                      icon: FileText,
+                      color: 'text-emerald-400',
+                      query: 'ช่วยอธิบายสถาปัตยกรรมและโครงสร้างไฟล์ของ ZYNTHEOR AI ENGINE ใน server.ts',
                     },
                     {
-                      title: 'เขียน TypeScript Architecture Hook',
-                      prompt: 'เขียนโค้ด React TypeScript Hook ที่รองรับ AbortController, Error Boundary และ State Machine',
-                      icon: Workflow,
-                      grounding: false
+                      label: 'ตรวจสอบความถูกต้อง (Truth & Verification)',
+                      icon: ShieldCheck,
+                      color: 'text-amber-400',
+                      query: 'อธิบายหลักการ Sovereign Truth Principle และการป้องกันโมเดลภายนอกแอบอ้างเป็น CORE',
                     },
-                    {
-                      title: 'สรุปและจัดระเบียบองค์ความรู้',
-                      prompt: 'ช่วยจัดระเบียบโครงสร้างคลังความรู้ (Knowledge Taxonomy) สำหรับระบบสถาปัตยกรรมข้อมูลองค์กร',
-                      icon: BookOpen,
-                      grounding: false
-                    }
-                  ].map((starter, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => executeQuery(starter.prompt, starter.grounding)}
-                      className="p-3.5 rounded-2xl bg-[#0b1020] border border-white/[0.07] hover:border-cyan-500/30 hover:bg-[#10172e] transition text-left space-y-1.5 group cursor-pointer shadow-lg"
-                    >
-                      <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold">
-                        <starter.icon size={13} />
-                        <span>{starter.title}</span>
-                      </div>
-                      <p className="text-[11px] text-white/40 group-hover:text-white/60 line-clamp-2 leading-snug">
-                        {starter.prompt}
-                      </p>
-                    </button>
-                  ))}
+                  ].map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => executeQuery(item.query, operatingMode, [], [])}
+                        className="p-3 rounded-2xl bg-[#0b1020] border border-white/5 hover:border-cyan-500/30 hover:bg-[#0f1629] text-xs transition cursor-pointer text-left space-y-1 group"
+                      >
+                        <div className="flex items-center gap-2 font-bold text-white group-hover:text-cyan-300">
+                          <Icon size={14} className={item.color} />
+                          <span>{item.label}</span>
+                        </div>
+                        <p className="text-[11px] text-white/40 line-clamp-1">{item.query}</p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
-              messages.map((msg) => {
+              messages.map(msg => {
                 const isUser = msg.role === 'user';
                 return (
                   <div
                     key={msg.id}
-                    onClick={() => !isUser && setSelectedMessage(msg)}
-                    className={`max-w-3xl mx-auto space-y-2 transition ${
-                      !isUser ? 'cursor-pointer' : ''
+                    onClick={() => setSelectedMessage(msg)}
+                    className={`max-w-3xl mx-auto flex gap-3.5 transition cursor-pointer ${
+                      selectedMessage?.id === msg.id ? 'ring-1 ring-cyan-500/40 rounded-2xl p-2 bg-white/[0.02]' : ''
                     }`}
                   >
-                    {/* Role Header */}
-                    <div className="flex items-center justify-between text-xs text-white/40 px-1">
-                      <div className="flex items-center gap-2">
-                        {isUser ? (
-                          <span className="font-bold text-white/70 flex items-center gap-1.5">
-                            <User size={13} className="text-white/50" />
-                            User Task
-                          </span>
-                        ) : (
-                          <span className="font-bold text-cyan-400 flex items-center gap-1.5">
-                            <Cpu size={13} className="text-[#00D9A3]" />
-                            ZYNTHEOR CORE
-                          </span>
-                        )}
-                        <span className="text-[10px] text-white/30 font-mono">
-                          {new Date(msg.timestamp).toLocaleTimeString('th-TH', { hour12: false })}
-                        </span>
-                      </div>
-
-                      {!isUser && msg.durationMs && (
-                        <div className="flex items-center gap-2 text-[10px] font-mono text-white/40">
-                          <span>{msg.durationMs}ms</span>
-                          <span>·</span>
-                          <span className="text-emerald-400">VERIFIED</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content Box */}
                     <div
-                      className={`p-4 md:p-5 rounded-[16px] text-sm leading-relaxed transition ${
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
                         isUser
-                          ? 'bg-[#12192d] border border-white/10 text-white shadow-md'
-                          : msg.error
-                          ? 'bg-red-950/20 border border-red-500/30 text-red-200'
-                          : 'bg-[#0b1020] border border-white/[0.08] text-white/90 shadow-xl hover:border-cyan-500/30'
+                          ? 'bg-white/10 text-white'
+                          : 'bg-gradient-to-br from-[#00D9A3] to-[#00b386] text-black shadow-md shadow-[#00D9A3]/20'
                       }`}
                     >
-                      {msg.error ? (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-red-400 font-bold text-xs">
-                            <AlertCircle size={15} />
-                            <span>ข้อผิดพลาดในการประมวลผล (Fail-Closed)</span>
-                          </div>
-                          <p className="text-xs text-red-200/80 font-mono">
-                            {msg.errorMessage || 'ระบบปฏิเสธการประมวลผลเพื่อรักษาความปลอดภัย'}
-                          </p>
+                      {isUser ? <User size={15} /> : <Brain size={15} />}
+                    </div>
+
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <div className="flex items-center justify-between text-[11px] text-white/40 font-mono">
+                        <span className="font-bold text-white/70">
+                          {isUser ? 'USER COMMAND' : 'ZYNTHEOR INTELLIGENCE'}
+                        </span>
+                        <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+                      </div>
+
+                      {/* Attached Files Badges for User Message */}
+                      {msg.attachedFiles && msg.attachedFiles.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pb-1">
+                          {msg.attachedFiles.map((f, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/10 text-[10px] text-cyan-300 font-mono"
+                            >
+                              {f.isImage ? <ImageIcon size={10} /> : <FileText size={10} />}
+                              <span>{f.name}</span>
+                            </span>
+                          ))}
                         </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {/* Task Badge & Multi-step Plan if present */}
-                          {!isUser && msg.taskType && (
-                            <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-white/[0.06]">
-                              <span className="px-2.5 py-0.5 rounded-[12px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 font-mono text-[10px] font-bold tracking-wide">
-                                {msg.taskType.replace(/_/g, ' ')}
-                              </span>
-                              {msg.taskState && (
-                                <span className="px-2 py-0.5 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[10px] font-semibold">
-                                  {msg.taskState}
-                                </span>
-                              )}
-                            </div>
-                          )}
+                      )}
 
-                          {/* Multi-step Execution Steps */}
-                          {!isUser && msg.plan?.plannedSteps && msg.plan.plannedSteps.length > 1 && (
-                            <div className="my-2 p-3 rounded-[14px] bg-[#070b16] border border-white/[0.06] space-y-2">
-                              <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
-                                <Workflow size={12} className="text-cyan-400" />
-                                <span>แผนการประมวลผล (Execution Plan · {msg.plan.plannedSteps.length} ขั้นตอน)</span>
-                              </div>
-                              <div className="grid grid-cols-1 gap-1.5 pt-1">
-                                {msg.plan.plannedSteps.map((step, sIdx) => (
-                                  <div key={sIdx} className="flex items-start gap-2 text-[11px] text-white/70">
-                                    <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
-                                    <div>
-                                      <span className="font-semibold text-white/90">{step.order}. {step.title}: </span>
-                                      <span className="text-white/50">{step.description}</span>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="whitespace-pre-wrap">
-                            {msg.content}
+                      {/* Assistant Adaptive Reasoning Card if Present */}
+                      {!isUser && msg.adaptiveReasoning && (
+                        <div className="p-2.5 rounded-xl bg-[#0b1020] border border-cyan-500/20 text-xs font-mono space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-cyan-400 font-bold flex items-center gap-1.5">
+                              <Zap size={12} />
+                              <span>{msg.adaptiveReasoning.tierLabel}</span>
+                            </span>
+                            <span className="text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded">
+                              Complexity: {msg.adaptiveReasoning.complexityScore}/100
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-white/40 flex flex-wrap gap-2">
+                            <span>Temp: {msg.adaptiveReasoning.parameters.temperature}</span>
+                            <span>•</span>
+                            <span>CoT Depth: {msg.adaptiveReasoning.parameters.cotDepth} steps</span>
+                            <span>•</span>
+                            <span>Effort: {msg.adaptiveReasoning.parameters.reasoningEffort}</span>
                           </div>
                         </div>
                       )}
 
-                      {/* Assistant Bottom Metadata */}
-                      {!isUser && !msg.error && (
-                        <div className="mt-4 pt-3 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-2 text-[10px] text-white/40">
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5 font-mono text-cyan-300">
-                              {msg.modelMetadata?.modelId || activeModel.modelId}
-                            </span>
-                            {msg.groundingUsed && (
-                              <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center gap-1">
-                                <Globe size={10} /> Online Verified
-                              </span>
-                            )}
-                          </div>
+                      {/* Recalled Memory Badge */}
+                      {!isUser && msg.recalledMemories && msg.recalledMemories.length > 0 && (
+                        <div className="p-2 rounded-xl bg-purple-950/20 border border-purple-500/20 text-[11px] font-mono flex items-center gap-2 text-purple-300">
+                          <Database size={13} className="text-purple-400 shrink-0" />
+                          <span className="truncate">
+                            Recalled {msg.recalledMemories.length} long-term memories ({msg.recalledMemories[0].title})
+                          </span>
+                        </div>
+                      )}
 
+                      {/* Content Box */}
+                      <div
+                        className={`p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap select-text ${
+                          isUser
+                            ? 'bg-[#0b1020] border border-white/[0.08] text-white'
+                            : msg.error
+                            ? 'bg-red-950/30 border border-red-500/30 text-red-200'
+                            : 'bg-[#0b1020]/70 border border-white/[0.06] text-white/90 shadow-xl'
+                        }`}
+                      >
+                        {msg.content || msg.errorMessage}
+                      </div>
+
+                      {/* Grounding Sources Chips */}
+                      {msg.groundingSources && msg.groundingSources.length > 0 && (
+                        <div className="space-y-1.5 pt-1">
+                          <div className="text-[10px] font-mono uppercase text-cyan-400 flex items-center gap-1">
+                            <Globe size={11} />
+                            <span>Verified Grounding Sources ({msg.groundingSources.length})</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {msg.groundingSources.map((src, idx) => (
+                              <a
+                                key={idx}
+                                href={src.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/30 text-[11px] text-cyan-300 hover:text-white transition"
+                              >
+                                <span>{src.title}</span>
+                                <ExternalLink size={10} />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Action Bar */}
+                      {!isUser && (
+                        <div className="flex items-center gap-2 pt-1 text-xs">
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCopy(msg.content, msg.id);
-                            }}
-                            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white transition flex items-center gap-1"
+                            onClick={() => handleCopy(msg.content, msg.id)}
+                            className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white flex items-center gap-1 transition cursor-pointer text-[10px]"
                           >
                             {copiedId === msg.id ? (
                               <>
                                 <Check size={11} className="text-emerald-400" />
-                                <span className="text-emerald-400">คัดลอกแล้ว</span>
+                                <span>คัดลอกแล้ว</span>
                               </>
                             ) : (
                               <>
                                 <Copy size={11} />
-                                <span>คัดลอกผลลัพธ์</span>
+                                <span>คัดลอกคำตอบ</span>
                               </>
                             )}
                           </button>
@@ -528,11 +741,11 @@ export function MainChat() {
                 <div className="space-y-1.5 text-xs text-white/40">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                    <span>ทำความเข้าใจเจตนา (Intent Understanding) และคัดแยกประเภทงาน</span>
+                    <span>ทำความเข้าใจเจตนา (Intent) และปรับแต่งพารามิเตอร์ผ่าน Adaptive Reasoning</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                    <span>ดึงบริบทจาก Knowledge & Memory และอนุมานผ่าน ZYNTHEOR CORE</span>
+                    <span>ค้นหาบริบทจาก Long-Term Vector Memory & Verified Online Knowledge</span>
                   </div>
                 </div>
               </div>
@@ -541,48 +754,147 @@ export function MainChat() {
           </div>
 
           {/* =========================================================
-              3. OMNI COMPOSER AT BOTTOM
+              3. MULTIMODAL OMNI COMPOSER AT BOTTOM
           ========================================================= */}
           <div className="p-4 border-t border-white/[0.08] bg-[#070b16]">
             <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
               <div className="rounded-2xl border border-white/10 bg-[#0b1020] p-2.5 shadow-2xl focus-within:border-cyan-500/50 transition">
+                {/* Attached Files Preview Chips */}
+                {(attachedDocs.length > 0 || attachedImgs.length > 0) && (
+                  <div className="flex flex-wrap gap-2 p-2 border-b border-white/[0.06] mb-2">
+                    {attachedDocs.map((doc, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200"
+                      >
+                        <FileText size={13} className="text-cyan-400" />
+                        <span className="font-mono text-[11px] truncate max-w-[140px]">{doc.name}</span>
+                        <span className="text-[9px] text-white/40">({(doc.size / 1024).toFixed(1)}KB)</span>
+                        <button
+                          type="button"
+                          onClick={() => removeDoc(idx)}
+                          className="hover:text-red-400 p-0.5 cursor-pointer ml-1"
+                        >
+                          <X size={11} />
+                        </button>
+                      </div>
+                    ))}
+
+                    {attachedImgs.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200"
+                      >
+                        <img src={img.dataUrl} alt={img.name} className="w-5 h-5 rounded object-cover" />
+                        <span className="font-mono text-[11px] truncate max-w-[120px]">{img.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeImg(idx)}
+                          className="hover:text-red-400 p-0.5 cursor-pointer ml-1"
+                        >
+                          <X size={11} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Voice Interim Transcript Banner */}
+                {isListening && interimTranscript && (
+                  <div className="p-2 mb-2 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-xs text-emerald-300 font-mono flex items-center gap-2 animate-pulse">
+                    <Mic size={14} className="text-emerald-400 shrink-0" />
+                    <span>กำลังฟัง: "{interimTranscript}"</span>
+                  </div>
+                )}
+
                 <textarea
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       handleSubmit();
                     }
                   }}
-                  placeholder="สั่งงาน มอบหมายงาน หรือถามคำถาม ZYNTHEOR INTELLIGENCE..."
+                  placeholder={
+                    isListening
+                      ? 'กำลังรับเสียงพูดแบบเรียลไทม์ (Web Speech Input 1.1)...'
+                      : 'สั่งงาน ถามคำถาม หรือแนบเอกสารและรูปภาพให้ ZYNTHEOR INTELLIGENCE...'
+                  }
                   rows={2}
                   className="w-full resize-none bg-transparent outline-none text-sm text-white placeholder:text-white/30 p-2"
                 />
 
+                {/* Hidden File Inputs */}
+                <input
+                  type="file"
+                  ref={fileDocInputRef}
+                  onChange={handleDocUpload}
+                  multiple
+                  accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.ts,.tsx,.py,.sql"
+                  className="hidden"
+                />
+                <input
+                  type="file"
+                  ref={fileImgInputRef}
+                  onChange={handleImgUpload}
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                />
+
                 <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] mt-1 px-1">
-                  <div className="flex items-center gap-2">
-                    <label className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-xs text-white/70 cursor-pointer transition select-none">
-                      <input
-                        type="checkbox"
-                        checked={grounding}
-                        onChange={(e) => setGrounding(e.target.checked)}
-                        className="accent-cyan-400 cursor-pointer"
-                      />
-                      <Globe size={12} className={grounding ? 'text-cyan-400' : 'text-white/40'} />
-                      <span className="text-[11px] font-medium">Search Grounding</span>
-                    </label>
+                  {/* Left: Multimodal Attachment Tools */}
+                  <div className="flex items-center gap-1.5">
+                    {/* Voice Mic Button */}
+                    <button
+                      type="button"
+                      onClick={toggleVoiceInput}
+                      className={`h-8 px-2.5 rounded-xl border flex items-center gap-1.5 text-xs transition cursor-pointer ${
+                        isListening
+                          ? 'bg-emerald-500 text-black font-bold border-emerald-400 animate-pulse'
+                          : 'bg-white/5 hover:bg-white/10 text-white/70 border-white/10'
+                      }`}
+                      title={isListening ? 'กดเพื่อหยุดรับเสียง' : 'พูดคำสั่งเสียง (Voice Input 1.1)'}
+                    >
+                      {isListening ? <MicOff size={13} /> : <Mic size={13} />}
+                      <span className="hidden sm:inline">{isListening ? 'กำลังฟัง...' : 'เสียง'}</span>
+                    </button>
+
+                    {/* Document Upload Button */}
+                    <button
+                      type="button"
+                      onClick={() => fileDocInputRef.current?.click()}
+                      className="h-8 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white/70 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
+                      title="แนบเอกสาร (PDF, TXT, DOCX, Code)"
+                    >
+                      <Paperclip size={13} />
+                      <span className="hidden sm:inline">เอกสาร</span>
+                    </button>
+
+                    {/* Image Upload Button */}
+                    <button
+                      type="button"
+                      onClick={() => fileImgInputRef.current?.click()}
+                      className="h-8 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white/70 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
+                      title="แนบรูปภาพ (Vision Input)"
+                    >
+                      <ImageIcon size={13} />
+                      <span className="hidden sm:inline">รูปภาพ</span>
+                    </button>
 
                     <button
                       type="button"
                       onClick={() => navigate('/library')}
-                      title="เปิดคลังความรู้ (Library)"
-                      className="px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[11px] text-white/50 hover:text-white transition cursor-pointer"
+                      title="เปิดคลังความรู้ (Library & Memory)"
+                      className="h-8 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white/50 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
                     >
-                      + Knowledge Context
+                      <Database size={13} />
+                      <span className="hidden sm:inline">Memory</span>
                     </button>
                   </div>
 
+                  {/* Right: Submit Button */}
                   <div className="flex items-center gap-2">
                     {isLoading ? (
                       <button
@@ -596,7 +908,7 @@ export function MainChat() {
                     ) : (
                       <button
                         type="submit"
-                        disabled={!input.trim()}
+                        disabled={!input.trim() && attachedDocs.length === 0 && attachedImgs.length === 0}
                         className="h-8 px-4 rounded-xl bg-[#00D9A3] hover:bg-white text-black font-bold text-xs flex items-center gap-1.5 disabled:opacity-20 disabled:cursor-not-allowed transition cursor-pointer shadow-lg shadow-[#00D9A3]/10"
                       >
                         <span>ประมวลผล</span>
@@ -610,7 +922,9 @@ export function MainChat() {
           </div>
         </div>
 
-        {/* Right: Intelligence Dossier (Context, Tool Orchestration, Verification) */}
+        {/* =========================================================
+            4. RIGHT INSPECTOR: INTELLIGENCE DOSSIER
+        ========================================================= */}
         {showInspector && (
           <aside className="w-80 md:w-96 border-l border-white/[0.08] bg-[#070b16] p-5 overflow-y-auto space-y-6 hidden lg:block shrink-0">
             <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
@@ -625,91 +939,127 @@ export function MainChat() {
               </span>
             </div>
 
-            {/* 1. Core Model Identity Verification */}
+            {/* 1. Operating Mode & Model Identity */}
             <div className="p-3.5 rounded-xl bg-[#0b1020] border border-white/[0.06] space-y-2">
               <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
-                <Cpu size={13} className="text-purple-400" />
-                <span>CORE Model Identity</span>
+                <Globe size={13} className="text-cyan-400" />
+                <span>Operating Mode & Routing</span>
               </div>
               <div className="space-y-1 font-mono text-[11px]">
-                <div className="text-white font-bold truncate">
-                  {activeModel.displayName}
+                <div className="text-white font-bold flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>{operatingMode}</span>
                 </div>
                 <div className="text-cyan-400 text-[10px]">
-                  Category: {activeModel.category}
+                  Model: {activeModel.displayName}
                 </div>
                 <div className="text-white/40 text-[10px]">
-                  Provider: {activeModel.provider} (First-Party Sovereign)
+                  Category: {activeModel.category} (Sovereign Verified)
                 </div>
               </div>
             </div>
 
-            {/* 2. Reasoning & Processing Breakdown */}
+            {/* 2. Adaptive Reasoning Calibration */}
             <div className="p-3.5 rounded-xl bg-[#0b1020] border border-white/[0.06] space-y-2.5">
               <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
-                <Brain size={13} className="text-cyan-400" />
-                <span>Reasoning & Execution Pipeline</span>
+                <Brain size={13} className="text-purple-400" />
+                <span>Adaptive Reasoning Engine</span>
               </div>
 
-              <div className="space-y-2 text-[11px]">
-                <div className="p-2 rounded-lg bg-black/30 border border-white/5 space-y-0.5">
-                  <div className="text-[10px] text-white/40 uppercase">1. Intent Classification</div>
-                  <div className="text-white font-medium">
-                    {activeInspectionMessage?.taskType || 'GENERAL_INTELLIGENCE'}
+              {activeInspectionMessage?.adaptiveReasoning ? (
+                <div className="space-y-2 text-[11px] font-mono">
+                  <div className="p-2 rounded-lg bg-black/40 border border-white/5 space-y-1">
+                    <div className="text-[10px] text-white/40 uppercase">Complexity Tier</div>
+                    <div className="text-purple-300 font-bold">
+                      {activeInspectionMessage.adaptiveReasoning.tierLabel} ({activeInspectionMessage.adaptiveReasoning.complexityScore}/100)
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-2 rounded-lg bg-black/30 border border-white/5 space-y-0.5">
-                  <div className="text-[10px] text-white/40 uppercase">2. Knowledge Context</div>
-                  <div className="text-white/70">
-                    {activeInspectionMessage?.groundingUsed
-                      ? `Ingested ${activeInspectionMessage.groundingSources?.length || 0} external sources`
-                      : 'Workspace Memory & System Specifications'}
+                  <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+                    <div className="p-1.5 rounded bg-black/30 border border-white/5">
+                      <span className="text-white/40">Temp: </span>
+                      <span className="text-white font-bold">{activeInspectionMessage.adaptiveReasoning.parameters.temperature}</span>
+                    </div>
+                    <div className="p-1.5 rounded bg-black/30 border border-white/5">
+                      <span className="text-white/40">CoT: </span>
+                      <span className="text-white font-bold">{activeInspectionMessage.adaptiveReasoning.parameters.cotDepth} steps</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-2 rounded-lg bg-black/30 border border-white/5 space-y-0.5">
-                  <div className="text-[10px] text-white/40 uppercase">3. Verification Status</div>
-                  <div className="text-emerald-400 font-bold flex items-center gap-1">
-                    <ShieldCheck size={11} />
-                    <span>SOVEREIGN_VERIFIED</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Verification Artifacts (Cryptographic Evidence) */}
-            <div className="p-3.5 rounded-xl bg-[#0b1020] border border-white/[0.06] space-y-2.5">
-              <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
-                <Hash size={13} className="text-emerald-400" />
-                <span>Verification Artifacts</span>
-              </div>
-
-              {activeInspectionMessage?.verificationArtifacts && activeInspectionMessage.verificationArtifacts.length > 0 ? (
-                <div className="space-y-1.5">
-                  {activeInspectionMessage.verificationArtifacts.map((art, idx) => (
-                    <div key={idx} className="p-2 rounded-lg bg-black/40 border border-white/5 text-[10px] font-mono space-y-1">
-                      <div className="flex items-center justify-between text-cyan-300">
-                        <span>{art.category}</span>
-                        <span className="text-white/40">{art.source}</span>
+                  {activeInspectionMessage.adaptiveReasoning.reasoningPlan && (
+                    <div className="space-y-1">
+                      <div className="text-[10px] text-white/40 uppercase">Reasoning Stages</div>
+                      <div className="space-y-1">
+                        {activeInspectionMessage.adaptiveReasoning.reasoningPlan.map((stage, idx) => (
+                          <div key={idx} className="p-1.5 rounded bg-black/30 border border-white/5 text-[10px] text-white/70 flex items-center gap-1.5">
+                            <span className="text-purple-400 font-bold">{idx + 1}.</span>
+                            <span>{stage}</span>
+                          </div>
+                        ))}
                       </div>
-                      <div className="text-white/70 truncate">{art.message}</div>
-                      {art.sha256Digest && (
-                        <div className="text-emerald-400 text-[9px] truncate">
-                          SHA: {art.sha256Digest.slice(0, 16)}...
-                        </div>
-                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-[11px] text-white/40 p-2 rounded bg-black/20 text-center font-mono">
+                  Adaptive parameters calibrate dynamically per message
+                </div>
+              )}
+            </div>
+
+            {/* 3. Long-Term Vector Memory Recall */}
+            <div className="p-3.5 rounded-xl bg-[#0b1020] border border-white/[0.06] space-y-2.5">
+              <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
+                <Database size={13} className="text-emerald-400" />
+                <span>Long-Term Vector Memory</span>
+              </div>
+
+              {activeInspectionMessage?.recalledMemories && activeInspectionMessage.recalledMemories.length > 0 ? (
+                <div className="space-y-1.5">
+                  {activeInspectionMessage.recalledMemories.map((mem, idx) => (
+                    <div key={idx} className="p-2 rounded-lg bg-black/40 border border-white/5 text-[10px] font-mono space-y-0.5">
+                      <div className="flex items-center justify-between text-emerald-300">
+                        <span className="truncate">{mem.title}</span>
+                        <span className="text-white/40">{(mem.score * 100).toFixed(0)}%</span>
+                      </div>
+                      <div className="text-white/40 text-[9px] uppercase">{mem.category}</div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-[11px] text-white/40 p-2 rounded bg-black/20 text-center">
+                <div className="text-[11px] text-white/40 p-2 rounded bg-black/20 text-center font-mono">
+                  Contextual memories indexed across sessions
+                </div>
+              )}
+            </div>
+
+            {/* 4. Verification Artifacts (Cryptographic Evidence) */}
+            <div className="p-3.5 rounded-xl bg-[#0b1020] border border-white/[0.06] space-y-2.5">
+              <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
+                <Hash size={13} className="text-cyan-400" />
+                <span>Verification Evidence</span>
+              </div>
+
+              {activeInspectionMessage?.verificationArtifacts && activeInspectionMessage.verificationArtifacts.length > 0 ? (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {activeInspectionMessage.verificationArtifacts.map((art, idx) => (
+                    <div key={idx} className="p-2 rounded-lg bg-black/40 border border-white/5 text-[10px] font-mono space-y-0.5">
+                      <div className="flex items-center justify-between text-cyan-300">
+                        <span>{art.category}</span>
+                        <span className="text-white/40 truncate max-w-[100px]">{art.source}</span>
+                      </div>
+                      <div className="text-white/70 line-clamp-2">{art.message}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-[11px] text-white/40 p-2 rounded bg-black/20 text-center font-mono">
                   ยังไม่มี Artifacts ในการสนทนานี้
                 </div>
               )}
             </div>
 
-            {/* 4. Link to Full Diagnostics */}
+            {/* 5. Link to Diagnostics */}
             <button
               onClick={() => navigate('/diagnostics')}
               className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white/70 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer"

@@ -17,10 +17,143 @@ import {
   searchSymbols,
   type RepositoryScanResult
 } from '../services/repositoryIntelligence.ts';
+import { vectorMemoryService } from '../services/vectorMemory.ts';
+import { adaptiveReasoningEngine } from '../../lib/adaptive-reasoning.ts';
+import { zyntheorIntelligenceRuntime } from '../../lib/zyntheor-intelligence-runtime.ts';
+import { globalBenchmarkSuite } from '../evaluation/globalBenchmarkSuite.ts';
 
 const r = Router();
 const orchestrator = new IntelligenceOrchestrationEngine();
 const planner = new TaskPlanningEngine();
+
+// --- ADAPTIVE REASONING PRE-INFERENCE INFER ROUTE ---
+r.get('/api/intelligence/adaptive-reasoning/infer', (req, res) => {
+  try {
+    const q = String(req.query.q || '');
+    const docCount = Number(req.query.docCount || 0);
+    const imgCount = Number(req.query.imgCount || 0);
+    const inference = adaptiveReasoningEngine.inferComplexity(q, {
+      documentsCount: docCount,
+      imagesCount: imgCount,
+    });
+    return res.json({ ok: true, inference });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// --- LONG-TERM VECTOR MEMORY ENDPOINTS ---
+r.get('/api/intelligence/vector-memory/search', (req, res) => {
+  try {
+    const q = String(req.query.q || '');
+    const ws = String(req.query.workspaceId || 'default');
+    const category = req.query.category as any;
+    const topK = req.query.topK ? Number(req.query.topK) : 5;
+    const minScore = req.query.minScore ? Number(req.query.minScore) : 0.45;
+
+    const results = vectorMemoryService.search(ws, q, { topK, minScore, category });
+    return res.json({ ok: true, results, count: results.length });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.post('/api/intelligence/vector-memory/store', (req, res) => {
+  try {
+    const { workspaceId, category, title, content, tags, metadata, sessionId } = req.body || {};
+    if (!title || !content || !category) {
+      return res.status(400).json({ ok: false, error: 'category, title, and content are required' });
+    }
+    const entry = vectorMemoryService.storeMemory({
+      workspaceId: workspaceId || 'default',
+      category,
+      title,
+      content,
+      tags: tags || [],
+      metadata: metadata || {},
+      sessionId,
+    });
+    return res.json({ ok: true, entry });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.get('/api/intelligence/vector-memory/context', (req, res) => {
+  try {
+    const q = String(req.query.q || '');
+    const ws = String(req.query.workspaceId || 'default');
+    const maxEntries = req.query.maxEntries ? Number(req.query.maxEntries) : 3;
+
+    const memoryContext = vectorMemoryService.buildMemoryPromptContext(ws, q, maxEntries);
+    return res.json({ ok: true, memoryContext });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.get('/api/intelligence/vector-memory/stats', (req, res) => {
+  try {
+    const ws = String(req.query.workspaceId || 'default');
+    const stats = vectorMemoryService.getStats(ws);
+    const all = vectorMemoryService.getAll(ws);
+    return res.json({ ok: true, stats, entries: all });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.delete('/api/intelligence/vector-memory/:id', (req, res) => {
+  try {
+    const id = req.params.id;
+    const deleted = vectorMemoryService.delete(id);
+    return res.json({ ok: true, deleted });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// --- UNIFIED INTELLIGENCE RUNTIME EXECUTION ---
+r.post('/api/intelligence/runtime/execute', async (req, res) => {
+  try {
+    const { capabilityId, input, options } = req.body || {};
+    if (!input || (!input.text && !input.images?.length && !input.documents?.length)) {
+      return res.status(400).json({ ok: false, error: 'input with text, images, or documents is required' });
+    }
+
+    const result = await zyntheorIntelligenceRuntime.executeCapability(
+      capabilityId,
+      input,
+      options || {}
+    );
+
+    return res.json({ ok: true, result });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message || 'Runtime execution error' });
+  }
+});
+
+// --- GLOBAL COMPETITION INTELLIGENCE BENCHMARK SUITE ---
+r.get('/api/intelligence/benchmark/scorecard', (_req, res) => {
+  try {
+    const scorecard = globalBenchmarkSuite.getScorecard();
+    const audit = globalBenchmarkSuite.verifyZeroMockIntegrity(scorecard);
+    return res.json({ ok: true, scorecard, audit });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.get('/api/intelligence/benchmark/verify', (_req, res) => {
+  try {
+    const scorecard = globalBenchmarkSuite.getScorecard();
+    const audit = globalBenchmarkSuite.verifyZeroMockIntegrity(scorecard);
+    return res.json({ ok: true, audit });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 
 r.post('/api/intelligence/analyze', (req, res) => {
   const { files, log } = req.body as any;
@@ -41,6 +174,7 @@ r.post('/api/intelligence/orchestrate', async (req, res) => {
       explicitModelId,
       explicitModelProvider,
       coreAvailable,
+      multimodalInputs,
     } = req.body as any;
     if (!query || typeof query !== 'string' || !query.trim()) {
       return res.status(400).json({ error: 'Query is required string' });
@@ -58,6 +192,7 @@ r.post('/api/intelligence/orchestrate', async (req, res) => {
       explicitModelId,
       explicitModelProvider,
       coreAvailable,
+      multimodalInputs,
     });
 
     res.json(response);

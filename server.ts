@@ -29,9 +29,11 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-// In-memory policy state & rate limiting
-let localOnly = (process.env.ZYNTHEOR_LOCAL_ONLY || 'true') === 'true';
-let onlineConsent = false;
+// In-memory policy state & rate limiting — Online-First Sovereign Platform
+let operatingMode: 'ONLINE_INTELLIGENCE' | 'HYBRID_INTELLIGENCE' | 'LOCAL_ONLY' =
+  process.env.ZYNTHEOR_LOCAL_ONLY === 'true' ? 'LOCAL_ONLY' : 'ONLINE_INTELLIGENCE';
+let localOnly = operatingMode === 'LOCAL_ONLY';
+let onlineConsent = operatingMode !== 'LOCAL_ONLY';
 const ipHits = new Map<string, { count: number; resetAt: number }>();
 
 function rateLimit(max: number, windowMs: number) {
@@ -91,6 +93,7 @@ app.get('/api/health', (req, res) => {
     platformPolicy: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.PLATFORM_POLICY,
     timestamp: new Date().toISOString(),
     config: {
+      operatingMode,
       localOnly,
       onlineConsent,
       provider: process.env.ZYNTHEOR_PROVIDER || 'gemini',
@@ -115,6 +118,7 @@ app.get('/api/settings', (req, res) => {
     apiKeyConfigured: cfg.hasApiKey,
     apiKeyExposed: false,
     config: {
+      operatingMode,
       localOnly,
       onlineConsent,
     },
@@ -122,11 +126,27 @@ app.get('/api/settings', (req, res) => {
 });
 
 app.post('/api/settings', (req, res) => {
-  if (typeof req.body?.localOnly === 'boolean') localOnly = req.body.localOnly;
-  if (typeof req.body?.onlineConsent === 'boolean') onlineConsent = req.body.onlineConsent;
+  if (req.body?.operatingMode) {
+    operatingMode = req.body.operatingMode;
+    localOnly = operatingMode === 'LOCAL_ONLY';
+    onlineConsent = operatingMode !== 'LOCAL_ONLY';
+  } else {
+    if (typeof req.body?.localOnly === 'boolean') {
+      localOnly = req.body.localOnly;
+      if (localOnly) {
+        operatingMode = 'LOCAL_ONLY';
+        onlineConsent = false;
+      } else {
+        operatingMode = 'ONLINE_INTELLIGENCE';
+        onlineConsent = true;
+      }
+    }
+    if (typeof req.body?.onlineConsent === 'boolean') onlineConsent = req.body.onlineConsent;
+  }
   res.json({
     ok: true,
     config: {
+      operatingMode,
       localOnly,
       onlineConsent,
     },

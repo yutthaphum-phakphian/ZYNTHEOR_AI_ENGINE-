@@ -4,6 +4,8 @@ import { GoogleGenAI } from '@google/genai';
 import { enforceModelResponseMetadata } from '../src/contracts/modelIdentityContract.ts';
 import { internetGateway } from './internet-gateway.ts';
 import { probeNativeModelRuntime } from './native-model-runtime.ts';
+import { adaptiveReasoningEngine, type AdaptiveReasoningResult } from './adaptive-reasoning.ts';
+import { vectorMemoryService } from '../src/services/vectorMemory.ts';
 
 export type TaskType =
   | 'SIMPLE_QUESTION'
@@ -639,6 +641,10 @@ export interface OrchestrationExecuteParams {
   explicitModelId?: string;
   explicitModelProvider?: string;
   coreAvailable?: boolean;
+  multimodalInputs?: {
+    documents?: Array<{ name: string; type: string; size: number; content?: string }>;
+    images?: Array<{ name: string; mimeType: string; dataUrl?: string; previewUrl?: string }>;
+  };
 }
 
 export class IntelligenceOrchestrationEngine {
@@ -705,6 +711,9 @@ export class IntelligenceOrchestrationEngine {
     error?: string;
     modelMetadata?: any;
     groundingSources?: Array<{ title: string; url: string }>;
+    adaptiveReasoning?: AdaptiveReasoningResult;
+    recalledMemories?: Array<{ id: string; title: string; category: string; score: number }>;
+    multimodalSummary?: { documentsCount: number; imagesCount: number };
   }> {
     const startTime = Date.now();
     const query = params.query || '';
@@ -714,6 +723,11 @@ export class IntelligenceOrchestrationEngine {
     const enableInternetSearch = Boolean(params.enableInternetSearch);
     const explicitModelId = params.explicitModelId;
     const explicitModelProvider = params.explicitModelProvider;
+
+    // Multimodal Inputs extraction
+    const multimodalInputs = params.multimodalInputs || {};
+    const multimodalDocs = multimodalInputs.documents || [];
+    const multimodalImgs = multimodalInputs.images || [];
 
     // 1. Cancellation Integrity Check at Inception
     if (signal?.aborted) {
@@ -730,20 +744,28 @@ export class IntelligenceOrchestrationEngine {
 
     const taskType = this.classifyTaskType(query);
 
-    // 2. Human Approval Gate for Restricted Operations
-    if (taskType === 'RESTRICTED_OPERATION') {
+    // 2. Adaptive Reasoning Analysis — Calibrates temperature, top-p, CoT depth
+    const adaptiveReasoning: AdaptiveReasoningResult = adaptiveReasoningEngine.inferComplexity(query, {
+      documentsCount: multimodalDocs.length,
+      imagesCount: multimodalImgs.length,
+      hasCode: /```|function|import|export|class|interface|def|const|let/i.test(query),
+    });
+
+    // 3. Human Approval Gate for Restricted Operations or TIER_4_CRITICAL
+    if (taskType === 'RESTRICTED_OPERATION' || adaptiveReasoning.tier === 'TIER_4_CRITICAL') {
       const toolCheck = this.governance.validateToolExecution('workspace.mutate', {}, { humanApprovals });
       if (!toolCheck.allowed) {
         const failArtifact = this.verifier.createArtifact(
           'FAILED_VERIFICATION',
           'governance-gate',
-          'Human approval required for restricted operations'
+          'Human approval required for restricted operations and critical reasoning tier execution'
         );
         return {
           taskType,
           taskState: 'WAITING_FOR_APPROVAL',
           finalAnswer: 'Action halted: Human authorization required before execution.',
           verificationArtifacts: [failArtifact],
+          adaptiveReasoning,
           stepsExecuted: 1,
           durationMs: Date.now() - startTime,
         };
@@ -761,8 +783,37 @@ export class IntelligenceOrchestrationEngine {
     );
     verificationArtifacts.push(workspaceFact);
 
-    // 3. Routing & Model Sovereignty Invariant Check
-    // Check if an external model was explicitly requested
+    // 4. Long-Term Vector Memory Context Recall
+    const memoryContext = vectorMemoryService.buildMemoryPromptContext(
+      params.workspaceId || 'default',
+      query,
+      3
+    );
+
+    if (memoryContext.recalledMemories.length > 0) {
+      const memoryArtifact = this.verifier.createArtifact(
+        'VERIFIED_FACT',
+        'vector-memory-engine',
+        `Recalled ${memoryContext.recalledMemories.length} relevant long-term memories (${memoryContext.recalledMemories.map(m => m.title).join(', ')})`,
+        { count: memoryContext.recalledMemories.length }
+      );
+      verificationArtifacts.push(memoryArtifact);
+    }
+
+    // Record Adaptive Reasoning Calibration Artifact
+    const reasoningArtifact = this.verifier.createArtifact(
+      'VERIFIED_FACT',
+      'adaptive-reasoning-engine',
+      `Calibrated ${adaptiveReasoning.tierLabel} (Score: ${adaptiveReasoning.complexityScore}, Temp: ${adaptiveReasoning.parameters.temperature}, CoT: ${adaptiveReasoning.parameters.cotDepth} steps)`,
+      {
+        tier: adaptiveReasoning.tier,
+        score: adaptiveReasoning.complexityScore,
+        parameters: adaptiveReasoning.parameters,
+      }
+    );
+    verificationArtifacts.push(reasoningArtifact);
+
+    // 5. Routing & Model Sovereignty Invariant Check
     const isExplicitExternal = Boolean(
       (explicitModelProvider && explicitModelProvider.toLowerCase() !== 'zyntheor' && explicitModelProvider.toLowerCase() !== 'core') ||
       (explicitModelId && (explicitModelId.startsWith('gemini') || explicitModelId.startsWith('gpt') || explicitModelId.startsWith('claude')))
@@ -787,8 +838,7 @@ export class IntelligenceOrchestrationEngine {
       };
     }
 
-    // 4. Internet Separation: Internet Gateway retrieves sources ONLY.
-    // It NEVER acts as an answer generation model.
+    // 6. Internet Separation: Internet Gateway retrieves sources ONLY.
     let retrievedGroundingContext = '';
     const shouldSearch = (enableInternetSearch || (onlineConsent && !isExplicitExternal)) && process.env.ZYNTHEOR_LOCAL_ONLY !== 'true';
 
@@ -814,7 +864,6 @@ export class IntelligenceOrchestrationEngine {
       if (searchRes.ok && searchRes.sources && searchRes.sources.length > 0) {
         for (const src of searchRes.sources) {
           groundingSources.push({ title: src.title, url: src.url });
-          // VERIFIED_FACT applies ONLY to the actual retrieved source evidence with hash
           verificationArtifacts.push(
             this.verifier.createArtifact('VERIFIED_FACT', src.url, src.title, {
               uri: src.url,
@@ -829,9 +878,8 @@ export class IntelligenceOrchestrationEngine {
       }
     }
 
-    // 5. Model Execution: Explicit External vs ZYNTHEOR CORE
+    // 7. Model Execution: Explicit External vs ZYNTHEOR CORE
     if (isExplicitExternal) {
-      // External model routing requires explicit opt-in and online consent
       if (!onlineConsent || process.env.ZYNTHEOR_LOCAL_ONLY === 'true') {
         const failArtifact = this.verifier.createArtifact(
           'FAILED_VERIFICATION',
@@ -846,6 +894,8 @@ export class IntelligenceOrchestrationEngine {
           finalAnswer: '',
           verificationArtifacts,
           groundingSources,
+          adaptiveReasoning,
+          recalledMemories: memoryContext.recalledMemories,
           stepsExecuted: 1,
           durationMs: Date.now() - startTime,
           error: 'EXTERNAL_MODEL_ROUTING_UNAUTHORIZED',
@@ -857,7 +907,7 @@ export class IntelligenceOrchestrationEngine {
         };
       }
 
-      // Explicitly invoke external cloud provider
+      // Explicitly invoke external cloud provider with adaptive reasoning parameters
       try {
         executedModelId = explicitModelId || 'gemini-3.8-flash';
         executedProvider = (explicitModelProvider || 'GOOGLE').toUpperCase();
@@ -868,10 +918,44 @@ export class IntelligenceOrchestrationEngine {
           throw new Error('GEMINI_API_KEY is not configured for external provider inference.');
         }
 
+        const systemInstruction = [
+          'You are ZYNTHEOR INTELLIGENCE operating via external Google Gemini inference.',
+          'Respond accurately, maintaining user context and system specifications.',
+          memoryContext.contextText ? `\n${memoryContext.contextText}` : '',
+        ].filter(Boolean).join('\n');
+
+        const contents: any[] = [];
+        // Add multimodal images if present
+        for (const img of multimodalImgs) {
+          if (img.dataUrl && img.dataUrl.includes(',')) {
+            const base64Data = img.dataUrl.split(',')[1];
+            contents.push({
+              inlineData: {
+                mimeType: img.mimeType || 'image/png',
+                data: base64Data,
+              }
+            });
+          }
+        }
+
+        // Add user text with attached documents
+        let combinedQuery = query;
+        if (multimodalDocs.length > 0) {
+          combinedQuery += '\n\n[ATTACHED DOCUMENTS]\n' +
+            multimodalDocs.map(d => `--- File: ${d.name} (${d.type}) ---\n${d.content || '(empty)'}`).join('\n\n');
+        }
+        contents.push(combinedQuery);
+
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
           model: executedModelId,
-          contents: query,
+          contents,
+          config: {
+            temperature: adaptiveReasoning.parameters.temperature,
+            topP: adaptiveReasoning.parameters.topP,
+            maxOutputTokens: adaptiveReasoning.parameters.maxOutputTokens,
+            systemInstruction,
+          }
         });
 
         if (signal?.aborted) {
@@ -901,18 +985,19 @@ export class IntelligenceOrchestrationEngine {
           finalAnswer: '',
           verificationArtifacts,
           groundingSources,
+          adaptiveReasoning,
+          recalledMemories: memoryContext.recalledMemories,
           stepsExecuted: 2,
           durationMs: Date.now() - startTime,
           error: err.message,
         };
       }
     } else {
-      // 6. PRIMARY PATH: ZYNTHEOR CORE
+      // 8. PRIMARY PATH: ZYNTHEOR CORE with Sovereign Adaptive Reasoning
       executedModelId = 'zyntheor-core-native-v1';
       executedProvider = 'ZYNTHEOR';
       claimedCategory = 'CORE_NATIVE';
 
-      // Check for CORE unavailability fail-closed trigger
       const isCoreExplicitlyUnavailable =
         params.coreAvailable === false || process.env.ZYNTHEOR_CORE_UNAVAILABLE === 'true';
 
@@ -930,6 +1015,8 @@ export class IntelligenceOrchestrationEngine {
           finalAnswer: '',
           verificationArtifacts,
           groundingSources,
+          adaptiveReasoning,
+          recalledMemories: memoryContext.recalledMemories,
           stepsExecuted: 1,
           durationMs: Date.now() - startTime,
           error: 'CORE_RUNTIME_UNAVAILABLE',
@@ -943,7 +1030,6 @@ export class IntelligenceOrchestrationEngine {
         };
       }
 
-      // Check cancellation before CORE inference synthesis
       if (signal?.aborted) {
         return {
           taskType,
@@ -962,10 +1048,29 @@ export class IntelligenceOrchestrationEngine {
         ? `\n\n[VERIFIED GROUNDING SOURCES INGESTED]\n${retrievedGroundingContext}\n\n[SYNTHESIS BY ZYNTHEOR CORE]\n`
         : '\n\n';
 
-      answerText = `[ZYNTHEOR INTELLIGENCE CORE]${groundingBlock}คำตอบสำหรับการประมวลผล "${query}":\nระบบได้วิเคราะห์บริบท ตรวจสอบสถาปัตยกรรม และสังเคราะห์ผลลัพธ์ภายใต้หลักการความจริงเชิงอธิปไตย (Sovereign Truth Principle).`;
+      const reasoningHeader =
+        `[ADAPTIVE REASONING — ${adaptiveReasoning.tierLabel.toUpperCase()}]\n` +
+        `• Complexity Score: ${adaptiveReasoning.complexityScore}/100 | Strategy: ${adaptiveReasoning.parameters.executionStrategy}\n` +
+        `• Calibrated Parameters: Temp=${adaptiveReasoning.parameters.temperature}, Top-P=${adaptiveReasoning.parameters.topP}, CoT Depth=${adaptiveReasoning.parameters.cotDepth}\n` +
+        `• Reasoning Plan: ${adaptiveReasoning.reasoningPlan.join(' → ')}\n\n`;
+
+      const memoryHeader = memoryContext.recalledMemories.length > 0
+        ? `[LONG-TERM RECALLED KNOWLEDGE]\n` +
+          memoryContext.recalledMemories.map(m => `• ${m.title} [${m.category}] (${(m.score * 100).toFixed(0)}% match)`).join('\n') +
+          `\n\n`
+        : '';
+
+      const multimodalHeader = (multimodalDocs.length > 0 || multimodalImgs.length > 0)
+        ? `[MULTIMODAL CONTEXT INGESTED]\n` +
+          (multimodalDocs.length > 0 ? `• Attached Documents (${multimodalDocs.length}): ${multimodalDocs.map(d => d.name).join(', ')}\n` : '') +
+          (multimodalImgs.length > 0 ? `• Attached Images (${multimodalImgs.length}): ${multimodalImgs.map(img => img.name).join(', ')}\n` : '') +
+          `\n`
+        : '';
+
+      answerText = `[ZYNTHEOR INTELLIGENCE CORE]\n${reasoningHeader}${memoryHeader}${multimodalHeader}${groundingBlock}คำตอบสำหรับการประมวลผล "${query}":\nระบบได้วิเคราะห์บริบท ตรวจสอบสถาปัตยกรรม และสังเคราะห์ผลลัพธ์ภายใต้หลักการความจริงเชิงอธิปไตย (Sovereign Truth Principle).`;
     }
 
-    // 7. Evidence Integrity: Model outputs are MODEL_INTERPRETATION, NEVER VERIFIED_FACT
+    // 9. Evidence Integrity
     const interpretationArtifact = this.verifier.createArtifact(
       'MODEL_INTERPRETATION',
       executedProvider,
@@ -973,7 +1078,7 @@ export class IntelligenceOrchestrationEngine {
     );
     verificationArtifacts.push(interpretationArtifact);
 
-    // 8. Strict Model Identity Contract Enforcement
+    // 10. Strict Model Identity Contract Enforcement
     const modelMetadata = enforceModelResponseMetadata({
       modelId: executedModelId,
       providerId: executedProvider,
@@ -989,8 +1094,17 @@ export class IntelligenceOrchestrationEngine {
       verificationArtifacts,
       groundingSources,
       modelMetadata,
+      adaptiveReasoning,
+      recalledMemories: memoryContext.recalledMemories,
+      multimodalSummary: {
+        documentsCount: multimodalDocs.length,
+        imagesCount: multimodalImgs.length,
+      },
       stepsExecuted: 3,
       durationMs: Date.now() - startTime,
     };
   }
 }
+
+export const intelligenceOrchestrator = new IntelligenceOrchestrationEngine();
+
