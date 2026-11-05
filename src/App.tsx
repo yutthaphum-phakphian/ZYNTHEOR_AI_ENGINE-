@@ -7,8 +7,8 @@
  * Intelligence: ZYNTHEOR INTELLIGENCE
  * Model Family: ZYNTHEOR CORE
  *
- * Design principles:
- * - Product first, not dashboard
+ * Principles:
+ * - Product first, not developer dashboard
  * - Intelligence is the primary experience
  * - No fabricated model status
  * - No fabricated backend capabilities
@@ -17,6 +17,7 @@
  */
 
 import { useCallback, useMemo, useState } from 'react';
+
 import {
   BrowserRouter,
   Routes,
@@ -31,7 +32,6 @@ import {
   Cpu,
   Files,
   Globe,
-  Layers,
   MessageSquare,
   Network,
   Send,
@@ -41,13 +41,10 @@ import {
   PenLine,
   BarChart3,
   Wrench,
-  Database,
   Compass,
   ShieldCheck,
-  Settings,
   Home,
   ChevronRight,
-  CircleHelp,
   Search
 } from 'lucide-react';
 
@@ -58,7 +55,6 @@ import {
 } from './lib/capabilityEngine';
 
 import {
-  MODEL_REGISTRY,
   getActiveModel,
   validateModelIdentity
 } from './lib/modelIdentityContract';
@@ -71,6 +67,10 @@ import AgentCommandCenter from './pages/AgentCommandCenter';
 import MemoryCenter from './pages/MemoryCenter';
 import Diagnostics from './pages/Diagnostics';
 
+/* =========================================================
+   TYPES
+========================================================= */
+
 type Page =
   | 'home'
   | 'chat'
@@ -79,8 +79,11 @@ type Page =
   | 'models'
   | 'agents'
   | 'eval'
-  | 'diagnostics'
-  | 'settings';
+  | 'diagnostics';
+
+/* =========================================================
+   CAPABILITY GROUPS
+========================================================= */
 
 const CAPABILITY_GROUPS = [
   {
@@ -128,7 +131,7 @@ const CAPABILITY_GROUPS = [
 
 /* =========================================================
    MODEL IDENTITY
-   Registry identity is not the same as runtime availability.
+   Registry identity is not runtime availability.
 ========================================================= */
 
 function ModelIdentitySection() {
@@ -149,7 +152,10 @@ function ModelIdentitySection() {
       return {
         model,
         validation,
-        state: validation?.valid ? 'VERIFIED' : 'UNVERIFIED'
+        state:
+          validation?.valid === true
+            ? 'IDENTITY_VALID'
+            : 'IDENTITY_INVALID'
       };
     } catch {
       return {
@@ -161,18 +167,28 @@ function ModelIdentitySection() {
   });
 
   const stateStyles = {
-    VERIFIED:
+    IDENTITY_VALID:
       'bg-emerald-500/10 border-emerald-500/20 text-emerald-300',
-    UNVERIFIED:
-      'bg-amber-500/10 border-amber-500/20 text-amber-300',
+
+    IDENTITY_INVALID:
+      'bg-red-500/10 border-red-500/20 text-red-300',
+
     UNAVAILABLE:
-      'bg-white/[0.05] border-white/10 text-white/40',
-    INVALID:
-      'bg-red-500/10 border-red-500/20 text-red-300'
+      'bg-white/[0.05] border-white/10 text-white/40'
+  };
+
+  const stateLabels = {
+    IDENTITY_VALID: 'IDENTITY VALID',
+    IDENTITY_INVALID: 'IDENTITY INVALID',
+    UNAVAILABLE: 'UNAVAILABLE'
   };
 
   const model = modelState.model;
   const state = modelState.state;
+
+  const errors = Array.isArray(modelState.validation?.errors)
+    ? modelState.validation.errors
+    : [];
 
   return (
     <section className="space-y-4">
@@ -185,6 +201,7 @@ function ModelIdentitySection() {
           <h2 className="font-bold text-lg">
             ZYNTHEOR CORE
           </h2>
+
           <p className="text-xs text-white/40">
             Model Identity & Provenance
           </p>
@@ -193,22 +210,26 @@ function ModelIdentitySection() {
         <span
           className={`ml-auto px-3 py-1 rounded-full border text-[10px] font-bold ${stateStyles[state]}`}
         >
-          {state}
+          {stateLabels[state]}
         </span>
       </div>
 
       <div className="rounded-2xl border border-white/[0.08] bg-[#0b1020] p-5">
         {!model ? (
           <div className="flex gap-3 items-start">
-            <ShieldCheck className="text-white/30 shrink-0" size={20} />
+            <ShieldCheck
+              className="text-white/30 shrink-0"
+              size={20}
+            />
 
             <div>
               <div className="font-bold text-sm">
                 Model information unavailable
               </div>
+
               <p className="text-xs text-white/40 mt-1 leading-5">
                 ไม่สามารถอ่านข้อมูล Active Model ได้ในขณะนี้
-                ระบบจะไม่แสดงโมเดลสำรองเป็นโมเดลที่กำลังทำงาน
+                ระบบจะไม่เลือกโมเดลสำรองมาแสดงเป็นโมเดลที่กำลังทำงาน
               </p>
             </div>
           </div>
@@ -231,7 +252,7 @@ function ModelIdentitySection() {
                 <div className="flex flex-wrap gap-2 mt-3">
                   {model.status && (
                     <span className="text-[10px] px-2 py-1 rounded-full bg-white/[0.06] border border-white/10 text-white/60">
-                      {model.status}
+                      Registry: {model.status}
                     </span>
                   )}
 
@@ -244,18 +265,18 @@ function ModelIdentitySection() {
               </div>
             </div>
 
-            {modelState.validation?.errors?.length > 0 && (
+            {errors.length > 0 && (
               <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
                 <div className="text-xs font-bold text-red-300 mb-2">
                   Identity validation issues
                 </div>
 
-                {modelState.validation.errors.map((error, index) => (
+                {errors.map((error, index) => (
                   <div
                     key={index}
-                    className="text-[11px] text-red-200/70 leading-5"
+                    className="text-[11px] text-red-200/70 leading-5 break-words"
                   >
-                    • {error}
+                    • {String(error)}
                   </div>
                 ))}
               </div>
@@ -263,16 +284,17 @@ function ModelIdentitySection() {
           </>
         )}
 
-        <div className="mt-5 pt-4 border-t border-white/[0.06] flex items-center justify-between gap-3">
+        <div className="mt-5 pt-4 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-3">
           <div className="text-[11px] text-white/30">
-            Registry identity is not proof of active inference.
+            Identity validation does not prove active inference.
           </div>
 
           <NavLink
             to="/model-studio"
             className="text-xs text-[#00D9A3] hover:text-white transition flex items-center gap-1 shrink-0"
           >
-            Model Studio <ChevronRight size={13} />
+            Model Studio
+            <ChevronRight size={13} />
           </NavLink>
         </div>
       </div>
@@ -296,9 +318,12 @@ function HomeExperience() {
 
       if (!query) return;
 
-      navigate(
-        `/chat?q=${encodeURIComponent(query)}&grounding=${grounding ? '1' : '0'}`
-      );
+      const params = new URLSearchParams();
+
+      params.set('q', query);
+      params.set('grounding', grounding ? '1' : '0');
+
+      navigate(`/chat?${params.toString()}`);
     },
     [input, grounding, navigate]
   );
@@ -309,13 +334,16 @@ function HomeExperience() {
   );
 
   const currentCapabilityMeta = useMemo(
-    () => CAPABILITIES.find(cap => cap.id === currentCapability),
+    () => CAPABILITIES.find(
+      capability => capability.id === currentCapability
+    ),
     [currentCapability]
   );
 
   return (
     <main className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-[#050810] text-white">
       {/* Background */}
+
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-[25%] left-1/2 -translate-x-1/2 w-[90%] h-[60%] bg-gradient-to-b from-[#00D9A3]/10 via-[#8b5cf6]/5 to-transparent blur-[110px]" />
 
@@ -367,7 +395,7 @@ function HomeExperience() {
                 <p className="text-sm md:text-base leading-7 text-white/50 max-w-[580px]">
                   แพลตฟอร์ม AI อเนกประสงค์ที่ออกแบบให้มี Intelligence,
                   Knowledge และ Model Ecosystem เป็นของตัวเอง
-                  รองรับทั้งภาษาไทย ภาษาอังกฤษ ความรู้ การวิเคราะห์
+                  รองรับภาษาไทย ภาษาอังกฤษ ความรู้ การวิเคราะห์
                   การค้นคว้า และการสร้างสรรค์
                 </p>
               </div>
@@ -410,6 +438,8 @@ function HomeExperience() {
               </div>
             </div>
 
+            {/* Product Architecture */}
+
             <div className="w-full lg:w-[300px] rounded-3xl border border-white/[0.08] bg-[#0b1020]/80 backdrop-blur-xl p-5 space-y-4">
               <div className="text-[10px] tracking-[0.18em] font-bold text-white/30">
                 PRODUCT ARCHITECTURE
@@ -420,6 +450,7 @@ function HomeExperience() {
                   <div className="text-sm font-bold text-[#00D9A3]">
                     ZYNTHEOR AI ENGINE
                   </div>
+
                   <div className="text-xs text-white/40 mt-1">
                     The AI Platform
                   </div>
@@ -431,6 +462,7 @@ function HomeExperience() {
                   <div className="text-sm font-bold text-[#a78bfa]">
                     ZYNTHEOR INTELLIGENCE
                   </div>
+
                   <div className="text-xs text-white/40 mt-1">
                     Intelligence & Reasoning Layer
                   </div>
@@ -442,6 +474,7 @@ function HomeExperience() {
                   <div className="text-sm font-bold text-white">
                     ZYNTHEOR CORE
                   </div>
+
                   <div className="text-xs text-white/40 mt-1">
                     First-party Model Family
                   </div>
@@ -453,6 +486,7 @@ function HomeExperience() {
                   <div className="text-sm font-bold text-white/80">
                     KNOWLEDGE & MEMORY
                   </div>
+
                   <div className="text-xs text-white/40 mt-1">
                     Context, Information & Continuity
                   </div>
@@ -466,7 +500,10 @@ function HomeExperience() {
             2. INTELLIGENCE WORKSPACE
         ================================================= */}
 
-        <section id="intelligence-workspace" className="space-y-4">
+        <section
+          id="intelligence-workspace"
+          className="space-y-4 scroll-mt-6"
+        >
           <div className="flex flex-wrap items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#00D9A3] text-black grid place-items-center">
               <MessageSquare size={17} />
@@ -503,6 +540,7 @@ function HomeExperience() {
                 }}
                 placeholder="ถามอะไรก็ได้... ค้นคว้า เรียนรู้ วิเคราะห์ เขียน สร้างสรรค์ หรือแก้ปัญหา"
                 rows={3}
+                aria-label="Intelligence prompt"
                 className="w-full resize-none bg-transparent outline-none text-sm leading-7 placeholder:text-white/25"
               />
 
@@ -517,7 +555,11 @@ function HomeExperience() {
 
                   <Globe
                     size={14}
-                    className={grounding ? 'text-[#00D9A3]' : 'text-white/30'}
+                    className={
+                      grounding
+                        ? 'text-[#00D9A3]'
+                        : 'text-white/30'
+                    }
                   />
 
                   Internet Intelligence
@@ -557,7 +599,7 @@ function HomeExperience() {
             3. CAPABILITIES
         ================================================= */}
 
-        <section id="capabilities" className="space-y-6">
+        <section id="capabilities" className="space-y-6 scroll-mt-6">
           <div>
             <h2 className="font-bold text-xl">
               Intelligence Capabilities
@@ -575,11 +617,13 @@ function HomeExperience() {
               return (
                 <div key={group.group} className="space-y-3">
                   <div
-                    className="flex items-center gap-2 text-xs font-bold"
+                    className="flex flex-wrap items-center gap-2 text-xs font-bold"
                     style={{ color: group.color }}
                   >
                     <GroupIcon size={15} />
+
                     {group.group}
+
                     <span className="text-white/20 font-normal">
                       / {group.groupEn}
                     </span>
@@ -593,12 +637,15 @@ function HomeExperience() {
 
                       if (!capability) return null;
 
+                      const example =
+                        capability.examples?.[0] ||
+                        capability.nameThai ||
+                        'ช่วยฉันเริ่มต้นงานนี้';
+
                       return (
                         <button
                           key={capability.id}
-                          onClick={() =>
-                            handleStart(capability.examples?.[0] || capability.nameThai)
-                          }
+                          onClick={() => handleStart(example)}
                           className="text-left rounded-2xl border border-white/[0.07] bg-[#0b1020]/70 p-4 hover:bg-[#111a2d] hover:border-white/20 transition group"
                         >
                           <div className="flex items-center justify-between gap-2">
@@ -655,6 +702,9 @@ function HomeExperience() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+            {/* Memory */}
+
             <button
               onClick={() => navigate('/memory')}
               className="text-left rounded-2xl border border-white/[0.08] bg-[#0b1020] p-5 hover:border-[#00D9A3]/30 transition group"
@@ -672,9 +722,12 @@ function HomeExperience() {
               </p>
 
               <div className="text-[11px] text-[#00D9A3] mt-4 flex items-center gap-1">
-                Open Memory <ChevronRight size={13} />
+                Open Memory
+                <ChevronRight size={13} />
               </div>
             </button>
+
+            {/* Files */}
 
             <button
               onClick={() => navigate('/chat')}
@@ -689,17 +742,20 @@ function HomeExperience() {
               </h3>
 
               <p className="text-xs text-white/40 mt-2 leading-5">
-                ใช้งานเอกสารผ่าน Intelligence Workspace
-                หากเปิดใช้งานการอัปโหลดไฟล์ในระบบแล้ว
+                เริ่มงานกับเอกสารผ่าน Intelligence Workspace
+                โดยขึ้นอยู่กับความสามารถจัดการไฟล์ที่เชื่อมต่ออยู่
               </p>
 
               <div className="text-[11px] text-[#38bdf8] mt-4 flex items-center gap-1">
-                Open Intelligence <ChevronRight size={13} />
+                Open Intelligence
+                <ChevronRight size={13} />
               </div>
             </button>
 
+            {/* Knowledge */}
+
             <button
-              onClick={() => navigate('/chat?q=' + encodeURIComponent('ช่วยค้นคว้าความรู้ในหัวข้อที่ฉันสนใจ'))}
+              onClick={() => navigate('/knowledge')}
               className="text-left rounded-2xl border border-white/[0.08] bg-[#0b1020] p-5 hover:border-[#a78bfa]/30 transition group"
             >
               <div className="w-10 h-10 rounded-xl bg-[#a78bfa]/10 grid place-items-center">
@@ -715,7 +771,8 @@ function HomeExperience() {
               </p>
 
               <div className="text-[11px] text-[#a78bfa] mt-4 flex items-center gap-1">
-                Explore Knowledge <ChevronRight size={13} />
+                Explore Knowledge
+                <ChevronRight size={13} />
               </div>
             </button>
           </div>
@@ -754,6 +811,7 @@ function HomeExperience() {
                   ใช้การค้นคว้าข้อมูลออนไลน์เพื่อเพิ่มบริบทให้ Intelligence
                   สำหรับคำถามที่ต้องการข้อมูลล่าสุด
                   โดยต้องมีแหล่งข้อมูลที่ตรวจสอบได้
+                  และต้องมี Backend รองรับการค้นคว้าจริง
                 </p>
 
                 <div className="flex flex-wrap gap-2 mt-4">
@@ -783,6 +841,7 @@ function HomeExperience() {
                 className="h-11 px-5 rounded-full bg-[#38bdf8]/10 border border-[#38bdf8]/20 text-[#38bdf8] text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#38bdf8]/20 transition"
               >
                 <Search size={15} />
+
                 Enable Online Research
               </button>
             </div>
@@ -812,7 +871,7 @@ function HomeExperience() {
             </div>
 
             <div className="text-[10px] text-white/25">
-              Product identity and model provenance are independently validated.
+              Model identity information is shown separately from runtime status.
             </div>
           </div>
         </footer>
@@ -832,16 +891,33 @@ function AppShell() {
     const path = location.pathname;
 
     if (path === '/' || path === '/home') return 'home';
-    if (path.startsWith('/chat') || path.startsWith('/workspace')) return 'chat';
+
+    if (
+      path.startsWith('/chat') ||
+      path.startsWith('/workspace')
+    ) {
+      return 'chat';
+    }
+
     if (path.startsWith('/memory')) return 'memory';
+
     if (path.startsWith('/knowledge')) return 'knowledge';
+
     if (path.startsWith('/model')) return 'models';
+
     if (path.startsWith('/agent')) return 'agents';
+
     if (path.startsWith('/eval')) return 'eval';
+
     if (path.startsWith('/diagnostics')) return 'diagnostics';
 
     return 'home';
   }, [location.pathname]);
+
+  /*
+   * All primary destinations are included.
+   * Mobile navigation uses horizontal scrolling instead of hiding items.
+   */
 
   const nav = [
     {
@@ -885,16 +961,34 @@ function AppShell() {
       icon: Network,
       label: 'Agents',
       th: 'Agents'
+    },
+    {
+      id: 'eval',
+      path: '/evaluation',
+      icon: BarChart3,
+      label: 'Evaluation',
+      th: 'Evaluation'
+    },
+    {
+      id: 'diagnostics',
+      path: '/diagnostics',
+      icon: ShieldCheck,
+      label: 'Diagnostics',
+      th: 'ระบบ'
     }
   ];
 
   return (
     <div className="h-[100dvh] w-full bg-[#050810] text-white flex overflow-hidden antialiased">
 
-      {/* Desktop Sidebar */}
+      {/* =================================================
+          DESKTOP SIDEBAR
+      ================================================= */}
+
       <aside className="hidden md:flex w-[68px] shrink-0 flex-col items-center py-4 gap-3 bg-[#070a14] border-r border-white/[0.06]">
         <NavLink
           to="/"
+          title="ZYNTHEOR Home"
           className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center font-black text-black text-lg shadow-[0_0_20px_rgba(0,217,163,0.25)]"
         >
           Z
@@ -911,6 +1005,8 @@ function AppShell() {
               key={item.id}
               to={item.path}
               title={item.label}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
               className={`relative w-10 h-10 rounded-xl grid place-items-center transition ${
                 active
                   ? 'bg-white text-black'
@@ -925,70 +1021,79 @@ function AppShell() {
             </NavLink>
           );
         })}
-
-        <div className="mt-auto flex flex-col gap-3">
-          <NavLink
-            to="/evaluation"
-            title="Evaluation"
-            className="w-10 h-10 rounded-xl bg-white/[0.04] text-white/40 hover:text-white grid place-items-center"
-          >
-            <BarChart3 size={18} />
-          </NavLink>
-
-          <NavLink
-            to="/diagnostics"
-            title="Diagnostics"
-            className="w-10 h-10 rounded-xl bg-white/[0.04] text-white/40 hover:text-white grid place-items-center"
-          >
-            <ShieldCheck size={18} />
-          </NavLink>
-        </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 min-w-0 min-h-0 flex flex-col">
-        <div className="flex-1 min-h-0 flex flex-col">
+      {/* =================================================
+          MAIN CONTENT
+      ================================================= */}
+
+      <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
           <Routes>
             <Route path="/" element={<HomeExperience />} />
+
             <Route path="/home" element={<HomeExperience />} />
 
             <Route path="/chat" element={<MainChat />} />
+
             <Route path="/workspace" element={<AIWorkspace />} />
+
+            {/*
+              Knowledge currently reuses MainChat.
+              This is a navigation entry, not a separate Knowledge Base.
+            */}
 
             <Route path="/knowledge" element={<MainChat />} />
 
             <Route path="/model-studio" element={<ModelStudio />} />
+
             <Route path="/evaluation" element={<EvaluationLab />} />
+
             <Route path="/agents" element={<AgentCommandCenter />} />
+
             <Route path="/memory" element={<MemoryCenter />} />
+
             <Route path="/diagnostics" element={<Diagnostics />} />
 
             <Route path="*" element={<HomeExperience />} />
           </Routes>
         </div>
 
-        {/* Mobile Navigation */}
-        <nav className="md:hidden shrink-0 min-h-[62px] pb-[env(safe-area-inset-bottom)] border-t border-white/[0.08] bg-[#0b1020]/95 backdrop-blur-xl flex items-center justify-around px-1">
-          {nav.slice(0, 5).map(item => {
-            const Icon = item.icon;
-            const active = current === item.id;
+        {/* =================================================
+            MOBILE NAVIGATION
+            All destinations remain accessible.
+        ================================================= */}
 
-            return (
-              <NavLink
-                key={item.id}
-                to={item.path}
-                className={`flex flex-col items-center justify-center gap-1 min-w-0 flex-1 py-2 ${
-                  active ? 'text-[#00D9A3]' : 'text-white/40'
-                }`}
-              >
-                <Icon size={18} />
+        <nav
+          aria-label="Main navigation"
+          className="md:hidden shrink-0 h-[68px] pb-[env(safe-area-inset-bottom)] border-t border-white/[0.08] bg-[#0b1020]/95 backdrop-blur-xl overflow-x-auto overflow-y-hidden no-scrollbar"
+        >
+          <div className="flex items-stretch min-w-max h-full px-1">
+            {nav.map(item => {
+              const Icon = item.icon;
+              const active = current === item.id;
 
-                <span className="text-[9px] font-bold truncate">
-                  {item.th}
-                </span>
-              </NavLink>
-            );
-          })}
+              return (
+                <NavLink
+                  key={item.id}
+                  to={item.path}
+                  aria-label={item.label}
+                  aria-current={active ? 'page' : undefined}
+                  className={`flex flex-col items-center justify-center gap-1 min-w-[68px] px-2 py-2 transition ${
+                    active
+                      ? 'text-[#00D9A3]'
+                      : 'text-white/40'
+                  }`}
+                >
+                  <Icon size={18} />
+
+                  <span className="text-[9px] font-bold whitespace-nowrap">
+                    {item.th}
+                  </span>
+                </NavLink>
+              );
+            })}
+          </div>
         </nav>
       </div>
     </div>
