@@ -4,13 +4,9 @@
   </a>
 </p>
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
-
 <p align="center">
   <img src="public/zyntheor-header.svg" alt="ZYNTHEOR AI ENGINE - Sovereign Local-First Intelligence Core" width="840" />
 </p>
-
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
 
 <p align="center">
   <a href="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml"><img src="https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/actions/workflows/native-core-1.1.0.yml/badge.svg" alt="Native CORE checks" /></a>
@@ -42,14 +38,14 @@
   <a href="#10-advanced--developer-documentation">Developer Docs</a>
 </p>
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 # ZYNTHEOR AI ENGINE — General-Purpose Sovereign Intelligence (Buffalo Edition)
 
 > **Core Philosophy:** One AI Platform. Many Capabilities. First-Party Intelligence.  
 > Real implementation, zero mock data, transparent model provenance, fail-closed safety gates, and human approval for consequential actions.
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 1. What is ZYNTHEOR?
 
@@ -61,7 +57,7 @@ ZYNTHEOR แตกต่างจาก AI ทั่วไปด้วยหล�
 - **Local-First & Privacy Sovereign:** สามารถทำงานในโหมด `ZYNTHEOR_LOCAL_ONLY` บนเครื่องผู้ใช้ได้ 100% โดยไม่ส่งข้อมูลออกนอกระบบ
 - **General-Purpose Flexibility:** ตอบคำถามทั่วไปได้อย่างรวดเร็วเป็นธรรมชาติ โดยไม่ต้องเรียกใช้ Agent หรือเครื่องมือหนักโดยไม่จำเป็น พร้อมทั้งสลับไปใช้ความสามารถขั้นสูงเมื่อผู้ใช้ต้องการ
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 2. What can ZYNTHEOR do?
 
@@ -80,7 +76,7 @@ ZYNTHEOR แตกต่างจาก AI ทั่วไปด้วยหล�
 | 🗂️ **Planning & Organization** | ช่วยวางแผนและจัดการงาน | แตกเป้าหมายใหญ่เป็น Action Plan ลำดับความสำคัญ และติดตามความก้าวหน้า |
 | 💻 **Engineering & Technical** | เขียนโค้ดและวิเคราะห์ระบบ | ตรวจสอบบั๊ก วิเคราะห์ความสัมพันธ์ของโค้ด ออกแบบระบบ และให้คำแนะนำทางเทคนิค |
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 3. Core Intelligence Features
 
@@ -94,7 +90,7 @@ ZYNTHEOR แตกต่างจาก AI ทั่วไปด้วยหล�
 3. **Workspace-Scoped Memory:** จดจำบริบท ความชอบ และข้อมูลสำคัญตามขอบเขตของ Workspace โดยเคารพสิทธิ์และความเป็นส่วนตัวของผู้ใช้
 4. **Governed Execution Gateway:** การกระทำที่มีผลกระทบสูง (เช่น การแก้ไขไฟล์จริง หรือการรันคำสั่งระบบ) จะต้องผ่าน **Human Approval Gate** เสมอตามหลักความปลอดภัย `Fail-Closed`
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 4. Thai-First Experience
 
@@ -104,7 +100,7 @@ ZYNTHEOR ถือว่า **ภาษาไทยเป็นภาษาห�
 - **Objective Thai Reasoning:** ผ่านการทดสอบชุดคำสั่งตรรกะและคณิตศาสตร์ภาษาไทยใน Operational Reasoning Lab พร้อมตรวจสอบความถูกต้องของผลลัพธ์
 - **Sovereign Bilingual Prompt Forge:** แม่แบบคำสั่งและระบบช่วยคิดรองรับภาษาไทยในทุกมิติ
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 5. Model & Provider Transparency
 
@@ -116,7 +112,7 @@ ZYNTHEOR ปฏิบัติตามหลักความจริงใ�
 | **CORE_ADAPTED** | `READY_OPERATIONAL` | อะแดปเตอร์และเครื่องยนต์ตรรกะ First-Party ภายในระบบ ทำงานแบบ Deterministic บนเครื่องท้องถิ่น |
 | **EXTERNAL_API** | `CONFIGURED` / `BLOCKED_BY_LOCAL_ONLY` | โมเดลจากภายนอก เช่น Google Gemini หรือ OpenAI เป็นผู้ให้บริการภายนอก (Third-Party Provider) ไม่ใช่ตัวตนของ ZYNTHEOR และจะถูกระงับการเชื่อมต่อทันทีเมื่อเปิดโหมด Local-Only |
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 6. Privacy and Local-Only Mode
 
@@ -125,7 +121,7 @@ ZYNTHEOR ให้ความสำคัญสูงสุดกับคว�
 - **Strict `ZYNTHEOR_LOCAL_ONLY` Enforcement:** เมื่อเปิดใช้งานโหมดนี้ เกตเวย์จะตัดการเชื่อมต่อไปยัง API ภายนอกทั้งหมด และใช้งานเฉพาะอะแดปเตอร์ท้องถิ่นและ Ollama เท่านั้น
 - **No Silent Tracking:** ไม่มีการส่ง Telemetry, ไม่มี Tracking Script และไม่มีการเก็บข้อมูลเบื้องหลังโดยที่ผู้ใช้ไม่อนุญาต
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 7. Installation & Getting Started
 
@@ -153,7 +149,7 @@ npm run dev
 
 เปิดเว็บเบราว์เซอร์ไปที่ `http://localhost:3000` เพื่อเริ่มสนทนาและใช้งาน ZYNTHEOR AI ENGINE ได้ทันที
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 8. Architecture & Security
 
@@ -171,7 +167,7 @@ ZYNTHEOR ทำงานผ่านสถาปัตยกรรม **7-Tier S
 6. **Memory System:** จัดเก็บและเรียกคืนบริบทการสนทนาตามขอบเขตและสิทธิ์ของแต่ละ Workspace
 7. **Verification & Security Gate:** บังคับใช้ความปลอดภัยแบบ `Fail-Closed`, การขออนุมัติจากมนุษย์ (Human Approval Gate) ก่อนแก้ไฟล์จริง, และการบันทึก Audit Ledger
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 9. Development Status & Evidence-Based Verification
 
@@ -203,7 +199,7 @@ ZYNTHEOR ยึดมั่นในหลักฐานทางวิศว�
 
 > **หมายเหตุเรื่อง Audit Ledger:** ระบบใช้โครงสร้าง **Tamper-evident SHA-256 hash-chained audit ledger** ซึ่งช่วยรับประกันการตรวจจับการแก้ไขย้อนหลัง (Tamper-detection) แต่ไม่ถือว่าเป็น Immutable ถาวรในระดับฮาร์ดแวร์หากไม่มีการเชื่อมโยงหลักฐานภายนอก (External anchoring)
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## 10. Advanced / Developer Documentation
 
@@ -221,22 +217,16 @@ ZYNTHEOR ยึดมั่นในหลักฐานทางวิศว�
   - [Multi-Workspace Security Spec](docs/multi_workspace_security_spec.md)
   - [Contributing Guidelines](CONTRIBUTING.md) · [Security Policy](SECURITY.md)
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
+---
 
 ## License & Attribution
 
 Distributed under the **AGPL-3.0 License**.
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
-
 <p align="center">
   <img src="public/zyntheor-footer.svg" alt="ZYNTHEOR AI ENGINE · Buffalo Edition Footer" width="840" />
 </p>
 
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
-
 <p align="center">
   <img src="public/zyntheor-buffalo-mark.svg" alt="ZYNTHEOR Buffalo Edition mark" width="72" height="72" />
 </p>
-
-<p align="center"><img src="public/divider.svg" alt="" width="100%" /></p>
