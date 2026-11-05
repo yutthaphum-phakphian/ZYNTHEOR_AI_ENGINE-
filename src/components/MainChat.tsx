@@ -5,9 +5,7 @@ import {
   Send,
   Globe,
   Sparkles,
-  Bot,
   User,
-  ShieldAlert,
   ShieldCheck,
   RotateCcw,
   Square,
@@ -18,9 +16,20 @@ import {
   Clock,
   ExternalLink,
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Brain,
+  CheckCircle2,
+  Workflow,
+  Search,
+  BookOpen,
+  Hash,
+  Sliders,
+  PanelRightClose,
+  PanelRightOpen,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
-import { getActiveModel } from '../lib/modelIdentityContract';
+import { getActiveModel, validateDefaultInferenceModel } from '../lib/modelIdentityContract';
 
 export interface ChatMessage {
   id: string;
@@ -64,7 +73,10 @@ export function MainChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeModel] = useState(() => getActiveModel());
+  const [contractValidation] = useState(() => validateDefaultInferenceModel(getActiveModel()));
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showInspector, setShowInspector] = useState<boolean>(true);
+  const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -100,7 +112,6 @@ export function MainChat() {
     const assistantMessageId = `assist-${Date.now()}`;
 
     try {
-      // Direct call to ZYNTHEOR INTELLIGENCE Runtime
       const res = await fetch('/api/intelligence/orchestrate', {
         method: 'POST',
         headers: {
@@ -112,6 +123,7 @@ export function MainChat() {
           language: 'th',
           responseLanguage: 'th',
           onlineConsent: useGrounding,
+          enableInternetSearch: useGrounding,
           isDryRun: false,
         }),
         signal: controller.signal,
@@ -136,6 +148,7 @@ export function MainChat() {
           groundingUsed: useGrounding,
         };
         setMessages((prev) => [...prev, failMsg]);
+        setSelectedMessage(failMsg);
         return;
       }
 
@@ -144,7 +157,7 @@ export function MainChat() {
       const assistantMsg: ChatMessage = {
         id: assistantMessageId,
         role: 'assistant',
-        content: data.finalAnswer || data.answer || 'ประมวลผลสำเร็จโดยไม่มีข้อความเพิ่มเติม',
+        content: data.finalAnswer || data.answer || 'ประมวลผลสำเร็จภายใต้การควบคุมของ ZYNTHEOR CORE',
         timestamp: new Date().toISOString(),
         groundingUsed: useGrounding,
         taskType: data.taskType,
@@ -156,6 +169,7 @@ export function MainChat() {
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
+      setSelectedMessage(assistantMsg);
     } catch (err: any) {
       if (err.name === 'AbortError') {
         const cancelMsg: ChatMessage = {
@@ -164,9 +178,10 @@ export function MainChat() {
           content: 'การประมวลผลถูกยกเลิกโดยผู้ใช้',
           timestamp: new Date().toISOString(),
           error: true,
-          errorMessage: 'User cancelled query execution',
+          errorMessage: 'User cancelled query execution via AbortSignal',
         };
         setMessages((prev) => [...prev, cancelMsg]);
+        setSelectedMessage(cancelMsg);
       } else {
         const errorMsg: ChatMessage = {
           id: assistantMessageId,
@@ -177,6 +192,7 @@ export function MainChat() {
           errorMessage: err.message || 'Cannot connect to ZYNTHEOR INTELLIGENCE Runtime',
         };
         setMessages((prev) => [...prev, errorMsg]);
+        setSelectedMessage(errorMsg);
       }
     } finally {
       setIsLoading(false);
@@ -184,28 +200,21 @@ export function MainChat() {
     }
   }, []);
 
-  // Handle incoming query and grounding from URL parameters
+  // Handle URL query on load
   useEffect(() => {
     if (urlQuery && initializedQueryRef.current !== urlQuery) {
       initializedQueryRef.current = urlQuery;
-      setInput(urlQuery);
-      setGrounding(urlGrounding);
       executeQuery(urlQuery, urlGrounding);
+      setSearchParams({}, { replace: true });
     }
-  }, [urlQuery, urlGrounding, executeQuery]);
+  }, [urlQuery, urlGrounding, executeQuery, setSearchParams]);
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!input.trim() || isLoading) return;
-
-    const currentText = input;
+    const q = input;
     setInput('');
-    // Clear URL param after user continues conversation
-    if (searchParams.has('q')) {
-      searchParams.delete('q');
-      setSearchParams(searchParams, { replace: true });
-    }
-    executeQuery(currentText, grounding);
+    executeQuery(q, grounding);
   };
 
   const handleStop = () => {
@@ -214,369 +223,451 @@ export function MainChat() {
     }
   };
 
-  const handleCopy = (id: string, text: string) => {
-    navigator.clipboard?.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleClear = () => {
-    if (isLoading) handleStop();
-    setMessages([]);
-    setInput('');
-    if (searchParams.has('q')) {
-      searchParams.delete('q');
-      setSearchParams(searchParams, { replace: true });
+  const handleCopy = (text: string, id: string) => {
+    try {
+      navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      // Ignore
     }
   };
 
+  // Inspect the latest assistant message by default if none selected
+  const activeInspectionMessage = selectedMessage || messages.filter(m => m.role === 'assistant').slice(-1)[0] || null;
+
   return (
-    <div className="flex-1 min-h-0 flex flex-col bg-[#050810] text-white overflow-hidden">
-      {/* Top Header Bar */}
-      <header className="shrink-0 h-14 border-b border-white/[0.08] bg-[#0b1020]/80 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-10">
+    <div className="flex-1 min-h-0 flex flex-col bg-[#050810] text-white">
+      {/* =========================================================
+          1. INTELLIGENCE WORKSPACE HEADER
+      ========================================================= */}
+      <header className="px-5 py-3 border-b border-white/[0.08] bg-[#070b16]/95 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center text-black font-black text-sm">
-            Z
+          <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400">
+            <Brain size={16} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-sm font-bold tracking-tight">ZYNTHEOR INTELLIGENCE</h1>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono">
-                RUNTIME ACTIVE
+              <span className="font-bold text-sm tracking-tight text-white">
+                ZYNTHEOR INTELLIGENCE
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#00D9A3]/10 text-[#00D9A3] border border-[#00D9A3]/20">
+                CORE WORKSPACE
               </span>
             </div>
-            <p className="text-[11px] text-white/40">
-              Model: {activeModel?.displayName || 'ZYNTHEOR CORE'} (Sovereign Zero-Mock)
+            <p className="text-[10px] text-white/40">
+              Model: {activeModel.displayName} ({activeModel.category})
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {messages.length > 0 && (
-            <button
-              onClick={handleClear}
-              className="text-xs text-white/40 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-white/[0.06] transition flex items-center gap-1.5"
-              title="Clear Conversation"
-            >
-              <RotateCcw size={13} />
-              <span className="hidden sm:inline">ล้างการสนทนา</span>
-            </button>
-          )}
+          {/* Active Status Badge */}
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] border border-white/5 text-[11px] font-mono text-white/60">
+            <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
+            <span>{isLoading ? 'REASONING_ACTIVE' : 'INTELLIGENCE_READY'}</span>
+          </div>
+
+          {/* Toggle Inspector Panel */}
+          <button
+            type="button"
+            onClick={() => setShowInspector(!showInspector)}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+              showInspector
+                ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
+                : 'bg-white/5 border-white/10 text-white/60 hover:text-white'
+            }`}
+          >
+            {showInspector ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
+            <span className="hidden md:inline">Intelligence Dossier</span>
+          </button>
         </div>
       </header>
 
-      {/* Messages Thread Container */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-6 space-y-6">
-        {messages.length === 0 ? (
-          <div className="max-w-2xl mx-auto py-12 text-center space-y-6">
-            <div className="w-16 h-16 rounded-2xl bg-white/[0.05] border border-white/10 mx-auto grid place-items-center text-[#00D9A3]">
-              <Sparkles size={32} />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-xl font-bold">ZYNTHEOR INTELLIGENCE WORKSPACE</h2>
-              <p className="text-sm text-white/50 max-w-md mx-auto leading-6">
-                เริ่มการสนทนา ค้นคว้าความรู้ หรือวิเคราะห์ปัญหาเชิงลึก ระบบประมวลผลด้วยโมเดล First-Party ภายใต้ Sovereign Truth Principle
-              </p>
-            </div>
+      {/* =========================================================
+          2. WORKSPACE MAIN SPLIT VIEW
+      ========================================================= */}
+      <div className="flex-1 min-h-0 flex overflow-hidden">
+        {/* Left: Execution & Reasoning Surface */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          {/* Messages & Execution Flow */}
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 py-6 space-y-6">
+            {messages.length === 0 ? (
+              <div className="max-w-2xl mx-auto py-12 md:py-20 text-center space-y-6">
+                <div className="w-16 h-16 rounded-3xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400 mx-auto shadow-[0_0_30px_rgba(0,217,255,0.1)]">
+                  <Sparkles size={28} />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                    ZYNTHEOR Intelligence Engine
+                  </h2>
+                  <p className="text-sm text-white/50 max-w-lg mx-auto leading-relaxed">
+                    พื้นที่สั่งงาน ประมวลผล และวิเคราะห์ข้อมูลระดับสากล ผ่านระบบเหตุผลหลายขั้นตอน (Multi-step Reasoning) ภายใต้ ZYNTHEOR CORE
+                  </p>
+                </div>
 
-            <div className="flex flex-wrap justify-center gap-2 pt-2">
-              {[
-                'อธิบายแนวคิดของ Sovereign AI',
-                'ช่วยวิเคราะห์สถาปัตยกรรม ZYNTHEOR CORE',
-                'เขียนฟังก์ชัน TypeScript สำหรับ Rate Limiting',
-                'ค้นคว้าข้อมูลล่าสุดพร้อมแหล่งอ้างอิง',
-              ].map((example) => (
-                <button
-                  key={example}
-                  onClick={() => {
-                    setInput(example);
-                    executeQuery(example, grounding);
-                  }}
-                  className="text-xs text-white/60 bg-white/[0.04] border border-white/[0.08] hover:border-[#00D9A3]/40 hover:text-white px-3.5 py-2 rounded-xl transition text-left"
-                >
-                  {example}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="max-w-3xl mx-auto space-y-6 pb-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-3.5 ${
-                  msg.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center text-black shrink-0 shadow-md">
-                    <Bot size={17} />
-                  </div>
-                )}
-
-                <div
-                  className={`max-w-[85%] rounded-2xl p-4 sm:p-5 ${
-                    msg.role === 'user'
-                      ? 'bg-[#111a2d] border border-white/10 text-white shadow-sm'
-                      : msg.error
-                      ? 'bg-red-950/20 border border-red-500/30 text-red-200'
-                      : 'bg-[#0b1020] border border-white/[0.08] text-white shadow-md'
-                  }`}
-                >
-                  {/* Message Metadata Header */}
-                  <div className="flex items-center justify-between gap-3 mb-2 text-[11px] text-white/40">
-                    <span className="font-semibold text-white/70">
-                      {msg.role === 'user' ? 'คุณ' : 'ZYNTHEOR INTELLIGENCE'}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {msg.groundingUsed && (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-[#38bdf8] bg-[#38bdf8]/10 px-2 py-0.5 rounded-full border border-[#38bdf8]/20">
-                          <Globe size={11} />
-                          Grounding
-                        </span>
-                      )}
-                      {msg.durationMs !== undefined && (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-white/40">
-                          <Clock size={11} />
-                          {msg.durationMs}ms
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Message Content */}
-                  {msg.error ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-red-400 font-bold text-xs">
-                        <AlertCircle size={15} />
-                        ข้อผิดพลาดจาก Backend Runtime:
+                {/* Preset Starter Actions */}
+                <div className="grid sm:grid-cols-2 gap-3 text-left max-w-xl mx-auto pt-2">
+                  {[
+                    {
+                      title: 'วิเคราะห์โครงสร้างระบบ Sovereign AI',
+                      prompt: 'ช่วยวิเคราะห์โครงสร้างของ Sovereign AI Platform และหลักการแยกชั้น Runtime กับ Model',
+                      icon: Brain,
+                      grounding: false
+                    },
+                    {
+                      title: 'ค้นคว้ามาตรฐานไซเบอร์ล่าสุด',
+                      prompt: 'ค้นคว้าและเปรียบเทียบมาตรฐานความมั่นคงปลอดภัย FIPS 140-3 และการเข้ารหัสต้านควอนตัม',
+                      icon: Search,
+                      grounding: true
+                    },
+                    {
+                      title: 'เขียน TypeScript Architecture Hook',
+                      prompt: 'เขียนโค้ด React TypeScript Hook ที่รองรับ AbortController, Error Boundary และ State Machine',
+                      icon: Workflow,
+                      grounding: false
+                    },
+                    {
+                      title: 'สรุปและจัดระเบียบองค์ความรู้',
+                      prompt: 'ช่วยจัดระเบียบโครงสร้างคลังความรู้ (Knowledge Taxonomy) สำหรับระบบสถาปัตยกรรมข้อมูลองค์กร',
+                      icon: BookOpen,
+                      grounding: false
+                    }
+                  ].map((starter, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => executeQuery(starter.prompt, starter.grounding)}
+                      className="p-3.5 rounded-2xl bg-[#0b1020] border border-white/[0.07] hover:border-cyan-500/30 hover:bg-[#10172e] transition text-left space-y-1.5 group cursor-pointer shadow-lg"
+                    >
+                      <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold">
+                        <starter.icon size={13} />
+                        <span>{starter.title}</span>
                       </div>
-                      <p className="text-xs font-mono bg-black/40 p-3 rounded-lg border border-red-500/20 text-red-300 break-words leading-relaxed">
-                        {msg.errorMessage || 'Unknown execution error'}
+                      <p className="text-[11px] text-white/40 group-hover:text-white/60 line-clamp-2 leading-snug">
+                        {starter.prompt}
                       </p>
-                      <p className="text-[11px] text-red-300/60 leading-5">
-                        ระบบไม่แต่งคำตอบจำลองเมื่อเกิดข้อผิดพลาด ตามระเบียบ Sovereign Truth Zero-Mock
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-sm leading-7 whitespace-pre-wrap break-words">
-                      {msg.content}
-                    </div>
-                  )}
-
-                  {/* Model Identity & Zero-Mock Attribution */}
-                  {msg.modelMetadata && (
-                    <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-2">
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              messages.map((msg) => {
+                const isUser = msg.role === 'user';
+                return (
+                  <div
+                    key={msg.id}
+                    onClick={() => !isUser && setSelectedMessage(msg)}
+                    className={`max-w-3xl mx-auto space-y-2 transition ${
+                      !isUser ? 'cursor-pointer' : ''
+                    }`}
+                  >
+                    {/* Role Header */}
+                    <div className="flex items-center justify-between text-xs text-white/40 px-1">
                       <div className="flex items-center gap-2">
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                            msg.modelMetadata.isFirstParty
-                              ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30'
-                              : 'bg-purple-950/40 text-purple-300 border-purple-500/30'
-                          }`}
-                        >
-                          {msg.modelMetadata.isFirstParty
-                            ? 'ZYNTHEOR CORE (First-Party)'
-                            : `EXTERNAL: ${msg.modelMetadata.providerId} (${msg.modelMetadata.modelId})`}
+                        {isUser ? (
+                          <span className="font-bold text-white/70 flex items-center gap-1.5">
+                            <User size={13} className="text-white/50" />
+                            User Task
+                          </span>
+                        ) : (
+                          <span className="font-bold text-cyan-400 flex items-center gap-1.5">
+                            <Cpu size={13} className="text-[#00D9A3]" />
+                            ZYNTHEOR CORE
+                          </span>
+                        )}
+                        <span className="text-[10px] text-white/30 font-mono">
+                          {new Date(msg.timestamp).toLocaleTimeString('th-TH', { hour12: false })}
                         </span>
                       </div>
-                      <span className="text-[10px] text-white/40 italic">
-                        {msg.modelMetadata.zeroMockNotice}
-                      </span>
-                    </div>
-                  )}
 
-                  {/* Grounding Web Sources */}
-                  {msg.groundingSources && msg.groundingSources.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
-                      <div className="text-[10px] tracking-wider uppercase font-bold text-[#38bdf8] flex items-center gap-1.5">
-                        <Globe size={12} />
-                        Internet Grounding Sources ({msg.groundingSources.length})
-                      </div>
-                      <div className="grid gap-1.5">
-                        {msg.groundingSources.map((source, sIdx) => (
-                          <a
-                            key={sIdx}
-                            href={source.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-white/70 hover:text-white bg-white/[0.02] border border-white/[0.06] hover:border-[#38bdf8]/40 p-2 rounded-lg flex items-center justify-between gap-2 transition group"
-                          >
-                            <span className="truncate">{source.title || source.url}</span>
-                            <ExternalLink size={12} className="text-[#38bdf8] shrink-0 opacity-70 group-hover:opacity-100" />
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Verification Artifacts / Provenance */}
-                  {msg.verificationArtifacts && msg.verificationArtifacts.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
-                      <div className="text-[10px] tracking-wider uppercase font-bold text-white/40 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <ShieldCheck size={12} className="text-[#00D9A3]" />
-                          Evidence & SHA-256 Provenance ({msg.verificationArtifacts.length})
+                      {!isUser && msg.durationMs && (
+                        <div className="flex items-center gap-2 text-[10px] font-mono text-white/40">
+                          <span>{msg.durationMs}ms</span>
+                          <span>·</span>
+                          <span className="text-emerald-400">VERIFIED</span>
                         </div>
-                        <span className="text-[9px] text-[#00D9A3] font-mono">
-                          CRYPTOGRAPHICALLY HASHED
-                        </span>
-                      </div>
-                      <div className="grid gap-1.5">
-                        {msg.verificationArtifacts.map((art, idx) => (
-                          <div
-                            key={idx}
-                            className="text-[11px] bg-white/[0.02] border border-white/[0.05] p-2.5 rounded-lg font-mono text-white/60 flex items-start justify-between gap-2"
-                          >
-                            <div className="min-w-0 flex-1">
-                              <span className="text-[#00D9A3] font-bold">[{art.category}]</span>{' '}
-                              <span className="text-white/80">{art.message}</span>
-                              <div className="text-[10px] text-white/30 mt-0.5">Source: {art.source}</div>
-                            </div>
-                            {art.sha256Digest && (
-                              <span
-                                className="text-[10px] text-white/40 shrink-0 select-all font-mono bg-black/30 px-2 py-0.5 rounded border border-white/5"
-                                title={`Full SHA-256: ${art.sha256Digest}`}
-                              >
-                                {art.sha256Digest.slice(0, 10)}…
+                      )}
+                    </div>
+
+                    {/* Content Box */}
+                    <div
+                      className={`p-4 md:p-5 rounded-2xl text-sm leading-relaxed transition ${
+                        isUser
+                          ? 'bg-[#12192d] border border-white/10 text-white shadow-md'
+                          : msg.error
+                          ? 'bg-red-950/20 border border-red-500/30 text-red-200'
+                          : 'bg-[#0b1020] border border-white/[0.08] text-white/90 shadow-xl hover:border-cyan-500/30'
+                      }`}
+                    >
+                      {msg.error ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-red-400 font-bold text-xs">
+                            <AlertCircle size={15} />
+                            <span>ข้อผิดพลาดในการประมวลผล (Fail-Closed)</span>
+                          </div>
+                          <p className="text-xs text-red-200/80 font-mono">
+                            {msg.errorMessage || 'ระบบปฏิเสธการประมวลผลเพื่อรักษาความปลอดภัย'}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3 whitespace-pre-wrap">
+                          {msg.content}
+                        </div>
+                      )}
+
+                      {/* Assistant Bottom Metadata */}
+                      {!isUser && !msg.error && (
+                        <div className="mt-4 pt-3 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-2 text-[10px] text-white/40">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5 font-mono text-cyan-300">
+                              {msg.modelMetadata?.modelId || activeModel.modelId}
+                            </span>
+                            {msg.groundingUsed && (
+                              <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center gap-1">
+                                <Globe size={10} /> Online Verified
                               </span>
                             )}
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
-                  {/* Copy Button */}
-                  {!msg.error && (
-                    <div className="mt-3 pt-2 flex items-center justify-end">
-                      <button
-                        onClick={() => handleCopy(msg.id, msg.content)}
-                        className="text-[11px] text-white/40 hover:text-white flex items-center gap-1 transition"
-                      >
-                        {copiedId === msg.id ? (
-                          <>
-                            <Check size={12} className="text-[#00D9A3]" />
-                            <span className="text-[#00D9A3]">คัดลอกแล้ว</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy size={12} />
-                            <span>คัดลอก</span>
-                          </>
-                        )}
-                      </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopy(msg.content, msg.id);
+                            }}
+                            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white transition flex items-center gap-1"
+                          >
+                            {copiedId === msg.id ? (
+                              <>
+                                <Check size={11} className="text-emerald-400" />
+                                <span className="text-emerald-400">คัดลอกแล้ว</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={11} />
+                                <span>คัดลอกผลลัพธ์</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-xl bg-white/[0.08] grid place-items-center text-white/70 shrink-0">
-                    <User size={17} />
                   </div>
-                )}
-              </div>
-            ))}
+                );
+              })
+            )}
 
             {/* Loading Indicator */}
             {isLoading && (
-              <div className="flex gap-3.5 justify-start">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center text-black shrink-0">
-                  <Bot size={17} />
-                </div>
-                <div className="bg-[#0b1020] border border-white/[0.08] rounded-2xl p-4 flex items-center gap-3">
-                  <div className="flex gap-1.5 items-center">
-                    <span className="w-2 h-2 rounded-full bg-[#00D9A3] animate-pulse" />
-                    <span className="w-2 h-2 rounded-full bg-[#00D9A3] animate-pulse delay-150" />
-                    <span className="w-2 h-2 rounded-full bg-[#00D9A3] animate-pulse delay-300" />
+              <div className="max-w-3xl mx-auto p-4 rounded-2xl bg-[#0b1020] border border-cyan-500/20 space-y-3 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-cyan-400">
+                    <Sparkles size={14} className="animate-spin" />
+                    <span>ZYNTHEOR INTELLIGENCE กำลังประมวลผล...</span>
                   </div>
-                  <span className="text-xs text-white/50">
-                    ZYNTHEOR INTELLIGENCE กำลังประมวลผลคำขอ...
-                  </span>
                   <button
                     onClick={handleStop}
-                    className="ml-4 text-xs text-red-400 hover:text-red-300 flex items-center gap-1 border border-red-500/30 px-2 py-1 rounded-lg"
+                    className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-bold border border-red-500/20 flex items-center gap-1 cursor-pointer"
                   >
                     <Square size={10} />
-                    หยุด
+                    <span>ยกเลิก (Abort)</span>
                   </button>
+                </div>
+                <div className="space-y-1.5 text-xs text-white/40">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                    <span>ทำความเข้าใจเจตนา (Intent Understanding) และคัดแยกประเภทงาน</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                    <span>ดึงบริบทจาก Knowledge & Memory และอนุมานผ่าน ZYNTHEOR CORE</span>
+                  </div>
                 </div>
               </div>
             )}
-
             <div ref={messagesEndRef} />
           </div>
-        )}
-      </div>
 
-      {/* Bottom Composer Area */}
-      <div className="shrink-0 border-t border-white/[0.08] bg-[#070a14] p-4 sm:p-5">
-        <div className="max-w-3xl mx-auto space-y-3">
-          <form onSubmit={handleSubmit} className="zy-composer p-2.5 sm:p-3 relative">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit();
-                }
-              }}
-              placeholder="พิมพ์คำถาม หรือข้อความสำหรับ ZYNTHEOR INTELLIGENCE (กด Enter เพื่อส่ง)..."
-              rows={2}
-              className="w-full resize-none text-sm p-1 leading-6 placeholder:text-white/30"
-              disabled={isLoading}
-            />
-
-            <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] mt-2">
-              <label className="flex items-center gap-2 text-xs text-white/50 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={grounding}
-                  onChange={(e) => setGrounding(e.target.checked)}
-                  className="accent-[#00D9A3]"
+          {/* =========================================================
+              3. OMNI COMPOSER AT BOTTOM
+          ========================================================= */}
+          <div className="p-4 border-t border-white/[0.08] bg-[#070b16]">
+            <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+              <div className="rounded-2xl border border-white/10 bg-[#0b1020] p-2.5 shadow-2xl focus-within:border-cyan-500/50 transition">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit();
+                    }
+                  }}
+                  placeholder="สั่งงาน มอบหมายงาน หรือถามคำถาม ZYNTHEOR INTELLIGENCE..."
+                  rows={2}
+                  className="w-full resize-none bg-transparent outline-none text-sm text-white placeholder:text-white/30 p-2"
                 />
-                <Globe
-                  size={14}
-                  className={grounding ? 'text-[#00D9A3]' : 'text-white/30'}
-                />
-                <span className={grounding ? 'text-white' : 'text-white/50'}>
-                  Internet Intelligence (Grounding)
-                </span>
-              </label>
 
-              <div className="flex items-center gap-2">
-                {isLoading ? (
-                  <button
-                    type="button"
-                    onClick={handleStop}
-                    className="h-9 px-4 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 font-bold text-xs flex items-center gap-1.5 hover:bg-red-500/30 transition"
-                  >
-                    <Square size={12} />
-                    Stop
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={!input.trim()}
-                    className="h-9 px-5 rounded-full bg-[#00D9A3] text-black font-bold text-xs flex items-center gap-1.5 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition"
-                  >
-                    <Send size={13} />
-                    Send
-                  </button>
-                )}
+                <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] mt-1 px-1">
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-xs text-white/70 cursor-pointer transition select-none">
+                      <input
+                        type="checkbox"
+                        checked={grounding}
+                        onChange={(e) => setGrounding(e.target.checked)}
+                        className="accent-cyan-400 cursor-pointer"
+                      />
+                      <Globe size={12} className={grounding ? 'text-cyan-400' : 'text-white/40'} />
+                      <span className="text-[11px] font-medium">Search Grounding</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate('/library')}
+                      title="เปิดคลังความรู้ (Library)"
+                      className="px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[11px] text-white/50 hover:text-white transition cursor-pointer"
+                    >
+                      + Knowledge Context
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {isLoading ? (
+                      <button
+                        type="button"
+                        onClick={handleStop}
+                        className="h-8 px-4 rounded-xl bg-red-500 text-white font-bold text-xs flex items-center gap-1.5 hover:bg-red-600 transition cursor-pointer"
+                      >
+                        <Square size={11} />
+                        <span>หยุด</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={!input.trim()}
+                        className="h-8 px-4 rounded-xl bg-[#00D9A3] hover:bg-white text-black font-bold text-xs flex items-center gap-1.5 disabled:opacity-20 disabled:cursor-not-allowed transition cursor-pointer shadow-lg shadow-[#00D9A3]/10"
+                      >
+                        <span>ประมวลผล</span>
+                        <Send size={11} />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </form>
-
-          <div className="flex items-center justify-between text-[11px] text-white/30 px-1">
-            <span>Sovereign First-Party Intelligence Platform</span>
-            <span>Shift + Enter สำหรับขึ้นบรรทัดใหม่</span>
+            </form>
           </div>
         </div>
+
+        {/* Right: Intelligence Dossier (Context, Tool Orchestration, Verification) */}
+        {showInspector && (
+          <aside className="w-80 md:w-96 border-l border-white/[0.08] bg-[#070b16] p-5 overflow-y-auto space-y-6 hidden lg:block shrink-0">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+              <div className="flex items-center gap-2">
+                <Workflow size={16} className="text-cyan-400" />
+                <h3 className="font-bold text-xs uppercase tracking-wider text-white">
+                  Intelligence Dossier
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                ACTIVE ORCHESTRATOR
+              </span>
+            </div>
+
+            {/* 1. Core Model Identity Verification */}
+            <div className="p-3.5 rounded-xl bg-[#0b1020] border border-white/[0.06] space-y-2">
+              <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
+                <Cpu size={13} className="text-purple-400" />
+                <span>CORE Model Identity</span>
+              </div>
+              <div className="space-y-1 font-mono text-[11px]">
+                <div className="text-white font-bold truncate">
+                  {activeModel.displayName}
+                </div>
+                <div className="text-cyan-400 text-[10px]">
+                  Category: {activeModel.category}
+                </div>
+                <div className="text-white/40 text-[10px]">
+                  Provider: {activeModel.provider} (First-Party Sovereign)
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Reasoning & Processing Breakdown */}
+            <div className="p-3.5 rounded-xl bg-[#0b1020] border border-white/[0.06] space-y-2.5">
+              <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
+                <Brain size={13} className="text-cyan-400" />
+                <span>Reasoning & Execution Pipeline</span>
+              </div>
+
+              <div className="space-y-2 text-[11px]">
+                <div className="p-2 rounded-lg bg-black/30 border border-white/5 space-y-0.5">
+                  <div className="text-[10px] text-white/40 uppercase">1. Intent Classification</div>
+                  <div className="text-white font-medium">
+                    {activeInspectionMessage?.taskType || 'GENERAL_INTELLIGENCE'}
+                  </div>
+                </div>
+
+                <div className="p-2 rounded-lg bg-black/30 border border-white/5 space-y-0.5">
+                  <div className="text-[10px] text-white/40 uppercase">2. Knowledge Context</div>
+                  <div className="text-white/70">
+                    {activeInspectionMessage?.groundingUsed
+                      ? `Ingested ${activeInspectionMessage.groundingSources?.length || 0} external sources`
+                      : 'Workspace Memory & System Specifications'}
+                  </div>
+                </div>
+
+                <div className="p-2 rounded-lg bg-black/30 border border-white/5 space-y-0.5">
+                  <div className="text-[10px] text-white/40 uppercase">3. Verification Status</div>
+                  <div className="text-emerald-400 font-bold flex items-center gap-1">
+                    <ShieldCheck size={11} />
+                    <span>SOVEREIGN_VERIFIED</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Verification Artifacts (Cryptographic Evidence) */}
+            <div className="p-3.5 rounded-xl bg-[#0b1020] border border-white/[0.06] space-y-2.5">
+              <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
+                <Hash size={13} className="text-emerald-400" />
+                <span>Verification Artifacts</span>
+              </div>
+
+              {activeInspectionMessage?.verificationArtifacts && activeInspectionMessage.verificationArtifacts.length > 0 ? (
+                <div className="space-y-1.5">
+                  {activeInspectionMessage.verificationArtifacts.map((art, idx) => (
+                    <div key={idx} className="p-2 rounded-lg bg-black/40 border border-white/5 text-[10px] font-mono space-y-1">
+                      <div className="flex items-center justify-between text-cyan-300">
+                        <span>{art.category}</span>
+                        <span className="text-white/40">{art.source}</span>
+                      </div>
+                      <div className="text-white/70 truncate">{art.message}</div>
+                      {art.sha256Digest && (
+                        <div className="text-emerald-400 text-[9px] truncate">
+                          SHA: {art.sha256Digest.slice(0, 16)}...
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-[11px] text-white/40 p-2 rounded bg-black/20 text-center">
+                  ยังไม่มี Artifacts ในการสนทนานี้
+                </div>
+              )}
+            </div>
+
+            {/* 4. Link to Full Diagnostics */}
+            <button
+              onClick={() => navigate('/diagnostics')}
+              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white/70 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <span>เปิดตรวจสอบใน Diagnostics Dossier</span>
+              <ArrowRight size={12} />
+            </button>
+          </aside>
+        )}
       </div>
     </div>
   );
 }
-
-export default MainChat;

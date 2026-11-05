@@ -9,11 +9,14 @@ import { crossLayerRootCauseEngine } from '../lib/crossLayerRootCause';
 
 
 import { ForensicVerificationPanel } from '../components/ForensicVerificationPanel';
+import { AuditLedgerSummaryDashboard } from '../components/AuditLedgerSummaryDashboard';
+import { useValidatedAuditLedger } from '../hooks/useValidatedAuditLedger';
 
 export default function Diagnostics() {
   const [activeTab, setActiveTab] = useState<'forensic' | 'storage' | 'audit' | 'debugging' | 'crosslayer'>('forensic');
   const [crossLayerData, setCrossLayerData] = useState<any>(null);
   const [auditRecords, setAuditRecords] = useState<any[]>([]);
+  const { stats, verificationReport } = useValidatedAuditLedger();
 
   const loadCrossLayer = () => {
     try {
@@ -64,7 +67,12 @@ export default function Diagnostics() {
       <div className="flex gap-2 mb-6 flex-wrap">
         <button onClick={() => setActiveTab('forensic')} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'forensic' ? 'bg-[#00D9A3] text-black shadow-lg shadow-[#00D9A3]/20' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>🏛️ Court-Ready Forensic Dossier</button>
         <button onClick={() => setActiveTab('storage')} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'storage' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>LocalStorage Audit (14 schemas)</button>
-        <button onClick={() => { setActiveTab('audit'); loadAuditLedger(); }} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'audit' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>Audit Ledger Integrity + Distribution</button>
+        <button onClick={() => { setActiveTab('audit'); loadAuditLedger(); }} className={`px-4 py-2 rounded font-bold text-sm flex items-center gap-1.5 ${activeTab === 'audit' ? 'bg-[#00D9A3] text-black shadow-lg shadow-[#00D9A3]/20' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>
+          <span>Audit Ledger Integrity</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${activeTab === 'audit' ? 'bg-black/20 text-black' : 'bg-[#00D9A3]/10 text-[#00D9A3]'}`}>
+            {stats.totalInferences} Inf · {stats.chainIntegrityValid ? 'INTACT' : 'TAMPERED'}
+          </span>
+        </button>
         <button onClick={() => setActiveTab('debugging')} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'debugging' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>Intelligent Debugging</button>
         <button onClick={() => { setActiveTab('crosslayer'); loadCrossLayer(); }} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'crosslayer' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>Cross-Layer Root Cause</button>
       </div>
@@ -73,8 +81,19 @@ export default function Diagnostics() {
 
       {activeTab === 'storage' && <LocalStorageAuditTool />}
       {activeTab === 'audit' && (
-        <div className="space-y-4">
-          <AuditEventDistributionChart records={auditRecords as any} />
+        <div className="space-y-6">
+          <AuditLedgerSummaryDashboard />
+          <div className="grid lg:grid-cols-2 gap-6">
+            <AuditEventDistributionChart records={auditRecords as any} />
+            <div className="p-4 rounded-2xl bg-[#0b1020] border border-white/[0.08] space-y-2">
+              <h4 className="font-bold text-xs text-white uppercase tracking-wider">
+                Cryptographic Audit Visualizer
+              </h4>
+              <p className="text-xs text-white/40">
+                Interactive D3 visualizer mapping parent hash links (prevHash → currentHash) across all sealed blocks.
+              </p>
+            </div>
+          </div>
           <AuditChainVisualizer />
         </div>
       )}
