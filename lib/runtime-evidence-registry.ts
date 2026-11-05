@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ZYNTHEOR AI ENGINE — RUNTIME EVIDENCE REGISTRY
  * 

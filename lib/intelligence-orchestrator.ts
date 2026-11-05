@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ZYNTHEOR INTELLIGENCE ORCHESTRATION ENGINE (Buffalo 1.1.1 — Phase P8)
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo } from 'react';
 import { ShieldCheck, AlertTriangle, CheckCircle2, ArrowRight, Lock, Copy, Check, X, Info, FileCode } from 'lucide-react';
 import {

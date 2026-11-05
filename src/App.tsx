@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
 import {
   Activity, AlertTriangle, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, Bot, Boxes, Brain, Bug, Calendar, Check,

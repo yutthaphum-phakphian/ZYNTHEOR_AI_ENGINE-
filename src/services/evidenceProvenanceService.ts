@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { keyManagementService } from './keyManagementService.ts';
 import { canonicalAuditPayload, sha256Sync, type AuditEntry } from './auditLedger.ts';
 

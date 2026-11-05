@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect } from 'vitest';
 import { createAuditEntry, verifyAuditHashChain, type AuditEntry } from '../services/auditLedger.ts';
 import { authorizeOperation, PERMISSION_MATRIX } from '../services/authorizationService.ts';

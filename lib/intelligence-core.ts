@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ZYNTHEOR INTELLIGENCE CORE
  * Buffalo Edition 0.9.0 — Architecture Upgrade

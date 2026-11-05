@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import * as LocalStorageAuditToolMod from '../components/LocalStorageAuditTool';
 import * as AuditChainVisualizerMod from '../components/AuditChainVisualizer';

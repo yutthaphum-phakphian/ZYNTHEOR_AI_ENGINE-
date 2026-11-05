@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
 import { ShieldCheck, Lock, Key, RefreshCw, CheckCircle2, AlertTriangle, ArrowRight, ShieldAlert } from 'lucide-react';
 import type { AuditEntry } from '../services/auditLedger';

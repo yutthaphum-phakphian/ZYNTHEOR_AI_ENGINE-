@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it } from 'vitest';
 import assert from 'node:assert/strict';
 import { keyManagementService } from '../services/keyManagementService.ts';

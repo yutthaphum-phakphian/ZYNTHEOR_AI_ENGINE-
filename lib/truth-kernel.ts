@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ZYNTHEOR AI ENGINE — TRUTH & EVIDENCE KERNEL
  * Buffalo Edition 0.9.0

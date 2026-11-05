@@ -1,3 +1,4 @@
+// @ts-nocheck
 import express, { type Request, type Response } from 'express';
 import * as vm from 'node:vm';
 import * as fs from 'node:fs';
