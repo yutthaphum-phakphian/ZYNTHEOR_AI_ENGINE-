@@ -31,8 +31,8 @@
 
   --zyn-radius-sm: 12px;
   --zyn-radius-md: 16px;
-  --zyn-radius-lg: 20px;
-  --zyn-radius-xl: 26px;
+  --zyn-radius-lg: 18px;
+  --zyn-radius-xl: 18px;
 
   --zyn-transition: 200ms ease;
 
@@ -62,6 +62,8 @@ html {
   color: var(--zyn-text);
 
   font-family:
+    'Space Grotesk',
+    'Noto Sans Thai',
     'Inter',
     'JetBrains Mono',
     system-ui,
@@ -76,6 +78,7 @@ html {
 
   overscroll-behavior: none;
   scroll-behavior: smooth;
+  line-height: 1.7;
 }
 
 body {

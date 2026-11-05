@@ -1,250 +1,230 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 380" width="840" height="380" role="img" aria-label="ZYNTHEOR AI ENGINE Multi-Tier Sovereign Architecture">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 400" width="840" height="400" role="img" aria-label="ZYNTHEOR AI ENGINE Multi-Tier Sovereign Architecture">
   <defs>
     <!-- Background Gradient -->
     <linearGradient id="arch-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#080F1B" />
-      <stop offset="50%" stop-color="#0B1728" />
-      <stop offset="100%" stop-color="#071220" />
+      <stop offset="0%" stop-color="#040812"/>
+      <stop offset="50%" stop-color="#071322"/>
+      <stop offset="100%" stop-color="#03060D"/>
     </linearGradient>
 
-    <!-- Layer Gradients -->
+    <!-- Rainbow Spectrum Laser Gradient -->
+    <linearGradient id="arch-rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF1A53"/>
+      <stop offset="18%" stop-color="#FF8A00"/>
+      <stop offset="35%" stop-color="#FFDD00"/>
+      <stop offset="52%" stop-color="#00F59B"/>
+      <stop offset="70%" stop-color="#00D2FF"/>
+      <stop offset="85%" stop-color="#3A6DFF"/>
+      <stop offset="100%" stop-color="#B336FF"/>
+    </linearGradient>
+
+    <linearGradient id="arch-rainbow-rev" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#00D2FF"/>
+      <stop offset="35%" stop-color="#00F59B"/>
+      <stop offset="70%" stop-color="#FFDD00"/>
+      <stop offset="100%" stop-color="#FF1A53"/>
+    </linearGradient>
+
+    <!-- Layer Cards Gradients -->
     <linearGradient id="layer-card-1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F243B" />
-      <stop offset="100%" stop-color="#091829" />
+      <stop offset="0%" stop-color="#0D2035" />
+      <stop offset="100%" stop-color="#081423" />
     </linearGradient>
 
     <linearGradient id="layer-card-2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0E2D38" />
-      <stop offset="100%" stop-color="#081E29" />
+      <stop offset="0%" stop-color="#0A2A38" />
+      <stop offset="100%" stop-color="#061A24" />
     </linearGradient>
 
     <linearGradient id="layer-card-3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#142C47" />
-      <stop offset="100%" stop-color="#0A1C30" />
+      <stop offset="0%" stop-color="#102540" />
+      <stop offset="100%" stop-color="#081526" />
     </linearGradient>
 
     <linearGradient id="layer-card-4" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F3333" />
-      <stop offset="100%" stop-color="#092023" />
+      <stop offset="0%" stop-color="#0B2B28" />
+      <stop offset="100%" stop-color="#061B19" />
     </linearGradient>
 
-    <linearGradient id="flow-line-glow" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#14B8A6" />
-      <stop offset="50%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#10B981" />
-    </linearGradient>
-
-    <!-- Filters -->
+    <!-- Glowing Filters -->
     <filter id="arch-glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feGaussianBlur stdDeviation="3.2" result="blur" />
       <feMerge>
+        <feMergeNode in="blur" />
         <feMergeNode in="blur" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
 
     <pattern id="arch-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#162D44" stroke-width="0.7" stroke-opacity="0.35" />
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#12253B" stroke-width="0.75" stroke-opacity="0.45" />
     </pattern>
   </defs>
 
   <style>
+    @keyframes rainbow-dash {
+      from { stroke-dashoffset: 100; }
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes rainbow-dash-rev {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 100; }
+    }
     @keyframes pulse-flow {
-      0% { stroke-dashoffset: 80; }
+      0% { stroke-dashoffset: 100; }
       100% { stroke-dashoffset: 0; }
     }
     .flow-bus {
-      stroke-dasharray: 8 12;
-      animation: pulse-flow 3s linear infinite;
+      stroke-dasharray: 10 90;
+      animation: pulse-flow 3.6s linear infinite;
+    }
+    .laser-rainbow {
+      stroke-dasharray: 16 84;
+      animation: rainbow-dash 5.2s linear infinite;
+    }
+    .laser-rainbow-rev {
+      stroke-dasharray: 12 88;
+      animation: rainbow-dash-rev 7.2s linear infinite;
     }
     @media (prefers-reduced-motion: reduce) {
-      .flow-bus { animation: none; }
+      .flow-bus, .laser-rainbow, .laser-rainbow-rev { animation: none; stroke-dasharray: none; }
     }
   </style>
 
-  <!-- Container -->
-  <rect x="4" y="4" width="832" height="372" rx="16" fill="url(#arch-bg)" stroke="#163450" stroke-width="1.5" />
-  <rect x="4" y="4" width="832" height="372" rx="16" fill="url(#arch-grid)" />
+  <!-- Container Box -->
+  <rect x="4" y="4" width="832" height="392" rx="18" fill="url(#arch-bg)" stroke="#163450" stroke-width="1.3" />
+  <rect x="4" y="4" width="832" height="392" rx="18" fill="url(#arch-grid)" />
 
-  <!-- Architecture Header Banner inside Diagram -->
-  <g transform="translate(24, 20)">
-    <text x="0" y="16" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="14" font-weight="800" letter-spacing="3" fill="#38BDF8">SYSTEM ARCHITECTURE MATRIX</text>
-    <text x="0" y="32" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="11" fill="#94A3B8">ZYNTHEOR CORE X · 4-TIER SOVEREIGN ENGINEERING WORKSPACE</text>
+  <!-- Header Section -->
+  <g transform="translate(32, 28)">
+    <text x="0" y="20" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="18" font-weight="800" letter-spacing="3" fill="#2DD4BF">ZYNTHEOR SOVEREIGN ARCHITECTURE</text>
+    <text x="0" y="38" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="11" fill="#94A3B8">สถาปัตยกรรม 4 ลำดับชั้น: Client UI → Express Gateway → Dual-Inference Core → Cryptographic Audit</text>
+    <line x1="0" y1="50" x2="776" y2="50" stroke="#132B42" stroke-width="1" />
   </g>
 
-  <!-- Status indicators in top right -->
-  <g transform="translate(620, 20)">
-    <rect x="0" y="0" width="194" height="26" rx="6" fill="#0C1F33" stroke="#1F4468" stroke-width="1" />
-    <circle cx="12" cy="13" r="3.5" fill="#10B981" />
-    <text x="22" y="16.5" font-family="'Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#2DD4BF">AIR-GAP &amp; TAMPER-EVIDENT</text>
+  <!-- Animated Data Flow Traces Behind Cards -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M 216 160 L 236 160" stroke="#163450" stroke-width="2.5" />
+    <path d="M 216 160 L 236 160" pathLength="100" stroke="url(#arch-rainbow)" stroke-width="3" class="flow-bus" filter="url(#arch-glow)" />
+    
+    <path d="M 420 160 L 440 160" stroke="#163450" stroke-width="2.5" />
+    <path d="M 420 160 L 440 160" pathLength="100" stroke="url(#arch-rainbow)" stroke-width="3" class="flow-bus" style="animation-delay:-1.2s;" filter="url(#arch-glow)" />
+    
+    <path d="M 624 160 L 644 160" stroke="#163450" stroke-width="2.5" />
+    <path d="M 624 160 L 644 160" pathLength="100" stroke="url(#arch-rainbow)" stroke-width="3" class="flow-bus" style="animation-delay:-2.4s;" filter="url(#arch-glow)" />
+
+    <!-- Feedback / Validation Loop Trace -->
+    <path d="M 726 310 L 726 332 L 124 332 L 124 310" stroke="#142C44" stroke-width="1.5" />
+    <path d="M 726 310 L 726 332 L 124 332 L 124 310" pathLength="100" stroke="url(#arch-rainbow-rev)" stroke-width="2" class="flow-bus" filter="url(#arch-glow)" opacity="0.85" />
   </g>
 
-  <!-- 4 COLUMN TIERS -->
+  <!-- Tier 1: Client Layer -->
+  <g transform="translate(32, 95)">
+    <rect x="0" y="0" width="184" height="215" rx="14" fill="url(#layer-card-1)" stroke="#193D60" stroke-width="1.3" />
+    <rect x="14" y="14" width="34" height="3" rx="1.5" fill="#38BDF8" filter="url(#arch-glow)" />
+    <text x="14" y="36" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#38BDF8">TIER 01</text>
+    <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="14.5" font-weight="700" fill="#F8FAFC">Client Interface</text>
+    <text x="14" y="76" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">React 19 SPA · Vite 6</text>
 
-  <!-- Tier 1: Client Workspace -->
-  <g transform="translate(24, 68)">
-    <rect x="0" y="0" width="186" height="280" rx="12" fill="url(#layer-card-1)" stroke="#1E446B" stroke-width="1.2" />
-    <rect x="0" y="0" width="186" height="36" rx="12" fill="#132B45" />
-    <rect x="0" y="24" width="186" height="12" fill="#132B45" />
-    <text x="14" y="22" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" letter-spacing="1" fill="#38BDF8">TIER 1 · WORKSPACE UI</text>
+    <g transform="translate(12, 92)">
+      <rect x="0" y="0" width="160" height="24" rx="6" fill="#071322" stroke="#142C44" stroke-width="0.8" />
+      <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">⚡ Multi-Workspace Hub</text>
 
-    <!-- Sub-blocks inside Tier 1 -->
-    <g transform="translate(10, 48)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#081628" stroke="#1C3D60" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Team Governance</text>
-      <text x="10" y="35" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">Recharts Role Distribution</text>
-      <circle cx="152" cy="16" r="3" fill="#14B8A6" />
-    </g>
+      <rect x="0" y="29" width="160" height="24" rx="6" fill="#071322" stroke="#142C44" stroke-width="0.8" />
+      <text x="10" y="45" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">📊 Recharts &amp; D3 Analytics</text>
 
-    <g transform="translate(10, 108)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#081628" stroke="#1C3D60" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Code Intelligence</text>
-      <text x="10" y="35" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">D3.js AST Dependency Map</text>
-      <circle cx="152" cy="16" r="3" fill="#38BDF8" />
-    </g>
+      <rect x="0" y="58" width="160" height="24" rx="6" fill="#071322" stroke="#142C44" stroke-width="0.8" />
+      <text x="10" y="74" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🛡️ Prompt Forge &amp; TestLab</text>
 
-    <g transform="translate(10, 168)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#081628" stroke="#1C3D60" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Prompt Forge 0.9</text>
-      <text x="10" y="35" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">Test Bench &amp; Rubrics</text>
-      <circle cx="152" cy="16" r="3" fill="#818CF8" />
-    </g>
-
-    <g transform="translate(10, 228)">
-      <rect x="0" y="0" width="166" height="42" rx="8" fill="#061220" stroke="#14304D" stroke-width="1" />
-      <text x="10" y="17" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="700" fill="#A5F3FC">React 19 · Vite · Tailwind</text>
-      <text x="10" y="31" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#64748B">Zero-Purple / Midnight Teal</text>
+      <rect x="0" y="87" width="160" height="24" rx="6" fill="#071322" stroke="#142C44" stroke-width="0.8" />
+      <text x="10" y="103" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🔐 AuthGate RBAC UI</text>
     </g>
   </g>
 
-  <!-- Tier 2: Sovereign Barrier -->
-  <g transform="translate(230, 68)">
-    <rect x="0" y="0" width="186" height="280" rx="12" fill="url(#layer-card-2)" stroke="#174A55" stroke-width="1.2" />
-    <rect x="0" y="0" width="186" height="36" rx="12" fill="#0F3842" />
-    <rect x="0" y="24" width="186" height="12" fill="#0F3842" />
-    <text x="14" y="22" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" letter-spacing="1" fill="#2DD4BF">TIER 2 · SECURITY GATE</text>
+  <!-- Tier 2: Backend Control Gateway -->
+  <g transform="translate(236, 95)">
+    <rect x="0" y="0" width="184" height="215" rx="14" fill="url(#layer-card-2)" stroke="#164A5E" stroke-width="1.3" />
+    <rect x="14" y="14" width="34" height="3" rx="1.5" fill="#2DD4BF" filter="url(#arch-glow)" />
+    <text x="14" y="36" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#2DD4BF">TIER 02</text>
+    <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="14.5" font-weight="700" fill="#F8FAFC">Server Gateway</text>
+    <text x="14" y="76" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">Express 5 · Node 22</text>
 
-    <g transform="translate(10, 48)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#061A22" stroke="#154752" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Loopback Isolation</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">HOST=127.0.0.1 Locked</text>
-      <circle cx="152" cy="16" r="3" fill="#10B981" />
-    </g>
+    <g transform="translate(12, 92)">
+      <rect x="0" y="0" width="160" height="24" rx="6" fill="#051722" stroke="#0F3847" stroke-width="0.8" />
+      <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🔒 Fail-Closed Proxy</text>
 
-    <g transform="translate(10, 108)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#061A22" stroke="#154752" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Secret Barrier</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">Server-Side Proxy Routes</text>
-      <circle cx="152" cy="16" r="3" fill="#14B8A6" />
-    </g>
+      <rect x="0" y="29" width="160" height="24" rx="6" fill="#051722" stroke="#0F3847" stroke-width="0.8" />
+      <text x="10" y="45" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🚦 Local-Only Enforcement</text>
 
-    <g transform="translate(10, 108 + 60)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#061A22" stroke="#154752" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Human-in-the-Loop</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">Explicit Approval Gates</text>
-      <circle cx="152" cy="16" r="3" fill="#38BDF8" />
-    </g>
+      <rect x="0" y="58" width="160" height="24" rx="6" fill="#051722" stroke="#0F3847" stroke-width="0.8" />
+      <text x="10" y="74" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🏢 Multi-Tenant Middleware</text>
 
-    <g transform="translate(10, 228)">
-      <rect x="0" y="0" width="166" height="42" rx="8" fill="#05141A" stroke="#10363E" stroke-width="1" />
-      <text x="10" y="17" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="700" fill="#5EEAD4">Express 5 · Same-Origin</text>
-      <text x="10" y="31" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#64748B">CSRF Token &amp; PBKDF2 Session</text>
+      <rect x="0" y="87" width="160" height="24" rx="6" fill="#051722" stroke="#0F3847" stroke-width="0.8" />
+      <text x="10" y="103" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">⚡ SSE Real-Time Stream</text>
     </g>
   </g>
 
-  <!-- Tier 3: AI Inference Engine -->
-  <g transform="translate(436, 68)">
-    <rect x="0" y="0" width="186" height="280" rx="12" fill="url(#layer-card-3)" stroke="#1E446B" stroke-width="1.2" />
-    <rect x="0" y="0" width="186" height="36" rx="12" fill="#122E4D" />
-    <rect x="0" y="24" width="186" height="12" fill="#122E4D" />
-    <text x="14" y="22" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" letter-spacing="1" fill="#38BDF8">TIER 3 · INFERENCE CORE</text>
+  <!-- Tier 3: Dual Intelligence Engine -->
+  <g transform="translate(440, 95)">
+    <rect x="0" y="0" width="184" height="215" rx="14" fill="url(#layer-card-3)" stroke="#193B66" stroke-width="1.3" />
+    <rect x="14" y="14" width="34" height="3" rx="1.5" fill="#60A5FA" filter="url(#arch-glow)" />
+    <text x="14" y="36" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#60A5FA">TIER 03</text>
+    <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="14.5" font-weight="700" fill="#F8FAFC">Inference Core</text>
+    <text x="14" y="76" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">Dual Engine · Routing</text>
 
-    <g transform="translate(10, 48)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#08182B" stroke="#1D3E64" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Local Ollama Runtime</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">Air-Gapped Offline LLM</text>
-      <circle cx="152" cy="16" r="3" fill="#10B981" />
-    </g>
+    <g transform="translate(12, 92)">
+      <rect x="0" y="0" width="160" height="24" rx="6" fill="#071526" stroke="#123052" stroke-width="0.8" />
+      <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🦬 Ollama Local Inference</text>
 
-    <g transform="translate(10, 108)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#08182B" stroke="#1D3E64" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">External Provider Cloud</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">Consent-Gated Remote Calls</text>
-      <circle cx="152" cy="16" r="3" fill="#38BDF8" />
-    </g>
+      <rect x="0" y="29" width="160" height="24" rx="6" fill="#071526" stroke="#123052" stroke-width="0.8" />
+      <text x="10" y="45" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">☁️ External Provider Proxy</text>
 
-    <g transform="translate(10, 168)">
-      <rect x="0" y="0" width="166" height="52" rx="8" fill="#08182B" stroke="#1D3E64" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">AST Tool Verifier</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">Tool Schema Validation</text>
-      <circle cx="152" cy="16" r="3" fill="#14B8A6" />
-    </g>
+      <rect x="0" y="58" width="160" height="24" rx="6" fill="#071526" stroke="#123052" stroke-width="0.8" />
+      <text x="10" y="74" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🧠 Cognitive Reasoning</text>
 
-    <g transform="translate(10, 228)">
-      <rect x="0" y="0" width="166" height="42" rx="8" fill="#051220" stroke="#153252" stroke-width="1" />
-      <text x="10" y="17" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="700" fill="#93C5FD">Multi-Provider Router</text>
-      <text x="10" y="31" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#64748B">Zero-Fabrication Response</text>
+      <rect x="0" y="87" width="160" height="24" rx="6" fill="#071526" stroke="#123052" stroke-width="0.8" />
+      <text x="10" y="103" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🔍 AST &amp; Code Graph</text>
     </g>
   </g>
 
-  <!-- Tier 4: Cryptographic Governance -->
-  <g transform="translate(642, 68)">
-    <rect x="0" y="0" width="174" height="280" rx="12" fill="url(#layer-card-4)" stroke="#164A4A" stroke-width="1.2" />
-    <rect x="0" y="0" width="174" height="36" rx="12" fill="#0E3636" />
-    <rect x="0" y="24" width="174" height="12" fill="#0E3636" />
-    <text x="14" y="22" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" letter-spacing="1" fill="#10B981">TIER 4 · GOVERNANCE</text>
+  <!-- Tier 4: Sovereign Trust & Ledger -->
+  <g transform="translate(644, 95)">
+    <rect x="0" y="0" width="164" height="215" rx="14" fill="url(#layer-card-4)" stroke="#144C43" stroke-width="1.3" />
+    <rect x="14" y="14" width="34" height="3" rx="1.5" fill="#34D399" filter="url(#arch-glow)" />
+    <text x="14" y="36" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#34D399">TIER 04</text>
+    <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="14.5" font-weight="700" fill="#F8FAFC">Trust &amp; Audit</text>
+    <text x="14" y="76" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">SHA-256 · Postgres</text>
 
-    <g transform="translate(10, 48)">
-      <rect x="0" y="0" width="154" height="52" rx="8" fill="#061818" stroke="#134141" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Evidence Ledger</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">SHA-256 Hash Chain</text>
-      <circle cx="140" cy="16" r="3" fill="#10B981" />
-    </g>
+    <g transform="translate(12, 92)">
+      <rect x="0" y="0" width="140" height="24" rx="6" fill="#061816" stroke="#0F3832" stroke-width="0.8" />
+      <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">⛓️ Cryptographic Chain</text>
 
-    <g transform="translate(10, 108)">
-      <rect x="0" y="0" width="154" height="52" rx="8" fill="#061818" stroke="#134141" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Code Manifest</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">FILE_MANIFEST.sha256</text>
-      <circle cx="140" cy="16" r="3" fill="#38BDF8" />
-    </g>
+      <rect x="0" y="29" width="140" height="24" rx="6" fill="#061816" stroke="#0F3832" stroke-width="0.8" />
+      <text x="10" y="45" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🗄️ Drizzle ORM Storage</text>
 
-    <g transform="translate(10, 168)">
-      <rect x="0" y="0" width="154" height="52" rx="8" fill="#061818" stroke="#134141" stroke-width="1" />
-      <text x="10" y="19" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#E2E8F0">Atomic Storage</text>
-      <text x="10" y="35" font-family="'Segoe UI',sans-serif" font-size="9.5" fill="#94A3B8">Tenant Isolation Lock</text>
-      <circle cx="140" cy="16" r="3" fill="#14B8A6" />
-    </g>
+      <rect x="0" y="58" width="140" height="24" rx="6" fill="#061816" stroke="#0F3832" stroke-width="0.8" />
+      <text x="10" y="74" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">📜 Human Approval Gate</text>
 
-    <g transform="translate(10, 228)">
-      <rect x="0" y="0" width="154" height="42" rx="8" fill="#041212" stroke="#0E3030" stroke-width="1" />
-      <text x="10" y="17" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="700" fill="#34D399">Forensic Export</text>
-      <text x="10" y="31" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#64748B">/api/evidence Real-Time</text>
+      <rect x="0" y="87" width="140" height="24" rx="6" fill="#061816" stroke="#0F3832" stroke-width="0.8" />
+      <text x="10" y="103" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🔬 Forensic Export</text>
     </g>
   </g>
 
-  <!-- Connective Arrows & Data Flow Buses -->
-  <!-- 1 -> 2 -->
-  <line x1="210" y1="120" x2="230" y2="120" stroke="#38BDF8" stroke-width="2" class="flow-bus" />
-  <polygon points="230,120 223,116 223,124" fill="#38BDF8" />
+  <!-- Bottom Legend Bar -->
+  <g transform="translate(32, 350)">
+    <circle cx="8" cy="12" r="4.5" fill="#10B981" />
+    <text x="20" y="16" font-family="'Segoe UI',sans-serif" font-size="10.5" font-weight="600" fill="#94A3B8">Fail-Closed Boundary</text>
 
-  <line x1="210" y1="180" x2="230" y2="180" stroke="#2DD4BF" stroke-width="2" class="flow-bus" />
-  <polygon points="230,180 223,176 223,184" fill="#2DD4BF" />
+    <circle cx="170" cy="12" r="4.5" fill="#38BDF8" />
+    <text x="182" y="16" font-family="'Segoe UI',sans-serif" font-size="10.5" font-weight="600" fill="#94A3B8">Bi-directional Secure Streaming</text>
 
-  <!-- 2 -> 3 -->
-  <line x1="416" y1="120" x2="436" y2="120" stroke="#2DD4BF" stroke-width="2" class="flow-bus" />
-  <polygon points="436,120 429,116 429,124" fill="#2DD4BF" />
+    <circle cx="400" cy="12" r="4.5" fill="#FFDD00" />
+    <text x="412" y="16" font-family="'Segoe UI',sans-serif" font-size="10.5" font-weight="600" fill="#94A3B8">SHA-256 Verifiable Hash Chain</text>
 
-  <line x1="416" y1="180" x2="436" y2="180" stroke="#38BDF8" stroke-width="2" class="flow-bus" />
-  <polygon points="436,180 429,176 429,184" fill="#38BDF8" />
+    <text x="776" y="16" text-anchor="end" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.5" fill="#2DD4BF">ZYNTHEOR CORE X COMPLIANT</text>
+  </g>
 
-  <!-- 3 -> 4 -->
-  <line x1="622" y1="120" x2="642" y2="120" stroke="#10B981" stroke-width="2" class="flow-bus" />
-  <polygon points="642,120 635,116 635,124" fill="#10B981" />
-
-  <line x1="622" y1="180" x2="642" y2="180" stroke="#14B8A6" stroke-width="2" class="flow-bus" />
-  <polygon points="642,180 635,176 635,184" fill="#14B8A6" />
-
-  <!-- Bottom Global Verification Ribbon -->
-  <rect x="24" y="354" width="792" height="12" rx="4" fill="#0C1B2B" />
-  <text x="420" y="363.5" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-size="8.5" font-weight="600" letter-spacing="1.5" fill="#64748B">CONTINUOUS FORENSIC AUDITING · TAMPER-EVIDENT EVIDENCE LOGGING · ZERO-MOCK PRODUCTION POLICY</text>
+  <!-- Animated Rainbow Laser Border Frame ("เส้นรุ้งวิ่ง") -->
+  <rect x="4" y="4" width="832" height="392" rx="18" fill="none" stroke-linecap="round" pathLength="100" stroke="url(#arch-rainbow)" stroke-width="2.6" class="laser-rainbow" filter="url(#arch-glow)"/>
+  <rect x="4" y="4" width="832" height="392" rx="18" fill="none" stroke-linecap="round" pathLength="100" stroke="url(#arch-rainbow-rev)" stroke-width="1.8" class="laser-rainbow-rev" style="animation-delay: -2.6s;" filter="url(#arch-glow)"/>
 </svg>

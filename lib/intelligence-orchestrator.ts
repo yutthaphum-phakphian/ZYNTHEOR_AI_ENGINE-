@@ -13,7 +13,16 @@ export type TaskType =
   | 'WORKSPACE_ANALYSIS'
   | 'MULTI_STEP_TASK'
   | 'TOOL_ASSISTED_TASK'
-  | 'RESTRICTED_OPERATION';
+  | 'RESTRICTED_OPERATION'
+  | 'RESEARCH'
+  | 'ANALYSIS'
+  | 'REASONING'
+  | 'WRITING'
+  | 'LEARNING'
+  | 'CREATIVE_WORK'
+  | 'DOCUMENT_PROCESSING'
+  | 'DATA_ANALYSIS'
+  | 'TECHNICAL_ENGINEERING';
 
 export type TaskState =
   | 'CREATED'
@@ -248,6 +257,336 @@ export class TaskPlanningEngine {
       };
     }
 
+    if (taskType === 'RESEARCH') {
+      return {
+        taskId,
+        workspaceId,
+        query,
+        taskType,
+        status: 'CREATED',
+        plannedSteps: [
+          {
+            stepId: 'step-1',
+            order: 1,
+            title: 'Research Scope & Query Expansion',
+            description: 'Formulate search vectors and identify primary inquiry dimensions',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-2',
+            order: 2,
+            title: 'Knowledge Ingestion & Relevance Filtering',
+            description: 'Gather factual evidence and calculate provenance scores',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-3',
+            order: 3,
+            title: 'Synthesis & Fact Attribution',
+            description: 'Synthesize findings and ground claims with explicit source references',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-4',
+            order: 4,
+            title: 'Cryptographic Result Verification',
+            description: 'Generate SHA-256 evidence digests and seal results into audit chain',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+        ],
+      };
+    }
+
+    if (taskType === 'ANALYSIS' || taskType === 'DATA_ANALYSIS') {
+      return {
+        taskId,
+        workspaceId,
+        query,
+        taskType,
+        status: 'CREATED',
+        plannedSteps: [
+          {
+            stepId: 'step-1',
+            order: 1,
+            title: 'Parameter & Variable Extraction',
+            description: 'Extract qualitative/quantitative dimensions and input metrics',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-2',
+            order: 2,
+            title: 'Comparative Analysis & Trade-off Modeling',
+            description: 'Evaluate options against criteria matrix and calculate trade-offs',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-3',
+            order: 3,
+            title: 'Deliverable Analytical Report',
+            description: 'Generate structured findings, statistical summaries, and recommendations',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+        ],
+      };
+    }
+
+    if (taskType === 'REASONING') {
+      return {
+        taskId,
+        workspaceId,
+        query,
+        taskType,
+        status: 'CREATED',
+        plannedSteps: [
+          {
+            stepId: 'step-1',
+            order: 1,
+            title: 'Premise Formulation & Assumption Gate',
+            description: 'Deconstruct claims into explicit premises and test boundary conditions',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-2',
+            order: 2,
+            title: 'Deductive Logic Chain Execution',
+            description: 'Step-by-step reasoning traversal with contradiction checks',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-3',
+            order: 3,
+            title: 'Verified Conclusion & Evidence Ledger',
+            description: 'Derive non-contradictory conclusion and bind to verification ledger',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+        ],
+      };
+    }
+
+    if (taskType === 'WRITING') {
+      return {
+        taskId,
+        workspaceId,
+        query,
+        taskType,
+        status: 'CREATED',
+        plannedSteps: [
+          {
+            stepId: 'step-1',
+            order: 1,
+            title: 'Tone, Audience & Structural Outline',
+            description: 'Establish stylistic guidelines and hierarchical outline',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-2',
+            order: 2,
+            title: 'Content Composition & Bilingual Translation',
+            description: 'Draft comprehensive content with grammatical and semantic precision',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-3',
+            order: 3,
+            title: 'Polish, Coherence & Attribution Review',
+            description: 'Finalize styling, formatting, and verify narrative flow',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+        ],
+      };
+    }
+
+    if (taskType === 'LEARNING') {
+      return {
+        taskId,
+        workspaceId,
+        query,
+        taskType,
+        status: 'CREATED',
+        plannedSteps: [
+          {
+            stepId: 'step-1',
+            order: 1,
+            title: 'Learning Objectives Assessment',
+            description: 'Identify target skill level and prerequisites',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-2',
+            order: 2,
+            title: 'Pedagogical Concept Breakdown',
+            description: 'Deliver structured explanations with real-world analogies',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-3',
+            order: 3,
+            title: 'Comprehension Check & Practice Exercises',
+            description: 'Provide interactive review questions and summary takeaways',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+        ],
+      };
+    }
+
+    if (taskType === 'CREATIVE_WORK') {
+      return {
+        taskId,
+        workspaceId,
+        query,
+        taskType,
+        status: 'CREATED',
+        plannedSteps: [
+          {
+            stepId: 'step-1',
+            order: 1,
+            title: 'Divergent Brainstorming & Theme Exploration',
+            description: 'Explore creative angles, themes, and innovative possibilities',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-2',
+            order: 2,
+            title: 'Concept Convergence & Narrative Design',
+            description: 'Select strongest creative ideas and build coherent narrative structure',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-3',
+            order: 3,
+            title: 'Creative Deliverable Packaging',
+            description: 'Package creative assets, outlines, and copy ready for presentation',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+        ],
+      };
+    }
+
+    if (taskType === 'DOCUMENT_PROCESSING') {
+      return {
+        taskId,
+        workspaceId,
+        query,
+        taskType,
+        status: 'CREATED',
+        plannedSteps: [
+          {
+            stepId: 'step-1',
+            order: 1,
+            title: 'Document Ingestion & Structure Parsing',
+            description: 'Parse layout, headings, and semantic hierarchies from source text',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-2',
+            order: 2,
+            title: 'Key Information Extraction & Fact Checking',
+            description: 'Extract action items, data tables, and entities with provenance',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-3',
+            order: 3,
+            title: 'Structured Summary & Export Preparation',
+            description: 'Generate executive summary, structured data tables, and metadata tags',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+        ],
+      };
+    }
+
+    if (taskType === 'TECHNICAL_ENGINEERING') {
+      return {
+        taskId,
+        workspaceId,
+        query,
+        taskType,
+        status: 'CREATED',
+        plannedSteps: [
+          {
+            stepId: 'step-1',
+            order: 1,
+            title: 'Workspace AST & Dependency Inspection',
+            description: 'Scan codebase, symbol index, and architectural constraints',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-2',
+            order: 2,
+            title: 'Engineering Architecture Design',
+            description: 'Draft API contracts, type definitions, and change impact assessment',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+          {
+            stepId: 'step-3',
+            order: 3,
+            title: 'Code Generation & VM Sandbox Validation',
+            description: 'Implement solution and execute syntax/AST checks in isolated sandbox',
+            riskTier: 'HIGH',
+            requiresApproval: true,
+            executionStatus: 'WAITING_FOR_APPROVAL',
+          },
+          {
+            stepId: 'step-4',
+            order: 4,
+            title: 'Security Verification & Audit Ledger Log',
+            description: 'Perform fail-closed security review and seal change into hash chain',
+            riskTier: 'LOW',
+            requiresApproval: false,
+            executionStatus: 'PENDING',
+          },
+        ],
+      };
+    }
+
     return {
       taskId,
       workspaceId,
@@ -325,6 +664,33 @@ export class IntelligenceOrchestrationEngine {
     }
     if (/workspace|dependency|structure|dependencies/i.test(q)) {
       return 'WORKSPACE_ANALYSIS';
+    }
+    if (/research|ค้นคว้า|สืบค้น|เอกสารอ้างอิง|survey/i.test(q)) {
+      return 'RESEARCH';
+    }
+    if (/analyze|analysis|วิเคราะห์|เปรียบเทียบ|compare|tradeoff/i.test(q)) {
+      return 'ANALYSIS';
+    }
+    if (/reasoning|ตรรกะ|เหตุผล|logical|deduce|deduction/i.test(q)) {
+      return 'REASONING';
+    }
+    if (/write|writing|draft|เขียน|ร่าง|บทความ|แปล|translate/i.test(q)) {
+      return 'WRITING';
+    }
+    if (/learn|learning|teach|สอน|บทเรียน|study|course/i.test(q)) {
+      return 'LEARNING';
+    }
+    if (/creative|creativity|ไอเดีย|สร้างสรรค์|brainstorm|concept/i.test(q)) {
+      return 'CREATIVE_WORK';
+    }
+    if (/document|pdf|docx|ประมวลผลเอกสาร|สรุปเอกสาร/i.test(q)) {
+      return 'DOCUMENT_PROCESSING';
+    }
+    if (/data|dataset|ข้อมูล|สถิติ|statistics|dataframe/i.test(q)) {
+      return 'DATA_ANALYSIS';
+    }
+    if (/engineer|system|architecture|infrastructure|วิศวกรรม/i.test(q)) {
+      return 'TECHNICAL_ENGINEERING';
     }
     return 'TECHNICAL_EXPLANATION';
   }

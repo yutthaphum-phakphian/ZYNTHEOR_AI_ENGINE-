@@ -261,14 +261,18 @@ export class CodeIntelligence {
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const fnHeader = line.match(/(?:function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=)/);
+      const fnHeader = line.match(/(?:function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=\s*(?:\([^)]*\)|[a-zA-Z0-9_]+)\s*=>)/);
       if (fnHeader) {
         currentCaller = fnHeader[1] || fnHeader[2] || currentCaller;
       }
+      const declName = fnHeader ? (fnHeader[1] || fnHeader[2]) : null;
 
       const callMatches = line.matchAll(/(\w+)\s*\(/g);
       for (const m of callMatches) {
         const callee = m[1];
+        if (callee === declName) {
+          continue;
+        }
         if (['if', 'for', 'while', 'switch', 'catch', 'function', 'return'].includes(callee)) {
           continue;
         }

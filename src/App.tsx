@@ -216,7 +216,7 @@ function HomeExperience() {
         ================================================= */}
         <header className="flex items-center justify-between gap-4 pt-1">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#00D9A3] to-[#2563EB] grid place-items-center shadow-[0_0_20px_rgba(0,217,163,0.2)] text-black font-black text-lg select-none">
+            <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-[#00D9A3] to-[#2563EB] grid place-items-center shadow-[0_0_20px_rgba(0,217,163,0.2)] text-black font-black text-lg select-none">
               ◈
             </div>
             <div>
@@ -228,7 +228,7 @@ function HomeExperience() {
                   AI ENGINE
                 </span>
               </div>
-              <div className="text-[11px] text-white/40 tracking-wide">
+              <div className="text-[11px] text-white/40 tracking-wide font-medium">
                 Universal Intelligence Platform
               </div>
             </div>
@@ -239,7 +239,7 @@ function HomeExperience() {
               type="button"
               onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:open-control-center'))}
               title="Open ZYNTHEOR Control Center (Cmd+,)"
-              className="px-3.5 py-1.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 hover:border-[#00D9A3]/40 text-[11px] font-semibold text-white/80 hover:text-white transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="px-3.5 py-1.5 rounded-[14px] bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 hover:border-[#00D9A3]/40 text-[11px] font-semibold text-white/80 hover:text-white transition flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
               <Sliders size={13} className="text-[#00D9A3]" />
               <span>Control Center</span>
@@ -250,7 +250,7 @@ function HomeExperience() {
 
         {/* Maintenance Mode Read-Only Banner */}
         {isMaintenanceMode && (
-          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center gap-3.5 text-xs text-red-200">
+          <div className="p-4 rounded-[16px] bg-red-500/10 border border-red-500/30 flex items-center gap-3.5 text-xs text-red-200">
             <Lock size={18} className="text-red-400 shrink-0" />
             <div>
               <span className="font-bold text-red-300">READ-ONLY MAINTENANCE MODE ACTIVE:</span> ระบบตรวจพบการเบี่ยงเบนของ SSoT Drift เกินเกณฑ์แคนอนิคัล (Δ0.00%) คำสั่งสร้างหรือแก้ไขข้อมูลถูกระงับชั่วคราว
@@ -260,7 +260,7 @@ function HomeExperience() {
 
         {/* Strict Model Identity Contract Alert if Invalid or Unauthorized Fallback Detected */}
         {!contractValidation.valid && (
-          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3.5 text-xs text-amber-200">
+          <div className="p-4 rounded-[16px] bg-amber-500/10 border border-amber-500/30 flex items-start gap-3.5 text-xs text-amber-200">
             <AlertTriangle size={18} className="text-amber-400 shrink-0 mt-0.5" />
             <div>
               <div className="font-bold text-amber-300">
@@ -288,9 +288,9 @@ function HomeExperience() {
             </p>
           </div>
 
-          {/* Omni Composer Box */}
-          <div className="max-w-2xl mx-auto text-left rounded-3xl border border-white/10 bg-[#0b1020]/95 backdrop-blur-xl p-3.5 shadow-2xl transition focus-within:border-[#00D9A3]/50 focus-within:shadow-[0_0_30px_rgba(0,217,163,0.12)]">
-            <div className="p-2 sm:p-2.5">
+          {/* Omni Composer Box (Standard 18px radius) */}
+          <div className="max-w-2xl mx-auto text-left rounded-[18px] border border-white/10 bg-[#0b1020]/95 backdrop-blur-xl p-4 shadow-2xl transition focus-within:border-[#00D9A3]/50 focus-within:shadow-[0_0_30px_rgba(0,217,163,0.12)]">
+            <div className="p-1 sm:p-1.5">
               <textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}
@@ -310,11 +310,11 @@ function HomeExperience() {
                 }
                 rows={3}
                 aria-label="What would you like to do?"
-                className="w-full resize-none bg-transparent outline-none text-sm text-white placeholder:text-white/30 leading-relaxed"
+                className="w-full resize-none bg-transparent outline-none text-sm text-white placeholder:text-white/30 leading-relaxed font-sans"
               />
 
               {/* Quick Action Suggestion Pills */}
-              <div className="flex flex-wrap items-center gap-2 pt-2 pb-1">
+              <div className="flex flex-wrap items-center gap-2 pt-2.5 pb-1">
                 {[
                   { label: '+ Create', prompt: 'ช่วยสร้างสรรค์และเขียนงานเรื่อง: ' },
                   { label: '+ Analyze', prompt: 'ช่วยวิเคราะห์และประเมินผลเชิงลึกเรื่อง: ' },
@@ -328,14 +328,14 @@ function HomeExperience() {
                       setInput(act.prompt);
                       if (act.grounding) setGrounding(true);
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.09] text-[11px] font-medium text-white/60 hover:text-white border border-white/5 transition cursor-pointer"
+                    className="px-2.5 py-1 rounded-[10px] bg-white/[0.04] hover:bg-white/[0.09] text-[11px] font-medium text-white/60 hover:text-white border border-white/5 transition cursor-pointer"
                   >
                     {act.label}
                   </button>
                 ))}
                 <NavLink
                   to="/explore"
-                  className="px-2.5 py-1 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] text-[11px] font-medium text-[#00D9A3] hover:underline transition cursor-pointer"
+                  className="px-2.5 py-1 rounded-[10px] bg-white/[0.02] hover:bg-white/[0.06] text-[11px] font-medium text-[#00D9A3] hover:underline transition cursor-pointer"
                 >
                   + More Capabilities
                 </NavLink>
@@ -349,14 +349,14 @@ function HomeExperience() {
                     type="button"
                     title="แนบไฟล์หรือเอกสาร"
                     onClick={() => navigate('/library')}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition cursor-pointer text-xs"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-[14px] bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition cursor-pointer text-xs"
                   >
                     <span className="font-bold text-sm leading-none">＋</span>
                     <span className="text-[11px] font-medium hidden sm:inline">Attach</span>
                   </button>
 
                   {/* Online Search Toggle */}
-                  <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-xs text-white/70 cursor-pointer select-none transition">
+                  <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-[14px] bg-white/5 hover:bg-white/10 border border-white/5 text-xs text-white/70 cursor-pointer select-none transition">
                     <input
                       type="checkbox"
                       checked={grounding}
@@ -371,7 +371,7 @@ function HomeExperience() {
                   <NavLink
                     to="/model-studio"
                     title="ตรวจสอบโมเดล ZYNTHEOR CORE"
-                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/5 text-[11px] font-mono text-white/60 hover:text-white transition cursor-pointer"
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-[14px] bg-white/[0.03] border border-white/5 text-[11px] font-mono text-white/60 hover:text-white transition cursor-pointer"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-[#00D9A3]" />
                     <span>ZYNTHEOR CORE</span>
@@ -383,7 +383,7 @@ function HomeExperience() {
                   type="button"
                   onClick={() => handleStart()}
                   disabled={!input.trim() || isMaintenanceMode || !contractValidation.valid}
-                  className="h-9 px-5 rounded-xl bg-[#00D9A3] text-black font-bold text-xs flex items-center justify-center gap-2 hover:bg-white disabled:opacity-20 disabled:cursor-not-allowed transition cursor-pointer shadow-lg shadow-[#00D9A3]/10"
+                  className="h-9 px-5 rounded-[14px] bg-[#00D9A3] text-black font-bold text-xs flex items-center justify-center gap-2 hover:bg-white disabled:opacity-20 disabled:cursor-not-allowed transition cursor-pointer shadow-lg shadow-[#00D9A3]/10"
                 >
                   <span>ส่งคำสั่ง</span>
                   <Send size={12} />
@@ -427,7 +427,7 @@ function HomeExperience() {
               <button
                 key={item.id}
                 onClick={() => handleStart(item.prompt, item.grounding)}
-                className="text-left rounded-2xl border border-white/[0.07] bg-[#0b1020]/90 p-4 space-y-2.5 hover:border-white/20 hover:bg-[#111a2d] transition group cursor-pointer shadow-md"
+                className="text-left rounded-[16px] border border-white/[0.07] bg-[#0b1020]/90 p-4 space-y-2.5 hover:border-white/20 hover:bg-[#111a2d] transition group cursor-pointer shadow-md"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -471,7 +471,7 @@ function HomeExperience() {
 
           <div className="grid sm:grid-cols-3 gap-3.5">
             {/* 1. Recent Work */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-3 flex flex-col justify-between shadow-md">
+            <div className="rounded-[16px] border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-3 flex flex-col justify-between shadow-md">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-bold text-white">
                   <span className="flex items-center gap-1.5 text-cyan-400">
@@ -489,7 +489,7 @@ function HomeExperience() {
                     <div
                       key={idx}
                       onClick={() => navigate('/chat')}
-                      className="p-2 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs cursor-pointer transition"
+                      className="p-2 rounded-[12px] bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs cursor-pointer transition"
                     >
                       <span className="truncate pr-1 text-white/80 text-[11px]">{s.title}</span>
                       <span className="text-[9px] text-white/30 shrink-0">{s.time}</span>
@@ -499,7 +499,7 @@ function HomeExperience() {
               </div>
               <button
                 onClick={() => navigate('/chat')}
-                className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2 rounded-[14px] bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Resume in Intelligence</span>
                 <ArrowRight size={12} />
@@ -507,7 +507,7 @@ function HomeExperience() {
             </div>
 
             {/* 2. Knowledge & Memory */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-3 flex flex-col justify-between shadow-md">
+            <div className="rounded-[16px] border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-3 flex flex-col justify-between shadow-md">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-bold text-white">
                   <span className="flex items-center gap-1.5 text-purple-400">
@@ -519,7 +519,7 @@ function HomeExperience() {
                 <p className="text-[11px] text-white/40 leading-relaxed">
                   รวบรวมเอกสาร สาระสำคัญ และ Semantic Memory เพื่อนำบริบทมาใช้ในการประมวลผลอย่างต่อเนื่อง
                 </p>
-                <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs">
+                <div className="p-2.5 rounded-[12px] bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <Brain size={14} className="text-[#00D9A3]" />
                     <span className="text-[11px] text-white font-medium">Memory Active</span>
@@ -534,7 +534,7 @@ function HomeExperience() {
               </div>
               <button
                 onClick={() => navigate('/library')}
-                className="w-full py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-xs font-bold text-purple-300 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2 rounded-[14px] bg-purple-500/10 hover:bg-purple-500/20 text-xs font-bold text-purple-300 transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Browse Documents</span>
                 <ChevronRight size={12} />
@@ -542,7 +542,7 @@ function HomeExperience() {
             </div>
 
             {/* 3. Projects */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-3 flex flex-col justify-between shadow-md">
+            <div className="rounded-[16px] border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-3 flex flex-col justify-between shadow-md">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-bold text-white">
                   <span className="flex items-center gap-1.5 text-[#00D9A3]">
@@ -554,7 +554,7 @@ function HomeExperience() {
                 <p className="text-[11px] text-white/40 leading-relaxed">
                   จัดการโปรเจกต์ โค้ด และเวิร์กสเปซที่เชื่อมโยงกับ Repository Intelligence และ Code Graph
                 </p>
-                <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs">
+                <div className="p-2.5 rounded-[12px] bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#00D9A3]" />
                     <span className="text-[11px] text-white font-medium">Repository Synced</span>
@@ -569,7 +569,7 @@ function HomeExperience() {
               </div>
               <button
                 onClick={() => navigate('/workspace')}
-                className="w-full py-2 rounded-xl bg-[#00D9A3]/10 hover:bg-[#00D9A3]/20 text-xs font-bold text-[#00D9A3] transition flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2 rounded-[14px] bg-[#00D9A3]/10 hover:bg-[#00D9A3]/20 text-xs font-bold text-[#00D9A3] transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Enter Workspace</span>
                 <ChevronRight size={12} />

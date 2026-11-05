@@ -102,7 +102,7 @@ function buildRealCategories(): EvaluationCategory[] {
 export function createUnifiedEvaluation(version='1.2.2'): UnifiedEvaluation {
   const cats = buildRealCategories();
   const avg = Math.round(cats.reduce((s,c)=>s+c.score,0)/cats.length);
-  return { evaluationId: genId('zynth-eval'), benchmarkId: 'bench-'+version+'-12cat', timestamp: new Date().toISOString(), version, categories: cats, overallScore: avg, durationMs: 145, gates: {security:true,mock:true,type:true,manifest:true}, ciStatus: {audit:'PASS', buildTest:'PASS', pages:'PASS'} };
+  return { evaluationId: genId('eval'), benchmarkId: 'bench-'+version+'-12cat', timestamp: new Date().toISOString(), version, categories: cats, overallScore: avg, durationMs: 145, gates: {security:true,mock:true,type:true,manifest:true}, ciStatus: {audit:'PASS', buildTest:'PASS', pages:'PASS'} };
 }
 
 export async function runUnifiedEvaluation(categories?: CategoryId[], version='1.2.2'): Promise<UnifiedEvaluation> {
@@ -112,7 +112,7 @@ export async function runUnifiedEvaluation(categories?: CategoryId[], version='1
   await new Promise(r=> setTimeout(r, 120));
   const finalCats = categories && categories.length > 0 ? filtered : allCats;
   const avg = Math.round(finalCats.reduce((s,c)=>s+c.score,0)/finalCats.length);
-  return { evaluationId: genId('zynth-eval-run'), benchmarkId: 'bench-'+version+'-12cat', timestamp: new Date().toISOString(), version, categories: finalCats, overallScore: avg, durationMs: Date.now() - start + 145, gates: {security:true,mock:true,type:true,manifest:true}, ciStatus: {audit:'PASS', buildTest:'PASS', pages:'PASS'} };
+  return { evaluationId: genId('eval-run'), benchmarkId: 'bench-'+version+'-12cat', timestamp: new Date().toISOString(), version, categories: finalCats, overallScore: avg, durationMs: Date.now() - start + 145, gates: {security:true,mock:true,type:true,manifest:true}, ciStatus: {audit:'PASS', buildTest:'PASS', pages:'PASS'} };
 }
 
 export function calculateOverallScore(eval_: UnifiedEvaluation): number {

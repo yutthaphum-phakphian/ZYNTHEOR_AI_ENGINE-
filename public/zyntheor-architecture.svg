@@ -2,9 +2,27 @@
   <defs>
     <!-- Background Gradient -->
     <linearGradient id="arch-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#060C16" />
-      <stop offset="50%" stop-color="#0A1626" />
-      <stop offset="100%" stop-color="#050A14" />
+      <stop offset="0%" stop-color="#040812"/>
+      <stop offset="50%" stop-color="#071322"/>
+      <stop offset="100%" stop-color="#03060D"/>
+    </linearGradient>
+
+    <!-- Rainbow Spectrum Laser Gradient -->
+    <linearGradient id="arch-rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF1A53"/>
+      <stop offset="18%" stop-color="#FF8A00"/>
+      <stop offset="35%" stop-color="#FFDD00"/>
+      <stop offset="52%" stop-color="#00F59B"/>
+      <stop offset="70%" stop-color="#00D2FF"/>
+      <stop offset="85%" stop-color="#3A6DFF"/>
+      <stop offset="100%" stop-color="#B336FF"/>
+    </linearGradient>
+
+    <linearGradient id="arch-rainbow-rev" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#00D2FF"/>
+      <stop offset="35%" stop-color="#00F59B"/>
+      <stop offset="70%" stop-color="#FFDD00"/>
+      <stop offset="100%" stop-color="#FF1A53"/>
     </linearGradient>
 
     <!-- Layer Cards Gradients -->
@@ -28,42 +46,53 @@
       <stop offset="100%" stop-color="#061B19" />
     </linearGradient>
 
-    <linearGradient id="flow-line-glow" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#14B8A6" />
-      <stop offset="50%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#10B981" />
-    </linearGradient>
-
-    <!-- Filters -->
+    <!-- Glowing Filters -->
     <filter id="arch-glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feGaussianBlur stdDeviation="3.2" result="blur" />
       <feMerge>
+        <feMergeNode in="blur" />
         <feMergeNode in="blur" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
 
     <pattern id="arch-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#102336" stroke-width="0.7" stroke-opacity="0.4" />
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#12253B" stroke-width="0.75" stroke-opacity="0.45" />
     </pattern>
   </defs>
 
   <style>
+    @keyframes rainbow-dash {
+      from { stroke-dashoffset: 100; }
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes rainbow-dash-rev {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 100; }
+    }
     @keyframes pulse-flow {
-      0% { stroke-dashoffset: 120; }
+      0% { stroke-dashoffset: 100; }
       100% { stroke-dashoffset: 0; }
     }
     .flow-bus {
-      stroke-dasharray: 8 12;
-      animation: pulse-flow 3.5s linear infinite;
+      stroke-dasharray: 10 90;
+      animation: pulse-flow 3.6s linear infinite;
+    }
+    .laser-rainbow {
+      stroke-dasharray: 16 84;
+      animation: rainbow-dash 5.2s linear infinite;
+    }
+    .laser-rainbow-rev {
+      stroke-dasharray: 12 88;
+      animation: rainbow-dash-rev 7.2s linear infinite;
     }
     @media (prefers-reduced-motion: reduce) {
-      .flow-bus { animation: none; stroke-dasharray: none; }
+      .flow-bus, .laser-rainbow, .laser-rainbow-rev { animation: none; stroke-dasharray: none; }
     }
   </style>
 
   <!-- Container Box -->
-  <rect x="4" y="4" width="832" height="392" rx="18" fill="url(#arch-bg)" stroke="#163450" stroke-width="1.5" />
+  <rect x="4" y="4" width="832" height="392" rx="18" fill="url(#arch-bg)" stroke="#163450" stroke-width="1.3" />
   <rect x="4" y="4" width="832" height="392" rx="18" fill="url(#arch-grid)" />
 
   <!-- Header Section -->
@@ -74,25 +103,29 @@
   </g>
 
   <!-- Animated Data Flow Traces Behind Cards -->
-  <g fill="none" stroke="url(#flow-line-glow)" stroke-width="2" class="flow-bus" filter="url(#arch-glow)" opacity="0.85">
-    <path d="M 216 160 L 236 160" />
-    <path d="M 420 160 L 440 160" />
-    <path d="M 624 160 L 644 160" />
-    <!-- Feedback / Validation Loop Trace -->
-    <path d="M 730 260 L 730 330 L 120 330 L 120 260" stroke="#14B8A6" opacity="0.6" />
-  </g>
+  <g fill="none" stroke-linecap="round">
+    <path d="M 216 160 L 236 160" stroke="#163450" stroke-width="2.5" />
+    <path d="M 216 160 L 236 160" pathLength="100" stroke="url(#arch-rainbow)" stroke-width="3" class="flow-bus" filter="url(#arch-glow)" />
+    
+    <path d="M 420 160 L 440 160" stroke="#163450" stroke-width="2.5" />
+    <path d="M 420 160 L 440 160" pathLength="100" stroke="url(#arch-rainbow)" stroke-width="3" class="flow-bus" style="animation-delay:-1.2s;" filter="url(#arch-glow)" />
+    
+    <path d="M 624 160 L 644 160" stroke="#163450" stroke-width="2.5" />
+    <path d="M 624 160 L 644 160" pathLength="100" stroke="url(#arch-rainbow)" stroke-width="3" class="flow-bus" style="animation-delay:-2.4s;" filter="url(#arch-glow)" />
 
-  <!-- 4 Architectural Tier Cards (840 width, 184 width each, 20 gap) -->
+    <!-- Feedback / Validation Loop Trace -->
+    <path d="M 726 310 L 726 332 L 124 332 L 124 310" stroke="#142C44" stroke-width="1.5" />
+    <path d="M 726 310 L 726 332 L 124 332 L 124 310" pathLength="100" stroke="url(#arch-rainbow-rev)" stroke-width="2" class="flow-bus" filter="url(#arch-glow)" opacity="0.85" />
+  </g>
 
   <!-- Tier 1: Client Layer -->
   <g transform="translate(32, 95)">
     <rect x="0" y="0" width="184" height="215" rx="14" fill="url(#layer-card-1)" stroke="#193D60" stroke-width="1.3" />
     <rect x="14" y="14" width="34" height="3" rx="1.5" fill="#38BDF8" filter="url(#arch-glow)" />
-    <text x="14" y="36" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#38BDF8">TIER 01</text>
+    <text x="14" y="36" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#38BDF8">TIER 01</text>
     <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="14.5" font-weight="700" fill="#F8FAFC">Client Interface</text>
     <text x="14" y="76" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">React 19 SPA · Vite 6</text>
 
-    <!-- Sub-items -->
     <g transform="translate(12, 92)">
       <rect x="0" y="0" width="160" height="24" rx="6" fill="#071322" stroke="#142C44" stroke-width="0.8" />
       <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">⚡ Multi-Workspace Hub</text>
@@ -112,11 +145,10 @@
   <g transform="translate(236, 95)">
     <rect x="0" y="0" width="184" height="215" rx="14" fill="url(#layer-card-2)" stroke="#164A5E" stroke-width="1.3" />
     <rect x="14" y="14" width="34" height="3" rx="1.5" fill="#2DD4BF" filter="url(#arch-glow)" />
-    <text x="14" y="36" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#2DD4BF">TIER 02</text>
+    <text x="14" y="36" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#2DD4BF">TIER 02</text>
     <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="14.5" font-weight="700" fill="#F8FAFC">Server Gateway</text>
     <text x="14" y="76" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">Express 5 · Node 22</text>
 
-    <!-- Sub-items -->
     <g transform="translate(12, 92)">
       <rect x="0" y="0" width="160" height="24" rx="6" fill="#051722" stroke="#0F3847" stroke-width="0.8" />
       <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🔒 Fail-Closed Proxy</text>
@@ -136,11 +168,10 @@
   <g transform="translate(440, 95)">
     <rect x="0" y="0" width="184" height="215" rx="14" fill="url(#layer-card-3)" stroke="#193B66" stroke-width="1.3" />
     <rect x="14" y="14" width="34" height="3" rx="1.5" fill="#60A5FA" filter="url(#arch-glow)" />
-    <text x="14" y="36" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#60A5FA">TIER 03</text>
+    <text x="14" y="36" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#60A5FA">TIER 03</text>
     <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="14.5" font-weight="700" fill="#F8FAFC">Inference Core</text>
     <text x="14" y="76" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">Dual Engine · Routing</text>
 
-    <!-- Sub-items -->
     <g transform="translate(12, 92)">
       <rect x="0" y="0" width="160" height="24" rx="6" fill="#071526" stroke="#123052" stroke-width="0.8" />
       <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">🦬 Ollama Local Inference</text>
@@ -160,11 +191,10 @@
   <g transform="translate(644, 95)">
     <rect x="0" y="0" width="164" height="215" rx="14" fill="url(#layer-card-4)" stroke="#144C43" stroke-width="1.3" />
     <rect x="14" y="14" width="34" height="3" rx="1.5" fill="#34D399" filter="url(#arch-glow)" />
-    <text x="14" y="36" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#34D399">TIER 04</text>
+    <text x="14" y="36" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#34D399">TIER 04</text>
     <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="14.5" font-weight="700" fill="#F8FAFC">Trust &amp; Audit</text>
     <text x="14" y="76" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">SHA-256 · Postgres</text>
 
-    <!-- Sub-items -->
     <g transform="translate(12, 92)">
       <rect x="0" y="0" width="140" height="24" rx="6" fill="#061816" stroke="#0F3832" stroke-width="0.8" />
       <text x="10" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#E2E8F0">⛓️ Cryptographic Chain</text>
@@ -181,32 +211,20 @@
   </g>
 
   <!-- Bottom Legend Bar -->
-  <g transform="translate(32, 345)">
-    <circle cx="8" cy="12" r="4" fill="#10B981" />
-    <text x="20" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94A3B8">Fail-Closed Boundary</text>
+  <g transform="translate(32, 350)">
+    <circle cx="8" cy="12" r="4.5" fill="#10B981" />
+    <text x="20" y="16" font-family="'Segoe UI',sans-serif" font-size="10.5" font-weight="600" fill="#94A3B8">Fail-Closed Boundary</text>
 
-    <circle cx="160" cy="12" r="4" fill="#38BDF8" />
-    <text x="172" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94A3B8">Bi-directional Secure Streaming</text>
+    <circle cx="170" cy="12" r="4.5" fill="#38BDF8" />
+    <text x="182" y="16" font-family="'Segoe UI',sans-serif" font-size="10.5" font-weight="600" fill="#94A3B8">Bi-directional Secure Streaming</text>
 
-    <circle cx="370" cy="12" r="4" fill="#2DD4BF" />
-    <text x="382" y="16" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94A3B8">SHA-256 Verifiable Hash Chain</text>
+    <circle cx="400" cy="12" r="4.5" fill="#FFDD00" />
+    <text x="412" y="16" font-family="'Segoe UI',sans-serif" font-size="10.5" font-weight="600" fill="#94A3B8">SHA-256 Verifiable Hash Chain</text>
 
-    <text x="776" y="16" text-anchor="end" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="700" fill="#64748B">ZYNTHEOR CORE X COMPLIANT</text>
+    <text x="776" y="16" text-anchor="end" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.5" fill="#2DD4BF">ZYNTHEOR CORE X COMPLIANT</text>
   </g>
 
-  <!-- zy-laser:start -->
-  <style>
-    @keyframes zy-lz  { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
-    @keyframes zy-lzr { from { stroke-dashoffset: 0; }   to { stroke-dashoffset: 100; } }
-    .zy-lz  { stroke-dasharray: 14 86; animation: zy-lz 6s linear infinite; }
-    .zy-lzr { stroke-dasharray: 9 91;  animation: zy-lzr 8s linear infinite; }
-    @media (prefers-reduced-motion: reduce) { .zy-lz, .zy-lzr { animation: none; } }
-  </style>
-  <defs>
-    <linearGradient id="zy-laser-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#10B981"/><stop offset="0.5" stop-color="#2DD4BF"/><stop offset="1" stop-color="#38BDF8"/></linearGradient>
-    <filter id="zy-laser-f" filterUnits="userSpaceOnUse" x="-20" y="-20" width="880" height="440"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs>
-  <rect x="4" y="4" width="832" height="392" rx="18" fill="none" stroke-linecap="round" pathLength="100" stroke="url(#zy-laser-g)" stroke-width="2.4" class="zy-lz" style="animation-delay:0s" filter="url(#zy-laser-f)"/>
-    <rect x="4" y="4" width="832" height="392" rx="18" fill="none" stroke-linecap="round" pathLength="100" stroke="#38BDF8" stroke-width="1.68" class="zy-lzr" style="animation-delay:0s" filter="url(#zy-laser-f)"/>
-  <!-- zy-laser:end -->
+  <!-- Animated Rainbow Laser Border Frame ("เส้นรุ้งวิ่ง") -->
+  <rect x="4" y="4" width="832" height="392" rx="18" fill="none" stroke-linecap="round" pathLength="100" stroke="url(#arch-rainbow)" stroke-width="2.6" class="laser-rainbow" filter="url(#arch-glow)"/>
+  <rect x="4" y="4" width="832" height="392" rx="18" fill="none" stroke-linecap="round" pathLength="100" stroke="url(#arch-rainbow-rev)" stroke-width="1.8" class="laser-rainbow-rev" style="animation-delay: -2.6s;" filter="url(#arch-glow)"/>
 </svg>

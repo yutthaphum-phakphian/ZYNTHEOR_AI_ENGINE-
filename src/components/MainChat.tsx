@@ -39,6 +39,20 @@ export interface ChatMessage {
   groundingUsed?: boolean;
   taskType?: string;
   taskState?: string;
+  plan?: {
+    taskId?: string;
+    taskType?: string;
+    status?: string;
+    plannedSteps?: Array<{
+      stepId: string;
+      order: number;
+      title: string;
+      description: string;
+      riskTier: string;
+      requiresApproval: boolean;
+      executionStatus?: string;
+    }>;
+  };
   durationMs?: number;
   verificationArtifacts?: Array<{
     category: string;
@@ -162,6 +176,7 @@ export function MainChat() {
         groundingUsed: useGrounding,
         taskType: data.taskType,
         taskState: data.taskState,
+        plan: data.plan,
         durationMs: data.durationMs,
         verificationArtifacts: data.verificationArtifacts || [],
         groundingSources: data.groundingSources || [],
@@ -391,7 +406,7 @@ export function MainChat() {
 
                     {/* Content Box */}
                     <div
-                      className={`p-4 md:p-5 rounded-2xl text-sm leading-relaxed transition ${
+                      className={`p-4 md:p-5 rounded-[16px] text-sm leading-relaxed transition ${
                         isUser
                           ? 'bg-[#12192d] border border-white/10 text-white shadow-md'
                           : msg.error
@@ -410,8 +425,45 @@ export function MainChat() {
                           </p>
                         </div>
                       ) : (
-                        <div className="space-y-3 whitespace-pre-wrap">
-                          {msg.content}
+                        <div className="space-y-3">
+                          {/* Task Badge & Multi-step Plan if present */}
+                          {!isUser && msg.taskType && (
+                            <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-white/[0.06]">
+                              <span className="px-2.5 py-0.5 rounded-[12px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 font-mono text-[10px] font-bold tracking-wide">
+                                {msg.taskType.replace(/_/g, ' ')}
+                              </span>
+                              {msg.taskState && (
+                                <span className="px-2 py-0.5 rounded-[12px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[10px] font-semibold">
+                                  {msg.taskState}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Multi-step Execution Steps */}
+                          {!isUser && msg.plan?.plannedSteps && msg.plan.plannedSteps.length > 1 && (
+                            <div className="my-2 p-3 rounded-[14px] bg-[#070b16] border border-white/[0.06] space-y-2">
+                              <div className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
+                                <Workflow size={12} className="text-cyan-400" />
+                                <span>แผนการประมวลผล (Execution Plan · {msg.plan.plannedSteps.length} ขั้นตอน)</span>
+                              </div>
+                              <div className="grid grid-cols-1 gap-1.5 pt-1">
+                                {msg.plan.plannedSteps.map((step, sIdx) => (
+                                  <div key={sIdx} className="flex items-start gap-2 text-[11px] text-white/70">
+                                    <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                                    <div>
+                                      <span className="font-semibold text-white/90">{step.order}. {step.title}: </span>
+                                      <span className="text-white/50">{step.description}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="whitespace-pre-wrap">
+                            {msg.content}
+                          </div>
                         </div>
                       )}
 

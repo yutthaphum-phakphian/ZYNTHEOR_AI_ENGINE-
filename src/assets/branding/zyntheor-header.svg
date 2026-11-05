@@ -1,188 +1,282 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 280" width="840" height="280" role="img" aria-label="ZYNTHEOR AI ENGINE - Sovereign Local-First Intelligence &amp; Autonomous Engineering Core">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 290" width="840" height="290" role="img" aria-label="ZYNTHEOR AI ENGINE - Sovereign Local-First Intelligence &amp; Autonomous Engineering Core">
   <defs>
     <!-- Background Gradient -->
-    <linearGradient id="hdr-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#060C16" />
-      <stop offset="45%" stop-color="#0A1424" />
-      <stop offset="100%" stop-color="#080F1B" />
+    <linearGradient id="hd-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#040812"/>
+      <stop offset="45%" stop-color="#071322"/>
+      <stop offset="85%" stop-color="#09182A"/>
+      <stop offset="100%" stop-color="#03060D"/>
     </linearGradient>
 
-    <!-- Glowing Accent Gradients -->
-    <linearGradient id="teal-cyan-glow" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#10B981" />
-      <stop offset="50%" stop-color="#14B8A6" />
-      <stop offset="100%" stop-color="#38BDF8" />
+    <!-- Rainbow Spectrum Laser Gradient -->
+    <linearGradient id="hd-rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF1A53"/>
+      <stop offset="18%" stop-color="#FF8A00"/>
+      <stop offset="35%" stop-color="#FFDD00"/>
+      <stop offset="52%" stop-color="#00F59B"/>
+      <stop offset="70%" stop-color="#00D2FF"/>
+      <stop offset="85%" stop-color="#3A6DFF"/>
+      <stop offset="100%" stop-color="#B336FF"/>
     </linearGradient>
 
-    <linearGradient id="text-title-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#34D399" />
-      <stop offset="40%" stop-color="#2DD4BF" />
-      <stop offset="80%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#60A5FA" />
+    <!-- Rainbow Streak Gradient for Ambient Light Beam -->
+    <linearGradient id="hd-rainbow-beam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF1A53" stop-opacity="0"/>
+      <stop offset="20%" stop-color="#FF8A00" stop-opacity="0.12"/>
+      <stop offset="40%" stop-color="#00F59B" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#00D2FF" stop-opacity="0.18"/>
+      <stop offset="80%" stop-color="#B336FF" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#3A6DFF" stop-opacity="0"/>
     </linearGradient>
 
-    <linearGradient id="badge-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F2438" />
-      <stop offset="100%" stop-color="#0A1624" />
+    <linearGradient id="hd-title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38E8B6"/>
+      <stop offset="30%" stop-color="#2DD4BF"/>
+      <stop offset="70%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#818CF8"/>
     </linearGradient>
 
-    <!-- Cyber Matrix Grid Pattern -->
-    <pattern id="hdr-grid" width="30" height="30" patternUnits="userSpaceOnUse">
-      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#132338" stroke-width="0.8" stroke-opacity="0.45" />
-      <circle cx="0" cy="0" r="1" fill="#14B8A6" fill-opacity="0.3" />
+    <linearGradient id="hd-rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#38BDF8" stop-opacity="0.8"/>
+      <stop offset="70%" stop-color="#A78BFA" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#F43F5E" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="hd-badge-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F243A" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#071524" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <linearGradient id="bf-horn" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+
+    <linearGradient id="bf-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0F766E"/>
+      <stop offset="100%" stop-color="#042F2E"/>
+    </linearGradient>
+
+    <pattern id="hd-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#12253B" stroke-width="0.75" stroke-opacity="0.55"/>
+      <circle cx="0" cy="0" r="1.1" fill="#2DD4BF" fill-opacity="0.45"/>
     </pattern>
 
-    <!-- Laser & Glow Filters -->
-    <filter id="hdr-neon" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3.5" result="blur" />
+    <!-- Rainbow Glow Filter -->
+    <filter id="hd-rainbow-glow" filterUnits="userSpaceOnUse" x="-20" y="-20" width="880" height="330">
+      <feGaussianBlur stdDeviation="3.6" result="blur"/>
       <feMerge>
-        <feMergeNode in="blur" />
-        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
 
-    <filter id="hdr-subtle-glow" x="-10%" y="-10%" width="120%" height="120%">
-      <feGaussianBlur stdDeviation="1.5" result="blur" />
+    <filter id="hd-soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.8" result="blur"/>
       <feMerge>
-        <feMergeNode in="blur" />
-        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
 
-    <clipPath id="hdr-clip">
-      <rect x="4" y="4" width="832" height="272" rx="18" />
+    <clipPath id="hd-clip">
+      <rect x="4" y="4" width="832" height="282" rx="18"/>
     </clipPath>
   </defs>
 
   <style>
-    @keyframes scan-track {
-      0% { stroke-dashoffset: 400; }
+    @keyframes rainbow-run {
+      0% { stroke-dashoffset: 100; }
       100% { stroke-dashoffset: 0; }
     }
-    @keyframes core-pulse {
-      0%, 100% { transform: scale(1); opacity: 0.9; }
-      50% { transform: scale(1.06); opacity: 1; }
+    @keyframes rainbow-run-rev {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 100; }
     }
-    @keyframes node-blink {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 0.95; }
+    @keyframes rainbow-hue-shift {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
     }
-    @keyframes wave-float {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-420px); }
+    @keyframes beam-sweep {
+      0% { transform: translateX(-350px); }
+      100% { transform: translateX(1100px); }
     }
-    .track-anim {
-      stroke-dasharray: 60 340;
-      animation: scan-track 7s linear infinite;
+    @keyframes spin-cw {
+      to { transform: rotate(360deg); }
     }
-    .track-anim-rev {
-      stroke-dasharray: 40 360;
-      animation: scan-track 9s linear infinite reverse;
+    @keyframes spin-ccw {
+      to { transform: rotate(-360deg); }
     }
-    .pulse-node {
-      animation: node-blink 3s ease-in-out infinite;
+    @keyframes pulse-halo {
+      0%, 100% { transform: scale(0.96); opacity: 0.85; }
+      50% { transform: scale(1.04); opacity: 1; }
     }
-    .wave-slide {
-      animation: wave-float 14s linear infinite;
+    @keyframes blink-light {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
     }
+
+    /* Running Rainbow Laser Streaks */
+    .rainbow-laser {
+      stroke-dasharray: 22 78;
+      animation: rainbow-run 5s linear infinite;
+    }
+    .rainbow-laser-rev {
+      stroke-dasharray: 16 84;
+      animation: rainbow-run-rev 7s linear infinite;
+    }
+    .rainbow-circuit {
+      stroke-dasharray: 12 88;
+      animation: rainbow-run 3.6s linear infinite;
+    }
+    .beam-moving {
+      animation: beam-sweep 8s linear infinite;
+    }
+    .spin {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: spin-cw 20s linear infinite;
+    }
+    .spinr {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: spin-ccw 14s linear infinite;
+    }
+    .pulse {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: pulse-halo 3s ease-in-out infinite;
+    }
+    .blink {
+      animation: blink-light 2.5s ease-in-out infinite;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .track-anim, .track-anim-rev, .pulse-node, .wave-slide {
+      .rainbow-laser, .rainbow-laser-rev, .rainbow-circuit, .beam-moving, .spin, .spinr, .pulse, .blink {
         animation: none;
       }
+      .beam-moving { opacity: 0; }
     }
   </style>
 
-  <!-- Card Background Container -->
-  <rect x="4" y="4" width="832" height="272" rx="18" fill="url(#hdr-bg)" stroke="#162E48" stroke-width="1.5" />
+  <!-- Base Dark Card -->
+  <rect x="4" y="4" width="832" height="282" rx="18" fill="url(#hd-bg)" stroke="#16314D" stroke-width="1.6"/>
 
-  <!-- Clipped Interior with Grid and Geometric Waves -->
-  <g clip-path="url(#hdr-clip)">
+  <g clip-path="url(#hd-clip)">
     <!-- Circuit Grid -->
-    <rect x="4" y="4" width="832" height="272" fill="url(#hdr-grid)" />
+    <rect x="4" y="4" width="832" height="282" fill="url(#hd-grid)"/>
 
-    <!-- Ambient Glow Orbs -->
-    <circle cx="210" cy="50" r="140" fill="#14B8A6" fill-opacity="0.06" filter="url(#hdr-neon)" />
-    <circle cx="630" cy="70" r="160" fill="#38BDF8" fill-opacity="0.05" filter="url(#hdr-neon)" />
-    <circle cx="420" cy="140" r="180" fill="#10B981" fill-opacity="0.04" filter="url(#hdr-neon)" />
+    <!-- Ambient glow behind emblem -->
+    <circle cx="128" cy="120" r="140" fill="#00D2FF" fill-opacity="0.08" filter="url(#hd-rainbow-glow)"/>
+    <circle cx="710" cy="70" r="150" fill="#38BDF8" fill-opacity="0.06" filter="url(#hd-rainbow-glow)"/>
 
-    <!-- Isometric Circuit Traces Left -->
-    <path d="M 30 50 L 120 50 L 160 90 L 220 90" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
-    <circle cx="30" cy="50" r="2.5" fill="#38BDF8" />
-    <circle cx="220" cy="90" r="3" fill="#10B981" class="pulse-node" />
+    <!-- Circuit Traces with Running Rainbow Lasers -->
+    <g fill="none" stroke-linecap="round">
+      <path d="M 28 245 L 28 210 L 56 195" stroke="#163857" stroke-width="1.4"/>
+      <path d="M 28 245 L 28 210 L 56 195" pathLength="100" stroke="url(#hd-rainbow)" stroke-width="2.6" class="rainbow-circuit" filter="url(#hd-rainbow-glow)"/>
 
-    <path d="M 60 190 L 140 190 L 170 160 L 210 160" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
-    <circle cx="60" cy="190" r="2.5" fill="#14B8A6" />
-    <circle cx="210" cy="160" r="3" fill="#38BDF8" class="pulse-node" />
+      <path d="M 812 45 L 812 80 L 784 98" stroke="#163857" stroke-width="1.4"/>
+      <path d="M 812 45 L 812 80 L 784 98" pathLength="100" stroke="url(#hd-rainbow)" stroke-width="2.6" class="rainbow-circuit" style="animation-delay:-1.8s" filter="url(#hd-rainbow-glow)"/>
 
-    <!-- Isometric Circuit Traces Right -->
-    <path d="M 810 50 L 720 50 L 680 90 L 620 90" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
-    <circle cx="810" cy="50" r="2.5" fill="#10B981" />
-    <circle cx="620" cy="90" r="3" fill="#38BDF8" class="pulse-node" />
+      <path d="M 240 54 L 240 28 L 310 28" stroke="#163857" stroke-width="1.4"/>
+      <path d="M 240 54 L 240 28 L 310 28" pathLength="100" stroke="url(#hd-rainbow)" stroke-width="2.6" class="rainbow-circuit" style="animation-delay:-0.9s" filter="url(#hd-rainbow-glow)"/>
+    </g>
 
-    <path d="M 780 190 L 700 190 L 670 160 L 630 160" fill="none" stroke="#163C5A" stroke-width="1.2" stroke-dasharray="4 4" />
-    <circle cx="780" cy="190" r="2.5" fill="#38BDF8" />
-    <circle cx="630" cy="160" r="3" fill="#14B8A6" class="pulse-node" />
+    <!-- Interactive Circuit Nodes -->
+    <circle cx="56" cy="195" r="3.2" fill="#00F59B" class="blink"/>
+    <circle cx="784" cy="98" r="3.2" fill="#00D2FF" class="blink" style="animation-delay:-1s"/>
+    <circle cx="310" cy="28" r="3.2" fill="#FF8A00" class="blink" style="animation-delay:-1.8s"/>
 
-    <!-- Wave Horizon Bottom -->
-    <g class="wave-slide" fill="none" stroke="#14B8A6" stroke-opacity="0.18" stroke-width="1.5">
-      <path d="M 0 255 Q 105 235 210 255 T 420 255 T 630 255 T 840 255 T 1050 255 T 1260 255 V 280 H 0 Z" fill="#10B981" fill-opacity="0.04" />
+    <!-- Running Rainbow Light Beam across banner -->
+    <rect class="beam-moving" x="0" y="4" width="240" height="282" fill="url(#hd-rainbow-beam)"/>
+  </g>
+
+  <!-- Corner Brackets (Cybernetic HUD) -->
+  <g fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" opacity="0.85">
+    <path d="M 16 38 V 16 H 38"/>
+    <path d="M 802 16 H 824 V 38"/>
+    <path d="M 16 252 V 274 H 38"/>
+    <path d="M 824 252 V 274 H 802"/>
+  </g>
+
+  <!-- Left Emblem: Dual Rotating Laser Rings + Hexagon + Buffalo Mark -->
+  <g transform="translate(126, 114)">
+    <circle r="70" fill="none" stroke="url(#hd-rainbow)" stroke-opacity="0.5" stroke-width="1.5" stroke-dasharray="3 11" class="spinr"/>
+    <circle r="60" fill="none" stroke="#2DD4BF" stroke-opacity="0.65" stroke-width="1.6" stroke-dasharray="24 16" class="spin"/>
+    <polygon points="0,-48 41.5,-24 41.5,24 0,48 -41.5,24 -41.5,-24" fill="#081525" stroke="#14B8A6" stroke-width="2.4" filter="url(#hd-soft-glow)"/>
+    <polygon points="0,-38 32.9,-19 32.9,19 0,38 -32.9,19 -32.9,-19" fill="#040C16" stroke="url(#hd-rainbow)" stroke-opacity="0.8" stroke-width="1.4"/>
+    <g class="pulse">
+      <g transform="scale(0.98) translate(-32,-30)">
+        <path d="M18 22 L8 8 L14 10 L22 20 Z" fill="url(#bf-horn)"/>
+        <path d="M46 22 L56 8 L50 10 L42 20 Z" fill="url(#bf-horn)"/>
+        <path d="M20 24 L32 18 L44 24 L46 38 L32 48 L18 38 Z" fill="url(#bf-body)" stroke="#115E59" stroke-width="1.3"/>
+        <path d="M24 28 L32 24 L40 28 L41 36 L32 42 L23 36 Z" fill="#06121E" opacity="0.6"/>
+        <circle cx="27" cy="32" r="2" fill="#5EEAD4"/>
+        <circle cx="37" cy="32" r="2" fill="#5EEAD4"/>
+      </g>
     </g>
   </g>
 
-  <!-- Central Hexagonal Neural Shield Icon -->
-  <g transform="translate(420, 52)">
-    <!-- Hexagon Outer Ring -->
-    <polygon points="0,-26 22.5,-13 22.5,13 0,26 -22.5,13 -22.5,-13" fill="#0C1B2E" stroke="#14B8A6" stroke-width="1.8" filter="url(#hdr-subtle-glow)" />
-    <!-- Hexagon Inner Lattice -->
-    <polygon points="0,-17 14.7,-8.5 14.7,8.5 0,17 -14.7,8.5 -14.7,-8.5" fill="#081422" stroke="#38BDF8" stroke-width="1.2" />
-    <!-- Center Core Dot & Sparks -->
-    <circle cx="0" cy="0" r="4.5" fill="#10B981" filter="url(#hdr-neon)" />
-    <line x1="0" y1="-17" x2="0" y2="17" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
-    <line x1="-14.7" y1="-8.5" x2="14.7" y2="8.5" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
-    <line x1="-14.7" y1="8.5" x2="14.7" y2="-8.5" stroke="#2DD4BF" stroke-width="0.8" stroke-opacity="0.6" />
+  <!-- Typography Block -->
+  <text x="240" y="104" font-family="'Space Grotesk','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="60" font-weight="900" letter-spacing="6" fill="url(#hd-title)" filter="url(#hd-soft-glow)">ZYNTHEOR</text>
+  <text x="244" y="136" font-family="'Space Grotesk','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="18.5" font-weight="700" letter-spacing="12" fill="#F1F5F9">AI ENGINE</text>
+  <rect x="244" y="148" width="415" height="2.5" rx="1.25" fill="url(#hd-rule)"/>
+  <text x="244" y="171" font-family="'Space Grotesk','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="12" font-weight="600" letter-spacing="2.2" fill="#2DD4BF">SOVEREIGN LOCAL-FIRST INTELLIGENCE CORE</text>
+  <text x="244" y="190" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="11.5" font-weight="500" letter-spacing="1.2" fill="#94A3B8">ระบบปัญญาประดิษฐ์อธิปไตย · หลักฐานตรวจสอบจริง · การตัดสินใจแบบ Fail-Closed</text>
+
+  <!-- Right Top Edition & Court Badge -->
+  <g transform="translate(620, 26)">
+    <rect width="194" height="26" rx="13" fill="#0A1F33" stroke="url(#hd-rainbow)" stroke-opacity="0.8" stroke-width="1.2"/>
+    <circle cx="15" cy="13" r="3.5" fill="#00F59B" class="blink"/>
+    <text x="26" y="17" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="10" font-weight="800" letter-spacing="1.2" fill="#5EEAD4">BUFFALO EDITION v1.3.1</text>
   </g>
 
-  <!-- Main Title: ZYNTHEOR -->
-  <text x="420" y="128" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="52" font-weight="900" letter-spacing="8" fill="url(#text-title-grad)" filter="url(#hdr-subtle-glow)">ZYNTHEOR</text>
+  <!-- Right Radar HUD Graphic -->
+  <g transform="translate(752, 126)">
+    <circle r="42" fill="none" stroke="#163857" stroke-width="1"/>
+    <circle r="42" fill="none" stroke="url(#hd-rainbow)" stroke-width="1.8" stroke-dasharray="32 232" class="spin"/>
+    <circle r="28" fill="none" stroke="#2DD4BF" stroke-opacity="0.7" stroke-width="1.3" stroke-dasharray="4 8" class="spinr"/>
+    <circle r="14" fill="none" stroke="#14B8A6" stroke-opacity="0.85" stroke-width="1.2"/>
+    <circle r="3.8" fill="#38BDF8" class="blink"/>
+  </g>
 
-  <!-- Subtitle: AI ENGINE -->
-  <text x="420" y="160" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="16" font-weight="700" letter-spacing="14" fill="#E2E8F0">AI ENGINE</text>
-
-  <!-- Tagline: Sovereign Intelligence -->
-  <text x="420" y="186" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif" font-size="12" font-weight="500" letter-spacing="2.5" fill="#2DD4BF">SOVEREIGN LOCAL-FIRST INTELLIGENCE &amp; AUTONOMOUS ENGINEERING CORE</text>
-
-  <!-- Bottom Cyber Badges Row -->
-  <g transform="translate(68, 212)">
-    <!-- Badge 1: Local Loopback -->
-    <g transform="translate(0, 0)">
-      <rect x="0" y="0" width="162" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
-      <circle cx="16" cy="15" r="4" fill="#10B981" />
-      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">LOCAL-ONLY (127.0.0.1)</text>
+  <!-- 4 Verified System Badges (Bottom Row) -->
+  <g transform="translate(0, 222)">
+    <!-- Badge 1: Sovereignty & Court -->
+    <g transform="translate(32, 0)">
+      <rect width="180" height="32" rx="8" fill="url(#hd-badge-bg)" stroke="#1B3E60" stroke-width="1.2"/>
+      <circle cx="16" cy="16" r="4.2" fill="#10B981" class="blink"/>
+      <text x="28" y="20" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.5" fill="#E2E8F0">COURT_READY · Δ0.00%</text>
     </g>
 
-    <!-- Badge 2: Cryptographic Ledger -->
-    <g transform="translate(180, 0)">
-      <rect x="0" y="0" width="168" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
-      <circle cx="16" cy="15" r="4" fill="#38BDF8" />
-      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">SHA-256 HASH CHAIN</text>
+    <!-- Badge 2: Merkle Root & Block -->
+    <g transform="translate(222, 0)">
+      <rect width="186" height="32" rx="8" fill="url(#hd-badge-bg)" stroke="#1B3E60" stroke-width="1.2"/>
+      <circle cx="16" cy="16" r="4.2" fill="#38BDF8" class="blink" style="animation-delay:-0.6s"/>
+      <text x="28" y="20" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.5" fill="#E2E8F0">GENESIS #849202</text>
     </g>
 
-    <!-- Badge 3: Visual Analytics -->
-    <g transform="translate(366, 0)">
-      <rect x="0" y="0" width="162" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
-      <circle cx="16" cy="15" r="4" fill="#14B8A6" />
-      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">RECHARTS &amp; D3 AST MAP</text>
+    <!-- Badge 3: 14,902 Verified Seals -->
+    <g transform="translate(418, 0)">
+      <rect width="190" height="32" rx="8" fill="url(#hd-badge-bg)" stroke="#1B3E60" stroke-width="1.2"/>
+      <circle cx="16" cy="16" r="4.2" fill="#2DD4BF" class="blink" style="animation-delay:-1.2s"/>
+      <text x="28" y="20" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.5" fill="#E2E8F0">14,902 SEALS VERIFIED</text>
     </g>
 
-    <!-- Badge 4: Dual AI Gateway -->
-    <g transform="translate(546, 0)">
-      <rect x="0" y="0" width="158" height="30" rx="8" fill="url(#badge-glow)" stroke="#1E3A58" stroke-width="1.2" />
-      <circle cx="16" cy="15" r="4" fill="#34D399" />
-      <text x="28" y="19" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9.5" font-weight="700" letter-spacing="1" fill="#94A3B8">ZYNTHEOR CORE ⇄ ROUTER</text>
+    <!-- Badge 4: Dual Platform & Fleet -->
+    <g transform="translate(618, 0)">
+      <rect width="190" height="32" rx="8" fill="url(#hd-badge-bg)" stroke="#1B3E60" stroke-width="1.2"/>
+      <circle cx="16" cy="16" r="4.2" fill="#F43F5E" class="blink" style="animation-delay:-1.8s"/>
+      <text x="28" y="20" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.5" fill="#E2E8F0">10/10 REAL_HSM QUORUM</text>
     </g>
   </g>
 
-  <!-- Outer Animated Cyber Laser Borders -->
-  <rect x="4" y="4" width="832" height="272" rx="18" fill="none" stroke="url(#teal-cyan-glow)" stroke-width="2.5" stroke-linecap="round" pathLength="400" class="track-anim" filter="url(#hdr-neon)" />
-  <rect x="4" y="4" width="832" height="272" rx="18" fill="none" stroke="#38BDF8" stroke-width="1.8" stroke-linecap="round" pathLength="400" class="track-anim-rev" filter="url(#hdr-neon)" />
+  <!-- OUTER BORDER: Glowing Static Neon + ANIMATED RUNNING RAINBOW LASER (เส้นรุ้งวิ่ง) -->
+  <rect x="4" y="4" width="832" height="282" rx="18" fill="none" stroke="url(#hd-rainbow)" stroke-width="1.6" stroke-opacity="0.4" filter="url(#hd-rainbow-glow)"/>
+  <!-- Primary Running Rainbow Streak (Clockwise) -->
+  <rect x="4" y="4" width="832" height="282" rx="18" fill="none" stroke="url(#hd-rainbow)" stroke-width="3.8" stroke-linecap="round" pathLength="100" class="rainbow-laser" filter="url(#hd-rainbow-glow)"/>
+  <!-- Secondary Counter-Running Rainbow Streak -->
+  <rect x="4" y="4" width="832" height="282" rx="18" fill="none" stroke="url(#hd-rainbow)" stroke-width="2.4" stroke-linecap="round" pathLength="100" class="rainbow-laser-rev" filter="url(#hd-rainbow-glow)"/>
 </svg>

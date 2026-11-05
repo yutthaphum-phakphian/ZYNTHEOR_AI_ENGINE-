@@ -1,20 +1,22 @@
 # Security Policy & Governance — ZYNTHEOR AI ENGINE
 
-**Edition:** Buffalo Edition (1.2.x)  
-**Status:** Active Security Governance | Cryptographic Hash Chain Baseline | Local-First Isolation
+**Repository:** `https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-.git`  
+**Edition:** Buffalo Edition (`v1.3.1_LTS_GOLD_MASTER` / `1.3.1-clean-first-party`)  
+**Status:** Active Security Governance · Cryptographic Hash Chain Baseline · Fail-Closed Local-First Isolation
 
 ---
 
 ## 🛡️ Security Philosophy & Core Principles
 
-ZYNTHEOR AI ENGINE is designed from the ground up for high-security, enterprise-grade, local-first engineering environments. Security and evidence integrity are not afterthought features; they are foundational constraints embedded into the execution architecture.
+ZYNTHEOR AI ENGINE is designed from the ground up for high-security, enterprise-grade, local-first engineering and universal intelligence environments. Security, privacy, and evidence integrity are not afterthought features; they are foundational invariants embedded into the execution architecture.
 
 ### Key Safeguards
-1. **Local-First Processing Standard**: By default, all code analysis, prompt execution, and task memory are processed locally on the operator's machine or self-hosted deployment.
+1. **Local-First Processing Standard**: By default, all code analysis, prompt execution, and task memory are processed locally on the operator's machine or self-hosted deployment (`ZYNTHEOR_LOCAL_ONLY=true`).
 2. **Server-Side Secret Isolation**: API Keys (e.g. `GEMINI_API_KEY`, `ZYNTHEOR_MODEL_API_KEY`, `TENANT_STORAGE_HMAC_SECRET`, `BILLING_WEBHOOK_SECRET`) are stored exclusively in server environment variables (`.env`) and proxied through Node Express endpoints (`/api/*`). Secrets are never exposed to browser client-side bundles or web state.
-3. **Explicit Consent Gate for Remote APIs**: Any fallback or outbound calls to external model providers require explicit user consent and configuration (`ZYNTHEOR_LOCAL_ONLY=false`).
-4. **Cryptographic Evidence Hashing**: Rationale, tool execution steps, and AST code modifications are linked into immutable SHA-256 hash chains (`lib/evidence-manager.ts` and `lib/governance-ledger.ts`) to prevent tamper or silent injection.
-5. **Human-in-the-Loop Governance Gate**: Destructive operations (writing code patches, applying git commits, invoking system commands, restoring backups) require explicit human approval in the UI before execution.
+3. **Explicit Consent Gate for Remote Data**: Any outbound calls to external services or Internet Gateways require explicit user consent (`onlineConsent=true`). The Internet Gateway functions strictly as a data retrieval mechanism, never as the model provider.
+4. **Cryptographic Evidence Hashing**: Rationale, tool execution steps, and AST code modifications are linked into immutable SHA-256 hash chains (`src/services/auditLedger.ts`) anchored to Genesis Block #849202 and Merkle Root `909ab814479844d8a14816bed34cdbb07528e18501da86fc4691763a43fa4c68`.
+5. **Human-in-the-Loop Governance Gate**: Destructive operations (writing code patches, applying git commits, invoking system commands, restoring backups) require explicit human approval in the UI before execution (`Fail-Closed` invariant).
+6. **10 Control Center Governance Categories**: My Profile, General, Intelligence Settings, Model & Runtime, Knowledge & Memory, Security & Privacy, Workspace, Notifications, System Configuration (Admin Gated), and About ZYNTHEOR.
 
 ---
 
@@ -22,47 +24,53 @@ ZYNTHEOR AI ENGINE is designed from the ground up for high-security, enterprise-
 
 | Version Line | Status | Security Support |
 | :--- | :--- | :--- |
-| **Buffalo 1.2.x (Current)** | 🟢 Active | Full security updates & cryptographic audits |
-| **Buffalo 1.1.x** | 🟡 Maintenance | Critical security patches only |
-| **< 1.0.0 (Legacy)** | 🔴 End-of-Life | Unsupported — upgrade recommended |
+| **v1.3.1 LTS (Current Gold Master)** | 🟢 Active | Full security updates, PQC ML-DSA-87, & cryptographic audits |
+| **v1.2.x (Buffalo Edition)** | 🟢 Supported | Cryptographic audit support & maintenance patches |
+| **v1.1.x** | 🟡 Maintenance | Critical security patches only |
+| **< 1.0.0 (Legacy)** | 🔴 End-of-Life | Unsupported — clean migration required |
 
 ---
 
 ## 🚨 Reporting a Vulnerability
 
-**Email**: `yuttaphumphakphian@gmail.com`  
-**【entity-GitHub¦canonical_name=GitHub】**: Open a private security advisory
+**Security Email**: `yuttaphumphakphian@gmail.com` / `hugeplease66@gmail.com`  
+**GitHub Security**: Open a private security advisory on [`yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-`](https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-)
 
-**Include:** Description, Reproduction Steps, Affected Subsystem (Express API Gateway, Token Verification, Evidence Hash Ledger, Tenant Storage), Environment Context.
+**Please Include:**
+- Description of the vulnerability and attack vector
+- Reproduction steps and proof of concept
+- Affected subsystem (Express API Gateway, Token Verification, Evidence Hash Ledger, Tenant Isolation, or Sandbox)
+- Environment context (Node.js version, platform, host binding)
 
-**SLA:** Initial Response 24h, Triage 48h, Critical Fix 7 business days.
+**SLA:** Initial response within 24 hours, triage within 48 hours, critical security fix within 7 business days.
 
 ---
 
 ## 🔐 Security Architecture Details
 
 ### 1. Authentication & Token Verification
-- `ZYNTHEOR_ACCESS_TOKEN` enables Bearer protection for `/api/workspace/*`, `/api/chat`, `/api/settings`, `/api/diagnostics`
-- Middleware sanitizes workspace IDs and file paths against traversal
+- `ZYNTHEOR_ACCESS_TOKEN` enables Bearer protection for `/api/workspace/*`, `/api/chat`, `/api/settings`, `/api/diagnostics`, `/api/intelligence/analyze`.
+- Request sanitizers validate tenant contexts and neutralize directory traversal attacks.
 
 ### 2. Rate-Limiting & Containment
-- In-memory rate limiters (429), sandboxed execution with truncation
+- In-memory sliding window rate limiters (429 Too Many Requests).
+- Isolated Node.js VM context execution with strict blocklists (`process`, `eval`, `child_process`).
 
 ### 3. Cryptographic Verification & Audit Chain
-- `FILE_MANIFEST.sha256` + `verifyAuditHashChain()` + `/api/evidence`
+- Canonical Merkle Root: `909ab814479844d8a14816bed34cdbb07528e18501da86fc4691763a43fa4c68` (Genesis #849202).
+- Post-Quantum Cryptography: NIST FIPS 203/204/205 ML-DSA-87 + SPHINCS+.
+- Legal Compliance: ETDA B.E. 2544 Sec 9/26/28, PDPA B.E. 2562 Sec 37, NCSA CII Act.
 
-### 4. Tenant Isolation & Backup Integrity (Patch 3-6)
-- **Zero Client Trust**: `principal.tenantId` from verified server session only, never from query/body
-- **Persistence**: `tenantScopedStorage.ts` atomic write (tmp + fsync + rename) to `workspace_data/projects.json`, scoped APIs `findByTenant / createForTenant / updateForTenant / deleteForTenant`
-- **Quarantine**: Legacy records without tenantId marked `unclassified:true, quarantineStatus: quarantine_non_secret`, excluded from normal queries, manual classification with audit log via `getQuarantinedLegacyProjects / classifyLegacyProject`
-- **Backup Format v1.0**: `formatVersion, tenantId, createdAt, createdBy, sourceRevision, recordCount, schemaVersion, SHA-256 integrity + HMAC-SHA256 signature`
-- **Restore Policy**: `backup:create` → owner+admin, `backup:restore` → owner only (admin denied), cross-tenant restore blocked with explicit audit log, staging isolated + atomic promotion, rollback verified
-- **Active Workspace Isolation**: `Map<userId, ActiveWorkspace>` prevents leakage between users
+### 4. Tenant Isolation & Storage Integrity
+- **Zero Client Trust**: `principal.tenantId` derived strictly from verified server sessions.
+- **Persistence**: Atomic file writes (tmp + fsync + rename) with HMAC-SHA256 signature verification.
+- **Backup & Restore**: Cross-tenant restore strictly blocked with security audit entries; restore restricted to `OWNER` role only.
 
 ---
 
 ## 🛠️ Best Practices for Operators
-1. Keep `.env` private, use `.env.example` with `ZYNTHEOR_LOCAL_ONLY=true` and `HOST=127.0.0.1`
-2. Enable `ZYNTHEOR_ACCESS_TOKEN` when `HOST=0.0.0.0` — do not expose it directly to the internet
-3. Review Audit Ledger and Diagnostics panels regularly
-4. Set `TENANT_STORAGE_HMAC_SECRET` and `BILLING_WEBHOOK_SECRET` in production env
+
+1. Bind the development server to `127.0.0.1:3000` or local loopback in personal environments.
+2. If exposing over `0.0.0.0`, always set `ZYNTHEOR_ACCESS_TOKEN` and run behind an HTTPS reverse proxy.
+3. Never commit `.env` or raw API keys to Git.
+4. Periodically inspect the Forensic Diagnostics panel and Audit Ledger.

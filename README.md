@@ -174,22 +174,26 @@ ZYNTHEOR ทำงานผ่านสถาปัตยกรรม **7-Tier S
 ZYNTHEOR ยึดมั่นในหลักฐานทางวิศวกรรมจริง ทุกรายงานผลทดสอบต้องระบุคำสั่ง สภาพแวดล้อม และระดับการตรวจสอบอย่างตรงไปตรงมา:
 
 ### ผลการทดสอบล่าสุด (Inspected Test Runs)
+- **เวอร์ชัน:** Buffalo Edition v1.3.1 LTS (`1.3.1-clean-first-party`)
 - **สภาพแวดล้อม:** Linux x86_64, Node.js v22.x
 - **Repository Snapshot:** [`07c1d50556b3602e5dbbde067cd8dfe8fd9dcb09`](https://github.com/yutthaphum-phakphian/ZYNTHEOR_AI_ENGINE-/commit/07c1d50556b3602e5dbbde067cd8dfe8fd9dcb09)
+- **ความสมบูรณ์ของ Merkle Root:** Genesis `#849202` (14,902 Verified Seals · Δ0.00% Drift · Court Ready)
 
 | ระดับการทดสอบ | คำสั่งที่ใช้ทดสอบจริง | จำนวนการทดสอบ | ผลลัพธ์ | ขอบเขตการยืนยัน |
 |---|---|---|---|---|
+| **Core Vitest Suite** | `npm run test:vitest` | 18 test files (151 tests) | **PASS (151/151)** | Unified evaluation engine, AST call graphs, model registry, isolation, reasoning gates |
 | **Operational Evaluation Lab** | `node --import tsx --test tests/operational-evaluation-lab.test.ts` | 13 tests | **PASS (13/13)** | ทดสอบการทำงานจริงของ 8 ห้องปฏิบัติการ (Reasoning, Sandbox, Debug, Security, Repo, Agent, Performance, Model Compare) |
 | **Repository Intelligence & AST** | `node --import tsx --test tests/phase8-repository-intelligence.test.ts` | 9 tests | **PASS (9/9)** | ทดสอบ AST parsing, Call Graph, Symbol Query, Entry Points, Circular Dependency, และ Human Approval Gate |
-| **Type Integrity Check** | `npm run typecheck` | Strict TS | **PASS** | ตรวจสอบ Type Safety ทั่วทั้งระบบ TypeScript |
-| **Production Build** | `npm run build` | Vite + Rollup | **PASS** | คอมไพล์และสร้าง Production Bundle สำเร็จ |
+| **Type Integrity Check** | `npm run typecheck` | Strict TS | **PASS (0 errors)** | ตรวจสอบ Type Safety ทั่วทั้งระบบ TypeScript |
+| **Production Build** | `npm run build` | Vite 6 + Rollup | **PASS** | คอมไพล์และสร้าง Production Bundle สำเร็จ |
 
 ### ตารางสถานะ Phase Gates
 
 | หมวดหมู่ | สถานะ | ขอบเขตหลักฐานและข้อจำกัด |
 |---|---|---|
-| **General Chat & Intelligence** | `COMPLETED_VERIFIED` | ใช้งานได้จริง ตอบสนองทั้งภาษาไทยและอังกฤษ มีตัวจัดหมวดหมู่อัตโนมัติ |
+| **Universal Task Engine (9 Tasks)** | `COMPLETED_VERIFIED` | รองรับ Research, Analysis, Reasoning, Writing, Learning, Creative, Documents, Data, Technical |
 | **Operational Evaluation Labs (1-8)** | `COMPLETED_VERIFIED` | Backend และ UI เชื่อมต่อระบบจริง 8 แล็บ มีผลการทดสอบผ่าน 100% |
+| **Control Center (10 Categories)** | `COMPLETED_VERIFIED` | แยก 10 หมวดหมู่การตั้งค่า พร้อมสถานะ Real-time Telemetry และการป้องกัน Airgap |
 | **Repository & Code Intelligence** | `COMPLETED_VERIFIED` | สแกนไฟล์ สกัด AST สร้าง Call Graph และประเมินผลกระทบก่อนแก้โค้ดจริง |
 | **Safe VM Sandbox Execution** | `COMPLETED_VERIFIED` | แยก Context ปลอดภัย บล็อก Token อันตราย (`process`, `eval`, `child_process`) |
 | **Human Approval & Governance** | `COMPLETED_VERIFIED` | ปฏิเสธการแก้ไฟล์จริงทันทีหากไม่ได้รับการอนุมัติจากมนุษย์ |

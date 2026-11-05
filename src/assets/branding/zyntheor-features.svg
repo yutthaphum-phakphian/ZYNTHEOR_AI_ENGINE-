@@ -1,111 +1,167 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 170" width="840" height="170" role="img" aria-label="ZYNTHEOR AI ENGINE Core Engineering Pillars">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 176" width="840" height="176" role="img" aria-label="ZYNTHEOR AI ENGINE Core Engineering Pillars">
   <defs>
-    <linearGradient id="feat-card-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0D1E33" />
-      <stop offset="100%" stop-color="#081424" />
+    <!-- Background Gradient -->
+    <linearGradient id="fc-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#081424"/>
+      <stop offset="100%" stop-color="#040A14"/>
     </linearGradient>
 
-    <linearGradient id="feat-teal-bar" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#10B981" />
-      <stop offset="100%" stop-color="#14B8A6" />
+    <!-- Rainbow Gradient -->
+    <linearGradient id="fc-rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF1A53"/>
+      <stop offset="18%" stop-color="#FF8A00"/>
+      <stop offset="36%" stop-color="#FFDD00"/>
+      <stop offset="54%" stop-color="#00F59B"/>
+      <stop offset="72%" stop-color="#00D2FF"/>
+      <stop offset="86%" stop-color="#3A6DFF"/>
+      <stop offset="100%" stop-color="#B336FF"/>
     </linearGradient>
 
-    <linearGradient id="feat-cyan-bar" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#14B8A6" />
-      <stop offset="100%" stop-color="#38BDF8" />
-    </linearGradient>
+    <linearGradient id="fc-g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#10B981"/><stop offset="1" stop-color="#14B8A6"/></linearGradient>
+    <linearGradient id="fc-g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#14B8A6"/><stop offset="1" stop-color="#38BDF8"/></linearGradient>
+    <linearGradient id="fc-g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#818CF8"/></linearGradient>
+    <linearGradient id="fc-g4" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#34D399"/><stop offset="1" stop-color="#10B981"/></linearGradient>
 
-    <linearGradient id="feat-indigo-bar" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#818CF8" />
-    </linearGradient>
-
-    <linearGradient id="feat-emerald-bar" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#34D399" />
-      <stop offset="100%" stop-color="#10B981" />
-    </linearGradient>
+    <filter id="fc-rainbow-glow" filterUnits="userSpaceOnUse" x="-20" y="-20" width="880" height="220">
+      <feGaussianBlur stdDeviation="3.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
 
-  <!-- 4 Feature Cards Layout: 840 wide, cards ~196 wide, gap 12 -->
+  <style>
+    @keyframes fc-rainbow-run {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes fc-spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fc-blink {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
+    }
+    .fc-rainbow-laser {
+      stroke-dasharray: 20 80;
+      animation: fc-rainbow-run 5s linear infinite;
+    }
+    .fc-rainbow-line {
+      stroke-dasharray: 14 86;
+      animation: fc-rainbow-run 3.2s linear infinite;
+    }
+    .fc-spin {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: fc-spin 16s linear infinite;
+    }
+    .fc-blink {
+      animation: fc-blink 2.6s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fc-rainbow-laser, .fc-rainbow-line, .fc-spin, .fc-blink { animation: none; }
+    }
+  </style>
 
   <!-- Card 1: Sovereign Local-First -->
   <g transform="translate(6, 6)">
-    <rect x="0" y="0" width="198" height="158" rx="12" fill="url(#feat-card-bg)" stroke="#163450" stroke-width="1.2" />
-    <rect x="12" y="10" width="34" height="3" rx="1.5" fill="url(#feat-teal-bar)" />
-    <!-- Icon Glyph -->
+    <rect x="0" y="0" width="198" height="164" rx="13" fill="url(#fc-bg)" stroke="#163854" stroke-width="1.3"/>
+    <rect x="14" y="12" width="34" height="3" rx="1.5" fill="url(#fc-g1)"/>
     <g transform="translate(156, 16)">
-      <circle cx="14" cy="14" r="14" fill="#0E2B38" />
-      <polygon points="14,6 22,10 22,18 14,22 6,18 6,10" fill="none" stroke="#2DD4BF" stroke-width="1.4" />
-      <circle cx="14" cy="14" r="2.5" fill="#10B981" />
+      <circle cx="14" cy="14" r="14" fill="#0C2534"/>
+      <polygon points="14,6 22,10 22,18 14,22 6,18 6,10" fill="none" stroke="#2DD4BF" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="2.8" fill="#10B981"/>
+      <circle cx="14" cy="14" r="16.5" fill="none" stroke="#2DD4BF" stroke-opacity="0.6" stroke-width="1" stroke-dasharray="2 6" class="fc-spin"/>
     </g>
-    <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#2DD4BF">PILLAR 01</text>
-    <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13" font-weight="700" fill="#F1F5F9">Sovereign Local-First</text>
-    <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ระบบปลอดภัยสูงสุด</text>
-    <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B" width="170">
-      <tspan x="14" dy="0">• Air-gap พร้อมใช้งาน 100%</tspan>
-      <tspan x="14" dy="14">• HOST=127.0.0.1 Locked</tspan>
-      <tspan x="14" dy="14">• ไร้การรั่วไหลของ Telemetry</tspan>
+    <text x="14" y="38" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#2DD4BF">PILLAR 01</text>
+    <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="700" fill="#F8FAFC">Sovereign Local-First</text>
+    <text x="14" y="78" font-family="'Noto Sans Thai',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ประมวลผลบนเครื่อง 100%</text>
+    <text font-family="'Noto Sans Thai',sans-serif" font-size="9" fill="#7C8FA6">
+      <tspan x="14" y="98">• Airgap Enclave &amp; Ollama</tspan>
+      <tspan x="14" y="112">• Local-Only Mode เริ่มต้น</tspan>
+      <tspan x="14" y="126">• ตัดขาด Telemetry 100%</tspan>
     </text>
+    <line x1="14" y1="148" x2="184" y2="148" stroke="#143248" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="14" y1="148" x2="184" y2="148" pathLength="100" stroke="url(#fc-rainbow)" stroke-width="2.4" stroke-linecap="round" class="fc-rainbow-line" style="animation-delay:0.0s" filter="url(#fc-rainbow-glow)"/>
+
+    <!-- Running Rainbow Laser (เส้นรุ้งวิ่ง) -->
+    <rect x="0" y="0" width="198" height="164" rx="13" fill="none" stroke="url(#fc-rainbow)" stroke-width="2.6" stroke-linecap="round" pathLength="100" class="fc-rainbow-laser" style="animation-delay:0.0s" filter="url(#fc-rainbow-glow)"/>
   </g>
 
-  <!-- Card 2: Cryptographic Evidence -->
+  <!-- Card 2: SHA-256 Evidence -->
   <g transform="translate(216, 6)">
-    <rect x="0" y="0" width="198" height="158" rx="12" fill="url(#feat-card-bg)" stroke="#163450" stroke-width="1.2" />
-    <rect x="12" y="10" width="34" height="3" rx="1.5" fill="url(#feat-cyan-bar)" />
-    <!-- Icon Glyph -->
+    <rect x="0" y="0" width="198" height="164" rx="13" fill="url(#fc-bg)" stroke="#163854" stroke-width="1.3"/>
+    <rect x="14" y="12" width="34" height="3" rx="1.5" fill="url(#fc-g2)"/>
     <g transform="translate(156, 16)">
-      <circle cx="14" cy="14" r="14" fill="#0C263D" />
-      <rect x="9" y="9" width="10" height="10" rx="2" fill="none" stroke="#38BDF8" stroke-width="1.4" />
-      <line x1="14" y1="6" x2="14" y2="9" stroke="#38BDF8" stroke-width="1.2" />
-      <line x1="14" y1="19" x2="14" y2="22" stroke="#38BDF8" stroke-width="1.2" />
+      <circle cx="14" cy="14" r="14" fill="#0C2538"/>
+      <rect x="9" y="9" width="10" height="10" rx="2" fill="none" stroke="#38BDF8" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="2.8" fill="#38BDF8"/>
+      <circle cx="14" cy="14" r="16.5" fill="none" stroke="#38BDF8" stroke-opacity="0.6" stroke-width="1" stroke-dasharray="2 6" class="fc-spin"/>
     </g>
-    <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#38BDF8">PILLAR 02</text>
-    <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13" font-weight="700" fill="#F1F5F9">SHA-256 Evidence</text>
-    <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">สมุดบัญชีตรวจสอบแกรนูล่า</text>
-    <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B">
-      <tspan x="14" dy="0">• Hash Chain Matrix เรียงลำดับ</tspan>
-      <tspan x="14" dy="14">• ตรวจจับ Tampering ทันที</tspan>
-      <tspan x="14" dy="14">• Export หลักฐาน Forensic CSV</tspan>
+    <text x="14" y="38" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#38BDF8">PILLAR 02</text>
+    <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="700" fill="#F8FAFC">SHA-256 Evidence</text>
+    <text x="14" y="78" font-family="'Noto Sans Thai',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">หลักฐานนิติวิทยาศาสตร์</text>
+    <text font-family="'Noto Sans Thai',sans-serif" font-size="9" fill="#7C8FA6">
+      <tspan x="14" y="98">• 14,902 Seals Verified</tspan>
+      <tspan x="14" y="112">• Merkle Root #849202</tspan>
+      <tspan x="14" y="126">• PAdES QR &amp; SSoT Δ0.00%</tspan>
     </text>
+    <line x1="14" y1="148" x2="184" y2="148" stroke="#143248" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="14" y1="148" x2="184" y2="148" pathLength="100" stroke="url(#fc-rainbow)" stroke-width="2.4" stroke-linecap="round" class="fc-rainbow-line" style="animation-delay:-0.8s" filter="url(#fc-rainbow-glow)"/>
+
+    <!-- Running Rainbow Laser -->
+    <rect x="0" y="0" width="198" height="164" rx="13" fill="none" stroke="url(#fc-rainbow)" stroke-width="2.6" stroke-linecap="round" pathLength="100" class="fc-rainbow-laser" style="animation-delay:-1.25s" filter="url(#fc-rainbow-glow)"/>
   </g>
 
-  <!-- Card 3: Visual Analytics & Governance -->
+  <!-- Card 3: Visual Governance -->
   <g transform="translate(426, 6)">
-    <rect x="0" y="0" width="198" height="158" rx="12" fill="url(#feat-card-bg)" stroke="#163450" stroke-width="1.2" />
-    <rect x="12" y="10" width="34" height="3" rx="1.5" fill="url(#feat-indigo-bar)" />
-    <!-- Icon Glyph -->
+    <rect x="0" y="0" width="198" height="164" rx="13" fill="url(#fc-bg)" stroke="#163854" stroke-width="1.3"/>
+    <rect x="14" y="12" width="34" height="3" rx="1.5" fill="url(#fc-g3)"/>
     <g transform="translate(156, 16)">
-      <circle cx="14" cy="14" r="14" fill="#152144" />
-      <circle cx="14" cy="14" r="7" fill="none" stroke="#818CF8" stroke-width="2" stroke-dasharray="14 10" />
-      <circle cx="14" cy="14" r="2.5" fill="#818CF8" />
+      <circle cx="14" cy="14" r="14" fill="#141E38"/>
+      <circle cx="14" cy="14" r="7" fill="none" stroke="#818CF8" stroke-width="2" stroke-dasharray="14 10"/>
+      <circle cx="14" cy="14" r="2.8" fill="#818CF8"/>
+      <circle cx="14" cy="14" r="16.5" fill="none" stroke="#818CF8" stroke-opacity="0.6" stroke-width="1" stroke-dasharray="2 6" class="fc-spin"/>
     </g>
-    <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#818CF8">PILLAR 03</text>
-    <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13" font-weight="700" fill="#F1F5F9">Visual Governance</text>
-    <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">สถิติและแผนผังเชิงโต้ตอบ</text>
-    <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B">
-      <tspan x="14" dy="0">• Recharts Role Distribution</tspan>
-      <tspan x="14" dy="14">• D3.js AST Dependency Map</tspan>
-      <tspan x="14" dy="14">• แยกแยะ Tenant RBAC ชัดเจน</tspan>
+    <text x="14" y="38" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#818CF8">PILLAR 03</text>
+    <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="700" fill="#F8FAFC">Visual Governance</text>
+    <text x="14" y="78" font-family="'Noto Sans Thai',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ระบบตรวจสอบด้วยภาพ</text>
+    <text font-family="'Noto Sans Thai',sans-serif" font-size="9" fill="#7C8FA6">
+      <tspan x="14" y="98">• 12 Evaluation Categories</tspan>
+      <tspan x="14" y="112">• D3.js AST Dependency Map</tspan>
+      <tspan x="14" y="126">• Recharts Role Distribution</tspan>
     </text>
+    <line x1="14" y1="148" x2="184" y2="148" stroke="#143248" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="14" y1="148" x2="184" y2="148" pathLength="100" stroke="url(#fc-rainbow)" stroke-width="2.4" stroke-linecap="round" class="fc-rainbow-line" style="animation-delay:-1.6s" filter="url(#fc-rainbow-glow)"/>
+
+    <!-- Running Rainbow Laser -->
+    <rect x="0" y="0" width="198" height="164" rx="13" fill="none" stroke="url(#fc-rainbow)" stroke-width="2.6" stroke-linecap="round" pathLength="100" class="fc-rainbow-laser" style="animation-delay:-2.5s" filter="url(#fc-rainbow-glow)"/>
   </g>
 
-  <!-- Card 4: Dual-Engine Intelligence -->
+  <!-- Card 4: Dual-Engine Core -->
   <g transform="translate(636, 6)">
-    <rect x="0" y="0" width="198" height="158" rx="12" fill="url(#feat-card-bg)" stroke="#163450" stroke-width="1.2" />
-    <rect x="12" y="10" width="34" height="3" rx="1.5" fill="url(#feat-emerald-bar)" />
-    <!-- Icon Glyph -->
+    <rect x="0" y="0" width="198" height="164" rx="13" fill="url(#fc-bg)" stroke="#163854" stroke-width="1.3"/>
+    <rect x="14" y="12" width="34" height="3" rx="1.5" fill="url(#fc-g4)"/>
     <g transform="translate(156, 16)">
-      <circle cx="14" cy="14" r="14" fill="#0C2B22" />
-      <path d="M 8 18 L 14 8 L 20 18 Z" fill="none" stroke="#34D399" stroke-width="1.4" />
-      <circle cx="14" cy="15" r="1.5" fill="#34D399" />
+      <circle cx="14" cy="14" r="14" fill="#0A261C"/>
+      <path d="M 8 18 L 14 8 L 20 18 Z" fill="none" stroke="#34D399" stroke-width="1.5"/>
+      <circle cx="14" cy="15" r="1.8" fill="#34D399"/>
+      <circle cx="14" cy="14" r="16.5" fill="none" stroke="#34D399" stroke-opacity="0.6" stroke-width="1" stroke-dasharray="2 6" class="fc-spin"/>
     </g>
-    <text x="14" y="38" font-family="'Segoe UI',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#34D399">PILLAR 04</text>
-    <text x="14" y="58" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="13" font-weight="700" fill="#F1F5F9">Dual-Engine Core</text>
-    <text x="14" y="78" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ประมวลผลสองระดับ</text>
-    <text x="14" y="98" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" fill="#64748B">
-      <tspan x="14" dy="0">• Ollama Local Engine อิสระ</tspan>
-      <tspan x="14" dy="14">• External Provider Cloud Gateway</tspan>
-      <tspan x="14" dy="14">• Consent Gate อนุมัติล่วงหน้า</tspan>
+    <text x="14" y="38" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="800" letter-spacing="1.5" fill="#34D399">PILLAR 04</text>
+    <text x="14" y="58" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="700" fill="#F8FAFC">Dual-Engine Core</text>
+    <text x="14" y="78" font-family="'Noto Sans Thai',sans-serif" font-size="10" font-weight="600" fill="#94A3B8">ประมวลผลสองระดับ</text>
+    <text font-family="'Noto Sans Thai',sans-serif" font-size="9" fill="#7C8FA6">
+      <tspan x="14" y="98">• Buffalo First-Party Core</tspan>
+      <tspan x="14" y="112">• Internet Gateway BKK/FRA</tspan>
+      <tspan x="14" y="126">• Human Approval Safety Gate</tspan>
     </text>
+    <line x1="14" y1="148" x2="184" y2="148" stroke="#143248" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="14" y1="148" x2="184" y2="148" pathLength="100" stroke="url(#fc-rainbow)" stroke-width="2.4" stroke-linecap="round" class="fc-rainbow-line" style="animation-delay:-2.4s" filter="url(#fc-rainbow-glow)"/>
+
+    <!-- Running Rainbow Laser -->
+    <rect x="0" y="0" width="198" height="164" rx="13" fill="none" stroke="url(#fc-rainbow)" stroke-width="2.6" stroke-linecap="round" pathLength="100" class="fc-rainbow-laser" style="animation-delay:-3.75s" filter="url(#fc-rainbow-glow)"/>
   </g>
 </svg>

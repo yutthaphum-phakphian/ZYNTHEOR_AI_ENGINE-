@@ -1,60 +1,175 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 130" width="840" height="130" role="img" aria-label="ZYNTHEOR AI ENGINE Buffalo Edition Sovereign Footer">
   <defs>
-    <linearGradient id="ftr-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#08101E" />
-      <stop offset="50%" stop-color="#0B182B" />
-      <stop offset="100%" stop-color="#07101C" />
+    <linearGradient id="ft-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#040812"/>
+      <stop offset="50" stop-color="#071322"/>
+      <stop offset="100%" stop-color="#03060D"/>
     </linearGradient>
 
-    <linearGradient id="ftr-laser" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#10B981" />
-      <stop offset="50%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#2DD4BF" />
+    <!-- Rainbow Spectrum Laser Gradient -->
+    <linearGradient id="ft-rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF1A53"/>
+      <stop offset="18%" stop-color="#FF8A00"/>
+      <stop offset="35%" stop-color="#FFDD00"/>
+      <stop offset="52%" stop-color="#00F59B"/>
+      <stop offset="70%" stop-color="#00D2FF"/>
+      <stop offset="85%" stop-color="#3A6DFF"/>
+      <stop offset="100%" stop-color="#B336FF"/>
     </linearGradient>
 
-    <linearGradient id="ftr-title" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#34D399" />
-      <stop offset="50%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#60A5FA" />
+    <linearGradient id="ft-rainbow-rev" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#00D2FF"/>
+      <stop offset="35%" stop-color="#00F59B"/>
+      <stop offset="70%" stop-color="#FFDD00"/>
+      <stop offset="100%" stop-color="#FF1A53"/>
     </linearGradient>
 
-    <filter id="ftr-glow" x="-20%" y="-40%" width="140%" height="180%">
-      <feGaussianBlur stdDeviation="2.5" result="b" />
+    <linearGradient id="ft-title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="30%" stop-color="#2DD4BF"/>
+      <stop offset="70%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+
+    <linearGradient id="ft-beam" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF1A53" stop-opacity="0"/>
+      <stop offset="25%" stop-color="#FF8A00" stop-opacity="0.12"/>
+      <stop offset="50%" stop-color="#00F59B" stop-opacity="0.18"/>
+      <stop offset="75%" stop-color="#00D2FF" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#B336FF" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="bf-horn" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+
+    <linearGradient id="bf-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#0F766E"/>
+    </linearGradient>
+
+    <pattern id="ft-grid" width="26" height="26" patternUnits="userSpaceOnUse">
+      <path d="M 26 0 L 0 0 0 26" fill="none" stroke="#132338" stroke-width="0.7" stroke-opacity="0.45"/>
+    </pattern>
+
+    <filter id="ft-glow" filterUnits="userSpaceOnUse" x="-20" y="-20" width="880" height="170">
+      <feGaussianBlur stdDeviation="3.2" result="blur"/>
       <feMerge>
-        <feMergeNode in="b" />
-        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+
+    <clipPath id="ft-clip">
+      <rect x="4" y="4" width="832" height="122" rx="16"/>
+    </clipPath>
   </defs>
 
   <style>
-    @keyframes ftr-stroke {
-      0% { stroke-dashoffset: 200; }
-      100% { stroke-dashoffset: 0; }
+    @keyframes rainbow-dash {
+      from { stroke-dashoffset: 100; }
+      to { stroke-dashoffset: 0; }
     }
-    .ftr-anim {
-      stroke-dasharray: 40 160;
-      animation: ftr-stroke 6s linear infinite;
+    @keyframes rainbow-dash-rev {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 100; }
     }
+    @keyframes beam-sweep {
+      from { transform: translateX(-240px); }
+      to { transform: translateX(1100px); }
+    }
+    @keyframes pulse-soft {
+      0%, 100% { transform: scale(0.95); opacity: 0.88; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+    @keyframes spin-slow {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes blink-light {
+      0%, 100% { opacity: 0.35; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .laser-rainbow {
+      stroke-dasharray: 18 82;
+      animation: rainbow-dash 4.8s linear infinite;
+    }
+    .laser-rainbow-rev {
+      stroke-dasharray: 12 88;
+      animation: rainbow-dash-rev 6.5s linear infinite;
+    }
+    .sweep-beam {
+      animation: beam-sweep 7.5s linear infinite;
+    }
+    .spin-ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: spin-slow 16s linear infinite;
+    }
+    .pulse-logo {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: pulse-soft 3.2s ease-in-out infinite;
+    }
+    .blinker {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: blink-light 2.4s ease-in-out infinite;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .ftr-anim { animation: none; }
+      .laser-rainbow, .laser-rainbow-rev, .sweep-beam, .spin-ring, .pulse-logo, .blinker {
+        animation: none;
+      }
+      .sweep-beam { opacity: 0; }
     }
   </style>
 
-  <!-- Card container -->
-  <rect x="4" y="4" width="832" height="122" rx="16" fill="url(#ftr-bg)" stroke="#16324D" stroke-width="1.2" />
-
-  <!-- Center Hexagon Seal -->
-  <g transform="translate(420, 36)">
-    <polygon points="0,-14 12,-7 12,7 0,14 -12,7 -12,-7" fill="#0C2036" stroke="#14B8A6" stroke-width="1.2" />
-    <circle cx="0" cy="0" r="2.5" fill="#38BDF8" />
+  <!-- Background Base with Grid -->
+  <rect x="4" y="4" width="832" height="122" rx="16" fill="url(#ft-bg)" stroke="#16324D" stroke-width="1.2"/>
+  <g clip-path="url(#ft-clip)">
+    <rect x="4" y="4" width="832" height="122" fill="url(#ft-grid)"/>
+    <rect class="sweep-beam" x="0" y="4" width="220" height="122" fill="url(#ft-beam)"/>
   </g>
 
-  <!-- Titles -->
-  <text x="420" y="66" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="18" font-weight="800" letter-spacing="4" fill="url(#ftr-title)">ZYNTHEOR AI ENGINE</text>
-  <text x="420" y="86" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-size="10.5" font-weight="600" letter-spacing="2" fill="#2DD4BF">BUFFALO EDITION · SOVEREIGN LOCAL-FIRST INTELLIGENCE CORE</text>
-  <text x="420" y="104" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" letter-spacing="1" fill="#64748B">AGPL-3.0 · CRYPTOGRAPHIC GOVERNANCE BASELINE · ZERO-SIMULATION ASSURANCE</text>
+  <!-- Side Animated Rainbow Laser Flow Paths -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M 36 34 H 300 L 330 34" stroke="#132B42" stroke-width="1.4"/>
+    <path d="M 36 34 H 330" pathLength="100" stroke="url(#ft-rainbow)" stroke-width="2.6" class="laser-rainbow" filter="url(#ft-glow)"/>
+    
+    <path d="M 804 34 H 540 L 510 34" stroke="#132B42" stroke-width="1.4"/>
+    <path d="M 804 34 H 510" pathLength="100" stroke="url(#ft-rainbow-rev)" stroke-width="2.6" class="laser-rainbow-rev" filter="url(#ft-glow)"/>
+  </g>
 
-  <!-- Animated Border Lasers -->
-  <rect x="4" y="4" width="832" height="122" rx="16" fill="none" stroke="url(#ftr-laser)" stroke-width="2.2" stroke-linecap="round" pathLength="200" class="ftr-anim" filter="url(#ftr-glow)" />
+  <circle cx="36" cy="34" r="3.2" fill="#FF1A53" class="blinker"/>
+  <circle cx="804" cy="34" r="3.2" fill="#00D2FF" class="blinker" style="animation-delay: -1s;"/>
+  <circle cx="330" cy="34" r="3.5" fill="#00F59B" class="blinker" style="animation-delay: -0.6s;"/>
+  <circle cx="510" cy="34" r="3.5" fill="#FFDD00" class="blinker" style="animation-delay: -1.6s;"/>
+
+  <!-- Center Buffalo Emblem with Rotating Ring -->
+  <g transform="translate(420, 34)">
+    <circle r="26" fill="none" stroke="url(#ft-rainbow)" stroke-opacity="0.6" stroke-width="1.4" stroke-dasharray="3 8" class="spin-ring"/>
+    <polygon points="0,-20 18,-10 18,10 0,20 -18,10 -18,-10" fill="#071322" stroke="#14B8A6" stroke-width="1.5"/>
+    <g class="pulse-logo">
+      <g transform="scale(0.42) translate(-32,-30)">
+        <path d="M18 22 L8 8 L14 10 L22 20 Z" fill="url(#bf-horn)"/>
+        <path d="M46 22 L56 8 L50 10 L42 20 Z" fill="url(#bf-horn)"/>
+        <path d="M20 24 L32 18 L44 24 L46 38 L32 48 L18 38 Z" fill="url(#bf-body)" stroke="#134E4A" stroke-width="1.2"/>
+        <path d="M24 28 L32 24 L40 28 L41 36 L32 42 L23 36 Z" fill="#0A1624" opacity="0.6"/>
+        <circle cx="27" cy="32" r="2" fill="#5EEAD4"/>
+        <circle cx="37" cy="32" r="2" fill="#5EEAD4"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Typography with Thai & English font stacks -->
+  <text x="420" y="76" text-anchor="middle" font-family="'Space Grotesk','Noto Sans Thai','Segoe UI',sans-serif" font-size="18" font-weight="800" letter-spacing="4" fill="url(#ft-title)">ZYNTHEOR AI ENGINE</text>
+  <text x="420" y="95" text-anchor="middle" font-family="'Space Grotesk','Segoe UI',sans-serif" font-size="10.5" font-weight="700" letter-spacing="2.2" fill="#2DD4BF">BUFFALO EDITION · SOVEREIGN LOCAL-FIRST INTELLIGENCE CORE</text>
+  <text x="420" y="112" text-anchor="middle" font-family="'Noto Sans Thai','Segoe UI',sans-serif" font-size="9" letter-spacing="1.2" fill="#64748B">AGPL-3.0 · CRYPTOGRAPHIC GOVERNANCE BASELINE · 100% FIRST-PARTY INTEGRITY</text>
+
+  <!-- Outer Running Rainbow Laser Frame ("เส้นรุ้งวิ่ง") -->
+  <rect x="4" y="4" width="832" height="122" rx="16" fill="none" stroke="url(#ft-rainbow)" stroke-width="2.6" stroke-linecap="round" pathLength="100" class="laser-rainbow" filter="url(#ft-glow)"/>
+  <rect x="4" y="4" width="832" height="122" rx="16" fill="none" stroke="url(#ft-rainbow-rev)" stroke-width="1.8" stroke-linecap="round" pathLength="100" class="laser-rainbow-rev" style="animation-delay: -2.4s;" filter="url(#ft-glow)"/>
 </svg>

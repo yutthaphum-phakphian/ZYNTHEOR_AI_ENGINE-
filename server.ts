@@ -12,6 +12,7 @@ import {
   assertGatewayIsNotProvider 
 } from './src/lib/sovereignty.ts';
 import { probeNativeModelRuntime, classifyAnswerSource } from './lib/native-model-runtime.ts';
+import { IntelligenceOrchestrationEngine, TaskPlanningEngine } from './lib/intelligence-orchestrator.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -344,6 +345,9 @@ async function executeInternetGateway(query: string, intelligenceContext: Intell
   };
 }
 
+const orchestratorEngine = new IntelligenceOrchestrationEngine();
+const planningEngine = new TaskPlanningEngine();
+
 app.post('/api/intelligence/orchestrate', async (req: any, res: any) => {
   try {
     const body: IntelligenceOrchestrateRequest = req.body || {};
@@ -375,6 +379,30 @@ app.post('/api/intelligence/orchestrate', async (req: any, res: any) => {
     // 2. Pass query into ZYNTHEOR INTELLIGENCE processing layer — MUST before Gateway
     const intelligenceResult = processThroughIntelligenceLayer({ ...body, query });
 
+    // 3. Real Orchestration Execution
+    const execResult = await orchestratorEngine.execute({
+      query: query.trim(),
+      workspaceId: body.workspaceId || 'default',
+      language: body.language || intelligenceResult.language,
+      responseLanguage: body.responseLanguage || intelligenceResult.language,
+      humanApprovals: body.humanApprovals || {},
+      isDryRun: Boolean(body.isDryRun),
+      onlineConsent: Boolean(body.onlineConsent ?? onlineConsent),
+      enableInternetSearch: Boolean(body.enableInternetSearch),
+      explicitModelId: body.explicitModelId,
+      explicitModelProvider: body.explicitModelProvider,
+      coreAvailable: body.coreAvailable,
+    });
+
+    // 4. Create Task Plan for the Classified Universal Task
+    const taskPlan = planningEngine.createTaskPlan({
+      taskId: `plan-${Date.now().toString(36)}`,
+      workspaceId: body.workspaceId || 'default',
+      query: query.trim(),
+      taskType: execResult.taskType,
+      isThai: intelligenceResult.language === 'th',
+    });
+
     const intelligenceContext = {
       timestamp: new Date().toISOString(),
       product: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.PRODUCT_IDENTITY,
@@ -385,6 +413,8 @@ app.post('/api/intelligence/orchestrate', async (req: any, res: any) => {
       capability: intelligenceResult.capability,
       intent: intelligenceResult.intent,
       language: intelligenceResult.language,
+      taskType: execResult.taskType,
+      taskState: execResult.taskState,
       auditHash: `ZYN-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       routing: intelligenceResult.routingDecision,
       memory: {
@@ -397,7 +427,7 @@ app.post('/api/intelligence/orchestrate', async (req: any, res: any) => {
     let gatewayData = null;
     let verificationChain = null;
 
-    // 3. Internet Gateway Execution (Data Retrieval Only) — Only after Intelligence
+    // 5. Internet Gateway Execution (Data Retrieval Only) — Only after Intelligence
     if (body.enableInternetSearch) {
       gatewayData = await executeInternetGateway(query, intelligenceResult);
 
@@ -414,23 +444,33 @@ app.post('/api/intelligence/orchestrate', async (req: any, res: any) => {
           etda: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.LEGAL_COMPLIANCE,
           gatewayFleet: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.GATEWAY_FLEET,
         },
-        note: 'Main Chat → Intelligence Runtime → Model Router → CORE_NATIVE Buffalo Edition (14,962 seals) → Memory → PostgreSQL → Tool Gateway → Verification (LB Dual Hash + PQC + ZK) → Audit Ledger (PAdES QR) → Legal Runtime (ETDA 9/26/28) → Gateway Fleet BKK/FRA/NRT/SIN/IAD',
+        note: 'Main Chat → Intelligence Runtime → Model Router → CORE_NATIVE Buffalo Edition (14,902 seals) → Memory → PostgreSQL → Tool Gateway → Verification (LB Dual Hash + PQC + ZK) → Audit Ledger (PAdES QR) → Legal Runtime (ETDA 9/26/28) → Gateway Fleet BKK/FRA/NRT/SIN/IAD',
       };
     }
 
-    // 4. Synthesize final response through ZYNTHEOR INTELLIGENCE — CORE_NATIVE is synthesizer
+    // 6. Synthesize final response through ZYNTHEOR INTELLIGENCE — CORE_NATIVE is synthesizer
     const finalSynthesis = {
       query,
       capability: intelligenceResult.capability,
+      taskType: execResult.taskType,
       synthesisBy: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.PRIMARY_MODEL_FAMILY,
       model: intelligenceContext.model,
-      result: `Executed under ${ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.PRIMARY_MODEL_FAMILY} governance — Intelligence layer processed before gateway — Gateway provided data only — Synthesis by CORE_NATIVE Buffalo Edition ${ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.SEAL_COUNT} seals.`,
+      result: execResult.finalAnswer,
       gatewayDataIncluded: !!gatewayData,
       gatewayNote: gatewayData ? 'Gateway provided DATA only — Not model output — CORE synthesized' : 'No external data requested — Local CORE inference',
     };
 
     return res.status(200).json({
-      status: 'SUCCESS',
+      status: execResult.taskState === 'FAILED' ? 'FAILED' : 'SUCCESS',
+      finalAnswer: execResult.finalAnswer,
+      answer: execResult.finalAnswer,
+      taskType: execResult.taskType,
+      taskState: execResult.taskState,
+      durationMs: execResult.durationMs,
+      plan: taskPlan,
+      verificationArtifacts: execResult.verificationArtifacts || [],
+      groundingSources: execResult.groundingSources || [],
+      modelMetadata: execResult.modelMetadata,
       sovereignty: {
         product: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.PRODUCT_IDENTITY,
         intelligence: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.INTELLIGENCE_LAYER,
