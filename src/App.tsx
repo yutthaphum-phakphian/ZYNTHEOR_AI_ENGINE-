@@ -67,9 +67,11 @@ import {
 
 import {
   getActiveModel,
-  validateModelIdentity
+  validateModelIdentity,
+  validateDefaultInferenceModel
 } from './lib/modelIdentityContract';
 
+import { ZyntheorCoreHealthWidget } from './components/ZyntheorCoreHealthWidget';
 import { MainChat } from './components/MainChat';
 import AIWorkspace from './pages/AIWorkspace';
 import ModelStudio from './components/model-studio/ModelStudio';
@@ -183,9 +185,18 @@ function HomeExperience() {
     }
   }, []);
 
+  // Strict Model Identity contract validation: Only ZYNTHEOR CORE family accepted for default inference
+  const contractValidation = useMemo(() => {
+    return validateDefaultInferenceModel(activeModel);
+  }, [activeModel]);
+
   const handleStart = useCallback(
     (text?: string, forceGrounding?: boolean) => {
       if (isMaintenanceMode) return;
+      if (!contractValidation.valid) {
+        console.error('[Model Identity Contract] Default inference blocked:', contractValidation.reason);
+        return;
+      }
       const query = (text ?? input).trim();
 
       if (!query) return;
@@ -193,10 +204,11 @@ function HomeExperience() {
       const params = new URLSearchParams();
       params.set('q', query);
       params.set('grounding', (forceGrounding ?? grounding) ? '1' : '0');
+      params.set('model', activeModel?.modelId || 'zyntheor-core-0.10.0-foundation');
 
       navigate(`/chat?${params.toString()}`);
     },
-    [input, grounding, navigate, isMaintenanceMode]
+    [input, grounding, navigate, isMaintenanceMode, contractValidation, activeModel]
   );
 
   return (
@@ -207,7 +219,7 @@ function HomeExperience() {
         <div className="absolute top-[45%] -right-[20%] w-[50%] h-[35%] bg-gradient-to-l from-[#38bdf8]/5 to-transparent blur-[100px]" />
       </div>
 
-      <div className="relative max-w-[1040px] mx-auto w-full px-4 sm:px-6 md:px-8 py-6 md:py-10 space-y-10 md:space-y-12">
+      <div className="relative max-w-[1040px] mx-auto w-full px-4 sm:px-6 md:px-8 py-6 md:py-10 space-y-8 md:space-y-10">
         
         {/* =================================================
             1. TOP HEADER & BRAND
@@ -233,10 +245,10 @@ function HomeExperience() {
           <div className="flex items-center gap-2">
             <NavLink
               to="/more"
-              className="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-semibold text-white/70 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-semibold text-white/70 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
             >
               <Settings size={13} className="text-white/50" />
-              <span className="hidden sm:inline">Settings & System</span>
+              <span>Profile & Settings</span>
             </NavLink>
           </div>
         </header>
@@ -251,16 +263,34 @@ function HomeExperience() {
           </div>
         )}
 
+        {/* Strict Model Identity Contract Alert if Invalid or Unauthorized Fallback Detected */}
+        {!contractValidation.valid && (
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3.5 text-xs text-amber-200">
+            <AlertTriangle size={18} className="text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-amber-300">
+                MODEL IDENTITY CONTRACT VIOLATION: UNAUTHORIZED DEFAULT FALLBACK BLOCKED
+              </div>
+              <div className="text-amber-200/80 mt-1">
+                {contractValidation.reason}
+              </div>
+              <div className="text-[11px] text-amber-300/60 mt-1.5">
+                ข้อกำหนด Model Sovereignty: การทำงานพื้นฐานต้องใช้โมเดลในกลุ่ม ZYNTHEOR CORE เท่านั้น ไม่อนุญาตให้เปลี่ยนไปใช้โมเดลภายนอกโดยอัตโนมัติ
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* =================================================
             2. HERO & OMNI-COMPOSER
         ================================================= */}
         <section className="space-y-6 pt-2 md:pt-4 text-center">
           <div className="space-y-2 max-w-2xl mx-auto">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white">
-              What can I help you with?
+              What can I help you accomplish?
             </h1>
             <p className="text-sm md:text-base text-white/50">
-              ถาม ค้นคว้า วิเคราะห์ หรือสร้างสรรค์สิ่งที่คุณต้องการผ่าน One Intelligence Core
+              ถาม ค้นคว้า วิเคราะห์ หรือสร้างสรรค์สิ่งที่คุณต้องการผ่าน First-Party Intelligence Core
             </p>
           </div>
 
@@ -276,10 +306,16 @@ function HomeExperience() {
                     handleStart();
                   }
                 }}
-                disabled={isMaintenanceMode}
-                placeholder={isMaintenanceMode ? "ระบบอยู่ในโหมด Read-Only Maintenance Mode (ระงับการส่งคำสั่ง)" : "ถาม ค้นคว้า วิเคราะห์ หรือสร้างสรรค์สิ่งที่คุณต้องการ..."}
+                disabled={isMaintenanceMode || !contractValidation.valid}
+                placeholder={
+                  isMaintenanceMode
+                    ? "ระบบอยู่ในโหมด Read-Only Maintenance Mode (ระงับการส่งคำสั่ง)"
+                    : !contractValidation.valid
+                    ? "ระงับการส่งคำสั่ง: ตรวจพบข้อผิดพลาดด้าน Model Identity Contract"
+                    : "Ask ZYNTHEOR... (ถาม ค้นคว้า วิเคราะห์ หรือสั่งงาน)"
+                }
                 rows={3}
-                aria-label="Intelligence prompt input"
+                aria-label="Ask ZYNTHEOR prompt input"
                 className="w-full resize-none bg-transparent outline-none text-sm text-white placeholder:text-white/25 leading-relaxed"
               />
 
@@ -291,9 +327,10 @@ function HomeExperience() {
                     type="button"
                     title="แนบไฟล์หรือเอกสาร"
                     onClick={() => navigate('/library')}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition cursor-pointer"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition cursor-pointer text-xs"
                   >
-                    <Paperclip size={15} />
+                    <span className="font-bold text-sm leading-none">＋</span>
+                    <span className="text-[11px] font-medium hidden sm:inline">Attach</span>
                   </button>
 
                   {/* Online Search Toggle */}
@@ -304,8 +341,8 @@ function HomeExperience() {
                       onChange={e => setGrounding(e.target.checked)}
                       className="accent-[#00D9A3] cursor-pointer"
                     />
-                    <Globe size={13} className={grounding ? 'text-[#00D9A3]' : 'text-white/40'} />
-                    <span className="text-[11px] font-medium">Online</span>
+                    <Search size={13} className={grounding ? 'text-[#00D9A3]' : 'text-white/40'} />
+                    <span className="text-[11px] font-medium">Search</span>
                   </label>
 
                   {/* Active CORE Model Badge */}
@@ -323,7 +360,7 @@ function HomeExperience() {
                 <button
                   type="button"
                   onClick={() => handleStart()}
-                  disabled={!input.trim() || isMaintenanceMode}
+                  disabled={!input.trim() || isMaintenanceMode || !contractValidation.valid}
                   className="h-10 px-5 rounded-2xl bg-[#00D9A3] text-black font-bold text-xs flex items-center justify-center gap-2 hover:bg-white disabled:opacity-20 disabled:cursor-not-allowed transition cursor-pointer"
                 >
                   <span>ส่งคำสั่ง</span>
@@ -332,6 +369,16 @@ function HomeExperience() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* =================================================
+            3. ZYNTHEOR CORE HEALTH WIDGET
+            Real-time QOPS & Enclave Integrity Monitoring
+        ================================================= */}
+        <section className="space-y-2">
+          <ZyntheorCoreHealthWidget
+            onMaintenanceModeChange={setIsMaintenanceMode}
+          />
         </section>
 
         {/* =================================================
@@ -475,23 +522,27 @@ function HomeExperience() {
         </section>
 
         {/* =================================================
-            5. SYSTEM HEALTH & INTEGRITY BANNER
+            5. SOVEREIGN PLATFORM FOOTER
         ================================================= */}
         <footer className="pt-4 pb-4 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <span className="font-black text-white tracking-wider">ZYNTHEOR</span>
             <span>·</span>
-            <span>Universal AI Workspace</span>
+            <span className="text-[#00D9A3] font-medium">ZYNTHEOR CORE</span>
+            <span>·</span>
+            <span>First-Party Sovereign Intelligence</span>
           </div>
 
-          <NavLink
-            to="/diagnostics"
-            className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-[11px] text-white/60 hover:text-white transition cursor-pointer"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span>Enclave Health Nominal (14.98 mK · SSoT Δ0.00%)</span>
-            <ChevronRight size={12} className="text-white/40" />
-          </NavLink>
+          <div className="flex items-center gap-3">
+            <NavLink
+              to="/diagnostics"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 text-[11px] text-white/60 hover:text-white transition cursor-pointer"
+            >
+              <ShieldCheck size={12} className="text-[#00D9A3]" />
+              <span>Forensic Audit Dossier</span>
+              <ChevronRight size={12} className="text-white/40" />
+            </NavLink>
+          </div>
         </footer>
 
       </div>

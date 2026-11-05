@@ -1,5 +1,11 @@
 // @ts-nocheck
 export * from '../contracts/modelIdentityContract';
+import {
+  validateModelIdentity as validateModelCategoryIdentity,
+  validateDefaultInferenceModel,
+  type DefaultInferenceValidationResult,
+  type ModelCategory
+} from '../contracts/modelIdentityContract';
 
 export interface ActiveModelInfo {
   modelId: string;
@@ -27,17 +33,32 @@ export function getActiveModel(): ActiveModelInfo {
   };
 }
 
-export function validateModelIdentity(model: any) {
+/**
+ * Validates model identity supporting both contract validation overloads:
+ * 1. validateModelIdentity(modelId: string, claimedCategory: ModelCategory)
+ * 2. validateModelIdentity(modelObject: ActiveModelInfo | any)
+ */
+export function validateModelIdentity(arg1: any, arg2?: ModelCategory) {
+  if (typeof arg1 === 'string') {
+    return validateModelCategoryIdentity(arg1, arg2 as ModelCategory);
+  }
+
+  // Model object validation
+  const model = arg1;
   if (!model || typeof model !== 'object') {
-    return { valid: false, errors: ['No model object provided'] };
+    return { valid: false, errors: ['No model object provided'], isZyntheorCore: false };
   }
-  const errors: string[] = [];
-  if (!model.modelId) errors.push('Missing modelId');
-  if (model.status === 'SPECIFICATION_LOCKED_PENDING_GPU_RUN' && model.isVerified) {
-    errors.push('Model claimed verified without trained checkpoint');
-  }
+
+  const defaultValidation = validateDefaultInferenceModel(model);
+  const errors: string[] = [...defaultValidation.errors];
+
   return {
-    valid: errors.length === 0,
+    valid: defaultValidation.valid,
+    isZyntheorCore: defaultValidation.isZyntheorCore,
+    modelId: defaultValidation.modelId,
+    unauthorizedFallback: defaultValidation.unauthorizedFallback,
     errors,
+    reason: defaultValidation.reason,
+    timestamp: defaultValidation.timestamp,
   };
 }

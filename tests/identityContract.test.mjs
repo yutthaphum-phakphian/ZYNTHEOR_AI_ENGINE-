@@ -129,3 +129,96 @@ describe('Patch 1: Identity Contract Hardening Regression Suite', () => {
     assert.equal(updatedMember.role, 'ADMIN');
   });
 });
+
+describe('Patch 2: Model Identity Contract & Default Inference Strict Validation Suite', () => {
+  test('1. Default inference accepts only authorized ZYNTHEOR CORE family models', async () => {
+    const { validateDefaultInferenceModel } = await import('../src/contracts/modelIdentityContract.ts');
+    
+    // Valid Zyntheor Core foundation model
+    const validModel = {
+      modelId: 'zyntheor-core-0.10.0-foundation',
+      displayName: 'ZYNTHEOR CORE 0.1 (Foundation Spec)',
+      category: 'CORE_ADAPTED',
+      provider: 'ZYNTHEOR',
+      isVerified: false,
+      status: 'SPECIFICATION_LOCKED_PENDING_GPU_RUN',
+    };
+    const res = validateDefaultInferenceModel(validModel);
+    assert.equal(res.valid, true);
+    assert.equal(res.isZyntheorCore, true);
+    assert.equal(res.unauthorizedFallback, false);
+    assert.equal(res.errors.length, 0);
+
+    // Native core model
+    const nativeModel = {
+      modelId: 'zyntheor-core-native-v1',
+      category: 'CORE_NATIVE',
+      provider: 'ZYNTHEOR',
+    };
+    const nativeRes = validateDefaultInferenceModel(nativeModel);
+    assert.equal(nativeRes.valid, true);
+    assert.equal(nativeRes.isZyntheorCore, true);
+  });
+
+  test('2. Default inference strictly rejects unauthorized external fallbacks (Gemini, OpenAI, Claude)', async () => {
+    const { validateDefaultInferenceModel } = await import('../src/contracts/modelIdentityContract.ts');
+    
+    // Attempted fallback to Gemini
+    const geminiFallback = {
+      modelId: 'gemini-3.8-flash',
+      category: 'EXTERNAL_MODEL_PROVIDER',
+      provider: 'GOOGLE',
+    };
+    const geminiRes = validateDefaultInferenceModel(geminiFallback);
+    assert.equal(geminiRes.valid, false);
+    assert.equal(geminiRes.isZyntheorCore, false);
+    assert.equal(geminiRes.unauthorizedFallback, true);
+    assert.ok(geminiRes.errors.some(e => e.includes('Unauthorized fallback')));
+
+    // Attempted fallback to OpenAI
+    const openaiFallback = {
+      modelId: 'gpt-4o',
+      provider: 'OPENAI',
+    };
+    const openaiRes = validateDefaultInferenceModel(openaiFallback);
+    assert.equal(openaiRes.valid, false);
+    assert.equal(openaiRes.unauthorizedFallback, true);
+
+    // Attempted disguise of external model as CORE
+    const disguisedModel = {
+      modelId: 'gemini-2.5-pro',
+      category: 'CORE_NATIVE',
+      provider: 'GOOGLE',
+    };
+    const disguisedRes = validateDefaultInferenceModel(disguisedModel);
+    assert.equal(disguisedRes.valid, false);
+    assert.equal(disguisedRes.unauthorizedFallback, true);
+  });
+
+  test('3. Rejects empty, null, or missing model specifications for default inference', async () => {
+    const { validateDefaultInferenceModel } = await import('../src/contracts/modelIdentityContract.ts');
+    
+    const nullRes = validateDefaultInferenceModel(null);
+    assert.equal(nullRes.valid, false);
+    assert.equal(nullRes.isZyntheorCore, false);
+
+    const emptyRes = validateDefaultInferenceModel({});
+    assert.equal(emptyRes.valid, false);
+    assert.ok(emptyRes.errors.some(e => e.includes('Missing canonical model identifier')));
+  });
+
+  test('4. Rejects models falsely claiming verification without physical weights', async () => {
+    const { validateDefaultInferenceModel } = await import('../src/contracts/modelIdentityContract.ts');
+    
+    const unverifiedLie = {
+      modelId: 'zyntheor-core-0.10.0-foundation',
+      category: 'CORE_ADAPTED',
+      provider: 'ZYNTHEOR',
+      status: 'SPECIFICATION_LOCKED_PENDING_GPU_RUN',
+      isVerified: true, // Claiming verified without trained weights
+    };
+    const res = validateDefaultInferenceModel(unverifiedLie);
+    assert.equal(res.valid, false);
+    assert.ok(res.errors.some(e => e.includes('Integrity failure')));
+  });
+});

@@ -128,6 +128,119 @@ export function validateModelIdentity(modelId: string, claimedCategory: ModelCat
   };
 }
 
+export interface DefaultInferenceValidationResult {
+  valid: boolean;
+  isZyntheorCore: boolean;
+  modelId: string;
+  category: ModelCategory;
+  provider: string;
+  unauthorizedFallback: boolean;
+  errors: string[];
+  reason: string;
+  timestamp: string;
+}
+
+/**
+ * Strict validation function for default inference tasks.
+ * Enforces that ONLY the ZYNTHEOR CORE model family is accepted for default inference tasks.
+ * Strictly prohibits unauthorized or silent fallback to external model providers (Gemini, OpenAI, Claude, etc.).
+ */
+export function validateDefaultInferenceModel(model: unknown): DefaultInferenceValidationResult {
+  const timestamp = new Date().toISOString();
+  if (!model || typeof model !== 'object') {
+    return {
+      valid: false,
+      isZyntheorCore: false,
+      modelId: 'UNKNOWN',
+      category: 'EXTERNAL_MODEL_PROVIDER',
+      provider: 'UNKNOWN',
+      unauthorizedFallback: false,
+      errors: ['No model configuration provided for default inference.'],
+      reason: 'Empty or invalid model reference.',
+      timestamp,
+    };
+  }
+
+  const m = model as Record<string, any>;
+  const rawModelId = String(m.modelId || m.model_id || m.id || m.name || '').trim();
+  const lowerId = rawModelId.toLowerCase();
+  const rawProvider = String(m.provider || m.providerId || '').toUpperCase().trim();
+  const rawCategory = String(m.category || m.modelCategory || '').trim() as ModelCategory;
+
+  const errors: string[] = [];
+
+  // Check for external provider signatures
+  const isExternalProviderSignature =
+    lowerId.startsWith('gemini') ||
+    lowerId.includes('google') ||
+    lowerId.startsWith('gpt') ||
+    lowerId.startsWith('o1') ||
+    lowerId.startsWith('o3') ||
+    lowerId.startsWith('claude') ||
+    rawProvider === 'GOOGLE' ||
+    rawProvider === 'OPENAI' ||
+    rawProvider === 'ANTHROPIC';
+
+  // Check if belonging to the ZYNTHEOR CORE family
+  const isZyntheorCorePrefix =
+    lowerId.startsWith('zyntheor-core') ||
+    lowerId.startsWith('zyntheor');
+
+  const isZyntheorCoreProvider =
+    rawProvider === 'ZYNTHEOR' || rawProvider === 'LOCAL' || rawProvider === '';
+
+  const isZyntheorCoreCategory =
+    rawCategory === 'CORE_NATIVE' ||
+    rawCategory === 'CORE_ADAPTED' ||
+    rawCategory === 'CORE_DISTILLED' ||
+    rawCategory === '';
+
+  const isZyntheorCore =
+    isZyntheorCorePrefix &&
+    !isExternalProviderSignature &&
+    isZyntheorCoreProvider &&
+    isZyntheorCoreCategory;
+
+  let unauthorizedFallback = false;
+
+  if (!rawModelId) {
+    errors.push('Missing canonical model identifier.');
+  }
+
+  if (isExternalProviderSignature) {
+    unauthorizedFallback = true;
+    errors.push(
+      `Strict Model Identity violation: Model '${rawModelId}' is an external provider. Unauthorized fallback to external models is prohibited for default inference tasks without explicit user selection.`
+    );
+  } else if (!isZyntheorCore) {
+    unauthorizedFallback = true;
+    errors.push(
+      `Model '${rawModelId}' is not an authorized member of the ZYNTHEOR CORE model family (category: '${rawCategory}', provider: '${rawProvider}').`
+    );
+  }
+
+  // Check for unverified claims
+  if (m.status === 'SPECIFICATION_LOCKED_PENDING_GPU_RUN' && m.isVerified === true) {
+    errors.push('Integrity failure: Model claimed verified without physical checkpoint weights on disk.');
+  }
+
+  const valid = errors.length === 0 && isZyntheorCore && !unauthorizedFallback;
+
+  return {
+    valid,
+    isZyntheorCore,
+    modelId: rawModelId || 'UNKNOWN',
+    category: isZyntheorCore ? (rawCategory || 'CORE_ADAPTED') : 'EXTERNAL_MODEL_PROVIDER',
+    provider: isZyntheorCore ? 'ZYNTHEOR' : (rawProvider || 'EXTERNAL'),
+    unauthorizedFallback,
+    errors,
+    reason: valid
+      ? `Model '${rawModelId}' strictly validated as authorized ZYNTHEOR CORE engine.`
+      : errors.join(' | '),
+    timestamp,
+  };
+}
+
 /**
  * Returns formatted badge representation for any model in UI
  */
