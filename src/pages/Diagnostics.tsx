@@ -8,8 +8,10 @@ import { auditLedgerService } from '../services/auditLedger';
 import { crossLayerRootCauseEngine } from '../lib/crossLayerRootCause';
 
 
+import { ForensicVerificationPanel } from '../components/ForensicVerificationPanel';
+
 export default function Diagnostics() {
-  const [activeTab, setActiveTab] = useState<'storage' | 'audit' | 'debugging' | 'crosslayer'>('storage');
+  const [activeTab, setActiveTab] = useState<'forensic' | 'storage' | 'audit' | 'debugging' | 'crosslayer'>('forensic');
   const [crossLayerData, setCrossLayerData] = useState<any>(null);
   const [auditRecords, setAuditRecords] = useState<any[]>([]);
 
@@ -55,16 +57,19 @@ export default function Diagnostics() {
   return (
     <div className="min-h-screen bg-[#0a0f1c] text-white p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#00D9A3]">Diagnostics — Storage Schema Audit & Cross-Layer Intelligence</h1>
-        <p className="text-sm text-gray-400 mt-1">ZYNTHEOR AI ENGINE 0.3 — Baseline Audit, Audit Ledger Integrity, Intelligent Debugging, Cross-Layer Root Cause Intelligence</p>
+        <h1 className="text-2xl font-bold text-[#00D9A3]">Diagnostics & Forensic Truth Dossier</h1>
+        <p className="text-sm text-gray-400 mt-1">ZYNTHEOR AI ENGINE — COURT_READY SSoT Δ0.00% Forensic Verification, Audit Ledger Integrity, Storage Schemas & Cross-Layer Intelligence</p>
       </div>
 
       <div className="flex gap-2 mb-6 flex-wrap">
+        <button onClick={() => setActiveTab('forensic')} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'forensic' ? 'bg-[#00D9A3] text-black shadow-lg shadow-[#00D9A3]/20' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>🏛️ Court-Ready Forensic Dossier</button>
         <button onClick={() => setActiveTab('storage')} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'storage' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>LocalStorage Audit (14 schemas)</button>
         <button onClick={() => { setActiveTab('audit'); loadAuditLedger(); }} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'audit' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>Audit Ledger Integrity + Distribution</button>
         <button onClick={() => setActiveTab('debugging')} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'debugging' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>Intelligent Debugging</button>
         <button onClick={() => { setActiveTab('crosslayer'); loadCrossLayer(); }} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'crosslayer' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>Cross-Layer Root Cause</button>
       </div>
+
+      {activeTab === 'forensic' && <ForensicVerificationPanel />}
 
       {activeTab === 'storage' && <LocalStorageAuditTool />}
       {activeTab === 'audit' && (
