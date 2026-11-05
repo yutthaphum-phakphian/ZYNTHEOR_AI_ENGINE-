@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import LocalStorageAuditTool from '../components/LocalStorageAuditTool';
-import AuditChainVisualizer from '../components/AuditChainVisualizer';
-import IntelligentDebugging from '../components/IntelligentDebugging';
+import * as LocalStorageAuditToolMod from '../components/LocalStorageAuditTool';
+import * as AuditChainVisualizerMod from '../components/AuditChainVisualizer';
+import * as IntelligentDebuggingMod from '../components/IntelligentDebugging';
 import { AuditEventDistributionChart } from '../components/AuditEventDistributionChart';
 import { auditLedgerService } from '../services/auditLedger';
 import { crossLayerRootCauseEngine } from '../lib/crossLayerRootCause';
+
+const LocalStorageAuditTool = (LocalStorageAuditToolMod as any).default || (LocalStorageAuditToolMod as any).LocalStorageAuditTool || (() => null);
+const AuditChainVisualizer = (AuditChainVisualizerMod as any).default || (AuditChainVisualizerMod as any).AuditChainVisualizer || (() => null);
+const IntelligentDebugging = (IntelligentDebuggingMod as any).default || (IntelligentDebuggingMod as any).IntelligentDebugging || (() => null);
 
 export default function Diagnostics() {
   const [activeTab, setActiveTab] = useState<'storage' | 'audit' | 'debugging' | 'crosslayer'>('storage');
@@ -12,14 +16,16 @@ export default function Diagnostics() {
   const [auditRecords, setAuditRecords] = useState<any[]>([]);
 
   const loadCrossLayer = () => {
-    const data = crossLayerRootCauseEngine.getFullAnalysis();
-    setCrossLayerData(data);
+    try {
+      const data = crossLayerRootCauseEngine.getFullAnalysis();
+      setCrossLayerData(data);
+    } catch { setCrossLayerData(null); }
   };
 
   const loadAuditLedger = () => {
     try {
       const events = auditLedgerService.getEvents();
-      const mapped = events.map((e: any) => ({
+      const mapped = (events as any[]).map((e: any) => ({
         id: e.eventId || e.id,
         at: e.at || e.timestamp,
         action: e.eventType || e.action || 'GENERAL',
@@ -46,11 +52,7 @@ export default function Diagnostics() {
     }
   };
 
-  useEffect(()=>{
-    if(activeTab === 'audit'){
-      loadAuditLedger();
-    }
-  },[activeTab]);
+  useEffect(()=>{ if(activeTab === 'audit'){ loadAuditLedger(); } },[activeTab]);
 
   return (
     <div className="min-h-screen bg-[#0a0f1c] text-white p-6">
@@ -67,16 +69,13 @@ export default function Diagnostics() {
       </div>
 
       {activeTab === 'storage' && <LocalStorageAuditTool />}
-      
       {activeTab === 'audit' && (
         <div className="space-y-4">
           <AuditEventDistributionChart records={auditRecords as any} />
           <AuditChainVisualizer />
         </div>
       )}
-      
       {activeTab === 'debugging' && <IntelligentDebugging />}
-
       {activeTab === 'crosslayer' && (
         <div className="p-6 bg-[#080d1a] rounded border border-[#00D9A3]/20">
           <h2 className="font-bold text-[#00D9A3]">🔬 Cross-Layer Root Cause Intelligence</h2>
@@ -84,8 +83,8 @@ export default function Diagnostics() {
             <div className="mt-4 p-4 rounded bg-[#111a2d] border border-[#00D9A3]/10 text-sm text-gray-400">กำลังโหลด...</div>
           ) : (
             <div className="mt-4 grid grid-cols-4 gap-3">
-              <div className="p-3 rounded bg-[#111a2d] border border-[#00D9A3]/20"><div className="text-xs text-gray-500">Layers</div><div className="text-lg font-bold">{crossLayerData.layers.length}</div></div>
-              <div className="p-3 rounded bg-[#111a2d] border border-[#00D9A3]/20"><div className="text-xs text-gray-500">Dependencies</div><div className="text-lg font-bold">{crossLayerData.dependencies.length}</div></div>
+              <div className="p-3 rounded bg-[#111a2d] border border-[#00D9A3]/20"><div className="text-xs text-gray-500">Layers</div><div className="text-lg font-bold">{crossLayerData.layers?.length ?? 0}</div></div>
+              <div className="p-3 rounded bg-[#111a2d] border border-[#00D9A3]/20"><div className="text-xs text-gray-500">Dependencies</div><div className="text-lg font-bold">{crossLayerData.dependencies?.length ?? 0}</div></div>
             </div>
           )}
         </div>
