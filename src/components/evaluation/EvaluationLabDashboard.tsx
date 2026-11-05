@@ -19,12 +19,14 @@ import {
   type EvaluationHistoryEntry,
 } from '../../evaluation/regressionMonitor';
 import { buildCapabilityRegistry } from '../../evaluation/capabilityRegistry';
+import BenchmarkSuite from '../BenchmarkSuite';
 
 interface DashboardProps {
   className?: string;
 }
 
 type ActiveTab =
+  | 'global-benchmark'
   | 'control-center'
   | 'reasoning-lab'
   | 'code-lab'
@@ -37,7 +39,7 @@ type ActiveTab =
   | 'history';
 
 export const EvaluationLabDashboard: React.FC<DashboardProps> = ({ className = '' }) => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('control-center');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('global-benchmark');
   const [currentEval, setCurrentEval] = useState<UnifiedEvaluation | null>(null);
   const [history, setHistory] = useState<EvaluationHistoryEntry[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -553,6 +555,7 @@ function runUserScript(cmd: string) {
       {/* NAVIGATION TABS */}
       <div className="flex border-b border-[#232634] gap-2 mb-6 overflow-x-auto pb-1">
         {[
+          { id: 'global-benchmark', label: '100-Point Global Benchmark', icon: '🏆' },
           { id: 'control-center', label: 'Evaluation Control Center', icon: '⚡' },
           { id: 'reasoning-lab', label: 'AI Reasoning Lab', icon: '🧠' },
           { id: 'code-lab', label: 'Code Evaluation Lab', icon: '💻' },
@@ -583,6 +586,13 @@ function runUserScript(cmd: string) {
           </button>
         ))}
       </div>
+
+      {/* TAB 0: 100-POINT GLOBAL INTELLIGENCE BENCHMARK */}
+      {activeTab === 'global-benchmark' && (
+        <div className="space-y-6">
+          <BenchmarkSuite />
+        </div>
+      )}
 
       {/* TAB 1: EVALUATION CONTROL CENTER */}
       {activeTab === 'control-center' && (

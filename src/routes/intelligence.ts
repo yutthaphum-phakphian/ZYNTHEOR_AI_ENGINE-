@@ -19,7 +19,7 @@ import {
 } from '../services/repositoryIntelligence.ts';
 import { vectorMemoryService } from '../services/vectorMemory.ts';
 import { adaptiveReasoningEngine } from '../../lib/adaptive-reasoning.ts';
-import { zyntheorIntelligenceRuntime } from '../../lib/zyntheor-intelligence-runtime.ts';
+import { zyntheorIntelligenceRuntime } from '../lib/ZyntheorIntelligenceRuntime.ts';
 import { globalBenchmarkSuite } from '../evaluation/globalBenchmarkSuite.ts';
 
 const r = Router();
