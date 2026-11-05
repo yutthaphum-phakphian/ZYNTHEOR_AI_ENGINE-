@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="public/zyntheor-header.svg" alt="ZYNTHEOR AI ENGINE - Sovereign Local-First Intelligence Core" width="840" />
+  <img src="public/zyntheor-header.svg?v=2" alt="ZYNTHEOR AI ENGINE - Sovereign Local-First Intelligence Core" width="840" />
 </p>
 
 <p align="center">
