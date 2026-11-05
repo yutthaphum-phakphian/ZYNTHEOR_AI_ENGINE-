@@ -45,7 +45,7 @@
   --zyn-safe-left: env(safe-area-inset-left, 0px);
   --zyn-safe-right: env(safe-area-inset-right, 0px);
 
-  --zyn-nav-height: 64px;
+  --zyn-nav-height: 68px;
 }
 
 /* =========================================================
@@ -60,7 +60,8 @@
 
 html {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
+
   background: var(--zyn-bg);
   color: var(--zyn-text);
 
@@ -84,7 +85,8 @@ html {
 body {
   width: 100%;
   min-width: 320px;
-  min-height: 100vh;
+
+  min-height: 100%;
   min-height: 100dvh;
 
   margin: 0;
@@ -97,10 +99,10 @@ body {
   overscroll-behavior: none;
 }
 
-/* React root */
-
 #root {
   width: 100%;
+
+  height: 100%;
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -160,8 +162,6 @@ video {
   background: rgba(255,255,255,0.2);
 }
 
-/* Firefox */
-
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.15) transparent;
@@ -186,10 +186,9 @@ video {
   background: var(--zyn-bg);
 }
 
-/* Main application content */
-
 .app-content {
   flex: 1;
+
   min-width: 0;
   min-height: 0;
 
@@ -201,8 +200,16 @@ video {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Prevent nested flex overflow */
+
+.app-shell > *,
+.app-shell main,
+.app-shell section {
+  min-width: 0;
+}
+
 /* =========================================================
-   5. SAFE AREA — PWA / MOBILE
+   5. SAFE AREA
    ========================================================= */
 
 .safe-top {
@@ -222,6 +229,13 @@ video {
 }
 
 .safe-horizontal {
+  padding-left: var(--zyn-safe-left);
+  padding-right: var(--zyn-safe-right);
+}
+
+.safe-all {
+  padding-top: var(--zyn-safe-top);
+  padding-bottom: var(--zyn-safe-bottom);
   padding-left: var(--zyn-safe-left);
   padding-right: var(--zyn-safe-right);
 }
@@ -249,6 +263,7 @@ video {
   line-height: 1.6;
 
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .text-muted {
@@ -278,22 +293,12 @@ video {
     box-shadow var(--zyn-transition);
 }
 
-.zy-card:hover {
-  border-color: var(--zyn-border-hover);
-}
-
-.zy-card:active {
-  transform: scale(0.99);
-}
-
-/* Secondary card */
-
 .zy-card-secondary {
   background: var(--zyn-card-2);
 }
 
 /* =========================================================
-   8. INTELLIGENCE WORKSPACE COMPOSER
+   8. INTELLIGENCE COMPOSER
    ========================================================= */
 
 .zy-composer {
@@ -349,14 +354,6 @@ video {
   background: rgba(255,255,255,0.025);
 }
 
-.zy-provenance {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
 /* =========================================================
    10. PRODUCT IDENTITY
    ========================================================= */
@@ -407,17 +404,10 @@ video {
     opacity 100ms ease;
 }
 
-.tap:active {
-  transform: scale(0.97);
-  opacity: 0.9;
-}
-
 button,
 [role="button"] {
   touch-action: manipulation;
 }
-
-/* Keyboard focus */
 
 :focus-visible {
   outline: 2px solid var(--zyn-teal);
@@ -434,8 +424,6 @@ button,
   pointer-events: none;
 
   opacity: 0.6;
-
-  will-change: transform;
 }
 
 .jammy-orb-teal {
@@ -447,7 +435,7 @@ button,
 }
 
 /* =========================================================
-   13. HORIZONTAL CAPABILITY CHIPS
+   13. HORIZONTAL SCROLL
    ========================================================= */
 
 .no-scrollbar::-webkit-scrollbar {
@@ -479,17 +467,19 @@ button,
 }
 
 /* =========================================================
-   14. MOBILE BOTTOM NAVIGATION
+   14. MOBILE NAVIGATION
    ========================================================= */
 
 .bottom-tab {
   flex-shrink: 0;
 
-  min-height: var(--zyn-nav-height);
+  height: calc(
+    var(--zyn-nav-height) + var(--zyn-safe-bottom)
+  );
 
   padding-bottom: var(--zyn-safe-bottom);
 
-  background: rgba(5,8,16,0.88);
+  background: rgba(5,8,16,0.92);
 
   border-top: 1px solid var(--zyn-border);
 
@@ -497,6 +487,40 @@ button,
   -webkit-backdrop-filter: blur(24px);
 
   z-index: 50;
+}
+
+/* Navigation horizontal scroll */
+
+.mobile-navigation {
+  display: flex;
+
+  width: 100%;
+  min-width: 0;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: none;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-navigation::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-navigation-item {
+  flex: 0 0 auto;
+
+  min-width: 68px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 4px;
 }
 
 /* =========================================================
@@ -513,15 +537,13 @@ button,
 }
 
 /* =========================================================
-   16. RESPONSIVE LAYOUT
+   16. RESPONSIVE
    ========================================================= */
-
-/* Small mobile */
 
 @media (max-width: 380px) {
   :root {
     --zyn-radius-lg: 16px;
-    --zyn-nav-height: 60px;
+    --zyn-nav-height: 64px;
   }
 
   .zy-card {
@@ -534,13 +556,19 @@ button,
   }
 }
 
+/* Touch devices */
+
+@media (hover: none) {
+  .zy-card:hover {
+    border-color: var(--zyn-border);
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 /* Tablet and desktop */
 
 @media (min-width: 768px) {
-  .app-shell {
-    flex-direction: row;
-  }
-
   .bottom-tab {
     display: none;
   }
@@ -550,12 +578,13 @@ button,
 
 @media (min-width: 1280px) {
   .zy-card:hover {
+    border-color: var(--zyn-border-hover);
     box-shadow: 0 8px 30px rgba(0,0,0,0.16);
   }
 }
 
 /* =========================================================
-   17. ACCESSIBILITY / MOTION
+   17. ACCESSIBILITY
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
