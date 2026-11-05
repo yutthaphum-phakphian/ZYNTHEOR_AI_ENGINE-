@@ -4,8 +4,6 @@
    Mobile First | Desktop Ready | Safe Area
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;700;900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -587,6 +585,8 @@ button,
    17. ACCESSIBILITY
    ========================================================= */
 
+@media (prefers-reduced-motion: reduce){.team-row{animation:none}}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -598,6 +598,21 @@ button,
 
     transition-duration: 0.01ms !important;
   }
+}
+
+@keyframes team-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.role-tip-wrap:focus-within .role-tip {
+  display: block;
 }
 
 /* =========================================================
@@ -612,3 +627,4 @@ button,
 /* =========================================================
    END — ZYNTHEOR NATIVE APP STYLES
    ========================================================= */
+

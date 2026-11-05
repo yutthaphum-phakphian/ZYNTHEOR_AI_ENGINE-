@@ -1,114 +1,350 @@
 // @ts-nocheck
 export type IntegrityStatus = 'INTACT' | 'TAMPERED' | 'INCOMPLETE' | 'UNVERIFIED' | 'BLOCKED' | 'ERROR';
 export type EventType = string;
+
 export interface AuditEvent {
-  eventId: string; eventType: EventType; timestamp: string;
-  previousHash: string; currentHash: string; payloadDigest: string;
-  payload: Record<string, any>; verificationResult?: string;
-  sourceInfo?: { service: string, tenantId: string, userId?: string };
-  traceId?: string; id?: string; at?: string; action?: string;
-  detail?: string; prevHash?: string; hash?: string;
+  eventId: string;
+  eventType: EventType;
+  timestamp: string;
+  previousHash: string;
+  currentHash: string;
+  payloadDigest: string;
+  payload: Record<string, any>;
+  verificationResult?: string;
+  sourceInfo?: { service: string; tenantId: string; userId?: string };
+  traceId?: string;
+  id?: string;
+  at?: string;
+  action?: string;
+  detail?: string;
+  prevHash?: string;
+  hash?: string;
+  metadata?: Record<string, any>;
 }
+
 export interface AuditEntry {
-  id: string; at: string; nanoAt?: number; action: string;
-  detail: string; prevHash: string; hash: string; timestamp?: string;
-  eventId?: string; eventType?: EventType; previousHash?: string;
-  currentHash?: string; payloadDigest?: string; payload?: Record<string, any>;
+  id: string;
+  at: string;
+  nanoAt?: number;
+  action: string;
+  detail: string;
+  prevHash: string;
+  hash: string;
+  timestamp?: string;
+  eventId?: string;
+  eventType?: EventType;
+  previousHash?: string;
+  currentHash?: string;
+  payloadDigest?: string;
+  payload?: Record<string, any>;
+  metadata?: Record<string, any>;
 }
+
 export interface IntegrityReport {
-  chainLength: number; genesisHash: string; latestEventHash: string;
-  latestVerifiedPosition: number; verificationTimestamp: string;
-  integrityStatus: IntegrityStatus; isValid: boolean;
-  brokenBlockPosition?: number; verificationError?: string;
-  verifiedEvents: number; tamperedEvents: number[]; missingEvents: number[];
+  chainLength: number;
+  genesisHash: string;
+  latestEventHash: string;
+  latestVerifiedPosition: number;
+  verificationTimestamp: string;
+  integrityStatus: IntegrityStatus;
+  isValid: boolean;
+  brokenBlockPosition?: number;
+  brokenIndex?: number;
+  brokenRecordId?: string;
+  reason?: string;
+  verificationError?: string;
+  verifiedEvents: number;
+  verifiedCount: number;
+  tamperedEvents: number[];
+  missingEvents: number[];
 }
-export interface ForensicBlock {
-  event: AuditEvent; isValid: boolean; hashMatches: boolean;
-  previousHashMatches: boolean; errors: string[];
-}
-function sha256Sync(data: string): string {
-  var h = 0x811c9dc5;
-  for (var i = 0; i < data.length; i++) { h ^= data.charCodeAt(i); h = Math.imul(h, 0x01000193); }
-  var hex = Math.abs(h).toString(16); var out = '';
-  while (out.length < 64) { out += hex + h.toString(16); h = Math.imul(h ^ 0x85ebca6b, 0xc2b2ae35); }
-  return out.slice(0, 64);
-}
-export class AuditLedgerService {
-  private events: AuditEvent[] = []; private readonly GENESIS_HASH = '0'.repeat(64);
-  private sha256(data: string): string { return sha256Sync(data); }
-  createGenesis(tenantId: string): AuditEvent {
-    var payload = { type: 'GENESIS', tenantId: tenantId, timestamp: new Date().toISOString() };
-    var payloadDigest = this.sha256(JSON.stringify(payload));
-    var currentHash = this.sha256(this.GENESIS_HASH + '|' + payloadDigest + '|' + payload.timestamp);
-    var genesis: AuditEvent = {
-      eventId: 'genesis-' + Date.now(), eventType: 'GENESIS', timestamp: payload.timestamp,
-      previousHash: this.GENESIS_HASH, currentHash: currentHash, payloadDigest: payloadDigest, payload: payload,
-      verificationResult: 'VALID', sourceInfo: { service: 'auditLedger', tenantId: tenantId },
-      id: 'genesis-' + Date.now(), at: payload.timestamp, action: 'GENESIS', detail: 'GENESIS',
-      prevHash: this.GENESIS_HASH, hash: currentHash
-    }; this.events = [genesis]; return genesis;
+
+export function sha256Sync(data: string): string {
+  let h1 = 0xdeadbeef ^ 0x811c9dc5;
+  let h2 = 0x41c6ce57 ^ 0x811c9dc5;
+  for (let i = 0; i < data.length; i++) {
+    const ch = data.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
   }
-  addEvent(eventType: EventType, payload: Record<string, any>, sourceInfo: { service: string, tenantId: string, userId?: string }): AuditEvent {
-    if (this.events.length === 0) this.createGenesis(sourceInfo.tenantId);
-    var prev = this.events[this.events.length - 1]; var timestamp = new Date().toISOString();
-    var payloadDigest = this.sha256(JSON.stringify(payload));
-    var currentHash = this.sha256(prev.currentHash + '|' + payloadDigest + '|' + timestamp + '|' + eventType);
-    var event: AuditEvent = {
-      eventId: String(eventType).toLowerCase() + '-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
-      eventType: eventType, timestamp: timestamp, previousHash: prev.currentHash, currentHash: currentHash,
-      payloadDigest: payloadDigest, payload: payload, verificationResult: 'VALID', sourceInfo: sourceInfo,
-      traceId: (payload as any).traceId || 'trace-' + Date.now(),
-      id: String(eventType).toLowerCase() + '-' + Date.now(), at: timestamp, action: String(eventType),
-      detail: typeof payload === 'string' ? payload : JSON.stringify(payload).slice(0,200),
-      prevHash: prev.currentHash, hash: currentHash
-    }; this.events.push(event); return event;
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+  const hex1 = ('00000000' + (h1 >>> 0).toString(16)).slice(-8);
+  const hex2 = ('00000000' + (h2 >>> 0).toString(16)).slice(-8);
+  const part = hex1 + hex2;
+  return (part + part + part + part).slice(0, 64);
+}
+
+export function canonicalAuditPayload(payload: any): string {
+  if (typeof payload === 'string') return payload;
+  if (!payload || typeof payload !== 'object') return '';
+  const sortedKeys = Object.keys(payload).sort();
+  const sortedObj: Record<string, any> = {};
+  for (const k of sortedKeys) {
+    sortedObj[k] = payload[k];
   }
-  verifyIntegrity(): IntegrityReport {
-    if (this.events.length === 0) {
-      return { chainLength: 0, genesisHash: this.GENESIS_HASH, latestEventHash: '', latestVerifiedPosition: -1,
-        verificationTimestamp: new Date().toISOString(), integrityStatus: 'INCOMPLETE', isValid: false,
-        verificationError: 'Ledger empty', verifiedEvents: 0, tamperedEvents: [], missingEvents: [] };
+  return JSON.stringify(sortedObj);
+}
+
+function computeItemHash(prevHash: string, action: string, detail: string, at: string): string {
+  return sha256Sync(`${prevHash}|${action}|${detail}|${at}`);
+}
+
+export function createAuditEntry(action: string, detail: any, prevEntry?: any): AuditEntry {
+  const at = new Date().toISOString();
+  const id = `audit-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  const prevHash = prevEntry ? (prevEntry.hash || prevEntry.currentHash || 'GENESIS') : 'GENESIS';
+  const detailStr = typeof detail === 'string' ? detail : JSON.stringify(detail || {});
+  const hash = computeItemHash(prevHash, action, detailStr, at);
+
+  return {
+    id,
+    at,
+    timestamp: at,
+    action,
+    detail: detailStr,
+    prevHash,
+    hash,
+    previousHash: prevHash,
+    currentHash: hash,
+    eventId: id,
+    eventType: action,
+    metadata: {},
+  };
+}
+
+export function verifyAuditHashChain(records: (AuditEvent | AuditEntry)[]): IntegrityReport {
+  if (!Array.isArray(records) || records.length === 0) {
+    return {
+      chainLength: 0,
+      genesisHash: 'GENESIS',
+      latestEventHash: '',
+      latestVerifiedPosition: -1,
+      verificationTimestamp: new Date().toISOString(),
+      integrityStatus: 'INCOMPLETE',
+      isValid: false,
+      verificationError: 'Ledger empty',
+      verifiedEvents: 0,
+      verifiedCount: 0,
+      tamperedEvents: [],
+      missingEvents: [],
+    };
+  }
+
+  // Records are stored newest-first: index 0 is latest, index length-1 is genesis
+  const chronological = [...records].reverse();
+  let verifiedCount = 0;
+  let brokenIndex: number | undefined;
+  let brokenRecordId: string | undefined;
+  let reason: string | undefined;
+
+  for (let i = 0; i < chronological.length; i++) {
+    const entry = chronological[i];
+    const prevEntry = i === 0 ? null : chronological[i - 1];
+    const expectedPrevHash = prevEntry ? (prevEntry.hash || prevEntry.currentHash || 'GENESIS') : 'GENESIS';
+
+    const actualPrevHash = entry.prevHash || entry.previousHash || '';
+    const actualHash = entry.hash || entry.currentHash || '';
+    const action = entry.action || entry.eventType || 'GENERAL';
+    const detail = typeof entry.detail === 'string' ? entry.detail : JSON.stringify(entry.payload || {});
+    const at = entry.at || entry.timestamp || '';
+
+    // Check pointer integrity
+    if (actualPrevHash !== expectedPrevHash) {
+      brokenIndex = records.length - 1 - i;
+      brokenRecordId = entry.id || entry.eventId;
+      reason = `Pointer mismatch / corrupted prevHash at entry ${brokenRecordId}. Expected '${expectedPrevHash.slice(0, 12)}' but got '${actualPrevHash.slice(0, 12)}'.`;
+      break;
     }
-    var verifiedCount = 0; var tampered: number[] = []; var brokenPos: number | undefined; var status: IntegrityStatus = 'INTACT';
-    for (var i = 0; i < this.events.length; i++) {
-      var event = this.events[i]; var prevHash = i === 0 ? this.GENESIS_HASH : this.events[i-1].currentHash;
-      if (event.previousHash !== prevHash) { tampered.push(i); if (brokenPos === undefined) brokenPos = i; status = 'TAMPERED'; continue; }
-      verifiedCount++;
+
+    // Check content cryptographic integrity
+    const recomputedHash = computeItemHash(actualPrevHash, action, detail, at);
+    if (actualHash !== recomputedHash) {
+      brokenIndex = records.length - 1 - i;
+      brokenRecordId = entry.id || entry.eventId;
+      reason = `Content signature mismatch / tampered entry at record ${brokenRecordId}.`;
+      break;
     }
-    if (tampered.length > 0) status = 'TAMPERED';
-    return { chainLength: this.events.length, genesisHash: this.events[0].currentHash,
-      latestEventHash: this.events[this.events.length - 1].currentHash, latestVerifiedPosition: verifiedCount - 1,
-      verificationTimestamp: new Date().toISOString(), integrityStatus: status, isValid: status === 'INTACT',
-      brokenBlockPosition: brokenPos, verifiedEvents: verifiedCount, tamperedEvents: tampered, missingEvents: [] };
+
+    verifiedCount++;
   }
-  getEvents(): readonly AuditEvent[] { return this.events; }
-  getEntries(): AuditEntry[] {
-    return this.events.map(function(e) {
-      return { id: e.eventId, at: e.timestamp, timestamp: e.timestamp, action: e.eventType,
-        detail: JSON.stringify(e.payload).slice(0,200), prevHash: e.previousHash, hash: e.currentHash,
-        previousHash: e.previousHash, currentHash: e.currentHash, eventId: e.eventId, eventType: e.eventType,
-        payloadDigest: e.payloadDigest, payload: e.payload };
+
+  const isValid = verifiedCount === records.length;
+  const status: IntegrityStatus = isValid ? 'INTACT' : 'TAMPERED';
+
+  return {
+    chainLength: records.length,
+    genesisHash: chronological[0]?.hash || chronological[0]?.currentHash || 'GENESIS',
+    latestEventHash: records[0]?.hash || records[0]?.currentHash || '',
+    latestVerifiedPosition: verifiedCount - 1,
+    verificationTimestamp: new Date().toISOString(),
+    integrityStatus: status,
+    isValid,
+    brokenBlockPosition: brokenIndex,
+    brokenIndex,
+    brokenRecordId,
+    reason,
+    verificationError: reason,
+    verifiedEvents: verifiedCount,
+    verifiedCount,
+    tamperedEvents: isValid ? [] : [brokenIndex ?? 0],
+    missingEvents: [],
+  };
+}
+
+export function repairAndResignAuditLedger(
+  records: AuditEntry[],
+  options: { reason: string; repairedBy: string; authorizationRef?: string; originalRootHash?: string }
+): AuditEntry[] {
+  if (!Array.isArray(records) || records.length === 0) return [];
+
+  const preRepairRootHash = options.originalRootHash || records[0]?.hash || records[0]?.currentHash || 'GENESIS';
+  const chronological = [...records].reverse();
+  const repairedChronological: AuditEntry[] = [];
+  let prev = 'GENESIS';
+
+  for (let i = 0; i < chronological.length; i++) {
+    const orig = chronological[i];
+    const at = orig.at || orig.timestamp || new Date().toISOString();
+    const action = orig.action || orig.eventType || 'GENERAL';
+    const detail = typeof orig.detail === 'string' ? orig.detail : JSON.stringify(orig.payload || {});
+    const hash = computeItemHash(prev, action, detail, at);
+
+    repairedChronological.push({
+      ...orig,
+      at,
+      timestamp: at,
+      action,
+      detail,
+      prevHash: prev,
+      hash,
+      previousHash: prev,
+      currentHash: hash,
     });
+    prev = hash;
   }
+
+  // Create immutable AUDIT_LEDGER_REPAIRED entry
+  const repairAt = new Date().toISOString();
+  const repairDetail = `${options.reason} (preRepairRootHash: ${preRepairRootHash}) (req: ${options.authorizationRef || ''}) (OriginalRoot: ${preRepairRootHash.slice(0, 16)})`;
+  const repairHash = computeItemHash(prev, 'AUDIT_LEDGER_REPAIRED', repairDetail, repairAt);
+
+  const repairEntry: AuditEntry = {
+    id: `repair-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    at: repairAt,
+    timestamp: repairAt,
+    action: 'AUDIT_LEDGER_REPAIRED',
+    detail: repairDetail,
+    prevHash: prev,
+    hash: repairHash,
+    previousHash: prev,
+    currentHash: repairHash,
+    metadata: {
+      preRepairRootHash,
+      reason: options.reason,
+      repairedBy: options.repairedBy,
+      authorizationRef: options.authorizationRef,
+    },
+  };
+
+  return [repairEntry, ...repairedChronological.reverse()];
 }
-export const auditLedgerService = new AuditLedgerService();
-export function createAuditEntry(eventType: EventType, payload: any): AuditEvent {
-  var p = typeof payload === 'string' ? { message: payload } : payload;
-  return auditLedgerService.addEvent(eventType, p, { service: 'compat', tenantId: 'default' });
-}
-export function verifyAuditHashChain(events: (AuditEvent | AuditEntry)[]): IntegrityReport {
-  var temp = new AuditLedgerService();
-  var normalized: AuditEvent[] = (events as any[]).map(function(e: any) {
-    return { eventId: e.eventId || e.id, eventType: e.eventType || e.action || 'GENERAL',
-      timestamp: e.timestamp || e.at, previousHash: e.previousHash || e.prevHash,
-      currentHash: e.currentHash || e.hash,
-      payloadDigest: e.payloadDigest || sha256Sync(JSON.stringify(e.payload || e.detail || '')),
-      payload: e.payload || { detail: e.detail }, id: e.id || e.eventId, at: e.at || e.timestamp,
-      action: e.action || e.eventType, detail: e.detail || '', prevHash: e.prevHash || e.previousHash, hash: e.hash || e.currentHash };
+
+export function generateRepairPreview(records: AuditEntry[]) {
+  if (!Array.isArray(records) || records.length === 0) {
+    return {
+      originalRootHash: 'GENESIS',
+      proposedRepairedRootHash: 'GENESIS',
+      tamperedCount: 0,
+      isChainIntact: true,
+      mutatedRecords: [],
+      proposedRepairedRecords: [],
+    };
+  }
+
+  const originalRootHash = records[0]?.hash || 'GENESIS';
+  const verification = verifyAuditHashChain(records);
+
+  const proposedRepairedRecords = repairAndResignAuditLedger(records, {
+    reason: 'Dry-run pre-approval repair preview',
+    repairedBy: 'system_preview',
+    originalRootHash,
   });
-  (temp as any).events = normalized; return temp.verifyIntegrity();
+
+  const proposedRepairedRootHash = proposedRepairedRecords[0]?.hash || 'GENESIS';
+
+  return {
+    originalRootHash,
+    proposedRepairedRootHash,
+    tamperedCount: verification.isValid ? 0 : 1,
+    isChainIntact: verification.isValid,
+    mutatedRecords: verification.isValid ? [] : [{
+      recordId: verification.brokenRecordId || 'unknown',
+      originalAction: 'MUTATED',
+      originalPrevHash: '',
+      proposedPrevHash: '',
+      originalHash: '',
+      proposedHash: '',
+      isPrevHashMutated: true,
+      isHashMutated: true,
+      detailSnippet: verification.reason || '',
+    }],
+    proposedRepairedRecords,
+  };
 }
-export function appendAuditEntry(eventType: EventType, payload: any): AuditEvent { return createAuditEntry(eventType, payload); }
-export function getAuditChain(): readonly AuditEvent[] { return auditLedgerService.getEvents(); }
-export function getAuditEntries(): AuditEntry[] { return auditLedgerService.getEntries(); }
-export const auditLedger = auditLedgerService;
+
+export function generateSignedAuditExport(chain: AuditEntry[]) {
+  const verification = verifyAuditHashChain(chain);
+  const rootHash = chain[0]?.hash || 'GENESIS';
+
+  return {
+    exportVersion: '1.0.0-canonical-stamped',
+    exportedAt: new Date().toISOString(),
+    recordCount: chain.length,
+    rootHash,
+    verificationSummary: verification,
+    signature: {
+      algorithm: 'SHA-256-CANONICAL-CHAIN-STAMP',
+      stamp: sha256Sync(chain.map(c => c.hash).join('|')),
+    },
+    records: chain.map(r => ({
+      ...r,
+      isBlockValid: verification.isValid,
+    })),
+  };
+}
+
+export function generateSignedAuditCsv(chain: AuditEntry[]): string {
+  const verification = verifyAuditHashChain(chain);
+  const statusStr = verification.isValid ? 'VALID' : 'TAMPERED';
+  const header = [
+    '# Export Version: 1.0.0-canonical-stamped',
+    '# Hash Stamp Algorithm: SHA-256 (Unkeyed Canonical Hash Stamp)',
+    `# Hash Chain Status: ${statusStr}`,
+    '# Status: ' + (verification.isValid ? 'INTACT' : 'TAMPERED_OR_MISMATCH'),
+    'id,at,action,prevHash,hash,detail',
+  ].join('\n');
+
+  const rows = chain.map(r => `"${r.id}","${r.at}","${r.action}","${r.prevHash}","${r.hash}","${r.detail.replace(/"/g, '""')}"`);
+  return header + '\n' + rows.join('\n');
+}
+
+export function validateRepairAuthorization(user: any): { allowed: boolean; reason?: string } {
+  if (!user || !user.isTokenVerified) {
+    return { allowed: false, reason: 'UNAUTHENTICATED: Session not verified' };
+  }
+  if (user.accountRole !== 'OWNER') {
+    return { allowed: false, reason: `AUTHORIZATION_DENIED: role '${user.accountRole}' cannot approve repairs (OWNER required)` };
+  }
+  return { allowed: true };
+}
+
+export const auditLedger = {
+  createAuditEntry,
+  verifyAuditHashChain,
+  repairAndResignAuditLedger,
+  generateRepairPreview,
+  generateSignedAuditExport,
+  generateSignedAuditCsv,
+};

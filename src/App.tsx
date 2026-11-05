@@ -979,7 +979,7 @@ function AppShell() {
   ];
 
   return (
-    <div className="h-[100dvh] w-full bg-[#050810] text-white flex overflow-hidden antialiased">
+    <div className="app-shell flex overflow-hidden antialiased">
 
       {/* =================================================
           DESKTOP SIDEBAR
@@ -1028,7 +1028,7 @@ function AppShell() {
       ================================================= */}
 
       <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div className="app-content flex flex-col">
           <Routes>
             <Route path="/" element={<HomeExperience />} />
 
@@ -1066,7 +1066,7 @@ function AppShell() {
 
         <nav
           aria-label="Main navigation"
-          className="md:hidden shrink-0 h-[68px] pb-[env(safe-area-inset-bottom)] border-t border-white/[0.08] bg-[#0b1020]/95 backdrop-blur-xl overflow-x-auto overflow-y-hidden no-scrollbar"
+          className="bottom-tab mobile-navigation md:hidden"
         >
           <div className="flex items-stretch min-w-max h-full px-1">
             {nav.map(item => {
@@ -1079,7 +1079,7 @@ function AppShell() {
                   to={item.path}
                   aria-label={item.label}
                   aria-current={active ? 'page' : undefined}
-                  className={`flex flex-col items-center justify-center gap-1 min-w-[68px] px-2 py-2 transition ${
+                  className={`mobile-navigation-item transition ${
                     active
                       ? 'text-[#00D9A3]'
                       : 'text-white/40'
