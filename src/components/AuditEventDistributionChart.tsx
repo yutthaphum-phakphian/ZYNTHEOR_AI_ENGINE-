@@ -1,288 +1,149 @@
-// ZYNTHEOR Audit Ledger - Browser-safe SHA-256, Zero Mock, Green CI
-// Fixed: no 'import crypto from crypto' to allow Vite Pages build
+import React, { useMemo } from 'react';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts';
+import { BarChart3, Calendar } from 'lucide-react';
+import type { AuditEntry } from '../services/auditLedger';
 
-export type IntegrityStatus = 'INTACT' | 'TAMPERED' | 'INCOMPLETE' | 'UNVERIFIED' | 'BLOCKED' | 'ERROR';
-export type EventType = 'CODE_WRITE' | 'FILE_READ' | 'SECURITY_SCAN' | 'AGENT_ACTION' | 'RECOVERY' | 'GENESIS' | 'APPROVAL' | 'EXECUTION';
-
-// Legacy format (used by AuditChainVisualizer)
-export interface AuditEvent {
-  eventId: string;
-  eventType: EventType;
-  timestamp: string;
-  previousHash: string;
-  currentHash: string;
-  payloadDigest: string;
-  payload: Record<string, any>;
-  signature?: string;
-  keyId?: string;
-  verificationResult?: 'VALID' | 'INVALID' | 'UNVERIFIED';
-  sourceInfo?: { service: string, tenantId: string, userId?: string };
-  traceId?: string;
+interface Props {
+  records: (AuditEntry | any)[];
+  startDate?: string;
+  endDate?: string;
 }
 
-// New format (used by AuditEventDistributionChart)
-export interface AuditEntry {
-  id: string;
-  at: string;
-  nanoAt?: number;
-  action: string;
-  detail: string;
-  prevHash: string;
-  hash: string;
-  // compat fields
-  timestamp?: string;
-  eventId?: string;
-  eventType?: EventType;
-  previousHash?: string;
-  currentHash?: string;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function parseDate(v?: string, endOfDay = false): number | undefined {
+  if (!v) return undefined;
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(v);
+  const d = isDateOnly ? new Date(`${v}T${endOfDay ? '23:59:59.999' : '00:00:00'}`) : new Date(v);
+  const t = d.getTime();
+  return Number.isFinite(t) ? t : undefined;
 }
 
-export interface IntegrityReport {
-  chainLength: number;
-  genesisHash: string;
-  latestEventHash: string;
-  latestVerifiedPosition: number;
-  verificationTimestamp: string;
-  integrityStatus: IntegrityStatus;
-  brokenBlockPosition?: number;
-  verificationError?: string;
-  verifiedEvents: number;
-  tamperedEvents: number[];
-  missingEvents: number[];
-}
+export function AuditEventDistributionChart({ records, startDate, endDate }: Props) {
+  const { chartData, timeUnitLabel, totalEvents, peakBucket, avgPerBucket } = useMemo(() => {
+    const start = parseDate(startDate);
+    const end = parseDate(endDate, true);
 
-export interface ForensicBlock {
-  event: AuditEvent;
-  isValid: boolean;
-  hashMatches: boolean;
-  previousHashMatches: boolean;
-  signatureValid?: boolean;
-  errors: string[];
-}
+    const filtered = (records ?? [])
+      .map((r: any) => ({
+        record: r,
+        ts: new Date(r.at || r.timestamp || r.at).getTime(),
+      }))
+      .filter(({ ts }) => {
+        if (!Number.isFinite(ts)) return false;
+        if (start !== undefined && ts < start) return false;
+        if (end !== undefined && ts > end) return false;
+        return true;
+      })
+      .sort((a, b) => a.ts - b.ts);
 
-// Browser-safe SHA-256 - pure JS, no node:crypto import
-function sha256Sync(data: string): string {
-  // If in Node, try to use node crypto without static import
-  try {
-    // @ts-ignore
-    if (typeof globalThis !== 'undefined' && (globalThis as any).process?.versions?.node) {
-      // @ts-ignore
-      const crypto = (globalThis as any).require ? (globalThis as any).require('crypto') : null;
-      if (crypto) return crypto.createHash('sha256').update(data).digest('hex');
+    if (filtered.length === 0) {
+      return { chartData: [] as any[], timeUnitLabel: 'Date', totalEvents: 0, peakBucket: 'None', avgPerBucket: 0 };
     }
-  } catch {}
-  // Pure JS fallback - deterministic for build, not cryptographic strength critical for UI
-  // Simple FNV-like extended to 64 chars for chain integrity in browser
-  let h = 0x811c9dc5;
-  for (let i = 0; i < data.length; i++) {
-    h ^= data.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  // Expand to 64-char hex
-  let hex = Math.abs(h).toString(16);
-  let out = '';
-  while (out.length < 64) {
-    out += hex + h.toString(16);
-    h = Math.imul(h ^ 0x85ebca6b, 0xc2b2ae35);
-  }
-  return out.slice(0, 64);
-}
 
-class AuditLedgerService {
-  private events: AuditEvent[] = [];
-  private readonly GENESIS_HASH = '0'.repeat(64);
-  private originalLedgerPreserved: AuditEvent[] | null = null;
+    const minTime = filtered[0].ts;
+    const maxTime = filtered[filtered.length - 1].ts;
+    const rangeDays = (maxTime - minTime) / DAY_MS;
+    const isIntraday = rangeDays <= 2;
 
-  private sha256(data: string): string {
-    return sha256Sync(data);
-  }
+    const buckets = new Map<string, { label: string; count: number; actions: Record<string, number>; ts: number }>();
 
-  createGenesis(tenantId: string): AuditEvent {
-    const payload = { type: 'GENESIS', tenantId, timestamp: new Date().toISOString() };
-    const payloadDigest = this.sha256(JSON.stringify(payload));
-    const content = `${this.GENESIS_HASH}|${payloadDigest}|${payload.timestamp}`;
-    const currentHash = this.sha256(content);
-    const genesis: AuditEvent = {
-      eventId: `genesis-${Date.now()}`,
-      eventType: 'GENESIS',
-      timestamp: payload.timestamp,
-      previousHash: this.GENESIS_HASH,
-      currentHash,
-      payloadDigest,
-      payload,
-      verificationResult: 'VALID',
-      sourceInfo: { service: 'auditLedger', tenantId }
-    };
-    this.events = [genesis];
-    return genesis;
-  }
+    for (const { record, ts } of filtered) {
+      const d = new Date(ts);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const h = String(d.getHours()).padStart(2, '0');
 
-  addEvent(eventType: EventType, payload: Record<string, any>, sourceInfo: { service: string, tenantId: string, userId?: string }): AuditEvent {
-    if (this.events.length === 0) this.createGenesis(sourceInfo.tenantId);
-    const previousEvent = this.events[this.events.length - 1];
-    const timestamp = new Date().toISOString();
-    const payloadDigest = this.sha256(JSON.stringify(payload));
-    const content = `${previousEvent.currentHash}|${payloadDigest}|${timestamp}|${eventType}`;
-    const currentHash = this.sha256(content);
-    const event: AuditEvent = {
-      eventId: `${eventType.toLowerCase()}-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,
-      eventType,
-      timestamp,
-      previousHash: previousEvent.currentHash,
-      currentHash,
-      payloadDigest,
-      payload,
-      verificationResult: 'VALID',
-      sourceInfo,
-      traceId: payload.traceId || `trace-${Date.now()}`
-    };
-    this.events.push(event);
-    return event;
-  }
+      const key = isIntraday ? `${y}-${m}-${day}-${h}` : `${y}-${m}-${day}`;
+      const label = isIntraday
+        ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : d.toLocaleDateString([], { month: 'short', day: '2-digit' });
 
-  verifyIntegrity(): IntegrityReport {
-    if (this.events.length === 0) {
-      return {
-        chainLength: 0,
-        genesisHash: this.GENESIS_HASH,
-        latestEventHash: '',
-        latestVerifiedPosition: -1,
-        verificationTimestamp: new Date().toISOString(),
-        integrityStatus: 'INCOMPLETE',
-        verificationError: 'Ledger empty - no genesis',
-        verifiedEvents: 0,
-        tamperedEvents: [],
-        missingEvents: []
-      };
+      let b = buckets.get(key);
+      if (!b) {
+        b = { label, count: 0, actions: {}, ts };
+        buckets.set(key, b);
+      }
+      b.count += 1;
+      const action = record.action || 'GENERAL';
+      b.actions[action] = (b.actions[action] || 0) + 1;
     }
-    let verifiedCount = 0;
-    const tampered: number[] = [];
-    let brokenPos: number | undefined;
-    let status: IntegrityStatus = 'INTACT';
-    for (let i = 0; i < this.events.length; i++) {
-      const event = this.events[i];
-      const prevHash = i === 0 ? this.GENESIS_HASH : this.events[i-1].currentHash;
-      if (event.previousHash !== prevHash) {
-        tampered.push(i);
-        if (brokenPos === undefined) brokenPos = i;
-        status = 'TAMPERED';
-        continue;
-      }
-      const payloadDigest = this.sha256(JSON.stringify(event.payload));
-      if (payloadDigest !== event.payloadDigest) {
-        tampered.push(i);
-        if (brokenPos === undefined) brokenPos = i;
-        status = 'TAMPERED';
-        continue;
-      }
-      const content = i === 0 ? `${this.GENESIS_HASH}|${payloadDigest}|${event.timestamp}` : `${prevHash}|${payloadDigest}|${event.timestamp}|${event.eventType}`;
-      const expectedHash = this.sha256(content);
-      if (expectedHash !== event.currentHash) {
-        tampered.push(i);
-        if (brokenPos === undefined) brokenPos = i;
-        status = 'TAMPERED';
-        continue;
-      }
-      verifiedCount++;
-    }
-    if (tampered.length > 0) status = 'TAMPERED';
-    else if (verifiedCount !== this.events.length) status = 'INCOMPLETE';
-    else status = 'INTACT';
+
+    const sorted = Array.from(buckets.values()).sort((a, b) => a.ts - b.ts);
+    const total = sorted.reduce((s, b) => s + b.count, 0);
+    const peak = sorted.reduce<any>((h, b) => (!h || b.count > h.count ? b : h), undefined);
+    const avg = sorted.length ? Number((total / sorted.length).toFixed(1)) : 0;
+
     return {
-      chainLength: this.events.length,
-      genesisHash: this.events[0].currentHash,
-      latestEventHash: this.events[this.events.length - 1].currentHash,
-      latestVerifiedPosition: verifiedCount - 1,
-      verificationTimestamp: new Date().toISOString(),
-      integrityStatus: status,
-      brokenBlockPosition: brokenPos,
-      verifiedEvents: verifiedCount,
-      tamperedEvents: tampered,
-      missingEvents: []
+      chartData: sorted,
+      timeUnitLabel: isIntraday ? 'Hour' : 'Day',
+      totalEvents: total,
+      peakBucket: peak ? `${peak.label} (${peak.count} events)` : 'None',
+      avgPerBucket: avg,
     };
-  }
+  }, [records, startDate, endDate]);
 
-  inspectEvent(eventId: string): ForensicBlock | null {
-    const idx = this.events.findIndex(e => e.eventId === eventId);
-    if (idx === -1) return null;
-    const event = this.events[idx];
-    const prevHash = idx === 0 ? this.GENESIS_HASH : this.events[idx-1].currentHash;
-    const errors: string[] = [];
-    const payloadDigest = this.sha256(JSON.stringify(event.payload));
-    const hashMatches = payloadDigest === event.payloadDigest;
-    if (!hashMatches) errors.push('Payload digest mismatch');
-    const previousHashMatches = event.previousHash === prevHash;
-    if (!previousHashMatches) errors.push(`Previous hash mismatch`);
-    const content = idx === 0 ? `${this.GENESIS_HASH}|${payloadDigest}|${event.timestamp}` : `${prevHash}|${payloadDigest}|${event.timestamp}|${event.eventType}`;
-    const expectedHash = this.sha256(content);
-    const currentHashMatches = expectedHash === event.currentHash;
-    if (!currentHashMatches) errors.push('Current hash mismatch');
-    return { event, isValid: errors.length === 0, hashMatches: currentHashMatches, previousHashMatches, errors };
-  }
+  return (
+    <section style={{ background: '#0a0f1d', border: '1px solid #1e293b', borderRadius: '12px', padding: 'clamp(12px, 3vw, 20px)', marginBottom: '20px', minWidth: 0 }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid #1e293b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.35)', display: 'grid', placeItems: 'center', color: '#38bdf8' }}>
+            <BarChart3 size={18} />
+          </div>
+          <div>
+            <b style={{ fontSize: '13px', color: '#f1f5f9' }}>Audit Event Distribution Over Time</b>
+            <p style={{ margin: '3px 0 0', fontSize: '11px', color: '#94a3b8' }}>Chronological frequency grouped by {timeUnitLabel.toLowerCase()} - uses AuditEntry.at</p>
+          </div>
+        </div>
+        {(startDate || endDate) && (
+          <div style={{ fontSize: '10px', padding: '5px 9px', borderRadius: '6px', background: 'rgba(2, 132, 199, 0.15)', border: '1px solid #0284c7', color: '#7dd3fc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Calendar size={12} />
+            <span>{startDate || 'Start'} → {endDate || 'Present'}</span>
+          </div>
+        )}
+      </header>
 
-  preserveOriginalEvidence(): AuditEvent[] {
-    this.originalLedgerPreserved = [...this.events];
-    return this.originalLedgerPreserved;
-  }
-  getOriginalPreserved(): AuditEvent[] | null { return this.originalLedgerPreserved; }
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginBottom: '16px' }}>
+        {[
+          { label: 'Total Filtered Events', value: totalEvents, color: '#f8fafc' },
+          { label: `Time Buckets (${timeUnitLabel})`, value: chartData.length, color: '#38bdf8' },
+          { label: `Avg Events / ${timeUnitLabel}`, value: avgPerBucket, color: '#2dd4bf' },
+          { label: 'Peak Activity', value: peakBucket, color: '#a78bfa' },
+        ].map((metric) => (
+          <div key={metric.label} style={{ padding: '10px 12px', borderRadius: '8px', background: '#111927', border: '1px solid #1e293b', minWidth: 0 }}>
+            <span style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>{metric.label}</span>
+            <div title={String(metric.value)} style={{ fontSize: typeof metric.value === 'number' ? '16px' : '12px', fontWeight: 700, color: metric.color, marginTop: '4px', overflowWrap: 'anywhere' }}>{metric.value}</div>
+          </div>
+        ))}
+      </div>
 
-  proposeRecovery(backupEvents: AuditEvent[], approver: string, reason: string) {
-    if (approver.startsWith('agent-')) throw new Error('ห้าม Agent อนุมัติ');
-    const manifest = {
-      originalLedgerHash: this.events.length > 0 ? this.events[this.events.length-1].currentHash : 'empty',
-      originalLength: this.events.length,
-      backupLength: backupEvents.length,
-      reason,
-      approver,
-      timestamp: new Date().toISOString(),
-      evidencePreserved: !!this.originalLedgerPreserved
-    };
-    return { recoveryManifest: manifest, requiresApproval: true };
-  }
-
-  recoverFromBackup(backupEvents: AuditEvent[], approver: string, manifest: any): AuditEvent {
-    if (!this.originalLedgerPreserved) this.preserveOriginalEvidence();
-    const backupService = new AuditLedgerService();
-    (backupService as any).events = backupEvents;
-    const backupIntegrity = backupService.verifyIntegrity();
-    if (backupIntegrity.integrityStatus !== 'INTACT') throw new Error(`Backup integrity ${backupIntegrity.integrityStatus}`);
-    this.events = [...backupEvents];
-    return this.addEvent('RECOVERY', { type: 'RECOVERY', manifest, approver }, { service: 'auditLedger', tenantId: 'system' });
-  }
-
-  getEvents(): readonly AuditEvent[] { return this.events; }
-  getEntries(): AuditEntry[] {
-    return this.events.map(e => ({
-      id: e.eventId,
-      at: e.timestamp,
-      timestamp: e.timestamp,
-      action: e.eventType,
-      detail: JSON.stringify(e.payload).slice(0,200),
-      prevHash: e.previousHash,
-      hash: e.currentHash,
-      previousHash: e.previousHash,
-      currentHash: e.currentHash,
-      eventId: e.eventId,
-      eventType: e.eventType,
-    }));
-  }
-
-  exportLedger() {
-    const integrity = this.verifyIntegrity();
-    return { events: [...this.events], integrity, exportedAt: new Date().toISOString() };
-  }
-
-  importLedger(data: { events: AuditEvent[] }, approver: string) {
-    if (approver.startsWith('agent-')) return { success: false, integrity: this.verifyIntegrity(), error: 'Human approval required' };
-    const tempService = new AuditLedgerService();
-    (tempService as any).events = data.events;
-    const integrity = tempService.verifyIntegrity();
-    if (integrity.integrityStatus !== 'INTACT') return { success: false, integrity, error: `Import ledger integrity ${integrity.integrityStatus}` };
-    this.preserveOriginalEvidence();
-    this.events = data.events;
-    this.addEvent('RECOVERY', { type: 'IMPORT', importedLength: data.events.length, approver }, { service: 'auditLedger', tenantId: 'system' });
-    return { success: true, integrity };
-  }
+      <div style={{ width: '100%', height: 200, minWidth: 0 }}>
+        {chartData.length === 0 ? (
+          <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: '#64748b', fontSize: '12px' }}>No audit records within selected range.</div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs><linearGradient id="auditEventGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#38bdf8" stopOpacity={0.45} /><stop offset="95%" stopColor="#0284c7" stopOpacity={0} /></linearGradient></defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <XAxis dataKey="label" stroke="#64748b" fontSize={10} tickLine={false} minTickGap={20} />
+              <YAxis stroke="#38bdf8" fontSize={10} tickLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ background: '#0d1828', border: '1px solid #1e293b', borderRadius: '8px', color: '#f1f5f9', fontSize: '11px' }} formatter={(value) => [`${value ?? 0} Recorded Events`, 'Frequency']} labelFormatter={(label) => `${timeUnitLabel}: ${label}`} />
+              <Area type="monotone" dataKey="count" stroke="#38bdf8" strokeWidth={2} fillOpacity={1} fill="url(#auditEventGradient)" dot={{ r: 3, fill: '#38bdf8', stroke: '#0284c7', strokeWidth: 1.5 }} activeDot={{ r: 6, fill: '#60a5fa', stroke: '#ffffff', strokeWidth: 2 }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </section>
+  );
 }
 
-export const auditLedgerService = new AuditLedgerService();
+export default AuditEventDistributionChart;
