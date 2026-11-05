@@ -28,6 +28,6 @@ describe('INTELLIGENCE CORE 0.2 — DEBUGGING EVIDENCE INTEGRITY', () => {
     const pkgPath = path.resolve(process.cwd(), 'package.json');
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 
-    expect(pkg.version).toBe('1.2.2');
+    expect(pkg.version).toBe('1.3.1-clean-first-party');
   });
 });

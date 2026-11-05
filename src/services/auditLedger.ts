@@ -154,7 +154,7 @@ export function verifyAuditHashChain(records: (AuditEvent | AuditEntry)[]): Inte
     if (actualPrevHash !== expectedPrevHash) {
       brokenIndex = records.length - 1 - i;
       brokenRecordId = entry.id || entry.eventId;
-      reason = `Pointer mismatch / corrupted prevHash at entry ${brokenRecordId}. Expected '${expectedPrevHash.slice(0, 12)}' but got '${actualPrevHash.slice(0, 12)}'.`;
+      reason = `Hash pointer mismatch / corrupted prevHash at entry ${brokenRecordId}. Expected '${expectedPrevHash.slice(0, 12)}' but got '${actualPrevHash.slice(0, 12)}'.`;
       break;
     }
 
@@ -348,3 +348,19 @@ export const auditLedger = {
   generateSignedAuditExport,
   generateSignedAuditCsv,
 };
+
+export const auditLedgerService = {
+  ...auditLedger,
+  getEvents: (): AuditEntry[] => {
+    try {
+      if (typeof window === 'undefined') return [];
+      const raw = localStorage.getItem('zyntheor.rebuild.audit.v1');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  },
+};
+
+export default auditLedgerService;
+

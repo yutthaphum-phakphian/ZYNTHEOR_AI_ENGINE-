@@ -830,3 +830,6 @@ export function LocalStorageAuditTool() {
     </div>
   );
 }
+
+export default LocalStorageAuditTool;
+

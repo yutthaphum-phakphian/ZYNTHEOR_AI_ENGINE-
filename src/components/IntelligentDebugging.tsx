@@ -1246,3 +1246,6 @@ export function IntelligentDebugging({
     </div>
   );
 }
+
+export default IntelligentDebugging;
+

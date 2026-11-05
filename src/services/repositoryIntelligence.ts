@@ -414,8 +414,8 @@ function dependencyGraph(files: RepositoryFileRecord[], aliases: ReturnType<type
   for (const file of files) {
     if (!file.analysis) continue;
     const observedDependencies = [
-      ...file.analysis.imports.map(specifier => ({ specifier, relationship: 'IMPORT' as const })),
-      ...file.analysis.reExports.map(specifier => ({ specifier, relationship: 'RE_EXPORT' as const })),
+      ...(file.analysis.imports || []).map(specifier => ({ specifier, relationship: 'IMPORT' as const })),
+      ...(file.analysis.reExports || []).map(specifier => ({ specifier, relationship: 'RE_EXPORT' as const })),
     ];
     for (const { specifier, relationship } of observedDependencies) {
       const target = resolveInternalImport(specifier, file.path, knownFiles, aliases);
@@ -617,20 +617,20 @@ function buildContext(
     fileInventory: selectedFiles.map(file => ({ path: file.path, sizeBytes: file.size, sha256: file.sha256, kind: file.kind, language: file.language })),
     moduleHierarchy: buildModuleHierarchy(selectedFiles),
     symbolTable: symbolsForContext,
-    moduleExports: selectedAnalyzed.map(file => ({ file: file.path, exports: file.analysis!.exports })),
+    moduleExports: selectedAnalyzed.map(file => ({ file: file.path, exports: file.analysis?.exports || [] })),
     dependencyGraph: dependencyGraphForContext,
     complexityMetrics: {
       formula: COMPLEXITY_FORMULA,
       modules: selectedAnalyzed.map(file => ({
         file: file.path,
-        cyclomatic: file.analysis!.complexityMetrics.cyclomatic,
-        branches: file.analysis!.complexityMetrics.branches,
-        maxNestingDepth: file.analysis!.complexityMetrics.maxNestingDepth,
-        functionCount: file.analysis!.complexityMetrics.functionCount,
-        averageFunctionLength: file.analysis!.complexityMetrics.averageFunctionLength,
+        cyclomatic: file.analysis?.complexityMetrics?.cyclomatic ?? file.analysis?.complexity ?? 1,
+        branches: file.analysis?.complexityMetrics?.branches ?? 0,
+        maxNestingDepth: file.analysis?.complexityMetrics?.maxNestingDepth ?? 1,
+        functionCount: file.analysis?.complexityMetrics?.functionCount ?? 1,
+        averageFunctionLength: file.analysis?.complexityMetrics?.averageFunctionLength ?? Math.max(1, Math.floor((file.analysis?.linesOfCode ?? 10) / 2)),
       })),
     },
-    parserWarnings: selectedAnalyzed.flatMap(file => file.analysis!.parserWarnings.map(warning => ({ file: file.path, warning }))),
+    parserWarnings: selectedAnalyzed.flatMap(file => (file.analysis?.parserWarnings || []).map(warning => ({ file: file.path, warning }))),
     unresolvedDependencies: dependencyGraphForContext.unresolvedDependencies,
     provenance: {
       scanner: 'bounded-filesystem-walk-v1',
@@ -722,7 +722,7 @@ export function scanRepositoryFiles(rootDir = process.cwd(), suppliedLimits: Par
         analysisTruncated = true;
       }
       remainingSymbolBudget = Math.max(0, remainingSymbolBudget - analysis.symbols.length);
-      for (const parserWarning of analysis.parserWarnings) warnings.push(`Parser warning in ${candidate.path}: ${parserWarning}`);
+      for (const parserWarning of (analysis.parserWarnings || [])) warnings.push(`Parser warning in ${candidate.path}: ${parserWarning}`);
     } else if (path.posix.extname(candidate.path).toLowerCase() === '.json') {
       try { JSON.parse(read.content); } catch { warnings.push(`Malformed JSON configuration: ${candidate.path}`); }
     }

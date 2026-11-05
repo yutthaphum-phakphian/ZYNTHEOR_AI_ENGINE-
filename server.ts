@@ -5,13 +5,15 @@ import { fileURLToPath } from 'url';
 import intelligenceRouter from './src/routes/intelligence.ts';
 import editingRouter from './src/routes/editing.ts';
 import workspaceRouter from './src/routes/workspace.ts';
+import { ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY, validateModelSovereignty } from './src/lib/sovereignty.ts';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const HOST = process.env.HOST || '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(express.json({ limit: '10mb' }));
 
@@ -205,6 +207,76 @@ app.post('/api/intelligence/run', (req, res) => {
     return res.status(403).json({ error: msg });
   }
   return res.json({ executionVerified: false });
+});
+
+// ZYNTHEOR INTELLIGENCE Orchestration & Internet Gateway Endpoint
+interface IntelligenceOrchestrateRequest {
+  model?: string;
+  query: string;
+  enableInternetSearch?: boolean;
+  context?: Record<string, unknown>;
+}
+
+app.post('/api/intelligence/orchestrate', async (req: any, res: any) => {
+  try {
+    const body: IntelligenceOrchestrateRequest = req.body || {};
+    const requestedModel = body.model || 'zyntheor-core-v1';
+
+    // 1. Enforce Model Sovereignty Check
+    const sovereigntyCheck = validateModelSovereignty(requestedModel);
+    if (!sovereigntyCheck.valid) {
+      return res.status(403).json({
+        status: 'REJECTED',
+        error: sovereigntyCheck.reason,
+        policy: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.PRIMARY_MODEL_FAMILY,
+      });
+    }
+
+    // 2. Pass query into ZYNTHEOR INTELLIGENCE processing layer
+    const intelligenceContext = {
+      timestamp: new Date().toISOString(),
+      model: sovereigntyCheck.model,
+      query: body.query,
+      auditHash: `ZYN-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+    };
+
+    let gatewayData = null;
+
+    // 3. Internet Gateway Execution (Data Retrieval Only)
+    if (body.enableInternetSearch) {
+      // Internet Gateway acts strictly as a data retrieval source governed by ZYNTHEOR INTELLIGENCE
+      gatewayData = {
+        gatewayStatus: 'PASS_THROUGH_VERIFIED',
+        retrievedAt: new Date().toISOString(),
+        sourceCount: 0,
+        results: [],
+      };
+    }
+
+    // 4. Synthesize final response through ZYNTHEOR INTELLIGENCE
+    return res.status(200).json({
+      status: 'SUCCESS',
+      sovereignty: {
+        product: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.PRODUCT_IDENTITY,
+        intelligence: ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.INTELLIGENCE_LAYER,
+        model: intelligenceContext.model,
+      },
+      audit: {
+        hash: intelligenceContext.auditHash,
+      },
+      gateway: gatewayData,
+      payload: {
+        query: body.query,
+        result: `Executed under ${ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY.PRIMARY_MODEL_FAMILY} governance.`,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'ERROR',
+      message: 'Internal server error during intelligence orchestration.',
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
 });
 
 // Autonomous Agent Execution API

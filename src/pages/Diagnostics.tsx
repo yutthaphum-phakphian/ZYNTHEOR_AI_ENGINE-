@@ -1,15 +1,12 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import * as LocalStorageAuditToolMod from '../components/LocalStorageAuditTool';
-import * as AuditChainVisualizerMod from '../components/AuditChainVisualizer';
-import * as IntelligentDebuggingMod from '../components/IntelligentDebugging';
+import { LocalStorageAuditTool } from '../components/LocalStorageAuditTool';
+import { AuditChainVisualizer } from '../components/AuditChainVisualizer';
+import { IntelligentDebugging } from '../components/IntelligentDebugging';
 import { AuditEventDistributionChart } from '../components/AuditEventDistributionChart';
 import { auditLedgerService } from '../services/auditLedger';
 import { crossLayerRootCauseEngine } from '../lib/crossLayerRootCause';
 
-const LocalStorageAuditTool = (LocalStorageAuditToolMod as any).default || (LocalStorageAuditToolMod as any).LocalStorageAuditTool || (() => null);
-const AuditChainVisualizer = (AuditChainVisualizerMod as any).default || (AuditChainVisualizerMod as any).AuditChainVisualizer || (() => null);
-const IntelligentDebugging = (IntelligentDebuggingMod as any).default || (IntelligentDebuggingMod as any).IntelligentDebugging || (() => null);
 
 export default function Diagnostics() {
   const [activeTab, setActiveTab] = useState<'storage' | 'audit' | 'debugging' | 'crosslayer'>('storage');

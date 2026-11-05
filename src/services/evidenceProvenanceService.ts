@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { keyManagementService } from './keyManagementService.ts';
-import { canonicalAuditPayload, sha256Sync, type AuditEntry } from './auditLedger.ts';
+import { canonicalAuditPayload, sha256Sync, verifyAuditHashChain, type AuditEntry } from './auditLedger.ts';
 
 export interface EvidenceProvenanceMetadata {
   signature: string;
@@ -124,38 +124,14 @@ export function verifyLedgerProvenance(
     };
   }
 
-  let isStructurallyValid = true;
+  const structuralCheck = verifyAuditHashChain(records);
+  let isStructurallyValid = structuralCheck.isValid;
   let isAuthentic = true;
   let verifiedCount = 0;
-  let failedEntryId: string | undefined;
-  let reason: string | undefined;
+  let failedEntryId: string | undefined = structuralCheck.brokenRecordId;
+  let reason: string | undefined = structuralCheck.reason;
 
-  const chronological = [...records].reverse();
-
-  for (let i = 0; i < chronological.length; i++) {
-    const current = chronological[i];
-    const prevHash = i === 0 ? 'GENESIS' : chronological[i - 1].hash;
-
-    // Check 1: Structural hash continuity
-    const payload = canonicalAuditPayload({
-      id: current.id,
-      at: current.at,
-      nanoAt: current.nanoAt,
-      action: current.action,
-      detail: current.detail,
-      prevHash: current.prevHash || 'GENESIS',
-    });
-    const calculatedHash = sha256Sync(payload);
-
-    if (current.hash !== calculatedHash || (i > 0 && current.prevHash !== prevHash)) {
-      isStructurallyValid = false;
-      if (!failedEntryId) {
-        failedEntryId = current.id;
-        reason = `Structural Hash Mismatch in Block ${current.id.slice(0, 8)}`;
-      }
-    }
-
-    // Check 2: Cryptographic Ed25519 Signature
+  for (const current of records) {
     const sigCheck = verifyEvidenceRecord(current, tenantId);
     if (!sigCheck.isValid) {
       isAuthentic = false;
