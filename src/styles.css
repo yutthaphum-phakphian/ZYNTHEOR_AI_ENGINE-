@@ -170,7 +170,7 @@ video {
 }
 
 /* =========================================================
-   4. APP SHELL
+   4. APP SHELL & CONTENT CONTAINERS
    ========================================================= */
 
 .app-shell {
@@ -186,6 +186,21 @@ video {
   overflow: hidden;
 
   background: var(--zyn-bg);
+  position: relative;
+}
+
+.app-content-container {
+  flex: 1;
+
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  position: relative;
+
+  overflow: hidden;
 }
 
 .app-content {
@@ -193,6 +208,9 @@ video {
 
   min-width: 0;
   min-height: 0;
+
+  display: flex;
+  flex-direction: column;
 
   overflow-y: auto;
   overflow-x: hidden;

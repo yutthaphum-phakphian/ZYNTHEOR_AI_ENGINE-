@@ -288,6 +288,10 @@ export function MainChat() {
 
       try {
         const isOnline = mode !== 'LOCAL_ONLY';
+        const urlGrounding = searchParams.get('grounding');
+        const forceGrounding = urlGrounding === '1' || urlGrounding === 'true';
+        const enableInternetSearch = isOnline && (urlGrounding === null ? true : forceGrounding);
+
         const res = await fetch('/api/intelligence/orchestrate', {
           method: 'POST',
           headers: {
@@ -299,7 +303,7 @@ export function MainChat() {
             language: 'th',
             responseLanguage: 'th',
             onlineConsent: isOnline,
-            enableInternetSearch: isOnline,
+            enableInternetSearch,
             isDryRun: false,
             multimodalInputs: {
               documents: docs.map(d => ({ name: d.name, type: d.type, size: d.size, content: d.content })),

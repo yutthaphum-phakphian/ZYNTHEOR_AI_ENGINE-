@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { createHash } from 'node:crypto';
-import { GoogleGenAI } from '@google/genai';
 import { enforceModelResponseMetadata } from '../src/contracts/modelIdentityContract.ts';
 import { internetGateway } from './internet-gateway.ts';
 import { probeNativeModelRuntime } from './native-model-runtime.ts';
@@ -909,54 +908,51 @@ export class IntelligenceOrchestrationEngine {
 
       // Explicitly invoke external cloud provider with adaptive reasoning parameters
       try {
-        executedModelId = explicitModelId || 'gemini-3.8-flash';
-        executedProvider = (explicitModelProvider || 'GOOGLE').toUpperCase();
+        executedModelId = explicitModelId || 'custom-model-api';
+        executedProvider = (explicitModelProvider || 'EXTERNAL').toUpperCase();
         claimedCategory = 'EXTERNAL_MODEL_PROVIDER';
 
-        const apiKey = process.env.GEMINI_API_KEY || '';
-        if (!apiKey) {
-          throw new Error('GEMINI_API_KEY is not configured for external provider inference.');
+        const apiKey = process.env.EXTERNAL_MODEL_API_KEY || process.env.ZYNTHEOR_MODEL_API_KEY || '';
+        const baseUrl = process.env.ZYNTHEOR_MODEL_BASE_URL || 'https://api.openai.com/v1';
+        if (!apiKey && !baseUrl) {
+          throw new Error('EXTERNAL_MODEL_API_KEY is not configured for external provider inference.');
         }
 
         const systemInstruction = [
-          'You are ZYNTHEOR INTELLIGENCE operating via external Google Gemini inference.',
+          'You are ZYNTHEOR INTELLIGENCE operating via external API inference.',
           'Respond accurately, maintaining user context and system specifications.',
           memoryContext.contextText ? `\n${memoryContext.contextText}` : '',
         ].filter(Boolean).join('\n');
 
-        const contents: any[] = [];
-        // Add multimodal images if present
-        for (const img of multimodalImgs) {
-          if (img.dataUrl && img.dataUrl.includes(',')) {
-            const base64Data = img.dataUrl.split(',')[1];
-            contents.push({
-              inlineData: {
-                mimeType: img.mimeType || 'image/png',
-                data: base64Data,
-              }
-            });
-          }
-        }
-
-        // Add user text with attached documents
         let combinedQuery = query;
         if (multimodalDocs.length > 0) {
           combinedQuery += '\n\n[ATTACHED DOCUMENTS]\n' +
             multimodalDocs.map(d => `--- File: ${d.name} (${d.type}) ---\n${d.content || '(empty)'}`).join('\n\n');
         }
-        contents.push(combinedQuery);
 
-        const ai = new GoogleGenAI({ apiKey });
-        const response = await ai.models.generateContent({
-          model: executedModelId,
-          contents,
-          config: {
+        const res = await fetch(`${baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {})
+          },
+          body: JSON.stringify({
+            model: executedModelId,
+            messages: [
+              { role: 'system', content: systemInstruction },
+              { role: 'user', content: combinedQuery }
+            ],
             temperature: adaptiveReasoning.parameters.temperature,
-            topP: adaptiveReasoning.parameters.topP,
-            maxOutputTokens: adaptiveReasoning.parameters.maxOutputTokens,
-            systemInstruction,
-          }
+            max_tokens: adaptiveReasoning.parameters.maxOutputTokens
+          }),
+          signal
         });
+
+        if (!res.ok) {
+          throw new Error(`External model provider returned HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        answerText = data.choices?.[0]?.message?.content || '';
 
         if (signal?.aborted) {
           return {

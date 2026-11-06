@@ -1,0 +1,331 @@
+{
+  "timestamp": "2026-11-06T07:51:09.066Z",
+  "runtimeVersion": "P0-CLEAN",
+  "results": [
+    {
+      "testId": "T1-REASONING",
+      "category": "Advanced Reasoning",
+      "status": "EXECUTED",
+      "executionTimeMs": 22,
+      "prompt": "If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets? Explain your logic.",
+      "actualOutput": "[ZYNTHEOR INTELLIGENCE CORE]\n[ADAPTIVE REASONING — BALANCED / ANALYTICAL]\n• Complexity Score: 35/100 | Strategy: STRUCTURED_REASONING\n• Calibrated Parameters: Temp=0.4, Top-P=0.9, CoT Depth=2\n• Reasoning Plan: Intent & Context Analysis → Key Points Structuring → Clear & Verified Synthesis\n\n[LONG-TERM RECALLED KNOWLEDGE]\n• ZYNTHEOR Architectural Identity & Core Separation [PROJECT_KNOWLEDGE] (52% match)\n• Default Communication & Language Preference [USER_PREFERENCE] (52% match)\n\n\n\nคำตอบสำหรับการประมวลผล \"If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets? Explain your logic.\":\nระบบได้วิเคราะห์บริบท ตรวจสอบสถาปัตยกรรม และสังเคราะห์ผลลัพธ์ภายใต้หลักการความจริงเชิงอธิปไตย (Sovereign Truth Principle).",
+      "toolCalls": [
+        {
+          "name": "REQUEST_VALIDATION",
+          "status": "COMPLETED"
+        },
+        {
+          "name": "INTENT_UNDERSTANDING",
+          "status": "COMPLETED",
+          "details": "Extracted query text (128 chars)"
+        },
+        {
+          "name": "COMPLEXITY_ASSESSMENT",
+          "status": "COMPLETED",
+          "details": "Assessed level L2 (TIER_2_BALANCED)"
+        },
+        {
+          "name": "CAPABILITY_SELECTION",
+          "status": "COMPLETED",
+          "details": "Primary: General Conversation (GENERAL_CONVERSATION)"
+        },
+        {
+          "name": "MODEL_ROUTING",
+          "status": "COMPLETED",
+          "details": "Routed to ZYNTHEOR CORE ADAPTED v1 (Sovereign Traces) [CORE_ADAPTED]"
+        },
+        {
+          "name": "MEMORY_CONTEXT_INJECTION",
+          "status": "COMPLETED",
+          "details": "Injected 0 memories for workspace workspace-reality-check"
+        },
+        {
+          "name": "KNOWLEDGE_TOOL_EXECUTION",
+          "status": "SKIPPED",
+          "details": "Direct execution"
+        },
+        {
+          "name": "REASONING",
+          "status": "COMPLETED",
+          "details": "Inference finished (status: COMPLETED)"
+        },
+        {
+          "name": "VERIFICATION",
+          "status": "COMPLETED",
+          "details": "All required safety and reasoning verification gates passed."
+        },
+        {
+          "name": "RESPONSE_GENERATION",
+          "status": "COMPLETED",
+          "details": "Generated 762 characters"
+        },
+        {
+          "name": "AUDIT_SEAL",
+          "status": "COMPLETED",
+          "details": "SHA-256 seal generated: 4fd9f8c298ae9338..."
+        }
+      ],
+      "error": null
+    },
+    {
+      "testId": "T2-KNOWLEDGE",
+      "category": "Knowledge & Research",
+      "status": "EXECUTED",
+      "executionTimeMs": 8,
+      "prompt": "What was the specific technical reason for the AWS us-east-1 outage in December 2021? Provide sources if possible.",
+      "actualOutput": "[ZYNTHEOR INTELLIGENCE CORE]\n[ADAPTIVE REASONING — DIRECT / CONVERSATIONAL]\n• Complexity Score: 15/100 | Strategy: DIRECT_INFERENCE\n• Calibrated Parameters: Temp=0.7, Top-P=0.95, CoT Depth=0\n• Reasoning Plan: Direct Intent Parsing → Immediate Response Generation\n\n[LONG-TERM RECALLED KNOWLEDGE]\n• ZYNTHEOR Architectural Identity & Core Separation [PROJECT_KNOWLEDGE] (54% match)\n• Default Communication & Language Preference [USER_PREFERENCE] (51% match)\n\n\n\nคำตอบสำหรับการประมวลผล \"What was the specific technical reason for the AWS us-east-1 outage in December 2021? Provide sources if possible.\":\nระบบได้วิเคราะห์บริบท ตรวจสอบสถาปัตยกรรม และสังเคราะห์ผลลัพธ์ภายใต้หลักการความจริงเชิงอธิปไตย (Sovereign Truth Principle).",
+      "toolCalls": [
+        {
+          "name": "REQUEST_VALIDATION",
+          "status": "COMPLETED"
+        },
+        {
+          "name": "INTENT_UNDERSTANDING",
+          "status": "COMPLETED",
+          "details": "Extracted query text (114 chars)"
+        },
+        {
+          "name": "COMPLEXITY_ASSESSMENT",
+          "status": "COMPLETED",
+          "details": "Assessed level L1 (TIER_1_DIRECT)"
+        },
+        {
+          "name": "CAPABILITY_SELECTION",
+          "status": "COMPLETED",
+          "details": "Primary: Reasoning & Problem Solving (REASONING)"
+        },
+        {
+          "name": "MODEL_ROUTING",
+          "status": "COMPLETED",
+          "details": "Routed to Gemini 3.8 Flash (Cloud Gateway) [EXTERNAL_PROVIDER]"
+        },
+        {
+          "name": "MEMORY_CONTEXT_INJECTION",
+          "status": "COMPLETED",
+          "details": "Injected 0 memories for workspace workspace-reality-check"
+        },
+        {
+          "name": "KNOWLEDGE_TOOL_EXECUTION",
+          "status": "SKIPPED",
+          "details": "Direct execution"
+        },
+        {
+          "name": "REASONING",
+          "status": "COMPLETED",
+          "details": "Inference finished (status: COMPLETED)"
+        },
+        {
+          "name": "VERIFICATION",
+          "status": "COMPLETED",
+          "details": "All required safety and reasoning verification gates passed."
+        },
+        {
+          "name": "RESPONSE_GENERATION",
+          "status": "COMPLETED",
+          "details": "Generated 721 characters"
+        },
+        {
+          "name": "AUDIT_SEAL",
+          "status": "COMPLETED",
+          "details": "SHA-256 seal generated: f2ac16eb0f02354a..."
+        }
+      ],
+      "error": null
+    },
+    {
+      "testId": "T3-CODING",
+      "category": "Coding & Technical",
+      "status": "EXECUTED",
+      "executionTimeMs": 10,
+      "prompt": "Write a TypeScript function that reverses a linked list. Then, explain the time complexity.",
+      "actualOutput": "[ZYNTHEOR INTELLIGENCE CORE]\n[ADAPTIVE REASONING — BALANCED / ANALYTICAL]\n• Complexity Score: 45/100 | Strategy: STRUCTURED_REASONING\n• Calibrated Parameters: Temp=0.4, Top-P=0.9, CoT Depth=2\n• Reasoning Plan: Intent & Context Analysis → Key Points Structuring → Clear & Verified Synthesis\n\n[LONG-TERM RECALLED KNOWLEDGE]\n• ZYNTHEOR Architectural Identity & Core Separation [PROJECT_KNOWLEDGE] (54% match)\n• Adaptive Reasoning & Safe Execution Governance [PROJECT_KNOWLEDGE] (53% match)\n\n\n\nคำตอบสำหรับการประมวลผล \"Write a TypeScript function that reverses a linked list. Then, explain the time complexity.\":\nระบบได้วิเคราะห์บริบท ตรวจสอบสถาปัตยกรรม และสังเคราะห์ผลลัพธ์ภายใต้หลักการความจริงเชิงอธิปไตย (Sovereign Truth Principle).",
+      "toolCalls": [
+        {
+          "name": "REQUEST_VALIDATION",
+          "status": "COMPLETED"
+        },
+        {
+          "name": "INTENT_UNDERSTANDING",
+          "status": "COMPLETED",
+          "details": "Extracted query text (91 chars)"
+        },
+        {
+          "name": "COMPLEXITY_ASSESSMENT",
+          "status": "COMPLETED",
+          "details": "Assessed level L2 (TIER_2_BALANCED)"
+        },
+        {
+          "name": "CAPABILITY_SELECTION",
+          "status": "COMPLETED",
+          "details": "Primary: Engineering & Technical (TECHNICAL_ASSISTANCE)"
+        },
+        {
+          "name": "MODEL_ROUTING",
+          "status": "COMPLETED",
+          "details": "Routed to ZYNTHEOR CORE ADAPTED v1 (Sovereign Traces) [CORE_ADAPTED]"
+        },
+        {
+          "name": "MEMORY_CONTEXT_INJECTION",
+          "status": "COMPLETED",
+          "details": "Injected 0 memories for workspace workspace-reality-check"
+        },
+        {
+          "name": "KNOWLEDGE_TOOL_EXECUTION",
+          "status": "SKIPPED",
+          "details": "Direct execution"
+        },
+        {
+          "name": "REASONING",
+          "status": "COMPLETED",
+          "details": "Inference finished (status: COMPLETED)"
+        },
+        {
+          "name": "VERIFICATION",
+          "status": "COMPLETED",
+          "details": "All required safety and reasoning verification gates passed."
+        },
+        {
+          "name": "RESPONSE_GENERATION",
+          "status": "COMPLETED",
+          "details": "Generated 730 characters"
+        },
+        {
+          "name": "AUDIT_SEAL",
+          "status": "COMPLETED",
+          "details": "SHA-256 seal generated: e69dfd45ccedad62..."
+        }
+      ],
+      "error": null
+    },
+    {
+      "testId": "T4-THAI",
+      "category": "Thai Intelligence",
+      "status": "EXECUTED",
+      "executionTimeMs": 13,
+      "prompt": "อธิบายความแตกต่างระหว่าง \"Machine Learning\" และ \"Deep Learning\" ให้เด็กอายุ 10 ขวบเข้าใจได้ง่ายๆ",
+      "actualOutput": "[ZYNTHEOR INTELLIGENCE CORE]\n[ADAPTIVE REASONING — BALANCED / ANALYTICAL]\n• Complexity Score: 30/100 | Strategy: STRUCTURED_REASONING\n• Calibrated Parameters: Temp=0.4, Top-P=0.9, CoT Depth=2\n• Reasoning Plan: Intent & Context Analysis → Key Points Structuring → Clear & Verified Synthesis\n\n[LONG-TERM RECALLED KNOWLEDGE]\n• Adaptive Reasoning & Safe Execution Governance [PROJECT_KNOWLEDGE] (51% match)\n\n\n\nคำตอบสำหรับการประมวลผล \"อธิบายความแตกต่างระหว่าง \"Machine Learning\" และ \"Deep Learning\" ให้เด็กอายุ 10 ขวบเข้าใจได้ง่ายๆ\":\nระบบได้วิเคราะห์บริบท ตรวจสอบสถาปัตยกรรม และสังเคราะห์ผลลัพธ์ภายใต้หลักการความจริงเชิงอธิปไตย (Sovereign Truth Principle).",
+      "toolCalls": [
+        {
+          "name": "REQUEST_VALIDATION",
+          "status": "COMPLETED"
+        },
+        {
+          "name": "INTENT_UNDERSTANDING",
+          "status": "COMPLETED",
+          "details": "Extracted query text (96 chars)"
+        },
+        {
+          "name": "COMPLEXITY_ASSESSMENT",
+          "status": "COMPLETED",
+          "details": "Assessed level L2 (TIER_2_BALANCED)"
+        },
+        {
+          "name": "CAPABILITY_SELECTION",
+          "status": "COMPLETED",
+          "details": "Primary: Learning & Education (EDUCATION)"
+        },
+        {
+          "name": "MODEL_ROUTING",
+          "status": "COMPLETED",
+          "details": "Routed to ZYNTHEOR CORE ADAPTED v1 (Sovereign Traces) [CORE_ADAPTED]"
+        },
+        {
+          "name": "MEMORY_CONTEXT_INJECTION",
+          "status": "COMPLETED",
+          "details": "Injected 0 memories for workspace workspace-reality-check"
+        },
+        {
+          "name": "KNOWLEDGE_TOOL_EXECUTION",
+          "status": "SKIPPED",
+          "details": "Direct execution"
+        },
+        {
+          "name": "REASONING",
+          "status": "COMPLETED",
+          "details": "Inference finished (status: COMPLETED)"
+        },
+        {
+          "name": "VERIFICATION",
+          "status": "COMPLETED",
+          "details": "All required safety and reasoning verification gates passed."
+        },
+        {
+          "name": "RESPONSE_GENERATION",
+          "status": "COMPLETED",
+          "details": "Generated 651 characters"
+        },
+        {
+          "name": "AUDIT_SEAL",
+          "status": "COMPLETED",
+          "details": "SHA-256 seal generated: 745a0857575a7aa9..."
+        }
+      ],
+      "error": null
+    },
+    {
+      "testId": "T5-MEMORY-CONTEXT",
+      "category": "Memory & Context",
+      "status": "EXECUTED",
+      "executionTimeMs": 12,
+      "prompt": "What is my name and what project are we building?",
+      "actualOutput": "[ZYNTHEOR INTELLIGENCE CORE]\n[ADAPTIVE REASONING — DIRECT / CONVERSATIONAL]\n• Complexity Score: 15/100 | Strategy: DIRECT_INFERENCE\n• Calibrated Parameters: Temp=0.7, Top-P=0.95, CoT Depth=0\n• Reasoning Plan: Direct Intent Parsing → Immediate Response Generation\n\n[LONG-TERM RECALLED KNOWLEDGE]\n• ZYNTHEOR Architectural Identity & Core Separation [PROJECT_KNOWLEDGE] (61% match)\n• Default Communication & Language Preference [USER_PREFERENCE] (55% match)\n• Adaptive Reasoning & Safe Execution Governance [PROJECT_KNOWLEDGE] (55% match)\n\n\n\nคำตอบสำหรับการประมวลผล \"User name is Yutthaphum. We are building ZYNTHEOR, a sovereign AI platform.\n\nQuery: What is my name and what project are we building?\":\nระบบได้วิเคราะห์บริบท ตรวจสอบสถาปัตยกรรม และสังเคราะห์ผลลัพธ์ภายใต้หลักการความจริงเชิงอธิปไตย (Sovereign Truth Principle).",
+      "toolCalls": [
+        {
+          "name": "REQUEST_VALIDATION",
+          "status": "COMPLETED"
+        },
+        {
+          "name": "INTENT_UNDERSTANDING",
+          "status": "COMPLETED",
+          "details": "Extracted query text (133 chars)"
+        },
+        {
+          "name": "COMPLEXITY_ASSESSMENT",
+          "status": "COMPLETED",
+          "details": "Assessed level L1 (TIER_1_DIRECT)"
+        },
+        {
+          "name": "CAPABILITY_SELECTION",
+          "status": "COMPLETED",
+          "details": "Primary: General Conversation (GENERAL_CONVERSATION)"
+        },
+        {
+          "name": "MODEL_ROUTING",
+          "status": "COMPLETED",
+          "details": "Routed to ZYNTHEOR CORE ADAPTED v1 (Sovereign Traces) [CORE_ADAPTED]"
+        },
+        {
+          "name": "MEMORY_CONTEXT_INJECTION",
+          "status": "COMPLETED",
+          "details": "Injected 0 memories for workspace workspace-reality-check"
+        },
+        {
+          "name": "KNOWLEDGE_TOOL_EXECUTION",
+          "status": "SKIPPED",
+          "details": "Direct execution"
+        },
+        {
+          "name": "REASONING",
+          "status": "COMPLETED",
+          "details": "Inference finished (status: COMPLETED)"
+        },
+        {
+          "name": "VERIFICATION",
+          "status": "COMPLETED",
+          "details": "All required safety and reasoning verification gates passed."
+        },
+        {
+          "name": "RESPONSE_GENERATION",
+          "status": "COMPLETED",
+          "details": "Generated 821 characters"
+        },
+        {
+          "name": "AUDIT_SEAL",
+          "status": "COMPLETED",
+          "details": "SHA-256 seal generated: 4e7e018e1ee3ba82..."
+        }
+      ],
+      "error": null
+    }
+  ]
+}

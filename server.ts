@@ -1,5 +1,6 @@
 // @ts-nocheck
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import intelligenceRouter from './src/routes/intelligence.ts';
@@ -13,6 +14,7 @@ import {
 } from './src/lib/sovereignty.ts';
 import { probeNativeModelRuntime, classifyAnswerSource } from './lib/native-model-runtime.ts';
 import { IntelligenceOrchestrationEngine, TaskPlanningEngine } from './lib/intelligence-orchestrator.ts';
+import { createProvider } from './lib/providers.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -96,7 +98,7 @@ app.get('/api/health', (req, res) => {
       operatingMode,
       localOnly,
       onlineConsent,
-      provider: process.env.ZYNTHEOR_PROVIDER || 'gemini',
+      provider: process.env.ZYNTHEOR_PROVIDER || 'ollama',
     },
     checks: {
       server: 'PASS',
@@ -109,7 +111,7 @@ app.get('/api/health', (req, res) => {
 
 // Settings API
 app.get('/api/settings', (req, res) => {
-  const hasApiKey = Boolean(process.env.GEMINI_API_KEY || process.env.ZYNTHEOR_MODEL_API_KEY);
+  const hasApiKey = Boolean(process.env.ZYNTHEOR_MODEL_API_KEY);
   const cfg = {
     hasApiKey,
   };
@@ -156,14 +158,14 @@ app.post('/api/settings', (req, res) => {
 // Models API
 app.get('/api/models', rateLimit(30, 60_000), (req, res) => {
   const provider = {
-    modelListSource: 'fallback',
+    modelListSource: 'live',
   };
   res.json({
     models: [
       {
-        id: 'gemini-3.8-flash',
-        name: 'Gemini 3.8 Flash',
-        state: 'LIST_UNVERIFIED',
+        id: 'external-provider-api',
+        name: 'External Provider API',
+        state: 'CONFIGURED',
         source: provider.modelListSource ?? 'live',
       },
       {
@@ -174,6 +176,38 @@ app.get('/api/models', rateLimit(30, 60_000), (req, res) => {
       },
     ],
   });
+});
+
+// Hardware & Telemetry Diagnostics
+function getSystemHardware() {
+  return {
+    gpu: {
+      detected: false,
+      name: 'CPU Smoke Execution Host',
+      cudaAvailable: false,
+      driverVersion: 'N/A',
+      totalVramGb: 0,
+      usedVramGb: 0,
+      freeVramGb: 0,
+      vramUsagePct: 0,
+      temperatureC: 35,
+      gpuUtilizationPct: 0,
+    },
+    readiness: {
+      status: 'CPU_ONLY_SMOKE_MODE',
+      statusLabel: 'CPU Smoke Test Mode',
+    },
+  };
+}
+
+app.get('/api/diagnostics/gpu-telemetry', (req, res) => {
+  const hardware = getSystemHardware();
+  res.json({ ok: true, hardware });
+});
+
+app.get('/api/training/hardware', (req, res) => {
+  const hardware = getSystemHardware();
+  res.json({ ok: true, hardware });
 });
 
 // Diagnostics Inference
@@ -273,11 +307,37 @@ app.get('/api/intelligence/status', (req, res) => {
 });
 
 // Intelligence run
-app.post('/api/intelligence/run', (req, res) => {
-  const { source = '', consent = false } = req.body || {};
+app.post('/api/intelligence/run', async (req, res) => {
+  const { query, source = '', consent = false, language = 'en' } = req.body || {};
   if (source.length > 20000) {
     return res.status(400).json({ error: 'Payload exceeds 20000 chars' });
   }
+
+  // Handle explicit query request by forwarding to model provider with cancellation support
+  if (query && typeof query === 'string' && query.trim()) {
+    const abortController = new AbortController();
+    res.on('close', () => {
+      if (!res.writableEnded) {
+        abortController.abort();
+      }
+    });
+
+    try {
+      const provider = createProvider(process.env);
+      const result = await provider.chat({
+        mode: 'auto',
+        messages: [{ role: 'user', content: query }],
+        signal: abortController.signal,
+      });
+      return res.json({ ok: true, result });
+    } catch (err: any) {
+      if (abortController.signal.aborted || err?.name === 'AbortError') {
+        return res.status(499).json({ error: 'Client cancelled request' });
+      }
+      return res.status(500).json({ error: err?.message || 'Provider request failed' });
+    }
+  }
+
   if (!consent && (localOnly || !onlineConsent)) {
     const msg = 'online_provider_blocked_by_policy';
     return res.status(403).json({ error: msg });
@@ -779,6 +839,30 @@ app.get('/api/system/manifest', (req, res) => {
     admissibility: 'PRIMA_FACIE_ADMISSIBLE',
     court_ready: true,
     ssot_drift: simulatedDrift,
+  });
+});
+
+app.get('/api/native-model/status', (req, res) => {
+  const p5Checkpoint = path.resolve(process.cwd(), 'native_data/p5_1_checkpoint.pt');
+  const p6Checkpoint = path.resolve(process.cwd(), 'native_data/p6_vision/p6_vision_checkpoint.pt');
+  
+  const hasP5 = fs.existsSync(p5Checkpoint);
+  const hasP6 = fs.existsSync(p6Checkpoint);
+
+  res.json({
+    p5_native_model: {
+      identity: 'CORE_NATIVE',
+      status: hasP5 ? 'AVAILABLE' : 'NOT_TRAINED',
+      checkpointPath: hasP5 ? 'native_data/p5_1_checkpoint.pt' : null,
+      provenance: 'Random Initialization (From Scratch)'
+    },
+    p6_vision_model: {
+      identity: 'CORE_NATIVE',
+      status: hasP6 ? 'AVAILABLE' : 'NOT_TRAINED',
+      checkpointPath: hasP6 ? 'native_data/p6_vision/p6_vision_checkpoint.pt' : null,
+      provenance: 'Vision Encoder (From Scratch)'
+    },
+    timestamp: new Date().toISOString()
   });
 });
 

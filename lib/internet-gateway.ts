@@ -348,41 +348,31 @@ export class InternetGateway {
       };
     }
 
-    // Attempt retrieval using Google Search Grounding if configured via Gemini SDK or standard HTTPS search
+    // Retrieval using ZYNTHEOR Internet Gateway HTTP search endpoint or standard web fetch
     try {
       const sources: GroundingSource[] = [];
-      const apiKey = process.env.GEMINI_API_KEY;
+      const gatewayEndpoint = process.env.ZYNTHEOR_SEARCH_ENDPOINT || 'https://html.duckduckgo.com/html/';
 
-      if (apiKey) {
-        const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey });
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: `Provide verified web search results and factual information for: ${cleaned}. Language: Thai or English as requested.`,
-          config: {
-            tools: [{ googleSearch: {} }],
-          },
-        });
+      if (cleaned) {
+        const response = await fetch(`${gatewayEndpoint}?q=${encodeURIComponent(cleaned)}`, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ZyntheorSearchGateway/1.1' },
+          signal: AbortSignal.timeout(5000),
+        }).catch(() => null);
 
-        const groundingMetadata = (response as any).candidates?.[0]?.groundingMetadata;
-        const chunks = groundingMetadata?.groundingChunks || [];
-
-        for (let i = 0; i < chunks.length; i++) {
-          const chunk = chunks[i]?.web;
-          if (chunk && chunk.uri) {
-            const uri = chunk.uri;
-            const title = chunk.title || new URL(uri).hostname;
-            const snippet = chunk.snippet || (response as any).text?.slice(0, 250) || '';
-            const digest = this.computeDigest(`${uri}|${title}|${snippet}`);
+        if (response && response.ok) {
+          const html = await response.text();
+          const cleanText = this.sanitizeWebHtml(html);
+          if (cleanText) {
+            const digest = this.computeDigest(`${cleaned}|${cleanText.slice(0, 500)}`);
             sources.push({
               id: `ground-${digest.slice(0, 16)}`,
-              url: uri,
-              domain: new URL(uri).hostname,
-              title,
-              snippet,
+              url: 'https://duckduckgo.com/html',
+              domain: 'duckduckgo.com',
+              title: `Live Search: ${cleaned}`,
+              snippet: cleanText.slice(0, 400),
               fetchedAt: new Date().toISOString(),
               contentDigest: digest,
-              byteSize: Buffer.byteLength(snippet, 'utf8'),
+              byteSize: Buffer.byteLength(cleanText, 'utf8'),
               verificationStatus: 'VERIFIED_SOURCE',
               httpStatus: 200,
             });

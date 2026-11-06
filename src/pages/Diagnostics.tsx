@@ -10,6 +10,7 @@ import { crossLayerRootCauseEngine } from '../lib/crossLayerRootCause';
 
 import { ForensicVerificationPanel } from '../components/ForensicVerificationPanel';
 import { AuditLedgerSummaryDashboard } from '../components/AuditLedgerSummaryDashboard';
+import { GpuTelemetryWidget } from '../components/GpuTelemetryWidget';
 import { useValidatedAuditLedger } from '../hooks/useValidatedAuditLedger';
 
 export default function Diagnostics() {
@@ -63,6 +64,8 @@ export default function Diagnostics() {
         <h1 className="text-2xl font-bold text-[#00D9A3]">Diagnostics & Forensic Truth Dossier</h1>
         <p className="text-sm text-gray-400 mt-1">ZYNTHEOR AI ENGINE — COURT_READY SSoT Δ0.00% Forensic Verification, Audit Ledger Integrity, Storage Schemas & Cross-Layer Intelligence</p>
       </div>
+
+      <GpuTelemetryWidget />
 
       <div className="flex gap-2 mb-6 flex-wrap">
         <button onClick={() => setActiveTab('forensic')} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'forensic' ? 'bg-[#00D9A3] text-black shadow-lg shadow-[#00D9A3]/20' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>🏛️ Court-Ready Forensic Dossier</button>

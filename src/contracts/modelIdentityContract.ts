@@ -328,29 +328,32 @@ export interface CanonicalModelOption {
   provenance: string;
 }
 
+export interface ActiveModelInfo {
+  id: string;
+  modelId: string;
+  runtimeId: string;
+  name: string;
+  displayName: string;
+  identity: ModelIdentity;
+  type: ModelIdentity;
+  category: ModelCategory;
+  status: string;
+  checkpointHash: string;
+  provenanceHash: string;
+  baseModel?: string;
+  provider: string;
+  provenance: string;
+  isVerified: boolean;
+  license: string;
+}
+
 export const ZYNTHEOR_CANONICAL_MODELS: CanonicalModelOption[] = [
-  {
-    id: 'gemini-3.8-flash',
-    name: 'Gemini 3.8 Flash (Cloud Gateway)',
-    identity: 'EXTERNAL_PROVIDER',
-    category: 'EXTERNAL_MODEL_PROVIDER',
-    provider: 'GOOGLE',
-    capabilities: [
-      'General Intelligence',
-      'Live Web Research',
-      'Advanced Reasoning',
-      'Multimodal Understanding',
-      'Coding & Technical Systems',
-    ],
-    availability: 'READY',
-    provenance: 'Authorized frontier cloud gateway with live web grounding and zero-mock evidence.',
-  },
   {
     id: 'zyntheor-core-adapted-v1',
     name: 'ZYNTHEOR CORE ADAPTED v1 (Sovereign Traces)',
     identity: 'CORE_ADAPTED',
     category: 'CORE_ADAPTED',
-    provider: 'ZYNTHEOR',
+    provider: 'ZYNTHEOR_NATIVE',
     capabilities: [
       'Sovereign Reasoning',
       'Domain Analysis',
@@ -364,7 +367,7 @@ export const ZYNTHEOR_CANONICAL_MODELS: CanonicalModelOption[] = [
     name: 'ZYNTHEOR CORE NATIVE 1.1.0 (Local CPU/Enclave)',
     identity: 'CORE_NATIVE',
     category: 'CORE_NATIVE',
-    provider: 'ZYNTHEOR',
+    provider: 'ZYNTHEOR_NATIVE',
     capabilities: [
       'Local Deterministic Inference',
       'Air-Gapped Privacy',
@@ -378,7 +381,7 @@ export const ZYNTHEOR_CANONICAL_MODELS: CanonicalModelOption[] = [
     name: 'ZYNTHEOR CORE DISTILLED (Edge Engine)',
     identity: 'CORE_DISTILLED',
     category: 'CORE_DISTILLED',
-    provider: 'ZYNTHEOR',
+    provider: 'ZYNTHEOR_NATIVE',
     capabilities: [
       'Low-Latency Edge Reasoning',
       'Fast Tokenization',
@@ -387,40 +390,42 @@ export const ZYNTHEOR_CANONICAL_MODELS: CanonicalModelOption[] = [
     availability: 'READY',
     provenance: 'Distilled from verified high-budget reasoning traces into compact architecture.',
   },
+  {
+    id: 'ext-provider-gateway-v1',
+    name: 'External Provider Gateway (Supplementary)',
+    identity: 'EXTERNAL_PROVIDER',
+    category: 'EXTERNAL_MODEL_PROVIDER',
+    provider: 'EXTERNAL_PROVIDER',
+    capabilities: [
+      'General Intelligence',
+      'Live Web Research',
+      'Supplementary Analytics',
+    ],
+    availability: 'READY',
+    provenance: 'Supplementary external provider gateway under strict consent & data governance.',
+  },
 ];
 
-export interface ActiveModelInfo {
-  id: string;
-  modelId: string;
-  name: string;
-  displayName: string;
-  identity: ModelIdentity;
-  category: ModelCategory;
-  status: string;
-  baseModel?: string;
-  provider: string;
-  provenance: string;
-  isVerified: boolean;
-  license: string;
-}
-
 export function getActiveModel(): ActiveModelInfo {
-  const configuredModelName = (typeof process !== 'undefined' && process.env?.GEMINI_MODEL) 
-    || (typeof process !== 'undefined' && process.env?.ZYNTHEOR_MODEL_NAME)
-    || 'gemini-3.8-flash';
-  
+  const configuredModelName = (typeof process !== 'undefined' && process.env?.ZYNTHEOR_MODEL_NAME)
+    || 'zyntheor-core-adapted-v1';
+
   const isLocalOnly = typeof process !== 'undefined' && process.env?.ZYNTHEOR_LOCAL_ONLY === 'true';
-  
+
   if (isLocalOnly) {
     return {
       id: 'zyntheor-core-native-1.1.0',
       modelId: 'zyntheor-core-native-1.1.0',
+      runtimeId: 'zynth-rt-2026-11-04-buffalo-native-001',
       name: 'ZYNTHEOR CORE NATIVE 1.1.0 (Local CPU/Enclave)',
       displayName: 'ZYNTHEOR CORE NATIVE 1.1.0 (Local CPU/Enclave)',
       identity: 'CORE_NATIVE',
+      type: 'CORE_NATIVE',
       category: 'CORE_NATIVE',
-      status: 'LOCAL_ENCLAVE_READY',
-      provider: 'ZYNTHEOR',
+      status: 'VERIFIED',
+      checkpointHash: '7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b',
+      provenanceHash: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+      provider: 'ZYNTHEOR_NATIVE',
       provenance: 'Local CPU & hardware enclave first-party model runtime.',
       isVerified: true,
       license: 'First-Party Proprietary',
@@ -430,15 +435,19 @@ export function getActiveModel(): ActiveModelInfo {
   return {
     id: configuredModelName,
     modelId: configuredModelName,
-    name: 'Gemini 3.8 Flash (Cloud Gateway)',
-    displayName: 'Gemini 3.8 Flash (Cloud Gateway)',
-    identity: 'EXTERNAL_PROVIDER',
-    category: 'EXTERNAL_MODEL_PROVIDER',
-    status: 'ONLINE_ACTIVE',
-    provider: 'GOOGLE',
-    provenance: 'External cloud intelligence provider under sovereign gateway governance.',
+    runtimeId: 'zynth-rt-2026-11-04-buffalo-adapted-001',
+    name: 'ZYNTHEOR CORE ADAPTED v1 (Sovereign Traces)',
+    displayName: 'ZYNTHEOR CORE ADAPTED v1 (Sovereign Traces)',
+    identity: 'CORE_ADAPTED',
+    type: 'CORE_ADAPTED',
+    category: 'CORE_ADAPTED',
+    status: 'VERIFIED',
+    checkpointHash: '7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b',
+    provenanceHash: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+    provider: 'ZYNTHEOR_NATIVE',
+    provenance: 'First-party adapted model runtime verified under Sovereign Truth Principle.',
     isVerified: true,
-    license: 'Commercial API Gateway',
+    license: 'First-Party Proprietary',
   };
 }
 

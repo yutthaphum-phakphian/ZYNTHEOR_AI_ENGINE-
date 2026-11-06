@@ -1188,7 +1188,7 @@ export function SettingsCenter({
                   style={selectStyle}
                 >
                   <option value="qwen2.5-coder:7b">qwen2.5-coder:7b (Local Ollama Native)</option>
-                  <option value="gemini-2.5-flash">gemini-2.5-flash (Google Gemini Proxy)</option>
+                  <option value="custom-cloud-api">Custom Cloud API (Authorized Proxy)</option>
                 </select>
               </SettingCard>
 
@@ -1263,10 +1263,10 @@ export function SettingsCenter({
                   isLocal
                 />
                 <ProviderCard
-                  name="Google Gemini API"
+                  name="External Cloud Model API"
                   type="Cloud Provider Proxy"
                   status={serverSettings?.apiKeyConfigured ? 'CONFIGURED' : 'NO_KEY'}
-                  detail={serverSettings?.apiKeyConfigured ? 'Server Environment Key Active' : 'No Server GEMINI_API_KEY'}
+                  detail={serverSettings?.apiKeyConfigured ? 'Server Environment Key Active' : 'No Server API Key Configured'}
                 />
                 <ProviderCard
                   name="OpenAI API"

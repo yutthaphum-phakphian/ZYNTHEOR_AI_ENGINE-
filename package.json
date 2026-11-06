@@ -43,7 +43,6 @@
     "test:p3": "node --test tests/postgres-p3-preflight.test.mjs"
   },
   "dependencies": {
-    "@google/genai": "^2.32.0",
     "@tailwindcss/vite": "^4.3.4",
     "d3": "^7.9.0",
     "drizzle-orm": "^0.45.4",

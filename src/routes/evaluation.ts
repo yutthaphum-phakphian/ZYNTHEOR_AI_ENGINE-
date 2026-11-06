@@ -1079,7 +1079,7 @@ router.post('/models/compare', async (req: Request, res: Response) => {
     },
     {
       id: 'external-provider',
-      name: process.env.GEMINI_API_KEY ? 'Gemini 3.8 Flash (External API)' : 'External Model API',
+      name: process.env.ZYNTHEOR_MODEL_API_KEY ? 'External Provider (Cloud API)' : 'External Model API',
       category: 'EXTERNAL_API' as const,
       status: isLocalOnly ? ('LOCAL_ONLY_BLOCKED' as const) : ('CONFIGURED' as const),
       statusNote: isLocalOnly

@@ -92,6 +92,7 @@ import ExplorePage from './pages/ExplorePage';
 import LibraryPage from './pages/LibraryPage';
 import MorePage from './pages/MorePage';
 import { HardwareEnclaveTelemetryWidget } from './components/HardwareEnclaveTelemetryWidget';
+import { GpuTelemetryWidget } from './components/GpuTelemetryWidget';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 /* =========================================================
@@ -274,7 +275,7 @@ function HomeExperience() {
   );
 
   return (
-    <main className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-[#050810] text-white">
+    <div className="relative flex-1 min-h-full flex flex-col bg-[#050810] text-white">
       {/* Subtle ambient gradient */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-[15%] left-1/2 -translate-x-1/2 w-[70%] h-[40%] bg-gradient-to-b from-[#2563EB]/10 via-[#00D9A3]/5 to-transparent blur-[140px]" />
@@ -790,7 +791,7 @@ function HomeExperience() {
           </div>
         </footer>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -877,12 +878,12 @@ function AppShell() {
   ];
 
   return (
-    <div className="app-shell flex overflow-hidden antialiased bg-[#050810]">
+    <div className="app-shell flex flex-col md:flex-row h-screen w-full overflow-hidden antialiased bg-[#050810]">
 
       {/* =================================================
           DESKTOP SIDEBAR (72px centered, clean)
       ================================================= */}
-      <aside className="hidden md:flex w-[72px] shrink-0 flex-col items-center py-5 gap-3 bg-[#070a14] border-r border-white/[0.06] select-none">
+      <aside className="hidden md:flex w-[72px] shrink-0 flex-col items-center py-5 gap-3 bg-[#070a14] border-r border-white/[0.06] select-none h-full">
         <NavLink
           to="/"
           title="ZYNTHEOR Home"
@@ -941,41 +942,49 @@ function AppShell() {
       </aside>
 
       {/* =================================================
-          MAIN CONTENT AREA
+          MAIN SHELL CONTAINER (Flex column, fills viewport)
       ================================================= */}
-      <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
-        <div className="app-content flex flex-col">
-          <ErrorBoundary>
-            <Routes>
-              {/* Primary 5 Hubs */}
-              <Route path="/" element={<HomeExperience />} />
-              <Route path="/home" element={<HomeExperience />} />
-              <Route path="/explore" element={<ExplorePage />} />
-              <Route path="/chat" element={<MainChat />} />
-              <Route path="/library" element={<LibraryPage />} />
-              <Route path="/more" element={<MorePage />} />
+      <div className="flex-1 min-w-0 h-full flex flex-col overflow-hidden relative">
+        {/* =================================================
+            DEDICATED CONTENT SCROLLING CONTAINER
+            Fills available space between header and mobile nav
+        ================================================= */}
+        <div className="app-content-container flex-1 min-h-0 min-w-0 flex flex-col relative overflow-hidden">
+          <main className="app-content flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto overflow-x-hidden relative">
+            <ErrorBoundary>
+              <Routes>
+                {/* Primary 5 Hubs */}
+                <Route path="/" element={<HomeExperience />} />
+                <Route path="/home" element={<HomeExperience />} />
+                <Route path="/explore" element={<ExplorePage />} />
+                <Route path="/chat" element={<MainChat />} />
+                <Route path="/library" element={<LibraryPage />} />
+                <Route path="/more" element={<MorePage />} />
 
-              {/* Workspaces & Direct Navigation preservation */}
-              <Route path="/workspace" element={<AIWorkspace />} />
-              <Route path="/knowledge" element={<LibraryPage />} />
-              <Route path="/memory" element={<MemoryCenter />} />
-              <Route path="/model-studio" element={<ModelStudio />} />
-              <Route path="/evaluation" element={<EvaluationLab />} />
-              <Route path="/agents" element={<AgentCommandCenter />} />
-              <Route path="/diagnostics" element={<Diagnostics />} />
+                {/* Workspaces & Knowledge Routes */}
+                <Route path="/workspace" element={<AIWorkspace />} />
+                <Route path="/knowledge" element={<LibraryPage />} />
+                <Route path="/knowledge/files" element={<LibraryPage />} />
+                <Route path="/files" element={<LibraryPage />} />
+                <Route path="/memory" element={<MemoryCenter />} />
+                <Route path="/model-studio" element={<ModelStudio />} />
+                <Route path="/evaluation" element={<EvaluationLab />} />
+                <Route path="/agents" element={<AgentCommandCenter />} />
+                <Route path="/diagnostics" element={<><GpuTelemetryWidget /><Diagnostics /></>} />
 
-              <Route path="*" element={<HomeExperience />} />
-            </Routes>
-          </ErrorBoundary>
+                <Route path="*" element={<HomeExperience />} />
+              </Routes>
+            </ErrorBoundary>
+          </main>
         </div>
 
         {/* =================================================
-            MOBILE BOTTOM NAVIGATION (5 Clean Equal Tabs)
-            Exact 5 items, no horizontal scroll, clean touch targets
+            MOBILE BOTTOM NAVIGATION (Fixed at viewport bottom)
+            Shrink-0, safe-bottom, fixed height tab bar
         ================================================= */}
         <nav
           aria-label="Main navigation"
-          className="bottom-tab md:hidden bg-[#070a14]/95 backdrop-blur-xl border-t border-white/[0.08] safe-bottom"
+          className="bottom-tab md:hidden shrink-0 bg-[#070a14]/95 backdrop-blur-xl border-t border-white/[0.08] safe-bottom z-30"
         >
           <div className="flex items-center justify-around h-16 px-1">
             {navItems.map(item => {
