@@ -33,6 +33,7 @@ export interface AppLocalSettings {
   showSidebarBadges: boolean;
   collapseSidebarOnLaunch: boolean;
   soundEnabled: boolean;
+  hapticsEnabled: boolean;
 
   // AI & Intelligence
   systemInstructions: string;
@@ -75,6 +76,7 @@ export const DEFAULT_APP_SETTINGS: AppLocalSettings = {
   showSidebarBadges: true,
   collapseSidebarOnLaunch: false,
   soundEnabled: true,
+  hapticsEnabled: true,
 
   systemInstructions: 'You are ZYNTHEOR AI ENGINE — a sovereign, production-grade AI engineering partner. Provide exact, verified, and well-structured code solutions.',
   responseStyle: 'balanced',
@@ -1020,6 +1022,11 @@ export function SettingsCenter({
                     label={isTh ? 'เปิดเสียงประกอบการโต้ตอบ (Sound Effects)' : 'Enable sound effects'}
                     checked={draftSettings.soundEnabled}
                     onChange={v => updateDraft(p => ({ ...p, soundEnabled: v }))}
+                  />
+                  <ToggleItem
+                    label={isTh ? 'เปิดการสั่นสะเทือนตอบสนองการกด/สลับเมนู (Haptic Vibration)' : 'Enable vibration haptic feedback across navigation'}
+                    checked={draftSettings.hapticsEnabled !== false}
+                    onChange={v => updateDraft(p => ({ ...p, hapticsEnabled: v }))}
                   />
                 </div>
               </SettingCard>

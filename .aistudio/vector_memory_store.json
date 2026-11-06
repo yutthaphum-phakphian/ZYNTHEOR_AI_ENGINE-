@@ -145,8 +145,8 @@
       "importance": "critical",
       "provenance": "core-constitution"
     },
-    "accessCount": 564,
-    "lastAccessedAt": "2026-11-06T12:01:39.814Z",
+    "accessCount": 567,
+    "lastAccessedAt": "2026-11-06T12:38:33.459Z",
     "createdAt": "2026-11-05T12:08:17.045Z",
     "updatedAt": "2026-11-05T12:08:17.045Z"
   },
@@ -296,8 +296,8 @@
       "importance": "high",
       "autoApplied": true
     },
-    "accessCount": 482,
-    "lastAccessedAt": "2026-11-06T12:01:39.777Z",
+    "accessCount": 484,
+    "lastAccessedAt": "2026-11-06T12:38:31.728Z",
     "createdAt": "2026-11-05T12:08:17.048Z",
     "updatedAt": "2026-11-05T12:08:17.048Z"
   },
@@ -446,8 +446,8 @@
     "metadata": {
       "importance": "high"
     },
-    "accessCount": 516,
-    "lastAccessedAt": "2026-11-06T12:01:39.814Z",
+    "accessCount": 520,
+    "lastAccessedAt": "2026-11-06T12:38:34.162Z",
     "createdAt": "2026-11-05T12:08:17.050Z",
     "updatedAt": "2026-11-05T12:08:17.050Z"
   },

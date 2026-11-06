@@ -204,9 +204,9 @@ function CodeBlock({ code, language, onApplyDiff, recordAudit, setToast }: CodeB
           </button>
         </div>
 
-        {diffProposals.map(proposal => (
+        {diffProposals.map((proposal, pIdx) => (
           <ChatCodeDiffViewer
-            key={proposal.id}
+            key={`${proposal.id || proposal.filePath || 'prop'}-${pIdx}`}
             proposal={proposal}
             onApplyProposal={onApplyDiff}
             recordAudit={recordAudit}

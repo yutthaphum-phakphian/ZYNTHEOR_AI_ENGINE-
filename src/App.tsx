@@ -62,7 +62,10 @@ import {
   Mic,
   MicOff,
   Info,
-  Download
+  Download,
+  Menu,
+  X,
+  ChevronLeft
 } from 'lucide-react';
 
 import { useVoiceIntelligenceInput, appendTranscriptWithSmartSpacing } from './hooks/useVoiceIntelligenceInput';
@@ -81,7 +84,6 @@ import {
 
 import { ZyntheorCoreHealthWidget } from './components/ZyntheorCoreHealthWidget';
 import { ZyntheorIntelligenceRuntime } from './components/ZyntheorIntelligenceRuntime';
-import { ControlCenterModal } from './components/ControlCenterModal';
 import { MainChat } from './components/MainChat';
 import AIWorkspace from './pages/AIWorkspace';
 import ModelStudio from './components/model-studio/ModelStudio';
@@ -94,6 +96,7 @@ import LibraryPage from './pages/LibraryPage';
 import MorePage from './pages/MorePage';
 import { HardwareEnclaveTelemetryWidget } from './components/HardwareEnclaveTelemetryWidget';
 import { GpuTelemetryWidget } from './components/GpuTelemetryWidget';
+import { ExploreCapabilitiesSkeleton } from './components/ExploreCapabilitiesSkeleton';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 import AuditFoundationPage from './pages/AuditFoundationPage';
@@ -177,6 +180,12 @@ function HomeExperience() {
   const [input, setInput] = useState('');
   const [grounding, setGrounding] = useState(true);
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+  const [isCapabilitiesLoading, setIsCapabilitiesLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsCapabilitiesLoading(false), 320);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Voice Intelligence Input 1.1 Hook
   const {
@@ -358,7 +367,15 @@ function HomeExperience() {
             ◈ ZYNTHEOR AI ENGINE · Universal Intelligence Platform
         ========================================================= */}
         <header className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 py-1 relative">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:toggle-sidebar'))}
+              title="Toggle Sidebar Navigation (⌘B)"
+              className="w-9 h-9 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white/80 hover:text-white transition grid place-items-center cursor-pointer shadow-sm shrink-0"
+            >
+              <Menu size={16} className="text-[#00D9A3]" />
+            </button>
             <div className="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#00D9A3] to-[#2563EB] grid place-items-center shadow-[0_0_15px_rgba(0,217,163,0.2)] text-black font-black text-base select-none">
               ◈
             </div>
@@ -455,18 +472,18 @@ function HomeExperience() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:open-control-center'))}
-              title="Open ZYNTHEOR Control Center (Cmd+,)"
+              onClick={() => navigate('/settings')}
+              title="Open ZYNTHEOR Settings (Cmd+,)"
               className="px-3 py-1.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-[#00D9A3]/40 text-[11px] font-medium text-white/80 hover:text-white transition flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
-              <Sliders size={13} className="text-[#00D9A3]" />
-              <span>Control Center</span>
+              <Settings size={13} className="text-[#00D9A3]" />
+              <span>Settings</span>
               <kbd className="hidden sm:inline-block ml-1 px-1 py-0.2 rounded bg-white/10 text-[9px] font-mono text-white/40">⌘,</kbd>
             </button>
 
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:open-control-center', { detail: { category: 'profile' } }))}
+              onClick={() => navigate('/settings')}
               title="My Profile & Account"
               className="px-3 py-1.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-cyan-500/40 text-[11px] font-medium text-white/80 hover:text-white transition flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
@@ -507,10 +524,10 @@ function HomeExperience() {
             One workspace. Unlimited possibilities.
         ========================================================= */}
         <section className="text-center pt-2 sm:pt-4 space-y-2 max-w-xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl md:text-[42px] font-black tracking-tight text-white leading-tight">
+          <h1 className="text-fluid-hero font-black tracking-tight text-white leading-tight">
             Intelligence Without Boundaries
           </h1>
-          <p className="text-sm sm:text-base text-white/50 font-normal">
+          <p className="text-fluid-body text-white/50 font-normal">
             One workspace. Unlimited possibilities.
           </p>
         </section>
@@ -770,32 +787,36 @@ function HomeExperience() {
             </NavLink>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {CANONICAL_CAPABILITIES.map(item => (
-              <button
-                key={item.id}
-                onClick={() => handleStart(item.prompt, item.grounding)}
-                className="text-left rounded-[16px] border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-2 hover:border-white/20 hover:bg-[#111a2d] hover:scale-[1.02] transition group cursor-pointer shadow-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold" style={{ color: item.color }}>
-                      {item.symbol}
+          {isCapabilitiesLoading ? (
+            <ExploreCapabilitiesSkeleton count={6} />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {CANONICAL_CAPABILITIES.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => handleStart(item.prompt, item.grounding)}
+                  className="text-left rounded-[16px] border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-2 hover:border-white/20 hover:bg-[#111a2d] hover:scale-[1.02] transition group cursor-pointer shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold" style={{ color: item.color }}>
+                        {item.symbol}
+                      </span>
+                      <h3 className="font-bold text-sm text-white group-hover:text-[#00D9A3] transition">
+                        {item.title}
+                      </h3>
+                    </div>
+                    <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition">
+                      {item.sub}
                     </span>
-                    <h3 className="font-bold text-sm text-white group-hover:text-[#00D9A3] transition">
-                      {item.title}
-                    </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-white/30 group-hover:text-white/60 transition">
-                    {item.sub}
-                  </span>
-                </div>
-                <p className="text-[11px] text-white/40 leading-snug">
-                  {item.titleThai}
-                </p>
-              </button>
-            ))}
-          </div>
+                  <p className="text-[11px] text-white/40 leading-snug">
+                    {item.titleThai}
+                  </p>
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* =========================================================
@@ -972,25 +993,72 @@ import SettingsPage from './pages/SettingsPage';
 
 function AppShell() {
   const location = useLocation();
-  const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
+  const navigate = useNavigate();
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [swipeAnimation, setSwipeAnimation] = useState<'hub-swipe-left' | 'hub-swipe-right' | ''>('');
 
-  // Global shortcut (Cmd/Ctrl+,) and custom event listener for Control Center
+  // Persistent Desktop Sidebar Expand/Collapse State
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(() => {
+    try {
+      const raw = localStorage.getItem('zyntheor.sidebar.expanded');
+      return raw !== null ? JSON.parse(raw) : true;
+    } catch {
+      return true;
+    }
+  });
+
+  // Mobile Drawer Overlay State
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState<boolean>(false);
+
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarExpanded(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('zyntheor.sidebar.expanded', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+
+  const toggleMobileDrawer = useCallback(() => {
+    setIsMobileDrawerOpen(prev => !prev);
+  }, []);
+
+  // Trigger vibration haptic feedback using Vibrate API when selecting tabs or swiping
+  const triggerHaptic = useCallback(() => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        const raw = localStorage.getItem('zyntheor.settings');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.hapticsEnabled === false) return;
+        }
+        navigator.vibrate(12);
+      } catch {}
+    }
+  }, []);
+
+  // Global shortcut (Cmd/Ctrl+, for settings, Cmd/Ctrl+B for sidebar toggle) & event listeners
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === ',') {
         e.preventDefault();
-        setIsControlCenterOpen(prev => !prev);
+        navigate('/settings');
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        toggleSidebar();
       }
     };
-    const handleOpenEvent = () => setIsControlCenterOpen(true);
+
+    const handleToggleEvent = () => toggleMobileDrawer();
 
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('zyntheor:open-control-center', handleOpenEvent);
+    window.addEventListener('zyntheor:toggle-sidebar', handleToggleEvent);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('zyntheor:open-control-center', handleOpenEvent);
+      window.removeEventListener('zyntheor:toggle-sidebar', handleToggleEvent);
     };
-  }, []);
+  }, [navigate, toggleSidebar, toggleMobileDrawer]);
 
   const current = useMemo(() => {
     const path = location.pathname;
@@ -1001,6 +1069,52 @@ function AppShell() {
     if (path.startsWith('/settings') || path.startsWith('/more') || path.startsWith('/model') || path.startsWith('/eval') || path.startsWith('/diagnostics')) return 'settings';
     return 'chat';
   }, [location.pathname]);
+
+  const hubPaths = useMemo(() => ['/chat', '/explore', '/library', '/agents', '/settings'], []);
+
+  const currentHubIndex = useMemo(() => {
+    if (current === 'explore') return 1;
+    if (current === 'library') return 2;
+    if (current === 'agents') return 3;
+    if (current === 'settings') return 4;
+    return 0;
+  }, [current]);
+
+  // Touch Swipe Gesture Handlers with smooth visual transition and haptics
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current || e.changedTouches.length === 0) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const deltaX = touchStartRef.current.x - endX;
+    const deltaY = touchStartRef.current.y - endY;
+    touchStartRef.current = null;
+
+    // Trigger horizontal page transition if swipe is dominant over vertical scroll
+    if (Math.abs(deltaX) > 65 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+      if (deltaX > 0 && currentHubIndex < hubPaths.length - 1) {
+        // Swipe Left -> Next Hub
+        triggerHaptic();
+        setSwipeAnimation('hub-swipe-left');
+        navigate(hubPaths[currentHubIndex + 1]);
+        setTimeout(() => setSwipeAnimation(''), 200);
+      } else if (deltaX < 0 && currentHubIndex > 0) {
+        // Swipe Right -> Previous Hub
+        triggerHaptic();
+        setSwipeAnimation('hub-swipe-right');
+        navigate(hubPaths[currentHubIndex - 1]);
+        setTimeout(() => setSwipeAnimation(''), 200);
+      }
+    }
+  };
 
   /* 
    * 5 Main Hubs as specified by Mobile-First UX Architecture:
@@ -1049,79 +1163,259 @@ function AppShell() {
   ];
 
   return (
-    <div className="app-shell flex flex-col md:flex-row h-[100dvh] min-h-[100dvh] w-full overflow-hidden antialiased bg-[#050810]">
+    <div style={{ minWidth: 0, minHeight: 0 }} className="app-shell flex flex-col md:flex-row h-[100dvh] min-h-[100dvh] w-full overflow-hidden antialiased bg-[#050810]">
 
       {/* =================================================
-          DESKTOP SIDEBAR (72px centered, clean)
+          DESKTOP SIDEBAR (Collapsible 240px / 72px)
       ================================================= */}
-      <aside className="hidden md:flex w-[72px] shrink-0 flex-col items-center py-5 gap-3 bg-[#070a14] border-r border-white/[0.06] select-none h-full">
-        <NavLink
-          to="/"
-          title="ZYNTHEOR Home"
-          className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center font-black text-black text-lg shadow-[0_0_20px_rgba(0,217,163,0.25)] transition hover:scale-105"
-        >
-          Z
-        </NavLink>
-
-        <div className="w-8 h-px bg-white/10 my-2" />
-
-        <div className="flex flex-col gap-2 flex-1">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const active = current === item.id;
-
-            return (
+      <aside
+        style={{
+          flexShrink: 0,
+          width: isSidebarExpanded ? '240px' : '72px',
+          minWidth: isSidebarExpanded ? '240px' : '72px',
+        }}
+        className="hidden md:flex flex-col justify-between py-4 px-3 bg-[#070a14] border-r border-white/[0.08] select-none h-full z-20 transition-all duration-300 ease-in-out overflow-hidden"
+      >
+        <div className="space-y-4">
+          {/* Top Brand & Toggle Header */}
+          <div className="flex items-center justify-between px-1 h-10">
+            {isSidebarExpanded ? (
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <NavLink
+                  to="/"
+                  title="ZYNTHEOR Home"
+                  className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center font-black text-black text-base shadow-[0_0_15px_rgba(0,217,163,0.25)] shrink-0 transition hover:scale-105"
+                >
+                  Z
+                </NavLink>
+                <div className="truncate">
+                  <div className="font-bold text-xs tracking-tight text-white truncate">
+                    ZYNTHEOR
+                  </div>
+                  <div className="text-[10px] text-[#00D9A3] font-mono tracking-wider truncate">
+                    CORE NATIVE
+                  </div>
+                </div>
+              </div>
+            ) : (
               <NavLink
-                key={item.id}
-                to={item.path}
-                title={item.label}
-                aria-label={item.label}
-                aria-current={active ? 'page' : undefined}
-                className={`relative w-11 h-11 rounded-2xl flex flex-col items-center justify-center transition cursor-pointer ${
-                  active
-                    ? 'bg-white text-black shadow-lg shadow-white/10'
-                    : 'bg-white/[0.03] text-white/40 hover:bg-white/[0.08] hover:text-white'
-                }`}
+                to="/"
+                title="ZYNTHEOR Home"
+                className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center font-black text-black text-lg shadow-[0_0_20px_rgba(0,217,163,0.25)] shrink-0 transition hover:scale-105 mx-auto"
               >
-                <Icon size={19} />
-                {active && (
-                  <span className="absolute -left-1 w-1 h-5 rounded-full bg-[#00D9A3]" />
-                )}
+                Z
               </NavLink>
-            );
-          })}
+            )}
+
+            {isSidebarExpanded && (
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                title="Collapse Sidebar (⌘B)"
+                className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-white/10 grid place-items-center text-white/50 hover:text-white transition cursor-pointer shrink-0"
+              >
+                <Menu size={16} />
+              </button>
+            )}
+          </div>
+
+          {!isSidebarExpanded && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                title="Expand Sidebar (⌘B)"
+                className="w-9 h-9 rounded-xl bg-white/[0.03] hover:bg-white/10 grid place-items-center text-white/40 hover:text-[#00D9A3] transition cursor-pointer"
+              >
+                <Menu size={16} />
+              </button>
+            </div>
+          )}
+
+          <div className="w-full h-px bg-white/10 my-1" />
+
+          {/* 5 Canonical Navigation Hubs */}
+          <nav className="flex flex-col gap-1.5" aria-label="Desktop Sidebar Navigation">
+            {navItems.map(item => {
+              const Icon = item.icon;
+              const active = current === item.id;
+
+              if (isSidebarExpanded) {
+                return (
+                  <NavLink
+                    key={item.id}
+                    to={item.path}
+                    title={item.label}
+                    aria-label={item.label}
+                    aria-current={active ? 'page' : undefined}
+                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer overflow-hidden ${
+                      active
+                        ? 'bg-white text-black shadow-md shadow-white/10'
+                        : 'bg-white/[0.03] text-white/60 hover:bg-white/[0.08] hover:text-white'
+                    }`}
+                  >
+                    <Icon size={18} className={active ? 'text-black shrink-0' : 'text-[#00D9A3] shrink-0'} />
+                    <div className="flex items-center justify-between flex-1 min-w-0">
+                      <span className="truncate">{item.label}</span>
+                      <span className={`text-[10px] font-normal truncate ml-1 ${active ? 'text-black/60' : 'text-white/40'}`}>
+                        {item.th}
+                      </span>
+                    </div>
+                    {active && (
+                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#00D9A3]" />
+                    )}
+                  </NavLink>
+                );
+              }
+
+              return (
+                <NavLink
+                  key={item.id}
+                  to={item.path}
+                  title={`${item.label} (${item.th})`}
+                  aria-label={item.label}
+                  aria-current={active ? 'page' : undefined}
+                  className={`relative w-11 h-11 mx-auto rounded-2xl flex flex-col items-center justify-center transition cursor-pointer ${
+                    active
+                      ? 'bg-white text-black shadow-lg shadow-white/10'
+                      : 'bg-white/[0.03] text-white/40 hover:bg-white/[0.08] hover:text-white'
+                  }`}
+                >
+                  <Icon size={19} />
+                  {active && (
+                    <span className="absolute -left-1 w-1 h-5 rounded-full bg-[#00D9A3]" />
+                  )}
+                </NavLink>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Quick Control Center launch button */}
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:open-control-center'))}
-          title="ZYNTHEOR Control Center (Cmd+,)"
-          className="w-9 h-9 rounded-xl bg-white/[0.03] hover:bg-white/10 grid place-items-center text-white/40 hover:text-[#00D9A3] transition cursor-pointer"
-        >
-          <Sliders size={16} />
-        </button>
-
-        {/* Bottom system status indicator */}
-        <NavLink
-          to="/diagnostics"
-          title="Diagnostics & Forensic Status"
-          className="w-9 h-9 rounded-xl bg-white/[0.03] hover:bg-white/10 grid place-items-center text-white/40 hover:text-white transition cursor-pointer"
-        >
-          <ShieldCheck size={16} className="text-emerald-400" />
-        </NavLink>
+        {/* Sidebar Footer */}
+        <div className="space-y-1.5 pt-2 border-t border-white/[0.06]">
+          {isSidebarExpanded ? (
+            <NavLink
+              to="/diagnostics"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-xs text-white/60 hover:text-white transition"
+            >
+              <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
+              <div className="truncate">
+                <div className="font-medium text-[11px] text-white/90">System Status</div>
+                <div className="text-[9px] text-emerald-400 font-mono">Enclave Active</div>
+              </div>
+            </NavLink>
+          ) : (
+            <NavLink
+              to="/diagnostics"
+              title="Diagnostics & Forensic Status"
+              className="w-9 h-9 mx-auto rounded-xl bg-white/[0.03] hover:bg-white/10 grid place-items-center text-white/40 hover:text-white transition cursor-pointer"
+            >
+              <ShieldCheck size={16} className="text-emerald-400" />
+            </NavLink>
+          )}
+        </div>
       </aside>
+
+      {/* =================================================
+          MOBILE OVERLAY DRAWER
+      ================================================= */}
+      {isMobileDrawerOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop Overlay */}
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMobileDrawerOpen(false)}
+          />
+
+          {/* Drawer Content Panel */}
+          <div className="relative w-72 max-w-[80vw] bg-[#070a14] border-r border-white/10 h-full flex flex-col justify-between p-4 z-50 safe-top safe-bottom shadow-2xl">
+            <div className="space-y-4">
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#2563EB] grid place-items-center font-black text-black text-sm">
+                    ◈
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs text-white">ZYNTHEOR AI ENGINE</div>
+                    <div className="text-[10px] text-[#00D9A3] font-mono">Universal Intelligence</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileDrawerOpen(false)}
+                  aria-label="Close Mobile Drawer"
+                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 grid place-items-center text-white/60 hover:text-white cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* 5 Main Hub Navigation Links */}
+              <nav className="space-y-1" aria-label="Mobile Drawer Navigation">
+                {navItems.map(item => {
+                  const Icon = item.icon;
+                  const active = current === item.id;
+                  return (
+                    <NavLink
+                      key={item.id}
+                      to={item.path}
+                      onClick={() => {
+                        triggerHaptic();
+                        setIsMobileDrawerOpen(false);
+                      }}
+                      className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition cursor-pointer ${
+                        active
+                          ? 'bg-[#00D9A3] text-black font-bold shadow-md shadow-[#00D9A3]/20'
+                          : 'bg-white/[0.04] text-white/80 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon size={18} className={active ? 'text-black' : 'text-[#00D9A3]'} />
+                        <span>{item.label}</span>
+                      </div>
+                      <span className={`text-xs ${active ? 'text-black/70' : 'text-white/40'}`}>
+                        {item.th}
+                      </span>
+                    </NavLink>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Mobile Drawer Footer */}
+            <div className="pt-3 border-t border-white/10 space-y-2">
+              <NavLink
+                to="/diagnostics"
+                onClick={() => setIsMobileDrawerOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white/70"
+              >
+                <ShieldCheck size={16} className="text-emerald-400" />
+                <div>
+                  <div className="font-semibold text-white">System Diagnostics</div>
+                  <div className="text-[10px] text-emerald-400">Process Enclave Active</div>
+                </div>
+              </NavLink>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* =================================================
           MAIN SHELL CONTAINER (Flex column, fills viewport)
       ================================================= */}
-      <div className="flex-1 min-w-0 h-full flex flex-col overflow-hidden relative">
+      <div style={{ minWidth: 0 }} className="flex-1 min-w-0 h-full flex flex-col overflow-hidden relative">
         {/* =================================================
             DEDICATED CONTENT SCROLLING CONTAINER
             Fills available space between header and mobile nav
         ================================================= */}
-        <div className="app-content-container flex-1 min-h-0 min-w-0 flex flex-col relative overflow-hidden">
-          <main className="app-content flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto overflow-x-hidden relative">
+        <div style={{ minWidth: 0, minHeight: 0 }} className="app-content-container flex-1 min-h-0 min-w-0 flex flex-col relative overflow-hidden">
+          <main
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            style={{ minWidth: 0, minHeight: 0 }}
+            className={`app-content flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto overflow-x-hidden relative ${swipeAnimation}`}
+          >
             <ErrorBoundary>
               <Routes>
                 {/* Primary 5 Hubs */}
@@ -1168,6 +1462,7 @@ function AppShell() {
                 <NavLink
                   key={item.id}
                   to={item.path}
+                  onClick={triggerHaptic}
                   aria-label={item.label}
                   aria-current={active ? 'page' : undefined}
                   className={`mobile-navigation-item relative transition select-none cursor-pointer ${
@@ -1189,12 +1484,6 @@ function AppShell() {
           </div>
         </nav>
       </div>
-
-      {/* Global ZYNTHEOR Control Center Modal */}
-      <ControlCenterModal
-        isOpen={isControlCenterOpen}
-        onClose={() => setIsControlCenterOpen(false)}
-      />
     </div>
   );
 }

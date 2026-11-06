@@ -264,7 +264,7 @@ export function MainChat() {
     ) => {
       if (!queryText.trim() && docs.length === 0 && imgs.length === 0) return;
 
-      const userMessageId = `user-${Date.now()}`;
+      const userMessageId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const userMsg: ChatMessage = {
         id: userMessageId,
         role: 'user',
@@ -284,7 +284,7 @@ export function MainChat() {
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
-      const assistantMessageId = `assist-${Date.now()}`;
+      const assistantMessageId = `assist-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
       try {
         const isOnline = mode !== 'LOCAL_ONLY';

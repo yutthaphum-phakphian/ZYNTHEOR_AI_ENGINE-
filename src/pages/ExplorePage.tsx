@@ -19,6 +19,7 @@ import {
   Compass
 } from 'lucide-react';
 import { type CapabilityId } from '../lib/capabilityEngine';
+import { ExploreCapabilitiesSkeleton } from '../components/ExploreCapabilitiesSkeleton';
 
 export interface CapabilityGroup {
   id: string;
@@ -150,6 +151,13 @@ export default function ExplorePage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulated content loading effect for smooth perceived performance
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 350);
+    return () => clearTimeout(timer);
+  }, [selectedGroup]);
 
   const filteredGroups = useMemo(() => {
     return EXPLORE_CAPABILITY_GROUPS.filter(group => {
@@ -180,10 +188,10 @@ export default function ExplorePage() {
             <Compass size={12} className="text-[#00D9A3]" />
             INTELLIGENCE CAPABILITIES
           </div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
+          <h1 className="text-fluid-h1 font-black tracking-tight text-white">
             Explore Capabilities
           </h1>
-          <p className="text-sm text-white/50 max-w-2xl leading-relaxed">
+          <p className="text-fluid-body text-white/50 max-w-2xl leading-relaxed">
             ศูนย์รวม 8 ความสามารถหลักของ ZYNTHEOR Universal Intelligence Platform ทำงานบน Intelligence Core และ Model Engine เดียวกันอย่างไร้รอยต่อ
           </p>
         </div>
@@ -229,8 +237,11 @@ export default function ExplorePage() {
           </div>
         </div>
 
-        {/* Capability Group Cards (8 Equal Minimal Surface Cards) */}
-        <div className="grid md:grid-cols-2 gap-5">
+        {/* Capability Group Cards (Skeleton Loading State or Real Cards Grid) */}
+        {isLoading ? (
+          <ExploreCapabilitiesSkeleton count={8} />
+        ) : (
+          <div className="grid md:grid-cols-2 gap-5">
           {filteredGroups.map(group => {
             const GroupIcon = group.icon;
             return (
@@ -313,6 +324,7 @@ export default function ExplorePage() {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );
