@@ -1280,5 +1280,707 @@
       "citations": []
     },
     "completedTime": "2026-11-06T11:16:02.404Z"
+  },
+  {
+    "taskId": "task-mw4wmd7s-qf8r2",
+    "executionId": "exec-mw4wmd7s",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Test task lifecycle",
+    "state": "COMPLETED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:41:40.840Z",
+    "updatedTime": "2026-11-06T11:41:40.843Z",
+    "resultData": {
+      "ok": true
+    },
+    "completedTime": "2026-11-06T11:41:40.843Z"
+  },
+  {
+    "taskId": "task-mw4wmd7w-wvutu",
+    "executionId": "exec-mw4wmd7w",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Invalid jump test",
+    "state": "CREATED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:41:40.844Z",
+    "updatedTime": "2026-11-06T11:41:40.844Z"
+  },
+  {
+    "taskId": "task-mw4wmd7z-e8p0g",
+    "executionId": "exec-mw4wmd7z",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "WAITING_APPROVAL",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wmd7z-e8p0g-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wmd7z-e8p0g-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:41:40.847Z",
+    "updatedTime": "2026-11-06T11:41:40.848Z"
+  },
+  {
+    "taskId": "task-mw4wmd81-bkfnw",
+    "executionId": "exec-mw4wmd81",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "READY",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wmd81-bkfnw-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wmd81-bkfnw-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": true,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:41:40.849Z",
+    "updatedTime": "2026-11-06T11:41:40.851Z"
+  },
+  {
+    "taskId": "task-mw4wmd85-4f2vy",
+    "executionId": "exec-mw4wmd85",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Research ZYNTHEOR CORE native model architecture",
+    "state": "COMPLETED",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wmd85-4f2vy-1",
+        "title": "Understand Objective & Formulate Queries",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wmd85-4f2vy-2",
+        "title": "Retrieve Knowledge & Grounding Sources",
+        "status": "PENDING"
+      },
+      {
+        "stepId": "task-mw4wmd85-4f2vy-3",
+        "title": "Synthesize & Cross-Verify Evidence",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 2,
+    "isHumanApproved": true,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:41:40.853Z",
+    "updatedTime": "2026-11-06T11:41:40.862Z",
+    "resultData": {
+      "summary": "Verified conclusion derived via ANALYTICAL reasoning based on 0 evidence fact(s).",
+      "citations": []
+    },
+    "completedTime": "2026-11-06T11:41:40.862Z"
+  },
+  {
+    "taskId": "task-mw4wo3s7-dontd",
+    "executionId": "exec-mw4wo3s7",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Test task lifecycle",
+    "state": "COMPLETED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:43:01.927Z",
+    "updatedTime": "2026-11-06T11:43:01.930Z",
+    "resultData": {
+      "ok": true
+    },
+    "completedTime": "2026-11-06T11:43:01.930Z"
+  },
+  {
+    "taskId": "task-mw4wo3sb-chatl",
+    "executionId": "exec-mw4wo3sb",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Invalid jump test",
+    "state": "CREATED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:43:01.931Z",
+    "updatedTime": "2026-11-06T11:43:01.931Z"
+  },
+  {
+    "taskId": "task-mw4wo3sg-5ml4j",
+    "executionId": "exec-mw4wo3sg",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "WAITING_APPROVAL",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wo3sg-5ml4j-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wo3sg-5ml4j-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:43:01.936Z",
+    "updatedTime": "2026-11-06T11:43:01.938Z"
+  },
+  {
+    "taskId": "task-mw4wo3sl-6b1jj",
+    "executionId": "exec-mw4wo3sl",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "READY",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wo3sl-6b1jj-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wo3sl-6b1jj-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": true,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:43:01.941Z",
+    "updatedTime": "2026-11-06T11:43:01.943Z"
+  },
+  {
+    "taskId": "task-mw4wo3sp-nalm4",
+    "executionId": "exec-mw4wo3sp",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Research ZYNTHEOR CORE native model architecture",
+    "state": "COMPLETED",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wo3sp-nalm4-1",
+        "title": "Understand Objective & Formulate Queries",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wo3sp-nalm4-2",
+        "title": "Retrieve Knowledge & Grounding Sources",
+        "status": "PENDING"
+      },
+      {
+        "stepId": "task-mw4wo3sp-nalm4-3",
+        "title": "Synthesize & Cross-Verify Evidence",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 2,
+    "isHumanApproved": true,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:43:01.945Z",
+    "updatedTime": "2026-11-06T11:43:01.950Z",
+    "resultData": {
+      "summary": "Verified conclusion derived via ANALYTICAL reasoning based on 0 evidence fact(s).",
+      "citations": []
+    },
+    "completedTime": "2026-11-06T11:43:01.950Z"
+  },
+  {
+    "taskId": "task-mw4wpa5w-6ev83",
+    "executionId": "exec-mw4wpa5w",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Test task lifecycle",
+    "state": "COMPLETED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:43:56.852Z",
+    "updatedTime": "2026-11-06T11:43:56.856Z",
+    "resultData": {
+      "ok": true
+    },
+    "completedTime": "2026-11-06T11:43:56.856Z"
+  },
+  {
+    "taskId": "task-mw4wpa61-tn2u3",
+    "executionId": "exec-mw4wpa61",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Invalid jump test",
+    "state": "CREATED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:43:56.857Z",
+    "updatedTime": "2026-11-06T11:43:56.857Z"
+  },
+  {
+    "taskId": "task-mw4wpa66-3z1o2",
+    "executionId": "exec-mw4wpa66",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "WAITING_APPROVAL",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wpa66-3z1o2-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wpa66-3z1o2-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:43:56.862Z",
+    "updatedTime": "2026-11-06T11:43:56.864Z"
+  },
+  {
+    "taskId": "task-mw4wpa69-yiv8z",
+    "executionId": "exec-mw4wpa69",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "READY",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wpa69-yiv8z-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wpa69-yiv8z-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": true,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:43:56.865Z",
+    "updatedTime": "2026-11-06T11:43:56.869Z"
+  },
+  {
+    "taskId": "task-mw4wpa6h-2euu5",
+    "executionId": "exec-mw4wpa6h",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Research ZYNTHEOR CORE native model architecture",
+    "state": "COMPLETED",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wpa6h-2euu5-1",
+        "title": "Understand Objective & Formulate Queries",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wpa6h-2euu5-2",
+        "title": "Retrieve Knowledge & Grounding Sources",
+        "status": "PENDING"
+      },
+      {
+        "stepId": "task-mw4wpa6h-2euu5-3",
+        "title": "Synthesize & Cross-Verify Evidence",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 2,
+    "isHumanApproved": true,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:43:56.873Z",
+    "updatedTime": "2026-11-06T11:43:56.882Z",
+    "resultData": {
+      "summary": "Verified conclusion derived via ANALYTICAL reasoning based on 0 evidence fact(s).",
+      "citations": []
+    },
+    "completedTime": "2026-11-06T11:43:56.882Z"
+  },
+  {
+    "taskId": "task-mw4wub0u-v9m5a",
+    "executionId": "exec-mw4wub0u",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Test task lifecycle",
+    "state": "COMPLETED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:47:51.246Z",
+    "updatedTime": "2026-11-06T11:47:51.253Z",
+    "resultData": {
+      "ok": true
+    },
+    "completedTime": "2026-11-06T11:47:51.253Z"
+  },
+  {
+    "taskId": "task-mw4wub12-2c1j5",
+    "executionId": "exec-mw4wub12",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Invalid jump test",
+    "state": "CREATED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:47:51.254Z",
+    "updatedTime": "2026-11-06T11:47:51.254Z"
+  },
+  {
+    "taskId": "task-mw4wub15-wulrv",
+    "executionId": "exec-mw4wub15",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "WAITING_APPROVAL",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wub15-wulrv-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wub15-wulrv-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:47:51.257Z",
+    "updatedTime": "2026-11-06T11:47:51.259Z"
+  },
+  {
+    "taskId": "task-mw4wub18-9vbb4",
+    "executionId": "exec-mw4wub18",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "READY",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wub18-9vbb4-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wub18-9vbb4-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": true,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:47:51.260Z",
+    "updatedTime": "2026-11-06T11:47:51.261Z"
+  },
+  {
+    "taskId": "task-mw4wub1a-o9cll",
+    "executionId": "exec-mw4wub1a",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Research ZYNTHEOR CORE native model architecture",
+    "state": "COMPLETED",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4wub1a-o9cll-1",
+        "title": "Understand Objective & Formulate Queries",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4wub1a-o9cll-2",
+        "title": "Retrieve Knowledge & Grounding Sources",
+        "status": "PENDING"
+      },
+      {
+        "stepId": "task-mw4wub1a-o9cll-3",
+        "title": "Synthesize & Cross-Verify Evidence",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 2,
+    "isHumanApproved": true,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:47:51.262Z",
+    "updatedTime": "2026-11-06T11:47:51.269Z",
+    "resultData": {
+      "summary": "Verified conclusion derived via ANALYTICAL reasoning based on 0 evidence fact(s).",
+      "citations": []
+    },
+    "completedTime": "2026-11-06T11:47:51.269Z"
+  },
+  {
+    "taskId": "task-mw4x6idf-6nixw",
+    "executionId": "exec-mw4x6idf",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Test task lifecycle",
+    "state": "COMPLETED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:57:20.643Z",
+    "updatedTime": "2026-11-06T11:57:20.646Z",
+    "resultData": {
+      "ok": true
+    },
+    "completedTime": "2026-11-06T11:57:20.646Z"
+  },
+  {
+    "taskId": "task-mw4x6idj-p1hqm",
+    "executionId": "exec-mw4x6idj",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Invalid jump test",
+    "state": "CREATED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:57:20.647Z",
+    "updatedTime": "2026-11-06T11:57:20.647Z"
+  },
+  {
+    "taskId": "task-mw4x6idn-z8ld7",
+    "executionId": "exec-mw4x6idn",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "WAITING_APPROVAL",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4x6idn-z8ld7-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4x6idn-z8ld7-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:57:20.651Z",
+    "updatedTime": "2026-11-06T11:57:20.652Z"
+  },
+  {
+    "taskId": "task-mw4x6idp-dee45",
+    "executionId": "exec-mw4x6idp",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "READY",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4x6idp-dee45-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4x6idp-dee45-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": true,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T11:57:20.653Z",
+    "updatedTime": "2026-11-06T11:57:20.655Z"
+  },
+  {
+    "taskId": "task-mw4x6ids-sfawh",
+    "executionId": "exec-mw4x6ids",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Research ZYNTHEOR CORE native model architecture",
+    "state": "COMPLETED",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4x6ids-sfawh-1",
+        "title": "Understand Objective & Formulate Queries",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4x6ids-sfawh-2",
+        "title": "Retrieve Knowledge & Grounding Sources",
+        "status": "PENDING"
+      },
+      {
+        "stepId": "task-mw4x6ids-sfawh-3",
+        "title": "Synthesize & Cross-Verify Evidence",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 2,
+    "isHumanApproved": true,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T11:57:20.656Z",
+    "updatedTime": "2026-11-06T11:57:20.662Z",
+    "resultData": {
+      "summary": "Verified conclusion derived via ANALYTICAL reasoning based on 0 evidence fact(s).",
+      "citations": []
+    },
+    "completedTime": "2026-11-06T11:57:20.662Z"
+  },
+  {
+    "taskId": "task-mw4xc4bg-ijjlp",
+    "executionId": "exec-mw4xc4bh",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Test task lifecycle",
+    "state": "COMPLETED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T12:01:42.365Z",
+    "updatedTime": "2026-11-06T12:01:42.369Z",
+    "resultData": {
+      "ok": true
+    },
+    "completedTime": "2026-11-06T12:01:42.369Z"
+  },
+  {
+    "taskId": "task-mw4xc4bn-uhbqp",
+    "executionId": "exec-mw4xc4bn",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Invalid jump test",
+    "state": "CREATED",
+    "plannedSteps": [],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T12:01:42.371Z",
+    "updatedTime": "2026-11-06T12:01:42.371Z"
+  },
+  {
+    "taskId": "task-mw4xc4bt-naf5x",
+    "executionId": "exec-mw4xc4bt",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "WAITING_APPROVAL",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4xc4bt-naf5x-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4xc4bt-naf5x-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": false,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T12:01:42.377Z",
+    "updatedTime": "2026-11-06T12:01:42.379Z"
+  },
+  {
+    "taskId": "task-mw4xc4bw-cf7nx",
+    "executionId": "exec-mw4xc4bw",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-technical-engineer",
+    "goal": "Apply system patch to database schema",
+    "state": "READY",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4xc4bw-cf7nx-1",
+        "title": "Process User Query & Intent",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4xc4bw-cf7nx-2",
+        "title": "Generate Direct Sovereign Response",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 0,
+    "isHumanApproved": true,
+    "requiresApproval": true,
+    "createdTime": "2026-11-06T12:01:42.380Z",
+    "updatedTime": "2026-11-06T12:01:42.382Z"
+  },
+  {
+    "taskId": "task-mw4xc4c0-5wouv",
+    "executionId": "exec-mw4xc4c0",
+    "workspaceId": "ws-phase4-agent-test",
+    "agentId": "agent-research-sovereign",
+    "goal": "Research ZYNTHEOR CORE native model architecture",
+    "state": "COMPLETED",
+    "plannedSteps": [
+      {
+        "stepId": "task-mw4xc4c0-5wouv-1",
+        "title": "Understand Objective & Formulate Queries",
+        "status": "COMPLETED"
+      },
+      {
+        "stepId": "task-mw4xc4c0-5wouv-2",
+        "title": "Retrieve Knowledge & Grounding Sources",
+        "status": "PENDING"
+      },
+      {
+        "stepId": "task-mw4xc4c0-5wouv-3",
+        "title": "Synthesize & Cross-Verify Evidence",
+        "status": "PENDING"
+      }
+    ],
+    "currentStepIndex": 2,
+    "isHumanApproved": true,
+    "requiresApproval": false,
+    "createdTime": "2026-11-06T12:01:42.384Z",
+    "updatedTime": "2026-11-06T12:01:42.390Z",
+    "resultData": {
+      "summary": "Verified conclusion derived via ANALYTICAL reasoning based on 0 evidence fact(s).",
+      "citations": []
+    },
+    "completedTime": "2026-11-06T12:01:42.390Z"
   }
 ]

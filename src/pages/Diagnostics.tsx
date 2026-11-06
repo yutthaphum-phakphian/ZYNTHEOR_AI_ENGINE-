@@ -11,12 +11,14 @@ import { crossLayerRootCauseEngine } from '../lib/crossLayerRootCause';
 import { ForensicVerificationPanel } from '../components/ForensicVerificationPanel';
 import { AuditLedgerSummaryDashboard } from '../components/AuditLedgerSummaryDashboard';
 import { GpuTelemetryWidget } from '../components/GpuTelemetryWidget';
+import { PerformanceMetricsWidget } from '../components/PerformanceMetricsWidget';
+import { CompetitiveScorecard } from '../components/CompetitiveScorecard';
 import { useValidatedAuditLedger } from '../hooks/useValidatedAuditLedger';
 
 import AuditFoundationPage from './AuditFoundationPage';
 
 export default function Diagnostics() {
-  const [activeTab, setActiveTab] = useState<'foundation' | 'forensic' | 'storage' | 'audit' | 'debugging' | 'crosslayer'>('foundation');
+  const [activeTab, setActiveTab] = useState<'scorecard' | 'foundation' | 'forensic' | 'storage' | 'audit' | 'debugging' | 'crosslayer'>('scorecard');
   const [crossLayerData, setCrossLayerData] = useState<any>(null);
   const [auditRecords, setAuditRecords] = useState<any[]>([]);
   const { stats, verificationReport } = useValidatedAuditLedger();
@@ -67,9 +69,16 @@ export default function Diagnostics() {
         <p className="text-sm text-gray-400 mt-1">ZYNTHEOR AI ENGINE — COURT_READY SSoT Δ0.00% Forensic Verification, Foundation Audit Report, Audit Ledger Integrity, Storage Schemas & Cross-Layer Intelligence</p>
       </div>
 
-      <GpuTelemetryWidget />
+      <div className="grid grid-cols-1 gap-6 mb-6">
+        <PerformanceMetricsWidget />
+        <GpuTelemetryWidget />
+      </div>
 
       <div className="flex gap-2 mb-6 flex-wrap">
+        <button onClick={() => setActiveTab('scorecard')} className={`px-4 py-2 rounded font-bold text-sm flex items-center gap-1.5 ${activeTab === 'scorecard' ? 'bg-[#00D9A3] text-black shadow-lg shadow-[#00D9A3]/20' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>
+          <span>🏆 Phase 8 Scorecard</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-black/20 text-emerald-400">90.35/100</span>
+        </button>
         <button onClick={() => setActiveTab('foundation')} className={`px-4 py-2 rounded font-bold text-sm flex items-center gap-1.5 ${activeTab === 'foundation' ? 'bg-[#00D9A3] text-black shadow-lg shadow-[#00D9A3]/20' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>
           <span>📋 Foundation Audit Report</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded font-mono bg-black/20 text-emerald-400">VERIFIED</span>
@@ -86,6 +95,7 @@ export default function Diagnostics() {
         <button onClick={() => { setActiveTab('crosslayer'); loadCrossLayer(); }} className={`px-4 py-2 rounded font-bold text-sm ${activeTab === 'crosslayer' ? 'bg-[#00D9A3] text-black' : 'bg-[#111a2d] text-gray-400 border border-[#00D9A3]/20'}`}>Cross-Layer Root Cause</button>
       </div>
 
+      {activeTab === 'scorecard' && <CompetitiveScorecard />}
       {activeTab === 'foundation' && <AuditFoundationPage />}
       {activeTab === 'forensic' && <ForensicVerificationPanel />}
 

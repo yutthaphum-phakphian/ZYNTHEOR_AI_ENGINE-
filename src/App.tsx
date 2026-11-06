@@ -212,6 +212,41 @@ function HomeExperience() {
     status: 'Connected Workspace · Process Enclave Active',
   });
 
+  // Quick Command input & command palette state
+  const [quickCmdQuery, setQuickCmdQuery] = useState('');
+  const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState(false);
+  const quickCmdInputRef = useRef<HTMLInputElement>(null);
+
+  const QUICK_COMMANDS = useMemo(() => [
+    { id: 'diagnostics', title: 'Diagnostics & Forensic Audit', path: '/diagnostics', icon: ShieldCheck, badge: 'System' },
+    { id: 'model-studio', title: 'Model Studio (ZYNTHEOR CORE)', path: '/model-studio', icon: Cpu, badge: 'Models' },
+    { id: 'agents', title: 'Agent Command Center', path: '/agents', icon: Brain, badge: 'Agents' },
+    { id: 'evaluation', title: 'Evaluation Lab', path: '/evaluation', icon: BarChart3, badge: 'Eval' },
+    { id: 'memory', title: 'Memory Center & Vector Store', path: '/memory', icon: BookOpen, badge: 'Knowledge' },
+    { id: 'workspace', title: 'AI Workspace & File Explorer', path: '/workspace', icon: Layers, badge: 'Project' },
+    { id: 'explore', title: 'Explore Capabilities', path: '/explore', icon: Compass, badge: 'Discover' },
+    { id: 'chat', title: 'Main Chat & Intelligence', path: '/chat', icon: Sparkles, badge: 'Chat' },
+  ], []);
+
+  const filteredQuickCommands = useMemo(() => {
+    if (!quickCmdQuery.trim()) return QUICK_COMMANDS;
+    const q = quickCmdQuery.toLowerCase();
+    return QUICK_COMMANDS.filter(cmd => cmd.title.toLowerCase().includes(q) || cmd.badge.toLowerCase().includes(q));
+  }, [quickCmdQuery, QUICK_COMMANDS]);
+
+  // Global Cmd+K / Ctrl+K shortcut listener to focus Quick Command
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        quickCmdInputRef.current?.focus();
+        setIsCmdPaletteOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   useEffect(() => {
     // 1. Fetch live workspace memory / recent work
     fetch('/api/intelligence/workspace-memory')
@@ -322,7 +357,7 @@ function HomeExperience() {
             1. BRAND HEADER (COMPACT & BALANCED)
             ◈ ZYNTHEOR AI ENGINE · Universal Intelligence Platform
         ========================================================= */}
-        <header className="flex items-center justify-between gap-4 py-1">
+        <header className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 py-1 relative">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#00D9A3] to-[#2563EB] grid place-items-center shadow-[0_0_15px_rgba(0,217,163,0.2)] text-black font-black text-base select-none">
               ◈
@@ -337,6 +372,84 @@ function HomeExperience() {
                 Universal Intelligence Platform
               </div>
             </div>
+          </div>
+
+          {/* Quick Command Input Field & Command Palette */}
+          <div className="relative flex-1 max-w-xs mx-0 sm:mx-2">
+            <div className="relative flex items-center">
+              <Search size={13} className="absolute left-3 text-white/40 pointer-events-none" />
+              <input
+                ref={quickCmdInputRef}
+                type="text"
+                value={quickCmdQuery}
+                onChange={e => {
+                  setQuickCmdQuery(e.target.value);
+                  setIsCmdPaletteOpen(true);
+                }}
+                onFocus={() => setIsCmdPaletteOpen(true)}
+                onKeyDown={e => {
+                  if (e.key === 'Escape') {
+                    setIsCmdPaletteOpen(false);
+                  } else if (e.key === 'Enter' && filteredQuickCommands.length > 0) {
+                    e.preventDefault();
+                    const target = filteredQuickCommands[0];
+                    navigate(target.path);
+                    setIsCmdPaletteOpen(false);
+                    setQuickCmdQuery('');
+                  }
+                }}
+                placeholder="Quick Command... (⌘K)"
+                className="w-full pl-8 pr-12 py-1.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] focus:bg-[#070b16] border border-white/10 focus:border-[#00D9A3]/50 text-xs text-white placeholder:text-white/30 outline-none transition"
+              />
+              <kbd className="absolute right-2.5 px-1.5 py-0.5 rounded bg-white/10 text-[9px] font-mono text-white/40 pointer-events-none">
+                ⌘K
+              </kbd>
+            </div>
+
+            {/* Command Palette Dropdown */}
+            {isCmdPaletteOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-20"
+                  onClick={() => setIsCmdPaletteOpen(false)}
+                />
+                <div className="absolute left-0 right-0 top-full mt-1.5 z-30 rounded-[14px] bg-[#0b1020] border border-white/15 shadow-2xl p-1.5 space-y-1 max-h-64 overflow-y-auto">
+                  <div className="px-2 py-1 text-[10px] font-semibold text-white/40 uppercase tracking-wider flex items-center justify-between">
+                    <span>Quick Navigation</span>
+                    <span>⌘K</span>
+                  </div>
+                  {filteredQuickCommands.length === 0 ? (
+                    <div className="p-3 text-center text-xs text-white/40">
+                      No matching page found
+                    </div>
+                  ) : (
+                    filteredQuickCommands.map(cmd => {
+                      const IconComp = cmd.icon;
+                      return (
+                        <button
+                          key={cmd.id}
+                          type="button"
+                          onClick={() => {
+                            navigate(cmd.path);
+                            setIsCmdPaletteOpen(false);
+                            setQuickCmdQuery('');
+                          }}
+                          className="w-full text-left px-2.5 py-2 rounded-[10px] hover:bg-white/10 flex items-center justify-between text-xs text-white/90 hover:text-white transition group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <IconComp size={14} className="text-[#00D9A3] group-hover:scale-110 transition-transform" />
+                            <span className="font-medium text-[11px]">{cmd.title}</span>
+                          </div>
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-white/40">
+                            {cmd.badge}
+                          </span>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

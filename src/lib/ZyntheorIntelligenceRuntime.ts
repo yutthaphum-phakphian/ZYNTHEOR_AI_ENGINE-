@@ -581,8 +581,9 @@ export class ZyntheorIntelligenceRuntime {
       });
 
       // Intercept grounding responses for bot challenge patterns
-      this.interceptGroundingResponse(orchestratedResult.groundingSources);
-      this.interceptGroundingResponse(orchestratedResult.finalAnswer);
+      if (orchestratedResult.groundingSources && orchestratedResult.groundingSources.length > 0) {
+        this.interceptGroundingResponse(orchestratedResult.groundingSources);
+      }
 
       markStage('REASONING', 'COMPLETED', `Inference finished (status: ${orchestratedResult.taskState})`);
 

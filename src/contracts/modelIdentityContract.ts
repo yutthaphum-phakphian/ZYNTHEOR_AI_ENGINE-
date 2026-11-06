@@ -187,7 +187,10 @@ export function validateDefaultInferenceModel(model: unknown): DefaultInferenceV
     lowerId.startsWith('zyntheor');
 
   const isZyntheorCoreProvider =
-    rawProvider === 'ZYNTHEOR' || rawProvider === 'LOCAL' || rawProvider === '';
+    rawProvider === 'ZYNTHEOR' ||
+    rawProvider === 'ZYNTHEOR_NATIVE' ||
+    rawProvider === 'LOCAL' ||
+    rawProvider === '';
 
   const isZyntheorCoreCategory =
     rawCategory === 'CORE_NATIVE' ||
