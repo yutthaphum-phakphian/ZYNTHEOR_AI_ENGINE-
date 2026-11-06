@@ -5,6 +5,7 @@
  * Provides a clean reactive interface for Omni Composer with:
  * - Lifecycle management
  * - Language selection (th-TH / en-US)
+ * - Tone parameter configuration & reactive sync ('professional' | 'casual' | 'concise' | 'academic' | 'creative')
  * - Live interim transcript preview
  * - Privacy disclosure awareness
  * - Safe unmount cleanup
@@ -21,13 +22,16 @@ import {
   getVoicePrivacyDisclosure,
 } from '../lib/voiceIntelligenceEngine';
 
+export type InferenceToneStyle = 'professional' | 'casual' | 'concise' | 'academic' | 'creative';
+
 export interface UseVoiceIntelligenceOptions {
   initialLanguage?: VoiceLanguage;
-  onFinalTranscript?: (finalText: string) => void;
+  initialTone?: InferenceToneStyle;
+  onFinalTranscript?: (finalText: string, tone?: InferenceToneStyle) => void;
 }
 
 export function useVoiceIntelligenceInput(options: UseVoiceIntelligenceOptions = {}) {
-  const { initialLanguage = 'th-TH', onFinalTranscript } = options;
+  const { initialLanguage = 'th-TH', initialTone, onFinalTranscript } = options;
 
   const [lifecycle, setLifecycle] = useState<VoiceLifecycleState>('idle');
   const [language, setLanguageState] = useState<VoiceLanguage>(initialLanguage);
@@ -36,8 +40,35 @@ export function useVoiceIntelligenceInput(options: UseVoiceIntelligenceOptions =
   const [isSupported, setIsSupported] = useState<boolean>(true);
   const [showPrivacyNotice, setShowPrivacyNotice] = useState<boolean>(false);
 
+  // Read reactive tone parameter from localStorage or option
+  const [tone, setToneState] = useState<InferenceToneStyle>(() => {
+    if (initialTone) return initialTone;
+    try {
+      const stored = localStorage.getItem('zyntheor_model_tone');
+      if (stored && ['professional', 'casual', 'concise', 'academic', 'creative'].includes(stored)) {
+        return stored as InferenceToneStyle;
+      }
+    } catch {}
+    return 'professional';
+  });
+
   const errorTimeoutRef = useRef<any>(null);
   const managerRef = useRef<VoiceIntelligenceSessionManager | null>(null);
+
+  // Sync tone changes from settings events
+  useEffect(() => {
+    const handleSettingsChanged = (e: any) => {
+      const newTone = e?.detail?.toneStyle || localStorage.getItem('zyntheor_model_tone');
+      if (newTone && ['professional', 'casual', 'concise', 'academic', 'creative'].includes(newTone)) {
+        setToneState(newTone as InferenceToneStyle);
+      }
+    };
+
+    window.addEventListener('zyntheor:settings-changed', handleSettingsChanged);
+    return () => {
+      window.removeEventListener('zyntheor:settings-changed', handleSettingsChanged);
+    };
+  }, []);
 
   // Initialize session manager
   if (!managerRef.current) {
@@ -50,7 +81,7 @@ export function useVoiceIntelligenceInput(options: UseVoiceIntelligenceOptions =
       },
       onFinalTranscript: (final) => {
         setInterimTranscript('');
-        onFinalTranscript?.(final);
+        onFinalTranscript?.(final, tone);
       },
       onError: (err: VoiceErrorDetails) => {
         setErrorMessage(err.message);
@@ -62,17 +93,17 @@ export function useVoiceIntelligenceInput(options: UseVoiceIntelligenceOptions =
     });
   }
 
-  // Update callbacks when onFinalTranscript prop changes
+  // Update callbacks when onFinalTranscript prop or tone changes
   useEffect(() => {
     if (managerRef.current) {
       managerRef.current.setCallbacks({
         onFinalTranscript: (final) => {
           setInterimTranscript('');
-          onFinalTranscript?.(final);
+          onFinalTranscript?.(final, tone);
         },
       });
     }
-  }, [onFinalTranscript]);
+  }, [onFinalTranscript, tone]);
 
   // Check browser support on client mount
   useEffect(() => {
@@ -117,6 +148,14 @@ export function useVoiceIntelligenceInput(options: UseVoiceIntelligenceOptions =
     }
   }, []);
 
+  const setTone = useCallback((newTone: InferenceToneStyle) => {
+    setToneState(newTone);
+    try {
+      localStorage.setItem('zyntheor_model_tone', newTone);
+      window.dispatchEvent(new CustomEvent('zyntheor:settings-changed', { detail: { toneStyle: newTone } }));
+    } catch {}
+  }, []);
+
   const dismissError = useCallback(() => {
     if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
     setErrorMessage(null);
@@ -133,12 +172,14 @@ export function useVoiceIntelligenceInput(options: UseVoiceIntelligenceOptions =
     isListening,
     isSupported,
     language,
+    tone,
     interimTranscript,
     errorMessage,
     showPrivacyNotice,
     privacyDisclosure: getVoicePrivacyDisclosure(),
     toggleListening,
     setLanguage,
+    setTone,
     dismissError,
     togglePrivacyNotice,
   };

@@ -160,6 +160,23 @@ export function MainChat() {
   const [input, setInput] = useState('');
   // Online-First Sovereign Platform default
   const [operatingMode, setOperatingMode] = useState<'ONLINE_INTELLIGENCE' | 'HYBRID_INTELLIGENCE' | 'LOCAL_ONLY'>(urlMode);
+  const [selectedTone, setSelectedTone] = useState<string>(() => {
+    try {
+      return localStorage.getItem('zyntheor_model_tone') || 'professional';
+    } catch {
+      return 'professional';
+    }
+  });
+
+  useEffect(() => {
+    const handleSettings = (e: any) => {
+      const tone = e?.detail?.toneStyle || localStorage.getItem('zyntheor_model_tone');
+      if (tone) setSelectedTone(tone);
+    };
+    window.addEventListener('zyntheor:settings-changed', handleSettings);
+    return () => window.removeEventListener('zyntheor:settings-changed', handleSettings);
+  }, []);
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeModel] = useState(() => getActiveModel());
@@ -386,6 +403,7 @@ export function MainChat() {
             workspaceId: 'default',
             language: 'th',
             responseLanguage: 'th',
+            toneStyle: selectedTone,
             onlineConsent: isOnline,
             enableInternetSearch,
             isDryRun: false,
@@ -1052,6 +1070,27 @@ export function MainChat() {
                       <Database size={14} className="text-amber-400" />
                       <span className="hidden sm:inline">Memory</span>
                     </button>
+
+                    {/* Tone Parameter Selector */}
+                    <select
+                      value={selectedTone}
+                      onChange={(e) => {
+                        const newTone = e.target.value;
+                        setSelectedTone(newTone);
+                        try {
+                          localStorage.setItem('zyntheor_model_tone', newTone);
+                          window.dispatchEvent(new CustomEvent('zyntheor:settings-changed', { detail: { toneStyle: newTone } }));
+                        } catch {}
+                      }}
+                      className="h-9 px-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-xs font-semibold text-cyan-300 focus:outline-none cursor-pointer shadow-sm"
+                      title="เลือกระดับโทนเสียงสำหรับการประมวลผล (Inference Tone)"
+                    >
+                      <option value="professional">👔 มืออาชีพ</option>
+                      <option value="casual">💬 เป็นกันเอง</option>
+                      <option value="concise">⚡ กระชับ</option>
+                      <option value="academic">🎓 เชิงวิชาการ</option>
+                      <option value="creative">🎨 สร้างสรรค์</option>
+                    </select>
                   </div>
 
                   {/* Right: Submit Button */}

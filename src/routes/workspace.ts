@@ -466,4 +466,66 @@ router.post('/api/workspace/graph/reindex', async (_req: Request, res: Response)
   }
 });
 
+// 17. STEP 5 — Persistent Conversation Threads CRUD Endpoints
+const persistentConversationsStore = new Map<string, any>();
+
+router.get('/api/workspace/conversations', (req: Request, res: Response) => {
+  try {
+    const user = getRequestUser(req);
+    const tenantId = user.tenantId || 'org-default';
+    const threads = Array.from(persistentConversationsStore.values())
+      .filter((t: any) => t.tenantId === tenantId || !t.tenantId)
+      .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
+    res.json({ ok: true, conversations: threads, count: threads.length });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: 'failed_to_get_conversations', message: err.message });
+  }
+});
+
+router.post('/api/workspace/conversations', (req: Request, res: Response) => {
+  try {
+    const user = getRequestUser(req);
+    const body = req.body || {};
+    if (!body.id) {
+      return res.status(400).json({ ok: false, error: 'thread_id_required' });
+    }
+    const threadData = {
+      ...body,
+      tenantId: user.tenantId || 'org-default',
+      lastUpdated: body.lastUpdated || new Date().toISOString(),
+    };
+    persistentConversationsStore.set(body.id, threadData);
+    res.status(201).json({ ok: true, thread: threadData });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: 'failed_to_save_conversation', message: err.message });
+  }
+});
+
+router.put('/api/workspace/conversations/:id', (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const existing = persistentConversationsStore.get(id) || { id };
+    const updated = {
+      ...existing,
+      ...req.body,
+      lastUpdated: new Date().toISOString(),
+    };
+    persistentConversationsStore.set(id, updated);
+    res.json({ ok: true, thread: updated });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: 'failed_to_update_conversation', message: err.message });
+  }
+});
+
+router.delete('/api/workspace/conversations/:id', (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const existed = persistentConversationsStore.delete(id);
+    res.json({ ok: true, deletedId: id, existed });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: 'failed_to_delete_conversation', message: err.message });
+  }
+});
+
 export default router;
+

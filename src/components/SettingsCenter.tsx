@@ -39,6 +39,7 @@ export interface AppLocalSettings {
   systemInstructions: string;
   responseStyle: 'concise' | 'balanced' | 'detailed' | 'code-first';
   reasoningLevel: 'standard' | 'chain-of-thought' | 'deep';
+  toneStyle: 'professional' | 'casual' | 'concise' | 'academic' | 'creative';
   maxHistoryMessages: number;
   includeWorkspaceFiles: boolean;
   taskMemoryEnabled: boolean;
@@ -81,6 +82,7 @@ export const DEFAULT_APP_SETTINGS: AppLocalSettings = {
   systemInstructions: 'You are ZYNTHEOR AI ENGINE — a sovereign, production-grade AI engineering partner. Provide exact, verified, and well-structured code solutions.',
   responseStyle: 'balanced',
   reasoningLevel: 'chain-of-thought',
+  toneStyle: 'professional',
   maxHistoryMessages: 30,
   includeWorkspaceFiles: true,
   taskMemoryEnabled: true,
@@ -363,6 +365,8 @@ export function SettingsCenter({
         try {
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(draftSettings));
           localStorage.setItem('zyntheor.default-chat-mode', draftSettings.defaultChatMode || 'auto');
+          localStorage.setItem('zyntheor_model_tone', draftSettings.toneStyle || 'professional');
+          window.dispatchEvent(new CustomEvent('zyntheor:settings-changed', { detail: draftSettings }));
         } catch {}
         if (draftSettings.language !== currentLang) {
           onLanguageChange(draftSettings.language);
@@ -1104,6 +1108,33 @@ export function SettingsCenter({
                       <option value="deep">{isTh ? 'วิเคราะห์เชิงลึกด้านสถาปัตยกรรม (Deep Architectural Analysis)' : 'Deep Architectural'}</option>
                     </select>
                   </div>
+                </div>
+              </SettingCard>
+
+              <SettingCard
+                title={isTh ? 'การกำหนดค่าโทนเสียงการตอบกลับ (Response Tone Configuration)' : 'Response Tone Configuration'}
+                desc={isTh ? 'เลือกระดับโทนเสียงสำหรับการประมวลผลและการป้อนข้อมูลด้วยเสียงอัจฉริยะ (ส่งผ่านไปยังเอนจินการอนุมาน)' : 'Configure voice intelligence and inference response tone parameter.'}
+              >
+                <div>
+                  <label style={labelStyle}>{isTh ? 'โทนเสียงการอนุมาน (Inference Response Tone)' : 'Inference Response Tone'}</label>
+                  <select
+                    value={draftSettings.toneStyle || 'professional'}
+                    onChange={e => {
+                      const newTone = e.target.value as any;
+                      updateDraft(p => ({ ...p, toneStyle: newTone }));
+                      try {
+                        localStorage.setItem('zyntheor_model_tone', newTone);
+                        window.dispatchEvent(new CustomEvent('zyntheor:settings-changed', { detail: { toneStyle: newTone } }));
+                      } catch {}
+                    }}
+                    style={selectStyle}
+                  >
+                    <option value="professional">👔 {isTh ? 'มืออาชีพ (Professional — สุภาพ เป็นทางการ ชัดเจน)' : 'Professional'}</option>
+                    <option value="casual">💬 {isTh ? 'ไม่เป็นทางการ (Casual — เป็นกันเอง เข้าใจง่าย)' : 'Casual'}</option>
+                    <option value="concise">⚡ {isTh ? 'กระชับ (Concise — สั้น ตรงประเด็น สรุปผลทันที)' : 'Concise'}</option>
+                    <option value="academic">🎓 {isTh ? 'เชิงวิชาการ (Academic — ทฤษฎี อ้างอิง หลักการ)' : 'Academic'}</option>
+                    <option value="creative">🎨 {isTh ? 'สร้างสรรค์ (Creative — หลากหลาย ยืดหยุ่น จินตนาการ)' : 'Creative'}</option>
+                  </select>
                 </div>
               </SettingCard>
 

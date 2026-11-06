@@ -633,6 +633,7 @@ export interface OrchestrationExecuteParams {
   workspaceId?: string;
   language?: string;
   responseLanguage?: string;
+  toneStyle?: 'professional' | 'casual' | 'concise' | 'academic' | 'creative' | string;
   humanApprovals?: Record<string, boolean>;
   isDryRun?: boolean;
   onlineConsent?: boolean;

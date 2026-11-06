@@ -65,7 +65,8 @@ import {
   Download,
   Menu,
   X,
-  ChevronLeft
+  ChevronLeft,
+  Trash2
 } from 'lucide-react';
 
 import { useVoiceIntelligenceInput, appendTranscriptWithSmartSpacing } from './hooks/useVoiceIntelligenceInput';
@@ -215,6 +216,44 @@ function HomeExperience() {
     { id: '2', title: 'สรุปมาตรฐานความมั่นคง Enclave & FIPS 140-3', time: 'เมื่อวานนี้' },
     { id: '3', title: 'ตรวจสอบโค้ด React Hook & Navigation Guard', time: '3 วันก่อน' },
   ]);
+
+  const [recentWorkSwipeOffsets, setRecentWorkSwipeOffsets] = useState<Record<string, number>>({});
+  const recentWorkTouchRef = useRef<{ id: string; x: number } | null>(null);
+
+  const handleDismissRecentWork = useCallback((id: string) => {
+    // Call backend API to delete thread / memory record
+    fetch(`/api/intelligence/workspace-memory/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
+    fetch(`/api/workspace/conversations/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
+    setRecentWork(prev => prev.filter(w => w.id !== id));
+    setRecentWorkSwipeOffsets(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }, []);
+
+  const handleRecentWorkTouchStart = (id: string, clientX: number) => {
+    recentWorkTouchRef.current = { id, x: clientX };
+  };
+
+  const handleRecentWorkTouchMove = (id: string, clientX: number) => {
+    if (!recentWorkTouchRef.current || recentWorkTouchRef.current.id !== id) return;
+    const diffX = clientX - recentWorkTouchRef.current.x;
+    if (diffX < 0 && diffX > -120) {
+      setRecentWorkSwipeOffsets(prev => ({ ...prev, [id]: diffX }));
+    }
+  };
+
+  const handleRecentWorkTouchEnd = (id: string) => {
+    if (!recentWorkTouchRef.current || recentWorkTouchRef.current.id !== id) return;
+    const offset = recentWorkSwipeOffsets[id] || 0;
+    if (offset < -60) {
+      handleDismissRecentWork(id);
+    } else {
+      setRecentWorkSwipeOffsets(prev => ({ ...prev, [id]: 0 }));
+    }
+    recentWorkTouchRef.current = null;
+  };
 
   const [projectInfo, setProjectInfo] = useState<{ name: string; branch: string; status: string }>({
     name: 'ZYNTHEOR AI ENGINE',
@@ -843,16 +882,62 @@ function HomeExperience() {
                 </div>
 
                 <div className="space-y-1.5 pt-1">
-                  {recentWork.map((s, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => navigate('/chat')}
-                      className="p-2.5 rounded-[12px] bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs cursor-pointer transition"
-                    >
-                      <span className="truncate pr-2 text-white/80 text-[11px] font-medium">{s.title}</span>
-                      <span className="text-[10px] text-white/40 shrink-0 font-mono">{s.time}</span>
+                  {recentWork.length === 0 ? (
+                    <div className="p-3 text-center text-xs text-white/40 border border-dashed border-white/10 rounded-[12px]">
+                      ไม่มีงานล่าสุด (No recent tasks)
                     </div>
-                  ))}
+                  ) : (
+                    recentWork.map((s) => {
+                      const offset = recentWorkSwipeOffsets[s.id] || 0;
+                      return (
+                        <div
+                          key={s.id}
+                          className="relative overflow-hidden rounded-[12px] group"
+                          onTouchStart={e => handleRecentWorkTouchStart(s.id, e.touches[0].clientX)}
+                          onTouchMove={e => handleRecentWorkTouchMove(s.id, e.touches[0].clientX)}
+                          onTouchEnd={() => handleRecentWorkTouchEnd(s.id)}
+                        >
+                          {/* Swipe Red Delete Action Reveal */}
+                          <div
+                            className="absolute inset-y-0 right-0 bg-red-600/90 text-white flex items-center justify-end px-3 font-bold text-xs rounded-[12px] cursor-pointer transition-opacity"
+                            style={{ opacity: offset < -15 ? 1 : 0 }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleDismissRecentWork(s.id);
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </div>
+
+                          {/* Foreground Item Card */}
+                          <div
+                            onClick={() => navigate('/chat')}
+                            style={{
+                              transform: `translateX(${offset}px)`,
+                              transition: offset === 0 ? 'transform 200ms ease' : 'none',
+                            }}
+                            className="p-2.5 rounded-[12px] bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs cursor-pointer transition"
+                          >
+                            <span className="truncate pr-2 text-white/80 text-[11px] font-medium">{s.title}</span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className="text-[10px] text-white/40 font-mono">{s.time}</span>
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  handleDismissRecentWork(s.id);
+                                }}
+                                title="ปัดหรือกดเพื่อลบงานนี้ (Swipe to dismiss)"
+                                className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 transition p-0.5"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
