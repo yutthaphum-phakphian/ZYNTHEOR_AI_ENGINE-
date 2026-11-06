@@ -14,7 +14,8 @@ import {
   Sparkles,
   ChevronRight,
   Database,
-  FileText
+  FileText,
+  Menu
 } from 'lucide-react';
 import MemoryCenterComponent from '../components/MemoryCenter';
 
@@ -79,9 +80,20 @@ export default function LibraryPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[10px] font-bold text-white/60">
-              <BookOpen size={12} className="text-[#38bdf8]" />
-              ZYNTHEOR LIBRARY
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:toggle-sidebar'))}
+                title="Toggle Sidebar Navigation (⌘B)"
+                aria-label="Toggle Navigation Menu"
+                className="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-slate-200 hover:text-white transition grid place-items-center cursor-pointer shadow-sm shrink-0"
+              >
+                <Menu size={16} className="text-[#00D9A3]" />
+              </button>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[10px] font-bold text-white/60">
+                <BookOpen size={12} className="text-[#38bdf8]" />
+                ZYNTHEOR LIBRARY
+              </div>
             </div>
             <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
               Library & Knowledge

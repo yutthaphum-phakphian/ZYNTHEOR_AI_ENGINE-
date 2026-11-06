@@ -1444,45 +1444,6 @@ function AppShell() {
             </ErrorBoundary>
           </main>
         </div>
-
-        {/* =================================================
-            MOBILE BOTTOM NAVIGATION (Fixed at viewport bottom)
-            Shrink-0, safe-bottom, fixed height tab bar
-        ================================================= */}
-        <nav
-          aria-label="Main navigation"
-          className="bottom-tab md:hidden shrink-0 bg-[#070a14]/95 backdrop-blur-xl border-t border-white/[0.08] safe-bottom z-30"
-        >
-          <div className="mobile-navigation">
-            {navItems.map(item => {
-              const Icon = item.icon;
-              const active = current === item.id;
-
-              return (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  onClick={triggerHaptic}
-                  aria-label={item.label}
-                  aria-current={active ? 'page' : undefined}
-                  className={`mobile-navigation-item relative transition select-none cursor-pointer ${
-                    active
-                      ? 'text-[#00D9A3]'
-                      : 'text-white/40 hover:text-white/70'
-                  }`}
-                >
-                  {active && (
-                    <span className="absolute top-0 w-8 h-0.5 rounded-full bg-[#00D9A3] shadow-[0_0_8px_#00D9A3]" />
-                  )}
-                  <Icon size={20} className={active ? 'scale-110 transition-transform text-[#00D9A3]' : ''} />
-                  <span className={`text-[10px] tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${active ? 'font-bold text-[#00D9A3]' : 'font-medium'}`}>
-                    {item.th}
-                  </span>
-                </NavLink>
-              );
-            })}
-          </div>
-        </nav>
       </div>
     </div>
   );

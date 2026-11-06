@@ -52,7 +52,8 @@ import {
   Database,
   Radio,
   FileCode,
-  ShieldAlert
+  ShieldAlert,
+  Menu
 } from 'lucide-react';
 import { getActiveModel, validateDefaultInferenceModel } from '../lib/modelIdentityContract';
 import { useVoiceIntelligenceInput, appendTranscriptWithSmartSpacing } from '../hooks/useVoiceIntelligenceInput';
@@ -436,9 +437,18 @@ export function MainChat() {
       {/* =========================================================
           1. HEADER & OPERATING MODE CONTROL
       ========================================================= */}
-      <header className="h-14 border-b border-white/[0.08] px-4 md:px-6 flex items-center justify-between bg-[#080d1a]/80 backdrop-blur-md shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center text-black font-black text-xs shadow-lg shadow-[#00D9A3]/20">
+      <header className="h-14 border-b border-white/[0.08] px-3 md:px-6 flex items-center justify-between bg-[#080d1a]/80 backdrop-blur-md shrink-0">
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:toggle-sidebar'))}
+            title="Toggle Sidebar Navigation (⌘B)"
+            aria-label="Toggle Navigation Menu"
+            className="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-slate-200 hover:text-white transition grid place-items-center cursor-pointer shadow-sm shrink-0"
+          >
+            <Menu size={16} className="text-[#00D9A3]" />
+          </button>
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00D9A3] to-[#00b386] grid place-items-center text-black font-black text-xs shadow-lg shadow-[#00D9A3]/20 shrink-0">
             Z
           </div>
           <div>
@@ -773,24 +783,24 @@ export function MainChat() {
           {/* =========================================================
               3. MULTIMODAL OMNI COMPOSER AT BOTTOM (Sticky & Safe Area)
           ========================================================= */}
-          <div className="p-2.5 sm:p-4 border-t border-white/[0.08] bg-[#070b16]/95 backdrop-blur-md sticky bottom-0 z-20">
+          <div className="p-2.5 sm:p-4 border-t border-slate-800 bg-[#070b16]/95 backdrop-blur-md sticky bottom-0 z-20 safe-bottom">
             <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
-              <div className="rounded-2xl border border-white/10 bg-[#0b1020] p-2.5 shadow-2xl focus-within:border-cyan-500/50 transition">
+              <div className="rounded-2xl border border-slate-700/80 bg-[#0d1424] p-3 shadow-2xl focus-within:border-[#00D9A3] focus-within:ring-1 focus-within:ring-[#00D9A3]/40 transition-all">
                 {/* Attached Files Preview Chips */}
                 {(attachedDocs.length > 0 || attachedImgs.length > 0) && (
-                  <div className="flex flex-wrap gap-2 p-2 border-b border-white/[0.06] mb-2">
+                  <div className="flex flex-wrap gap-2 p-2 border-b border-slate-800 mb-2">
                     {attachedDocs.map((doc, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200"
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-xs text-cyan-200"
                       >
                         <FileText size={13} className="text-cyan-400" />
-                        <span className="font-mono text-[11px] truncate max-w-[140px]">{doc.name}</span>
-                        <span className="text-[9px] text-white/40">({(doc.size / 1024).toFixed(1)}KB)</span>
+                        <span className="font-mono text-[11px] truncate max-w-[140px] text-cyan-100">{doc.name}</span>
+                        <span className="text-[9px] text-slate-400">({(doc.size / 1024).toFixed(1)}KB)</span>
                         <button
                           type="button"
                           onClick={() => removeDoc(idx)}
-                          className="hover:text-red-400 p-0.5 cursor-pointer ml-1"
+                          className="hover:text-red-400 p-0.5 cursor-pointer ml-1 text-slate-400"
                         >
                           <X size={11} />
                         </button>
@@ -800,14 +810,14 @@ export function MainChat() {
                     {attachedImgs.map((img, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200"
+                        className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-purple-950/60 border border-purple-500/40 text-xs text-purple-200"
                       >
                         <img src={img.dataUrl} alt={img.name} className="w-5 h-5 rounded object-cover" />
-                        <span className="font-mono text-[11px] truncate max-w-[120px]">{img.name}</span>
+                        <span className="font-mono text-[11px] truncate max-w-[120px] text-purple-100">{img.name}</span>
                         <button
                           type="button"
                           onClick={() => removeImg(idx)}
-                          className="hover:text-red-400 p-0.5 cursor-pointer ml-1"
+                          className="hover:text-red-400 p-0.5 cursor-pointer ml-1 text-slate-400"
                         >
                           <X size={11} />
                         </button>
@@ -818,7 +828,7 @@ export function MainChat() {
 
                 {/* Voice Interim Transcript Banner */}
                 {isListening && interimTranscript && (
-                  <div className="p-2 mb-2 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-xs text-emerald-300 font-mono flex items-center gap-2 animate-pulse">
+                  <div className="p-2 mb-2 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-xs text-emerald-200 font-mono flex items-center gap-2 animate-pulse">
                     <Mic size={14} className="text-emerald-400 shrink-0" />
                     <span>กำลังฟัง: "{interimTranscript}"</span>
                   </div>
@@ -839,7 +849,7 @@ export function MainChat() {
                       : 'สั่งงาน ถามคำถาม หรือแนบเอกสารและรูปภาพให้ ZYNTHEOR INTELLIGENCE...'
                   }
                   rows={2}
-                  className="w-full resize-none bg-transparent outline-none text-sm text-white placeholder:text-white/30 p-2"
+                  className="w-full resize-none bg-transparent outline-none text-sm text-slate-100 placeholder:text-slate-400 p-2 leading-relaxed"
                 />
 
                 {/* Hidden File Inputs */}
@@ -860,21 +870,21 @@ export function MainChat() {
                   className="hidden"
                 />
 
-                <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] mt-1 px-1">
+                <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 mt-1 px-1">
                   {/* Left: Multimodal Attachment Tools */}
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     {/* Voice Mic Button */}
                     <button
                       type="button"
                       onClick={toggleVoiceInput}
-                      className={`h-8 px-2.5 rounded-xl border flex items-center gap-1.5 text-xs transition cursor-pointer ${
+                      className={`h-9 px-3 rounded-xl border flex items-center gap-1.5 text-xs font-semibold transition cursor-pointer shadow-sm ${
                         isListening
-                          ? 'bg-emerald-500 text-black font-bold border-emerald-400 animate-pulse'
-                          : 'bg-white/5 hover:bg-white/10 text-white/70 border-white/10'
+                          ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400 animate-pulse shadow-md shadow-emerald-500/30'
+                          : 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
                       }`}
                       title={isListening ? 'กดเพื่อหยุดรับเสียง' : 'พูดคำสั่งเสียง (Voice Input 1.1)'}
                     >
-                      {isListening ? <MicOff size={13} /> : <Mic size={13} />}
+                      {isListening ? <MicOff size={14} className="text-slate-950" /> : <Mic size={14} className="text-[#00D9A3]" />}
                       <span className="hidden sm:inline">{isListening ? 'กำลังฟัง...' : 'เสียง'}</span>
                     </button>
 
@@ -882,10 +892,10 @@ export function MainChat() {
                     <button
                       type="button"
                       onClick={() => fileDocInputRef.current?.click()}
-                      className="h-8 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white/70 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
+                      className="h-9 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-xs font-semibold text-slate-200 hover:text-white flex items-center gap-1.5 transition cursor-pointer shadow-sm"
                       title="แนบเอกสาร (PDF, TXT, DOCX, Code)"
                     >
-                      <Paperclip size={13} />
+                      <Paperclip size={14} className="text-cyan-400" />
                       <span className="hidden sm:inline">เอกสาร</span>
                     </button>
 
@@ -893,10 +903,10 @@ export function MainChat() {
                     <button
                       type="button"
                       onClick={() => fileImgInputRef.current?.click()}
-                      className="h-8 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white/70 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
+                      className="h-9 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-xs font-semibold text-slate-200 hover:text-white flex items-center gap-1.5 transition cursor-pointer shadow-sm"
                       title="แนบรูปภาพ (Vision Input)"
                     >
-                      <ImageIcon size={13} />
+                      <ImageIcon size={14} className="text-purple-400" />
                       <span className="hidden sm:inline">รูปภาพ</span>
                     </button>
 
@@ -904,32 +914,36 @@ export function MainChat() {
                       type="button"
                       onClick={() => navigate('/library')}
                       title="เปิดคลังความรู้ (Library & Memory)"
-                      className="h-8 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white/50 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
+                      className="h-9 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition cursor-pointer shadow-sm"
                     >
-                      <Database size={13} />
+                      <Database size={14} className="text-amber-400" />
                       <span className="hidden sm:inline">Memory</span>
                     </button>
                   </div>
 
                   {/* Right: Submit Button */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     {isLoading ? (
                       <button
                         type="button"
                         onClick={handleStop}
-                        className="h-8 px-4 rounded-xl bg-red-500 text-white font-bold text-xs flex items-center gap-1.5 hover:bg-red-600 transition cursor-pointer"
+                        className="h-10 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-md shadow-rose-600/30"
                       >
-                        <Square size={11} />
+                        <Square size={12} className="fill-white" />
                         <span>หยุด</span>
                       </button>
                     ) : (
                       <button
                         type="submit"
                         disabled={!input.trim() && attachedDocs.length === 0 && attachedImgs.length === 0}
-                        className="h-8 px-4 rounded-xl bg-[#00D9A3] hover:bg-white text-black font-bold text-xs flex items-center gap-1.5 disabled:opacity-20 disabled:cursor-not-allowed transition cursor-pointer shadow-lg shadow-[#00D9A3]/10"
+                        className={`h-10 px-4 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-md ${
+                          !input.trim() && attachedDocs.length === 0 && attachedImgs.length === 0
+                            ? 'bg-slate-800 border border-slate-700/60 text-slate-400 cursor-not-allowed opacity-60'
+                            : 'bg-[#00D9A3] hover:bg-[#00f5ff] text-slate-950 shadow-[#00D9A3]/25 active:scale-95 cursor-pointer'
+                        }`}
                       >
                         <span>ประมวลผล</span>
-                        <Send size={11} />
+                        <Send size={13} className={!input.trim() && attachedDocs.length === 0 && attachedImgs.length === 0 ? "text-slate-400" : "text-slate-950 font-bold"} />
                       </button>
                     )}
                   </div>

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Bot, ShieldCheck, CheckCircle2, Clock, AlertTriangle, Play,
   Lock, ArrowRight, RefreshCw, Cpu, FileCode2,
-  Check, X, FileText, Sparkles, AlertCircle, Pause, Square, Eye, Activity, Radio
+  Check, X, FileText, Sparkles, AlertCircle, Pause, Square, Eye, Activity, Radio, Menu
 } from 'lucide-react';
 import {
   AgentStatusDot,
@@ -257,10 +257,21 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
         <div>
-          <div className="text-xs font-bold text-teal-400 tracking-wider uppercase flex items-center gap-2">
-            <Bot size={15} /> ZYNTHEOR CORE X / AGENT COMMAND CENTER
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:toggle-sidebar'))}
+              title="Toggle Sidebar Navigation (⌘B)"
+              aria-label="Toggle Navigation Menu"
+              className="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-slate-200 hover:text-white transition grid place-items-center cursor-pointer shadow-sm shrink-0"
+            >
+              <Menu size={16} className="text-[#00D9A3]" />
+            </button>
+            <div className="text-xs font-bold text-teal-400 tracking-wider uppercase flex items-center gap-2">
+              <Bot size={15} /> ZYNTHEOR CORE X / AGENT COMMAND CENTER
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-zinc-100 mt-1">Autonomous Agent Orchestrator</h1>
+          <h1 className="text-2xl font-bold text-zinc-100 mt-2">Autonomous Agent Orchestrator</h1>
           <p className="text-xs text-zinc-400 mt-0.5">
             Governed 7-stage multi-step intelligence engine with strict Human-in-the-Loop approval gate &amp; fail-closed sandbox.
           </p>

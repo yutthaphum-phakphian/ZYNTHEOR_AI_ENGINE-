@@ -5,7 +5,7 @@ import {
   ShieldCheck, Shield, LockKeyhole, Network, Activity, HardDrive, Terminal, Bell,
   AlertTriangle, RefreshCw, Save, RotateCcw, Check, Trash2, Download, Upload,
   CheckCircle2, Eye, FileCode2, Layers, Server, Zap, Database, Key, HelpCircle,
-  ChevronRight, Info, Sparkles, CheckCircle, XCircle, AlertCircle, Search
+  ChevronRight, Info, Sparkles, CheckCircle, XCircle, AlertCircle, Search, Menu
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation, type SupportedLanguage } from '../../lib/i18n';
@@ -620,10 +620,21 @@ export function SettingsCenter({
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontWeight: 700, color: '#14b8a6', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            <Settings size={14} /> SYSTEM / SETTINGS CENTER
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', fontWeight: 700, color: '#14b8a6', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:toggle-sidebar'))}
+              title="Toggle Sidebar Navigation (⌘B)"
+              aria-label="Toggle Navigation Menu"
+              className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white transition grid place-items-center cursor-pointer shrink-0"
+            >
+              <Menu size={15} className="text-[#00D9A3]" />
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Settings size={14} /> SYSTEM / SETTINGS CENTER
+            </div>
           </div>
-          <h1 style={{ margin: '4px 0 0', fontSize: '22px', fontWeight: 700, color: '#f1f5f9' }}>
+          <h1 style={{ margin: '6px 0 0', fontSize: '22px', fontWeight: 700, color: '#f1f5f9' }}>
             {isTh ? 'ศูนย์ควบคุมการตั้งค่า (Settings Center)' : 'Settings Center'}
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#94a3b8' }}>

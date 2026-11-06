@@ -16,7 +16,8 @@ import {
   GraduationCap,
   Database,
   Layers,
-  Compass
+  Compass,
+  Menu
 } from 'lucide-react';
 import { type CapabilityId } from '../lib/capabilityEngine';
 import { ExploreCapabilitiesSkeleton } from '../components/ExploreCapabilitiesSkeleton';
@@ -184,9 +185,20 @@ export default function ExplorePage() {
         
         {/* Header */}
         <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[10px] font-bold text-white/60">
-            <Compass size={12} className="text-[#00D9A3]" />
-            INTELLIGENCE CAPABILITIES
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('zyntheor:toggle-sidebar'))}
+              title="Toggle Sidebar Navigation (⌘B)"
+              aria-label="Toggle Navigation Menu"
+              className="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-slate-200 hover:text-white transition grid place-items-center cursor-pointer shadow-sm shrink-0"
+            >
+              <Menu size={16} className="text-[#00D9A3]" />
+            </button>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[10px] font-bold text-white/60">
+              <Compass size={12} className="text-[#00D9A3]" />
+              INTELLIGENCE CAPABILITIES
+            </div>
           </div>
           <h1 className="text-fluid-h1 font-black tracking-tight text-white">
             Explore Capabilities
