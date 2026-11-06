@@ -83,8 +83,7 @@ export class IntelligenceDomainRegistry {
           maxCharacterBudget: 2000
         });
 
-        const content = `[ZYNTHEOR KNOWLEDGE & LEARNING RESPONSIBLITY]\n` +
-          `คำอธิบายและแนวคิดสำคัญสำหรับ: "${query}"\n\n` +
+        const content = `คำอธิบายและแนวคิดสำคัญสำหรับ: "${query}"\n\n` +
           (assembled.formattedPromptBlock ? `${assembled.formattedPromptBlock}\n\n` : '') +
           `สรุปประเด็นหลัก:\n• ทำความเข้าใจโครงสร้างและหลักการทำงานพื้นฐาน\n• ทบทวนแนวทางปฏิบัติตามมาตรฐานวิศวกรรม`;
 
@@ -120,8 +119,7 @@ export class IntelligenceDomainRegistry {
         });
 
         const citations = searchRes.results.map(r => ({ source: r.sourceFilename, score: r.hybridScore }));
-        const content = `[ZYNTHEOR RESEARCH & SYNTHESIS REPORT]\n` +
-          `ผลการวิจัยและสังเคราะห์ข้อมูลสำหรับ: "${query}"\n` +
+        const content = `ผลการวิจัยและสังเคราะห์ข้อมูลสำหรับ: "${query}"\n` +
           `จำนวนหลักฐานที่พบ: ${searchRes.matchedCount} รายการ\n\n` +
           searchRes.results.map((r, i) => `[หลักฐาน #${i + 1} - ${r.sourceFilename}]: ${r.content}`).join('\n\n');
 
@@ -154,7 +152,7 @@ export class IntelligenceDomainRegistry {
           domainId: 'WRITING_COMMUNICATION',
           inputQuery: query,
           status: 'SUCCESS',
-          outputContent: `[ZYNTHEOR WRITING OUTPUT]\n\nเนื้อหาที่ได้รับการเรียบเรียงตามความต้องการ:\n${query}`,
+          outputContent: `เนื้อหาที่ได้รับการเรียบเรียงตามความต้องการ:\n${query}`,
           executionMetrics: { durationMs: Date.now() - start, itemsProcessed: 1 },
           timestamp: new Date().toISOString()
         };
@@ -184,8 +182,7 @@ export class IntelligenceDomainRegistry {
           domainId: 'REASONING_PROBLEM_SOLVING',
           inputQuery: query,
           status: reasonResult.status === 'SUCCESS' ? 'SUCCESS' : 'PARTIAL',
-          outputContent: `[ZYNTHEOR REASONING & DECISION SUMMARY]\n` +
-            `วัตถุประสงค์: ${query}\n` +
+          outputContent: `วัตถุประสงค์: ${query}\n` +
             `ข้อสรุป: ${reasonResult.conclusion.conclusion}\n` +
             `ระดับความเชื่อมั่น: ${(reasonResult.conclusion.confidenceScore * 100).toFixed(1)}%`,
           decisionSummary: reasonResult.decisionSummary,
@@ -212,7 +209,7 @@ export class IntelligenceDomainRegistry {
           domainId: 'DATA_ANALYSIS',
           inputQuery: query,
           status: 'SUCCESS',
-          outputContent: `[ZYNTHEOR DATA ANALYSIS RESULT]\nการประมวลผลการวิเคราะห์ข้อมูลสำหรับ: "${query}"\nสถานะข้อมูล: ผ่านการตรวจสอบความถูกต้อง`,
+          outputContent: `การประมวลผลการวิเคราะห์ข้อมูลสำหรับ: "${query}"\nสถานะข้อมูล: ผ่านการตรวจสอบความถูกต้อง`,
           executionMetrics: { durationMs: Date.now() - start, itemsProcessed: 1 },
           timestamp: new Date().toISOString()
         };
@@ -236,7 +233,7 @@ export class IntelligenceDomainRegistry {
           domainId: 'CREATIVITY_CONTENT',
           inputQuery: query,
           status: 'SUCCESS',
-          outputContent: `[ZYNTHEOR CREATIVE SOLUTION]\nแนวคิดสร้างสรรค์สำหรับ: "${query}"`,
+          outputContent: `แนวคิดสร้างสรรค์สำหรับ: "${query}"`,
           executionMetrics: { durationMs: Date.now() - start, itemsProcessed: 1 },
           timestamp: new Date().toISOString()
         };
@@ -260,7 +257,7 @@ export class IntelligenceDomainRegistry {
           domainId: 'PLANNING_PRODUCTIVITY',
           inputQuery: query,
           status: 'SUCCESS',
-          outputContent: `[ZYNTHEOR EXECUTION PLAN]\nแผนงานและขั้นตอนสำหรับ: "${query}"`,
+          outputContent: `แผนงานและขั้นตอนสำหรับ: "${query}"`,
           executionMetrics: { durationMs: Date.now() - start, itemsProcessed: 1 },
           timestamp: new Date().toISOString()
         };
@@ -284,7 +281,7 @@ export class IntelligenceDomainRegistry {
           domainId: 'TECHNICAL_INTELLIGENCE',
           inputQuery: query,
           status: 'SUCCESS',
-          outputContent: `[ZYNTHEOR TECHNICAL INTELLIGENCE OUTPUT]\nคำอธิบายทางวิศวกรรมและโค้ดสำหรับ: "${query}"`,
+          outputContent: `คำอธิบายทางวิศวกรรมและโค้ดสำหรับ: "${query}"`,
           executionMetrics: { durationMs: Date.now() - start, itemsProcessed: 1 },
           timestamp: new Date().toISOString()
         };
@@ -309,7 +306,7 @@ export class IntelligenceDomainRegistry {
           domainId: 'DOCUMENT_INTELLIGENCE',
           inputQuery: query,
           status: 'SUCCESS',
-          outputContent: `[ZYNTHEOR DOCUMENT INTELLIGENCE REPORT]\nจำนวนเอกสารในระบบ: ${docs.length} รายการ`,
+          outputContent: `จำนวนเอกสารในระบบ: ${docs.length} รายการ`,
           executionMetrics: { durationMs: Date.now() - start, itemsProcessed: docs.length },
           timestamp: new Date().toISOString()
         };

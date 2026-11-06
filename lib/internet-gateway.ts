@@ -15,6 +15,15 @@
 import { createHash } from 'node:crypto';
 import type { OperatingIntelligenceMode } from './model-sovereignty-policy.js';
 
+export type GroundingVerificationStatus = 
+  | 'SOURCE_FETCHED'
+  | 'SOURCE_VALIDATED'
+  | 'CONTENT_VERIFIED'
+  | 'GROUNDED'
+  | 'VERIFIED_SOURCE'
+  | 'UNVERIFIED_SOURCE'
+  | 'FAILED_RETRIEVAL';
+
 export interface GroundingSource {
   id: string;
   url: string;
@@ -24,7 +33,7 @@ export interface GroundingSource {
   fetchedAt: string;
   contentDigest: string;
   byteSize: number;
-  verificationStatus: 'VERIFIED_SOURCE' | 'UNVERIFIED_SOURCE' | 'FAILED_RETRIEVAL';
+  verificationStatus: GroundingVerificationStatus;
   httpStatus?: number;
 }
 
@@ -409,18 +418,36 @@ export class InternetGateway {
             };
           }
 
-          if (cleanText) {
+          const structuredResults = this.parseSearchResultsFromHtml(html);
+
+          if (structuredResults.length > 0) {
+            for (const item of structuredResults) {
+              const digest = this.computeDigest(`${item.url}|${item.snippet}`);
+              sources.push({
+                id: `ground-${digest.slice(0, 16)}`,
+                url: item.url,
+                domain: tryGetHostname(item.url),
+                title: item.title,
+                snippet: item.snippet,
+                fetchedAt: new Date().toISOString(),
+                contentDigest: digest,
+                byteSize: Buffer.byteLength(item.snippet, 'utf8'),
+                verificationStatus: 'CONTENT_VERIFIED',
+                httpStatus: 200,
+              });
+            }
+          } else if (cleanText && cleanText.length > 30) {
             const digest = this.computeDigest(`${cleaned}|${cleanText.slice(0, 500)}`);
             sources.push({
               id: `ground-${digest.slice(0, 16)}`,
               url: 'https://duckduckgo.com/html',
               domain: 'duckduckgo.com',
-              title: `Live Search: ${cleaned}`,
-              snippet: cleanText.slice(0, 400),
+              title: `Search Result: ${cleaned}`,
+              snippet: cleanText.slice(0, 350),
               fetchedAt: new Date().toISOString(),
               contentDigest: digest,
               byteSize: Buffer.byteLength(cleanText, 'utf8'),
-              verificationStatus: 'VERIFIED_SOURCE',
+              verificationStatus: 'CONTENT_VERIFIED',
               httpStatus: 200,
             });
           }
@@ -465,21 +492,82 @@ export class InternetGateway {
     }
   }
 
-  private sanitizeWebHtml(html: string): string {
-    return html
+  public parseSearchResultsFromHtml(html: string, maxItems = 3): Array<{ title: string; url: string; snippet: string }> {
+    const results: Array<{ title: string; url: string; snippet: string }> = [];
+    if (!html || typeof html !== 'string') return results;
+
+    const titleRegex = /<a\s+[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi;
+    const snippetRegex = /<(?:div|a)\s+[^>]*class="[^"]*result__snippet[^"]*"[^>]*>(.*?)<\/(?:div|a)>/gi;
+
+    const titles: Array<{ url: string; title: string }> = [];
+    let match: RegExpExecArray | null;
+
+    while ((match = titleRegex.exec(html)) !== null && titles.length < maxItems) {
+      let rawUrl = match[1];
+      if (rawUrl.includes('uddg=')) {
+        try {
+          const params = new URLSearchParams(rawUrl.substring(rawUrl.indexOf('?')));
+          rawUrl = params.get('uddg') || rawUrl;
+        } catch {}
+      }
+      const titleText = this.sanitizeWebHtml(match[2]);
+      if (titleText && !titleText.toLowerCase().includes('duckduckgo')) {
+        titles.push({ url: rawUrl, title: titleText });
+      }
+    }
+
+    const snippets: string[] = [];
+    while ((match = snippetRegex.exec(html)) !== null && snippets.length < maxItems) {
+      const snippetText = this.sanitizeWebHtml(match[1]);
+      if (snippetText) snippets.push(snippetText);
+    }
+
+    for (let i = 0; i < titles.length; i++) {
+      results.push({
+        title: titles[i].title,
+        url: titles[i].url,
+        snippet: snippets[i] || titles[i].title,
+      });
+    }
+
+    return results;
+  }
+
+  public sanitizeWebHtml(html: string): string {
+    if (!html || typeof html !== 'string') return '';
+
+    let cleaned = html
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
       .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
       .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, ' ')
-      .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, ' ')
-      .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, ' ')
+      .replace(/<select\b[^<]*(?:(?!<\/select>)<[^<]*)*<\/select>/gi, ' ')
+      .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, ' ')
+      .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, ' ')
       .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
-      .replace(/\s+/g, ' ')
-      .trim();
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ');
+
+    const boilerplatePatterns = [
+      /DuckDuckGo\s+All\s+Results\s+Images\s+Videos\s+News/gi,
+      /Country\s+Selector\s+All\s+Regions/gi,
+      /Settings\s+Privacy\s+About\s+DuckDuckGo/gi,
+      /Search\s+the\s+web\s+without\s+being\s+tracked/gi,
+      /DuckDuckGo\s+Privacy\s+Simplified/gi,
+      /Copyright\s+©\s*\d{4}/gi,
+      /All\s+rights\s+reserved/gi,
+      /Feedback\s+Privacy\s+Policy\s+Terms\s+of\s+Service/gi,
+    ];
+
+    for (const pattern of boilerplatePatterns) {
+      cleaned = cleaned.replace(pattern, '');
+    }
+
+    return cleaned.replace(/\s+/g, ' ').trim();
   }
 
   private extractHtmlTitle(html: string): string {

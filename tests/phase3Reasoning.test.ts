@@ -118,7 +118,8 @@ describe('ZYNTHEOR Native Intelligence — Phase 3 Test Suite', () => {
       const result = await handler.execute('Analyze system invariants');
       expect(result.domainId).toBe('REASONING_PROBLEM_SOLVING');
       expect(result.status).toBe('SUCCESS');
-      expect(result.outputContent).toContain('ZYNTHEOR REASONING');
+      expect(result.outputContent).toContain('ข้อสรุป');
+      expect(result.decisionSummary).toBeDefined();
     });
   });
 });

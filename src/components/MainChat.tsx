@@ -53,10 +53,13 @@ import {
   Radio,
   FileCode,
   ShieldAlert,
-  Menu
+  Menu,
+  Home,
+  UploadCloud
 } from 'lucide-react';
 import { getActiveModel, validateDefaultInferenceModel } from '../lib/modelIdentityContract';
 import { useVoiceIntelligenceInput, appendTranscriptWithSmartSpacing } from '../hooks/useVoiceIntelligenceInput';
+import { saveConversationThread } from '../services/conversationHistory';
 
 export interface ChatMessage {
   id: string;
@@ -165,15 +168,71 @@ export function MainChat() {
   const [showInspector, setShowInspector] = useState<boolean>(true);
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
 
-  // Multimodal Attachments State
+  // Multimodal Attachments & Drag-and-Drop State
   const [attachedDocs, setAttachedDocs] = useState<AttachedDoc[]>([]);
   const [attachedImgs, setAttachedImgs] = useState<AttachedImg[]>([]);
+  const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
 
   const fileDocInputRef = useRef<HTMLInputElement>(null);
   const fileImgInputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const initializedQueryRef = useRef<string | null>(null);
+
+  // Drag and Drop Handler for HTML5 File Attachment
+  const handleFilesProcessing = useCallback((files: FileList | File[]) => {
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+          setAttachedImgs(prev => [
+            ...prev,
+            { name: file.name, mimeType: file.type || 'image/png', dataUrl }
+          ]);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const textContent = typeof reader.result === 'string' ? reader.result : '';
+          setAttachedDocs(prev => [
+            ...prev,
+            {
+              name: file.name,
+              type: file.name.split('.').pop() || 'text',
+              size: file.size,
+              content: textContent.slice(0, 50000)
+            }
+          ]);
+        };
+        reader.readAsText(file);
+      }
+    });
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setIsDraggingOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+    if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+      handleFilesProcessing(e.dataTransfer.files);
+    }
+  }, [handleFilesProcessing]);
 
   // Voice Intelligence Input 1.1 Integration
   const {
@@ -197,6 +256,19 @@ export function MainChat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading, scrollToBottom]);
+
+  // Reset conversation on zyntheor:new-chat event
+  useEffect(() => {
+    const handleNewChat = () => {
+      setMessages([]);
+      setSelectedMessage(null);
+      setAttachedDocs([]);
+      setAttachedImgs([]);
+      setInput('');
+    };
+    window.addEventListener('zyntheor:new-chat', handleNewChat);
+    return () => window.removeEventListener('zyntheor:new-chat', handleNewChat);
+  }, []);
 
   // Handle Document Attachment
   const handleDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -281,6 +353,17 @@ export function MainChat() {
 
       setMessages(prev => [...prev, userMsg]);
       setIsLoading(true);
+
+      // Persist to recent conversations store
+      const activeThreadId = searchParams.get('thread') || `thread-${Date.now()}`;
+      saveConversationThread({
+        id: activeThreadId,
+        title: queryText.trim().slice(0, 45) || 'คำสั่งการประมวลผล ZYNTHEOR',
+        lastUpdated: new Date().toISOString(),
+        messageCount: messages.length + 1,
+        previewText: queryText.trim().slice(0, 90),
+        operatingMode: mode,
+      });
 
       const controller = new AbortController();
       abortControllerRef.current = controller;
@@ -541,6 +624,39 @@ export function MainChat() {
       </header>
 
       {/* =========================================================
+          BREADCRUMB NAVIGATION TRAIL
+      ========================================================= */}
+      <nav aria-label="Breadcrumb Navigation" className="px-3 md:px-6 py-2 border-b border-white/[0.06] bg-[#060a14] flex items-center gap-1.5 text-xs text-slate-400 font-mono overflow-x-auto shrink-0 whitespace-nowrap">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="hover:text-[#00D9A3] transition flex items-center gap-1 cursor-pointer"
+          title="Navigate to Workspace Root"
+        >
+          <Home size={13} className="text-[#00D9A3]" />
+          <span>Workspace Root</span>
+        </button>
+        <ChevronRight size={12} className="text-slate-600 shrink-0" />
+        <button
+          type="button"
+          onClick={() => navigate('/explore')}
+          className="hover:text-cyan-300 transition flex items-center gap-1 cursor-pointer"
+          title="Navigate to Parent Workspace Projects"
+        >
+          <span>Projects</span>
+        </button>
+        <ChevronRight size={12} className="text-slate-600 shrink-0" />
+        <span className="text-slate-200 font-semibold truncate max-w-[240px] flex items-center gap-1">
+          <Sparkles size={11} className="text-purple-400 shrink-0" />
+          <span>
+            {messages.length > 0 && messages[0].content
+              ? `Thread: ${messages[0].content.slice(0, 32)}...`
+              : 'General Intelligence Thread'}
+          </span>
+        </span>
+      </nav>
+
+      {/* =========================================================
           2. WORKSPACE BODY: CONVERSATION + DOSSIER INSPECTOR
       ========================================================= */}
       <div className="flex-1 min-h-0 flex overflow-hidden">
@@ -785,7 +901,24 @@ export function MainChat() {
           ========================================================= */}
           <div className="p-2.5 sm:p-4 border-t border-slate-800 bg-[#070b16]/95 backdrop-blur-md sticky bottom-0 z-20 safe-bottom">
             <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
-              <div className="rounded-2xl border border-slate-700/80 bg-[#0d1424] p-3 shadow-2xl focus-within:border-[#00D9A3] focus-within:ring-1 focus-within:ring-[#00D9A3]/40 transition-all">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`relative rounded-2xl border ${
+                  isDraggingOver
+                    ? 'border-[#00D9A3] ring-2 ring-[#00D9A3]/50 bg-[#0d1c30]'
+                    : 'border-slate-700/80 bg-[#0d1424]'
+                } p-3 shadow-2xl focus-within:border-[#00D9A3] focus-within:ring-1 focus-within:ring-[#00D9A3]/40 transition-all`}
+              >
+                {/* Drag-and-Drop Active Overlay Indicator */}
+                {isDraggingOver && (
+                  <div className="absolute inset-0 z-30 rounded-2xl bg-[#081226]/90 border-2 border-dashed border-[#00D9A3] flex flex-col items-center justify-center p-4 backdrop-blur-sm pointer-events-none animate-pulse">
+                    <UploadCloud size={32} className="text-[#00D9A3] mb-2" />
+                    <p className="text-sm font-bold text-white">วางไฟล์หรือรูปภาพที่นี่ (Drop Files or Images Here)</p>
+                    <p className="text-xs text-[#00D9A3] font-mono mt-1">จะถูกแนบใน OmniComposer ทันทีเพื่อประมวลผล</p>
+                  </div>
+                )}
                 {/* Attached Files Preview Chips */}
                 {(attachedDocs.length > 0 || attachedImgs.length > 0) && (
                   <div className="flex flex-wrap gap-2 p-2 border-b border-slate-800 mb-2">

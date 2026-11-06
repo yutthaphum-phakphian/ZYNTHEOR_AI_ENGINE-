@@ -17,7 +17,9 @@ export default defineConfig({
       'tests/phase3Reasoning.test.ts',
       'tests/phase4AgentOrchestration.test.ts',
       'tests/phase5NativeModel.test.ts',
-      'tests/phase6Multimodal.test.ts'
+      'tests/phase6Multimodal.test.ts',
+      'tests/outputPipelineAndSearchGating.test.ts',
+      'tests/step4RuntimeVerification.test.ts'
     ],
   },
   build: {

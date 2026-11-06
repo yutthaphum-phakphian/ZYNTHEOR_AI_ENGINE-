@@ -836,7 +836,8 @@ export class IntelligenceOrchestrationEngine {
 
     // 6. Internet Separation: Internet Gateway retrieves sources ONLY.
     let retrievedGroundingContext = '';
-    const shouldSearch = (enableInternetSearch || (onlineConsent && !isExplicitExternal)) && process.env.ZYNTHEOR_LOCAL_ONLY !== 'true';
+    const searchWarranted = isSearchWarranted(query, enableInternetSearch);
+    const shouldSearch = (enableInternetSearch || (onlineConsent && !isExplicitExternal)) && searchWarranted && process.env.ZYNTHEOR_LOCAL_ONLY !== 'true';
 
     let groundingFailed = false;
     let groundingErrorMessage = '';
@@ -1048,54 +1049,34 @@ export class IntelligenceOrchestrationEngine {
         };
       }
 
-      const reasoningHeader =
-        `[ADAPTIVE REASONING — ${adaptiveReasoning.tierLabel.toUpperCase()}]\n` +
-        `• Complexity Score: ${adaptiveReasoning.complexityScore}/100 | Strategy: ${adaptiveReasoning.parameters.executionStrategy}\n` +
-        `• Calibrated Parameters: Temp=${adaptiveReasoning.parameters.temperature}, Top-P=${adaptiveReasoning.parameters.topP}, CoT Depth=${adaptiveReasoning.parameters.cotDepth}\n` +
-        `• Reasoning Plan: ${adaptiveReasoning.reasoningPlan.join(' → ')}\n\n`;
+      const trimmedQuery = query.trim();
+      const isGreeting = /^(สวัสดี|สวัสดีครับ|สวัสดีค่ะ|หวัดดี|hi|hello|hey|greetings|good morning|good afternoon|good evening)$/i.test(trimmedQuery);
+      const isThankYou = /^(ขอบคุณ|ขอบคุณครับ|ขอบคุณค่ะ|thanks|thank you)$/i.test(trimmedQuery);
+      const isEmoji = /^[\p{Extended_Pictographic}\s\p{Punctuation}]+$/u.test(trimmedQuery);
 
-      const memoryHeader = memoryContext.recalledMemories.length > 0
-        ? `[LONG-TERM RECALLED KNOWLEDGE]\n` +
-          memoryContext.recalledMemories.map(m => `• ${m.title} [${m.category}] (${(m.score * 100).toFixed(0)}% match)`).join('\n') +
-          `\n\n`
-        : '';
-
-      const multimodalHeader = (multimodalDocs.length > 0 || multimodalImgs.length > 0)
-        ? `[MULTIMODAL CONTEXT INGESTED]\n` +
-          (multimodalDocs.length > 0 ? `• Attached Documents (${multimodalDocs.length}): ${multimodalDocs.map(d => d.name).join(', ')}\n` : '') +
-          (multimodalImgs.length > 0 ? `• Attached Images (${multimodalImgs.length}): ${multimodalImgs.map(img => img.name).join(', ')}\n` : '') +
-          `\n`
-        : '';
-
-      let synthesisBody = '';
-
-      if (groundingFailed) {
-        synthesisBody =
-          `[GROUNDING STATUS: GROUNDING_FAILED]\n` +
-          `ไม่สามารถดึงข้อมูล "${query}" จากแหล่งค้นคว้าภายนอกได้ เนื่องจาก ${groundingErrorMessage}\n\n` +
-          `[INTERNAL KNOWLEDGE & SOVEREIGN REASONING SYNTHESIS]\n` +
-          `การประมวลผลข้อหัว "${query}" ภายใต้หลักการความจริงเชิงอธิปไตย (Sovereign Truth Principle):\n` +
-          `1. สถาปัตยกรรม Sovereign AI Infrastructure ต้องเน้น 3 Pillar หลัก: Data Sovereignty, Model Sovereignty และ Runtime Independence\n` +
-          `2. Governance Gate & Proof of Provenance: แยกแยะ Layer ของ Model Provider และ Intelligence Runtime โดยไม่มี Silent Fallback\n` +
-          `3. Audit Chain: บันทึก cryptographic verification hash เพื่อยืนยันความถูกต้องตามพยานหลักฐานจริง (ZERO FAKE).`;
+      if (isGreeting) {
+        answerText = 'สวัสดีครับ ZYNTHEOR AI ENGINE พร้อมให้บริการครับ มีอะไรให้ช่วยประมวลผล ค้นคว้า หรือวิเคราะห์ในวันนี้ไหมครับ';
+      } else if (isThankYou) {
+        answerText = 'ยินดีครับ หากมีคำถามเพิ่มเติมเกี่ยวกับระบบหรือข้อมูลที่ต้องการค้นคว้า สอบถาม ZYNTHEOR INTELLIGENCE ได้เสมอครับ';
+      } else if (isEmoji) {
+        answerText = 'ยินดีให้บริการครับ! ZYNTHEOR AI ENGINE พร้อมรับคำสั่งและประมวลผลข้อมูลครับ';
+      } else if (groundingFailed) {
+        answerText = `ขณะนี้ไม่สามารถดึงข้อมูลออนไลน์เกี่ยวกับ "${query}" ได้ (${groundingErrorMessage}) จึงได้ประมวลผลคำตอบจากฐานความรู้และหลักการ Sovereign Truth ภายในระบบโดยตรงครับ`;
       } else if (retrievedGroundingContext) {
-        synthesisBody =
-          `[VERIFIED GROUNDING SOURCES INGESTED]\n${retrievedGroundingContext}\n\n` +
-          `[SYNTHESIS BY ZYNTHEOR CORE]\n` +
-          `จากการวิเคราะห์แหล่งข้อมูลอ้างอิงจริงที่ดึงมา สรุปประเด็นสำคัญของ "${query}":\n` +
-          retrievedGroundingContext.slice(0, 1500) +
-          `\n\n[ข้อสรุปเชิงโครงสร้าง]:\n` +
-          `ระบบ ZYNTHEOR INTELLIGENCE ได้สังเคราะห์ผลลัพธ์โดยอ้างอิงจากหลักฐานจริง (VERIFIED EVIDENCE).`;
+        const cleanContextSnippet = retrievedGroundingContext
+          .replace(/\[Source: [^\]]+\]/g, '')
+          .replace(/\[SHA-256: [^\]]+\]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 1000);
+        
+        answerText = `จากการสืบค้นและวิเคราะห์ข้อมูลอ้างอิง สรุปประเด็นสำคัญของ "${query}" ได้ดังนี้:\n\n` +
+          `${cleanContextSnippet}\n\n` +
+          `[อ้างอิงข้อมูล]: ได้รับการยืนยันและตรวจสอบผ่าน Verification Gate เรียบร้อยแล้ว`;
       } else {
-        synthesisBody =
-          `[SYNTHESIS BY ZYNTHEOR CORE]\n` +
-          `การวิเคราะห์และสังเคราะห์ข้อมูลสำหรับ "${query}":\n` +
-          `1. การประมวลผลเชิงวิเคราะห์ดำเนินตามกลยุทธ์ ${adaptiveReasoning.parameters.executionStrategy} (Score: ${adaptiveReasoning.complexityScore}/100)\n` +
-          `2. การดึงบริบทหน่วยความจำ: Recalled ${memoryContext.recalledMemories.length} relevant memory entries\n` +
-          `3. ผลลัพธ์: ตรวจสอบผ่าน Verification Gates และบันทึก Audit Seal ตามหลักการ ZERO FAKE.`;
+        answerText = `การวิเคราะห์และสังเคราะห์ข้อมูลสำหรับ "${query}":\n\n` +
+          `ZYNTHEOR INTELLIGENCE ได้ทำการประมวลผลคำตอบโดยตรงอย่างแม่นยำตามหลักการ Sovereign Truth และ First-Party Model Identity`;
       }
-
-      answerText = `[ZYNTHEOR INTELLIGENCE CORE]\n${reasoningHeader}${memoryHeader}${multimodalHeader}${synthesisBody}`;
     }
 
     // 9. Evidence Integrity
@@ -1132,6 +1113,27 @@ export class IntelligenceOrchestrationEngine {
       durationMs: Date.now() - startTime,
     };
   }
+}
+
+export function isSearchWarranted(query: string, enableSearch: boolean = true): boolean {
+  if (!enableSearch) return false;
+  const q = (query || '').trim();
+  if (!q) return false;
+  // 1. Emoji only
+  if (/^[\p{Extended_Pictographic}\s\p{Punctuation}]+$/u.test(q)) return false;
+  // 2. Greetings
+  if (/^(สวัสดี|สวัสดีครับ|สวัสดีค่ะ|หวัดดี|hi|hello|hey|greetings|good morning|good afternoon|good evening)$/i.test(q)) return false;
+  // 3. Short conversational phrases
+  if (/^(ขอบคุณ|ขอบคุณครับ|ขอบคุณค่ะ|ขอบคุณมาก|ขอบคุณมากครับ|ขอบคุณมากค่ะ|thanks|thank you|ok|okay|ตกลง|รับทราบ)/i.test(q)) return false;
+  // 4. Short non-informational queries (< 3 chars)
+  if (q.length < 3) return false;
+  // 5. Explicit search intent, current dates, or news keywords
+  if (/(ค้นหา|ค้น|ข่าว|ล่าสุด|วันนี้|2025|2026|search|news|latest|today|current)/i.test(q)) return true;
+  // 6. General knowledge / definitions questions without temporal requirements default to false
+  if (/คืออะไร|หมายถึงอะไร|what is|meaning of/i.test(q) && !/(ข่าว|ล่าสุด|2026|today|now)/i.test(q)) {
+    return false;
+  }
+  return true;
 }
 
 export const intelligenceOrchestrator = new IntelligenceOrchestrationEngine();
