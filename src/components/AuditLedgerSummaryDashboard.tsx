@@ -95,9 +95,13 @@ export function AuditLedgerSummaryDashboard() {
                 <h2 className="text-base font-bold text-white tracking-tight">
                   Audit Ledger Integrity Dashboard
                 </h2>
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  <CheckCircle2 size={11} />
-                  INTACT · COURT_READY
+                <span className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                  stats.chainIntegrityValid
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                }`}>
+                  {stats.chainIntegrityValid ? <CheckCircle2 size={11} /> : <AlertCircle size={11} />}
+                  {stats.chainIntegrityValid ? 'INTACT · COURT_READY' : 'TAMPERED · AUDIT_FAILED'}
                 </span>
               </div>
               <p className="text-xs text-white/50">
@@ -285,9 +289,13 @@ export function AuditLedgerSummaryDashboard() {
                       </div>
 
                       <div className="hidden sm:flex items-center">
-                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 ${
+                          inf.status === 'VERIFIED_CORE_EXECUTION' || inf.status === 'VERIFIED'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                        }`}>
                           <ShieldCheck size={11} />
-                          VERIFIED
+                          {inf.status || 'UNVERIFIED'}
                         </span>
                       </div>
                     </div>

@@ -1271,14 +1271,14 @@ export function SettingsCenter({
                 <ProviderCard
                   name="OpenAI API"
                   type="Cloud Provider Proxy"
-                  status="PROXY_READY"
-                  detail="Server-side proxy route active"
+                  status={serverSettings?.onlineConsentGranted ? 'PROXY_ALLOWED' : 'CONSENT_REQUIRED'}
+                  detail={serverSettings?.onlineConsentGranted ? 'Server-side proxy route active' : 'Awaiting explicit online consent'}
                 />
                 <ProviderCard
                   name="Anthropic API"
                   type="Cloud Provider Proxy"
-                  status="PROXY_READY"
-                  detail="Server-side proxy route active"
+                  status={serverSettings?.onlineConsentGranted ? 'PROXY_ALLOWED' : 'CONSENT_REQUIRED'}
+                  detail={serverSettings?.onlineConsentGranted ? 'Server-side proxy route active' : 'Awaiting explicit online consent'}
                 />
               </div>
 
