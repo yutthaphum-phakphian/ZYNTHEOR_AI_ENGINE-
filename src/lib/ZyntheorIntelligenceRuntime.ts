@@ -35,6 +35,19 @@ import {
   ZYNTHEOR_CANONICAL_MODELS,
 } from './modelIdentityContract.ts';
 import { ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY } from './sovereignty.ts';
+import { isBotChallengeContent } from '../../lib/internet-gateway.ts';
+
+/**
+ * Error thrown when grounding or search response matches known bot challenge patterns.
+ */
+export class GroundingBlockedError extends Error {
+  public readonly code: string = 'GROUNDING_BLOCKED';
+  constructor(message: string = 'GROUNDING_FAILED: bot protection challenge detected (e.g. Unfortunately, bots use DuckDuckGo too)') {
+    super(message);
+    this.name = 'GroundingBlockedError';
+    Object.setPrototypeOf(this, GroundingBlockedError.prototype);
+  }
+}
 
 // Re-export contract types
 export type { ModelCategory, ModelIdentity, ActiveModelInfo, CanonicalModelOption };
@@ -311,6 +324,25 @@ export class ZyntheorIntelligenceRuntime {
   }
 
   /**
+   * Intercepts grounding responses and throws GroundingBlockedError if content matches bot challenge patterns.
+   */
+  public interceptGroundingResponse(contentOrSources: any): void {
+    if (!contentOrSources) return;
+    let text = '';
+    if (typeof contentOrSources === 'string') {
+      text = contentOrSources;
+    } else if (Array.isArray(contentOrSources)) {
+      text = contentOrSources.map(s => `${s.title || ''} ${s.snippet || ''} ${s.content || ''} ${s.url || ''}`).join(' ');
+    } else if (typeof contentOrSources === 'object') {
+      text = JSON.stringify(contentOrSources);
+    }
+
+    if (isBotChallengeContent(text)) {
+      throw new GroundingBlockedError('GROUNDING_FAILED: bot protection challenge detected (e.g. Unfortunately, bots use DuckDuckGo too)');
+    }
+  }
+
+  /**
    * Authoritative entry point for all user intelligence requests.
    * Runs the complete, governed 10-stage unified pipeline.
    */
@@ -548,6 +580,10 @@ export class ZyntheorIntelligenceRuntime {
         },
       });
 
+      // Intercept grounding responses for bot challenge patterns
+      this.interceptGroundingResponse(orchestratedResult.groundingSources);
+      this.interceptGroundingResponse(orchestratedResult.finalAnswer);
+
       markStage('REASONING', 'COMPLETED', `Inference finished (status: ${orchestratedResult.taskState})`);
 
       // -------------------------------------------------------------
@@ -654,6 +690,10 @@ export class ZyntheorIntelligenceRuntime {
         timestamp: new Date().toISOString(),
       };
     } catch (error: any) {
+      if (error instanceof GroundingBlockedError) {
+        throw error;
+      }
+
       const latencyMs = Math.round(performance.now() - startTime);
       const errorMsg = error instanceof Error ? error.message : String(error);
       const isCancelled = errorMsg.includes('cancelled');

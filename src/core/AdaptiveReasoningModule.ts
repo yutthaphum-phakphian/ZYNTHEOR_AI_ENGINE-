@@ -3,7 +3,7 @@
  * FIX: ไม่ใช่แค่ Temperature/top-p — ต้องมี Reasoning Budget, Planning Depth, Verification Budget
  */
 
-export type ComplexityLevel = 'low' | 'medium' | 'high' | 'critical';
+export type ComplexityLevel = 'low' | 'medium' | 'high' | 'critical' | 'L3_DEEP';
 
 export interface ReasoningBudget {
   maxTokens: number;
@@ -26,36 +26,66 @@ export interface ComplexityAnalysis {
   level: ComplexityLevel;
   signals: any;
   recommendedBudget: ReasoningBudget;
+  planningDepth?: number;
+  verificationBudget?: number;
 }
 
 export class AdaptiveReasoningModule {
   private currentBudget: ReasoningBudget | null = null;
 
+  evaluateComplexity(input: string): ComplexityAnalysis {
+    return this.analyzeComplexity(input);
+  }
+
   analyzeComplexity(input: string): ComplexityAnalysis {
+    const prompt = input || '';
+    const lower = prompt.toLowerCase();
+
+    // Detect keywords such as 'ทบทวน', 'Guidelines', and 'Infrastructure'
+    const researchKeywords = ['ทบทวน', 'guidelines', 'infrastructure'];
+    if (researchKeywords.some(kw => lower.includes(kw))) {
+      const budget: ReasoningBudget = {
+        maxTokens: 4096,
+        maxSteps: 10,
+        planningDepth: 4,
+        verificationBudget: 2,
+        timeBudgetMs: 30000,
+      };
+      this.currentBudget = budget;
+      return {
+        level: 'high' as ComplexityLevel,
+        signals: { hasResearchKeywords: true },
+        recommendedBudget: budget,
+        planningDepth: 4,
+        verificationBudget: 2,
+      };
+    }
+
     const signals = {
-      multiStep: /จากนั้น|then|step \d|ขั้นตอน/.test(input.toLowerCase()),
-      hasMath: /[=∫∑∏√]|solve|คำนวณ|พิสูจน์/.test(input),
-      hasCode: /```|function|class|import|export|def |const /.test(input),
-      hasResearch: /ค้นคว้า|research|source|อ้างอิง/.test(input.toLowerCase()),
-      wordCount: input.split(/\s+/).length,
-      requiresEvidence: /หลักฐาน|อ้างอิง|citation|source/.test(input.toLowerCase()),
+      multiStep: /จากนั้น|then|step \d|ขั้นตอน/.test(lower),
+      hasMath: /[=∫∑∏√]|solve|คำนวณ|พิสูจน์/.test(prompt),
+      hasCode: /```|function|class|import|export|def |const /.test(prompt),
+      hasResearch: /ค้นคว้า|research|source|อ้างอิง/.test(lower),
+      wordCount: prompt.split(/\s+/).filter(Boolean).length,
+      requiresEvidence: /หลักฐาน|อ้างอิง|citation|source/.test(lower),
     };
     let level: ComplexityLevel = 'low';
     if (signals.wordCount > 500 || (signals.multiStep && signals.hasMath)) level = 'critical';
     else if (signals.multiStep || signals.hasMath || signals.wordCount > 200) level = 'high';
     else if (signals.wordCount > 50 || signals.hasCode) level = 'medium';
     const budget = this.allocateBudgetForLevel(level, signals);
-    return { level, signals, recommendedBudget: budget };
+    this.currentBudget = budget;
+    return { level, signals, recommendedBudget: budget, planningDepth: budget.planningDepth, verificationBudget: budget.verificationBudget };
   }
 
   allocateBudgetForLevel(level: ComplexityLevel, signals?: any): ReasoningBudget {
-    const base: Record<ComplexityLevel, ReasoningBudget> = {
+    const base: Record<string, ReasoningBudget> = {
       low: { maxTokens: 1024, maxSteps: 2, planningDepth: 1, verificationBudget: 0, timeBudgetMs: 5000 },
       medium: { maxTokens: 2048, maxSteps: 5, planningDepth: 3, verificationBudget: 1, timeBudgetMs: 15000 },
-      high: { maxTokens: 4096, maxSteps: 10, planningDepth: 5, verificationBudget: 2, timeBudgetMs: 30000 },
+      high: { maxTokens: 4096, maxSteps: 10, planningDepth: 4, verificationBudget: 2, timeBudgetMs: 30000 },
       critical: { maxTokens: 8192, maxSteps: 20, planningDepth: 8, verificationBudget: 3, timeBudgetMs: 60000 },
     };
-    let budget = { ...base[level] };
+    let budget = { ...(base[level] || base.medium) };
     if (signals?.requiresEvidence) budget.verificationBudget = Math.min(3, budget.verificationBudget + 1);
     if (signals?.hasMath) budget.planningDepth = Math.min(8, budget.planningDepth + 1);
     return budget;
@@ -69,13 +99,13 @@ export class AdaptiveReasoningModule {
 
   getInferenceParams(level: ComplexityLevel): InferenceParams {
     const budget = this.currentBudget || this.allocateBudgetForLevel(level);
-    const styleMap: Record<ComplexityLevel, { temp: number; topP: number }> = {
+    const styleMap: Record<string, { temp: number; topP: number }> = {
       low: { temp: 0.3, topP: 0.9 },
       medium: { temp: 0.5, topP: 0.92 },
       high: { temp: 0.6, topP: 0.95 },
       critical: { temp: 0.4, topP: 0.93 },
     };
-    const style = styleMap[level];
+    const style = styleMap[level] || styleMap.medium;
     return {
       temperature: style.temp,
       topP: style.topP,

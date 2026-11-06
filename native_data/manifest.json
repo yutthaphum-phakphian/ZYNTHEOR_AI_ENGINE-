@@ -1,0 +1,23 @@
+{
+  "manifest_version": "1.0.0",
+  "name": "zyntheor-native-core-dataset",
+  "description": "Training Manifest for ZYNTHEOR CORE Native Model",
+  "datasetHash": "49c845eab02c5e22d5908c0f2819a7ff173e86817f1b1a12fb28439a4e4b18db",
+  "config": {
+    "randomSeed": 849202,
+    "batchSize": 1,
+    "learningRate": 0.00002,
+    "epochs": 1
+  },
+  "randomSeed": 849202,
+  "dataset_files": [
+    {
+      "file_path": "training/dataset/samples.json",
+      "format": "json"
+    }
+  ],
+  "provenance": {
+    "maintainer": "ZYNTHEOR AI ENGINE Team",
+    "license": "Apache-2.0"
+  }
+}
