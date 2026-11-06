@@ -10,6 +10,10 @@ import {
   LongTermVectorMemoryService,
 } from '../services/vectorMemory.ts';
 import {
+  isBotChallengeContent,
+  internetGateway,
+} from '../../lib/internet-gateway.ts';
+import {
   ZYNTHEOR_PLATFORM_PILLARS,
   ZYNTHEOR_PRODUCT_CONSTITUTION,
   GLOBAL_COMPETITION_ARENAS,
@@ -60,6 +64,15 @@ describe('ZYNTHEOR Adaptive Reasoning Engine', () => {
     expect(result.parameters.reasoningEffort).toBe('maximum');
     expect(result.parameters.executionStrategy).toBe('GOVERNED_MULTI_STEP_AGENT');
     expect(result.parameters.requiredVerifications).toContain('HUMAN_APPROVAL_GATE');
+  });
+
+  it('calibrates TIER_3_DEEP for research guidelines and infrastructure queries', () => {
+    const result = adaptiveReasoningEngine.inferComplexity('ขอทบทวนหัวข้อ "Sovereign AI Infrastructure Guidelines"');
+    expect(result.tier).toBe('TIER_3_DEEP');
+    expect(result.level).toBe('L3');
+    expect(result.parameters.planningDepth).toBeGreaterThanOrEqual(4);
+    expect(result.parameters.verificationBudget).toBeGreaterThanOrEqual(2);
+    expect(result.parameters.executionStrategy).toBe('VERIFIED_CHAIN_OF_THOUGHT');
   });
 
   it('dynamically factors in multimodal attachments (documents & images)', () => {
@@ -169,5 +182,13 @@ describe('ZYNTHEOR Platform Architecture Contract', () => {
     expect(names).toContain('Sovereign Architecture');
 
     expect(DECISION_FILTER_QUESTIONS).toHaveLength(3);
+  });
+});
+
+describe('ZYNTHEOR Internet Gateway Bot Protection Guard', () => {
+  it('detects DuckDuckGo bot protection challenge text correctly', () => {
+    const challengeSample = 'DuckDuckGo Unfortunately, bots use DuckDuckGo too. Please complete the following challenge...';
+    expect(isBotChallengeContent(challengeSample)).toBe(true);
+    expect(isBotChallengeContent('Normal search result content about Sovereign AI Infrastructure')).toBe(false);
   });
 });

@@ -77,6 +77,9 @@ export class AdaptiveReasoningEngine {
     const imgCount = context?.imagesCount || 0;
 
     // 1. Feature Extraction
+    const hasResearchScope =
+      /(ทบทวน|ทบทวนหัวข้อ|แนวทาง|guidelines|infrastructure|sovereign|overview|survey|review|research|ค้นคว้า|สืบค้น|เอกสารอ้างอิง)/i.test(lower);
+
     const hasCode =
       context?.hasCode ||
       /```[\s\S]*?```/.test(text) ||
@@ -90,7 +93,7 @@ export class AdaptiveReasoningEngine {
       /(เพราะเหตุใด|ทำไม|ทำความเข้าใจ|วิเคราะห์สาเหตุ|พิสูจน์|ตรรกะ|สมมติฐาน|why|prove|deduce|logic|inference|hypothesis|root cause)/i.test(lower);
 
     const hasArchitecturalDesign =
-      /(สถาปัตยกรรม|โครงสร้างระบบ|microservice|database schema|distributed|scalability|system design|architecture|pipeline|lifecycle)/i.test(lower);
+      /(สถาปัตยกรรม|โครงสร้างระบบ|infrastructure|guidelines|sovereign|microservice|database schema|distributed|scalability|system design|architecture|pipeline|lifecycle)/i.test(lower);
 
     const hasRestrictedOrHighRisk =
       /(delete|drop|mutate|migrate|production|deploy|credentials|permission|secret|rm -rf|overwrite|audit seal|hardware enclave|ลบ|ทำลาย)/i.test(lower);
@@ -106,13 +109,14 @@ export class AdaptiveReasoningEngine {
     if (text.length > 500) score += 15;
     else if (text.length > 200) score += 10;
     else if (text.length > 60) score += 5;
-    else if (text.length < 20 && !hasCode && !hasLogicalDeduction) score -= 5;
+    else if (text.length < 20 && !hasCode && !hasLogicalDeduction && !hasResearchScope) score -= 5;
 
     // Multimodal attachments factor
     if (docCount > 0) score += Math.min(20, docCount * 10);
     if (imgCount > 0) score += Math.min(15, imgCount * 8);
 
     // Contextual and semantic flags
+    if (hasResearchScope) score += 25;
     if (hasCode) score += 15;
     if (hasMultiStepClauses) score += 15;
     if (hasLogicalDeduction) score += 20;

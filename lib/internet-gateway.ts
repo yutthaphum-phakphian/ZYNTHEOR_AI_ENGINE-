@@ -28,6 +28,23 @@ export interface GroundingSource {
   httpStatus?: number;
 }
 
+export function isBotChallengeContent(text: string): boolean {
+  if (!text || typeof text !== 'string') return false;
+  const lower = text.toLowerCase();
+  return (
+    lower.includes('unfortunately, bots use') ||
+    lower.includes('complete the following challenge') ||
+    lower.includes('please complete challenge') ||
+    lower.includes('bot protection') ||
+    lower.includes('cloudflare ray id') ||
+    lower.includes('checking your browser before accessing') ||
+    lower.includes('attention required! | cloudflare') ||
+    lower.includes('access denied - captcha') ||
+    lower.includes('bot detection') ||
+    lower.includes('duckduckgo too')
+  );
+}
+
 export interface WebSearchQuery {
   query: string;
   cleanedQuery: string;
@@ -241,6 +258,22 @@ export class InternetGateway {
 
       const rawHtml = await response.text();
       const sanitizedText = this.sanitizeWebHtml(rawHtml).slice(0, this.MAX_PAYLOAD_BYTES);
+
+      // Bot Challenge / Protection Check
+      if (isBotChallengeContent(rawHtml) || isBotChallengeContent(sanitizedText)) {
+        return {
+          ok: false,
+          url: targetUrl,
+          domain,
+          content: '',
+          contentDigest: this.computeDigest('BOT_PROTECTION_BLOCKED'),
+          byteSize: 0,
+          durationMs: Date.now() - started,
+          sourceRecord: this.buildFailedSourceRecord(targetUrl, 'GROUNDING_FAILED: bot protection blocked'),
+          error: 'GROUNDING_FAILED: bot protection blocked',
+        };
+      }
+
       const digest = this.computeDigest(sanitizedText);
       const byteSize = Buffer.byteLength(sanitizedText, 'utf8');
 
@@ -362,6 +395,20 @@ export class InternetGateway {
         if (response && response.ok) {
           const html = await response.text();
           const cleanText = this.sanitizeWebHtml(html);
+          
+          if (isBotChallengeContent(html) || isBotChallengeContent(cleanText)) {
+            return {
+              ok: false,
+              query: cleaned,
+              mode: 'ONLINE_INTELLIGENCE',
+              sources: [],
+              totalResults: 0,
+              searchDurationMs: Date.now() - started,
+              evidenceDigest: this.computeDigest('GROUNDING_FAILED:BOT_BLOCKED'),
+              error: 'GROUNDING_FAILED: bot protection blocked',
+            };
+          }
+
           if (cleanText) {
             const digest = this.computeDigest(`${cleaned}|${cleanText.slice(0, 500)}`);
             sources.push({
@@ -377,6 +424,17 @@ export class InternetGateway {
               httpStatus: 200,
             });
           }
+        } else {
+          return {
+            ok: false,
+            query: cleaned,
+            mode: 'ONLINE_INTELLIGENCE',
+            sources: [],
+            totalResults: 0,
+            searchDurationMs: Date.now() - started,
+            evidenceDigest: this.computeDigest('GROUNDING_FAILED:HTTP_ERROR'),
+            error: `GROUNDING_FAILED: Search service returned status ${response?.status || 'Network Error'}`,
+          };
         }
       }
 
@@ -384,13 +442,14 @@ export class InternetGateway {
       const evidenceDigest = this.computeDigest(sources.map(s => s.contentDigest).join('|') || 'NO_SOURCES');
 
       return {
-        ok: true,
+        ok: totalResults > 0,
         query: cleaned,
         mode: 'ONLINE_INTELLIGENCE',
         sources,
         totalResults,
         searchDurationMs: Date.now() - started,
         evidenceDigest,
+        error: totalResults === 0 ? 'GROUNDING_FAILED: No valid search results retrieved' : undefined,
       };
     } catch (err: any) {
       return {
