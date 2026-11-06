@@ -866,6 +866,43 @@ app.get('/api/native-model/status', (req, res) => {
   });
 });
 
+// Audit Report Endpoint — Zero Fake Real Completeness Protocol
+app.get('/api/audit/report', (req, res) => {
+  try {
+    const auditPaths = [
+      path.resolve(process.cwd(), 'ZYNTHEOR_COMPETITIVE_FOUNDATION_AUDIT.md'),
+      path.resolve(process.cwd(), 'app/applet/ZYNTHEOR_COMPETITIVE_FOUNDATION_AUDIT.md'),
+      path.resolve(process.cwd(), '.aistudio/artifacts/brain/ae0f6cf4-a050-4911-a1a5-cacdc9e5473d/ZYNTHEOR_COMPETITIVE_FOUNDATION_AUDIT.md')
+    ];
+
+    let content = '';
+    let foundPath = '';
+
+    for (const p of auditPaths) {
+      if (fs.existsSync(p)) {
+        content = fs.readFileSync(p, 'utf-8');
+        foundPath = p;
+        break;
+      }
+    }
+
+    if (!content) {
+      return res.status(404).json({ ok: false, message: 'Audit report file ZYNTHEOR_COMPETITIVE_FOUNDATION_AUDIT.md not found' });
+    }
+
+    return res.json({
+      ok: true,
+      filename: 'ZYNTHEOR_COMPETITIVE_FOUNDATION_AUDIT.md',
+      rawMarkdown: content,
+      status: 'VERIFIED',
+      sourcePath: foundPath,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
 // Autonomous Agent Execution API
 app.use(intelligenceRouter);
 app.use(editingRouter);

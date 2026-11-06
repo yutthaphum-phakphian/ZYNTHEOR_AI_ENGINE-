@@ -95,6 +95,8 @@ import { HardwareEnclaveTelemetryWidget } from './components/HardwareEnclaveTele
 import { GpuTelemetryWidget } from './components/GpuTelemetryWidget';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
+import AuditFoundationPage from './pages/AuditFoundationPage';
+
 /* =========================================================
    CANONICAL CAPABILITIES
    ZYNTHEOR Universal Intelligence Capabilities
@@ -970,6 +972,7 @@ function AppShell() {
                 <Route path="/model-studio" element={<ModelStudio />} />
                 <Route path="/evaluation" element={<EvaluationLab />} />
                 <Route path="/agents" element={<AgentCommandCenter />} />
+                <Route path="/audit" element={<AuditFoundationPage />} />
                 <Route path="/diagnostics" element={<><GpuTelemetryWidget /><Diagnostics /></>} />
 
                 <Route path="*" element={<HomeExperience />} />
