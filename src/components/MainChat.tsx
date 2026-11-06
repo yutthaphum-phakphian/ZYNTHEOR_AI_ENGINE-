@@ -458,6 +458,19 @@ export function MainChat() {
 
         {/* 3-Mode Operating Switcher */}
         <div className="flex items-center gap-2">
+          {/* Mobile Select Dropdown */}
+          <select
+            value={operatingMode}
+            onChange={e => setOperatingMode(e.target.value as any)}
+            className="sm:hidden px-2.5 py-1.5 rounded-xl bg-[#0b1020] border border-cyan-500/30 text-[11px] font-bold text-cyan-300 focus:outline-none cursor-pointer"
+            aria-label="Select Operating Mode"
+          >
+            <option value="ONLINE_INTELLIGENCE">🌐 Online</option>
+            <option value="HYBRID_INTELLIGENCE">⚡ Hybrid</option>
+            <option value="LOCAL_ONLY">🔒 Local</option>
+          </select>
+
+          {/* Desktop/Tablet Mode Buttons */}
           <div className="hidden sm:flex items-center bg-[#0b1020] border border-white/10 rounded-xl p-0.5 text-xs">
             <button
               type="button"

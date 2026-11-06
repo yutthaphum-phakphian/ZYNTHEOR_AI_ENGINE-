@@ -201,10 +201,10 @@ export default function ExplorePage() {
             />
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
             <button
               onClick={() => setSelectedGroup('all')}
-              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition cursor-pointer ${
                 selectedGroup === 'all'
                   ? 'bg-white text-black'
                   : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
@@ -216,7 +216,7 @@ export default function ExplorePage() {
               <button
                 key={g.id}
                 onClick={() => setSelectedGroup(g.id)}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition flex items-center gap-2 cursor-pointer ${
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition flex items-center gap-2 cursor-pointer ${
                   selectedGroup === g.id
                     ? 'bg-white text-black'
                     : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'

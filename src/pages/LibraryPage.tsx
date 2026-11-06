@@ -101,10 +101,10 @@ export default function LibraryPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-2 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-2 border-b border-white/10 pb-2 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setActiveTab('knowledge')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 whitespace-nowrap ${
               activeTab === 'knowledge'
                 ? 'bg-white text-black'
                 : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -116,7 +116,7 @@ export default function LibraryPage() {
 
           <button
             onClick={() => setActiveTab('memory')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 whitespace-nowrap ${
               activeTab === 'memory'
                 ? 'bg-white text-black'
                 : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -128,7 +128,7 @@ export default function LibraryPage() {
 
           <button
             onClick={() => setActiveTab('documents')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 whitespace-nowrap ${
               activeTab === 'documents'
                 ? 'bg-white text-black'
                 : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -140,7 +140,7 @@ export default function LibraryPage() {
 
           <button
             onClick={() => setActiveTab('history')}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 whitespace-nowrap ${
               activeTab === 'history'
                 ? 'bg-white text-black'
                 : 'text-white/60 hover:text-white hover:bg-white/5'
