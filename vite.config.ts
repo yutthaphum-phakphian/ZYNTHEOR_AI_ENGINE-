@@ -9,7 +9,16 @@ export default defineConfig({
   base,
   plugins: [tailwindcss(), react()],
   test: {
-    include: ['lib/**/*.test.ts', 'src/**/*.test.ts', 'tests/**/*.test.mts', 'tests/**/*.test.ts'],
+    include: [
+      'src/**/*.test.ts',
+      'lib/**/*.test.ts',
+      'tests/memoryPersistence.test.ts',
+      'tests/knowledgeIntelligence.test.ts',
+      'tests/phase3Reasoning.test.ts',
+      'tests/phase4AgentOrchestration.test.ts',
+      'tests/phase5NativeModel.test.ts',
+      'tests/phase6Multimodal.test.ts'
+    ],
   },
   build: {
     chunkSizeWarningLimit: 600,
