@@ -37,6 +37,7 @@
     "db:rollback": "node scripts/db-migrate.mjs down",
     "db:identity:dry-run": "node scripts/migrate-identity-json.mjs",
     "db:identity:apply": "node scripts/migrate-identity-json.mjs --apply",
+    "db:vector:dry-run": "node scripts/dry-run-vector-migration.mjs",
     "db:preflight": "node scripts/postgres-preflight.mjs",
     "test:p1": "node --test tests/postgres-foundation.test.mjs",
     "test:p2": "node --test tests/postgres-identity-p2.test.mjs",

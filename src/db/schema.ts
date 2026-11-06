@@ -268,6 +268,23 @@ export const reconciliationRecords = pgTable("reconciliation_records", {
   reconciledAt: timestamp("reconciled_at").defaultNow().notNull(),
 });
 
+// 20. Sovereign Vector Memories
+export const vectorMemories = pgTable("vector_memories", {
+  id: varchar("id", { length: 128 }).primaryKey(),
+  workspaceId: varchar("workspace_id", { length: 64 }).notNull(),
+  category: varchar("category", { length: 50 }).notNull(), // USER_PREFERENCE, PROJECT_KNOWLEDGE, SESSION_CONTEXT, DOMAIN_ENTITY
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  embedding: jsonb("embedding").notNull(), // 128-dimensional vector representation
+  tags: jsonb("tags").default([]).notNull(),
+  metadata: jsonb("metadata").default({}).notNull(),
+  sessionId: varchar("session_id", { length: 128 }),
+  accessCount: integer("access_count").default(0).notNull(),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many, one }) => ({
   tasks: many(tasks),
@@ -276,3 +293,4 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     references: [userProfiles.userId],
   }),
 }));
+

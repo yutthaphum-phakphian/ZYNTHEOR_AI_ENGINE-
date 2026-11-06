@@ -9,7 +9,7 @@ export default defineConfig({
   base,
   plugins: [tailwindcss(), react()],
   test: {
-    include: ['lib/**/*.test.ts', 'src/**/*.test.ts', 'tests/**/*.test.mts'],
+    include: ['lib/**/*.test.ts', 'src/**/*.test.ts', 'tests/**/*.test.mts', 'tests/**/*.test.ts'],
   },
   build: {
     chunkSizeWarningLimit: 600,

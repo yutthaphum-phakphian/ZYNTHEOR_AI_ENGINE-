@@ -4,6 +4,7 @@
  */
 
 import { getActiveModel } from '../contracts/modelIdentityContract';
+import { contextAssemblyEngine } from '../services/contextAssembly.ts';
 
 export type CapabilityId = 'general' | 'knowledge' | 'reasoning' | 'multimodal' | 'agentic' | 'coding' | 'thai';
 export type ModelOwnership = 'CORE_NATIVE' | 'CORE_ADAPTED' | 'CORE_DISTILLED' | 'EXTERNAL_PROVIDER';
@@ -20,6 +21,9 @@ export interface IntelligenceRequest {
     grounding?: boolean;
     files?: string[];
     history?: any[];
+    knowledgeContextPrompt?: string;
+    knowledgeCitations?: any[];
+    isContextTruncated?: boolean;
   };
   options?: { requireEvidence?: boolean; requireThai?: boolean; };
 }
@@ -111,17 +115,32 @@ export class ZyntheorIntelligenceRuntime {
     const start = Date.now();
     const complexity = this.assessComplexity(request.input);
     const routing = this.routeModel(request.capability, complexity);
-    let enrichedContext = request.context;
-    if (this.memoryEngine && request.context?.userId) {
+    let enrichedContext = request.context || {};
+    
+    // Knowledge Retrieval is invoked ONLY when task justifies it
+    if (request.capability === 'knowledge' || request.context?.grounding) {
+      const assembled = await contextAssemblyEngine.assembleContext({
+        workspaceId: request.context?.projectId || 'default',
+        query: request.input,
+        maxCharacterBudget: 2500
+      });
+      enrichedContext = {
+        ...enrichedContext,
+        knowledgeContextPrompt: assembled.formattedPromptBlock,
+        knowledgeCitations: assembled.sourceCitations,
+        isContextTruncated: assembled.isTruncated
+      };
+    } else if (this.memoryEngine && request.context?.userId) {
       const memory = await this.memoryEngine.retrieve({ userId: request.context.userId, query: request.input, projectId: request.context.projectId, topK: 5 });
-      enrichedContext = { ...request.context, history: [...(request.context.history || []), ...memory] };
+      enrichedContext = { ...enrichedContext, history: [...(request.context?.history || []), ...memory] };
     }
+
     const engine = this.engines.get(request.capability);
     if (!engine) throw new Error(`No engine for ${request.capability}`);
     if (this.reasoningModule) this.reasoningModule.allocateBudget(complexity, routing.reasoningBudget);
     const enrichedRequest = { ...request, context: enrichedContext };
     const result = await engine.execute(enrichedRequest, this);
-    return { ...result, requestId: request.id, routing, metrics: { ...result.metrics, latencyMs: Date.now() - start } };
+    return { ...result, requestId: request.id, routing, metrics: { ...result?.metrics, latencyMs: Date.now() - start } };
   }
 
   getRoutingLog() {
