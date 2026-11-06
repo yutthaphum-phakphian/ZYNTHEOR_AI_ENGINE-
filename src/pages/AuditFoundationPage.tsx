@@ -17,7 +17,6 @@ import {
 import { FoundationAuditDashboard } from '../components/FoundationAuditDashboard';
 import { BenchmarkIntegrityComparator } from '../components/BenchmarkIntegrityComparator';
 import { RuntimeEvidenceVerifier } from '../components/RuntimeEvidenceVerifier';
-import { FoundationEvidenceVerifier } from '../components/FoundationEvidenceVerifier';
 
 export default function AuditFoundationPage() {
   const [report, setReport] = useState<ParsedAuditReport | null>(null);
@@ -149,7 +148,6 @@ export default function AuditFoundationPage() {
             onOpenViewer={() => setActiveView('document')}
             onImportClick={() => setIsImportModalOpen(true)}
           />
-          <FoundationEvidenceVerifier />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <BenchmarkIntegrityComparator />
             <RuntimeEvidenceVerifier />

@@ -120,10 +120,10 @@ export interface RepositoryScanLimits {
 }
 
 export const DEFAULT_LIMITS: RepositoryScanLimits = {
-  maxFiles: 3000,
-  maxFileBytes: 512 * 1024,
-  maxTotalBytes: 16 * 1024 * 1024,
-  maxContextBytes: 8 * 1024 * 1024,
+  maxFiles: 2000,
+  maxFileBytes: 256 * 1024,
+  maxTotalBytes: 8 * 1024 * 1024,
+  maxContextBytes: 3 * 1024 * 1024,
 };
 export const DEFAULT_REPOSITORY_SCAN_LIMITS = DEFAULT_LIMITS;
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.mts', '.cjs']);
