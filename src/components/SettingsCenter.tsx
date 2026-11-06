@@ -1189,15 +1189,11 @@ export function SettingsCenter({
                 >
                   <option value="qwen2.5-coder:7b">qwen2.5-coder:7b (Local Ollama Native)</option>
                   <option value="gemini-2.5-flash">gemini-2.5-flash (Google Gemini Proxy)</option>
-                  <option value="gemini-2.5-pro">gemini-2.5-pro (Google Gemini Pro Proxy)</option>
-                  <option value="gpt-4o">gpt-4o (OpenAI Proxy)</option>
-                  <option value="claude-3-5-sonnet">claude-3-5-sonnet (Anthropic Proxy)</option>
                 </select>
               </SettingCard>
 
               <SettingCard
                 title={isTh ? 'การเลือกเส้นทางและการสลับอัตโนมัติ (Routing & Fallback)' : 'Routing & Fallback Policy'}
-                desc={isTh ? 'นโยบายการสลับโมเดลอัตโนมัติเมื่อเกิดข้อผิดพลาด' : 'Automatic fallback to local Ollama if remote model fails.'}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div>
