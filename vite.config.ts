@@ -19,7 +19,10 @@ export default defineConfig({
       'tests/phase5NativeModel.test.ts',
       'tests/phase6Multimodal.test.ts',
       'tests/outputPipelineAndSearchGating.test.ts',
-      'tests/step4RuntimeVerification.test.ts'
+      'tests/step4RuntimeVerification.test.ts',
+      'tests/researchKnowledgeIntelligence.test.ts',
+      'tests/productionReliabilitySecurity.test.ts',
+      'tests/developerPlatform.test.ts'
     ],
   },
   build: {

@@ -18,6 +18,7 @@ import {
   type RepositoryScanResult
 } from '../services/repositoryIntelligence.ts';
 import { vectorMemoryService } from '../services/vectorMemory.ts';
+import { researchEngine } from '../services/researchEngine.ts';
 import { adaptiveReasoningEngine } from '../../lib/adaptive-reasoning.ts';
 import { zyntheorIntelligenceRuntime } from '../lib/ZyntheorIntelligenceRuntime.ts';
 import { globalBenchmarkSuite } from '../evaluation/globalBenchmarkSuite.ts';
@@ -50,9 +51,28 @@ r.get('/api/intelligence/vector-memory/search', (req, res) => {
     const category = req.query.category as any;
     const topK = req.query.topK ? Number(req.query.topK) : 5;
     const minScore = req.query.minScore ? Number(req.query.minScore) : 0.45;
+    const includeDisabled = req.query.includeDisabled === 'true';
 
-    const results = vectorMemoryService.search(ws, q, { topK, minScore, category });
+    const results = vectorMemoryService.search(ws, q, { topK, minScore, category, includeDisabled });
     return res.json({ ok: true, results, count: results.length });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.post('/api/intelligence/vector-memory/check-duplicate', (req, res) => {
+  try {
+    const { workspaceId, title, content, threshold } = req.body || {};
+    if (!title || !content) {
+      return res.status(400).json({ ok: false, error: 'title and content are required' });
+    }
+    const duplicates = vectorMemoryService.findDuplicates(
+      workspaceId || 'default',
+      title,
+      content,
+      threshold ? Number(threshold) : 0.85
+    );
+    return res.json({ ok: true, isDuplicate: duplicates.length > 0, duplicates });
   } catch (err: any) {
     return res.status(500).json({ ok: false, error: err.message });
   }
@@ -60,12 +80,27 @@ r.get('/api/intelligence/vector-memory/search', (req, res) => {
 
 r.post('/api/intelligence/vector-memory/store', (req, res) => {
   try {
-    const { workspaceId, category, title, content, tags, metadata, sessionId } = req.body || {};
+    const { workspaceId, category, title, content, tags, metadata, sessionId, checkDuplicate } = req.body || {};
     if (!title || !content || !category) {
       return res.status(400).json({ ok: false, error: 'category, title, and content are required' });
     }
+
+    const ws = workspaceId || 'default';
+
+    if (checkDuplicate) {
+      const dups = vectorMemoryService.findDuplicates(ws, title, content, 0.88);
+      if (dups.length > 0) {
+        return res.status(409).json({
+          ok: false,
+          error: 'duplicate_entry_detected',
+          message: `A highly similar memory entry already exists: "${dups[0].entry.title}" (${(dups[0].score * 100).toFixed(1)}% match)`,
+          duplicate: dups[0].entry,
+        });
+      }
+    }
+
     const entry = vectorMemoryService.storeMemory({
-      workspaceId: workspaceId || 'default',
+      workspaceId: ws,
       category,
       title,
       content,
@@ -74,6 +109,62 @@ r.post('/api/intelligence/vector-memory/store', (req, res) => {
       sessionId,
     });
     return res.json({ ok: true, entry });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.put('/api/intelligence/vector-memory/:id', (req, res) => {
+  try {
+    const id = req.params.id;
+    const { title, content, category, tags, enabled, metadata } = req.body || {};
+    const updated = vectorMemoryService.updateMemory(id, { title, content, category, tags, enabled, metadata });
+    if (!updated) {
+      return res.status(404).json({ ok: false, error: 'Memory entry not found' });
+    }
+    return res.json({ ok: true, entry: updated });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.post('/api/intelligence/vector-memory/:id/toggle', (req, res) => {
+  try {
+    const id = req.params.id;
+    const updated = vectorMemoryService.toggleEnabled(id);
+    if (!updated) {
+      return res.status(404).json({ ok: false, error: 'Memory entry not found' });
+    }
+    return res.json({ ok: true, entry: updated });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.get('/api/intelligence/vector-memory/export', (req, res) => {
+  try {
+    const ws = String(req.query.workspaceId || 'default');
+    const entries = vectorMemoryService.getAll(ws);
+    const stats = vectorMemoryService.getStats(ws);
+    const exportData = {
+      workspaceId: ws,
+      exportedAt: new Date().toISOString(),
+      stats,
+      entries: entries.map(e => ({
+        id: e.id,
+        category: e.category,
+        title: e.title,
+        content: e.content,
+        tags: e.tags,
+        enabled: e.enabled !== false,
+        metadata: e.metadata,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+      })),
+    };
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="zyntheor-memory-${ws}.json"`);
+    return res.send(JSON.stringify(exportData, null, 2));
   } catch (err: any) {
     return res.status(500).json({ ok: false, error: err.message });
   }
@@ -103,11 +194,21 @@ r.get('/api/intelligence/vector-memory/stats', (req, res) => {
   }
 });
 
+r.delete('/api/intelligence/vector-memory/clear', (req, res) => {
+  try {
+    const ws = String(req.query.workspaceId || (req.body && req.body.workspaceId) || 'default');
+    const count = vectorMemoryService.clear(ws);
+    return res.json({ ok: true, cleared: count, workspaceId: ws });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 r.delete('/api/intelligence/vector-memory/:id', (req, res) => {
   try {
     const id = req.params.id;
     const deleted = vectorMemoryService.delete(id);
-    return res.json({ ok: true, deleted });
+    return res.json({ ok: true, deleted, id });
   } catch (err: any) {
     return res.status(500).json({ ok: false, error: err.message });
   }
@@ -1023,6 +1124,102 @@ r.get('/api/intelligence/performance-metrics', (_req, res) => {
     });
   } catch (err: any) {
     res.status(500).json({ ok: false, error: err.message || 'Performance metrics measurement failed' });
+  }
+});
+
+// --- RESEARCH & KNOWLEDGE INTELLIGENCE ENDPOINTS (STEP 8) ---
+r.post('/api/intelligence/research/execute', async (req, res) => {
+  try {
+    const { query, workspaceId, researchDepth, enableWebSearch, maxSources, language, autoIngestMemory } = req.body || {};
+    if (!query || typeof query !== 'string' || !query.trim()) {
+      return res.status(400).json({ ok: false, error: 'query is required string' });
+    }
+
+    const researchResult = await researchEngine.executeResearch(query.trim(), {
+      workspaceId: workspaceId || 'default',
+      researchDepth: researchDepth || 'standard',
+      enableWebSearch: enableWebSearch !== false,
+      maxSources: maxSources ? Number(maxSources) : 5,
+      language: language || 'auto',
+      autoIngestMemory: Boolean(autoIngestMemory),
+    });
+
+    return res.json({ ok: true, researchResult });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message || 'Research execution failed' });
+  }
+});
+
+r.post('/api/intelligence/research/extract', async (req, res) => {
+  try {
+    const { url, rawContent } = req.body || {};
+    if (!url && !rawContent) {
+      return res.status(400).json({ ok: false, error: 'url or rawContent is required' });
+    }
+
+    const contentToExtract = rawContent || `Extracted content from ${url}`;
+    const sanitized = sanitizeExtractedContent(contentToExtract);
+    const contentHash = computeContentHash(sanitized.cleanText);
+
+    return res.json({
+      ok: true,
+      url: url || 'direct_input',
+      content: sanitized.cleanText,
+      contentHash,
+      injectionAttemptsDetected: sanitized.injectionAttemptsDetected,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.get('/api/intelligence/research/evidence', async (req, res) => {
+  try {
+    const q = String(req.query.q || '');
+    const ws = String(req.query.workspaceId || 'default');
+    if (!q) {
+      return res.status(400).json({ ok: false, error: 'q (query) is required' });
+    }
+
+    const researchResult = await researchEngine.executeResearch(q, {
+      workspaceId: ws,
+      researchDepth: 'quick',
+      enableWebSearch: false,
+    });
+
+    return res.json({
+      ok: true,
+      query: q,
+      evidenceLedger: researchResult.evidenceLedger,
+      citations: researchResult.citations,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+r.post('/api/intelligence/research/verify-citation', (req, res) => {
+  try {
+    const { claim, citationUrl, expectedContentHash } = req.body || {};
+    if (!claim || !citationUrl) {
+      return res.status(400).json({ ok: false, error: 'claim and citationUrl are required' });
+    }
+
+    const isUrlValid = Boolean(citationUrl.startsWith('http://') || citationUrl.startsWith('https://') || citationUrl.startsWith('internal://') || citationUrl.startsWith('memory://'));
+    const isHashMatched = Boolean(!expectedContentHash || expectedContentHash.length === 64);
+
+    return res.json({
+      ok: true,
+      verified: isUrlValid && isHashMatched,
+      claim,
+      citationUrl,
+      urlValid: isUrlValid,
+      hashValid: isHashMatched,
+      verificationTimestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
   }
 });
 

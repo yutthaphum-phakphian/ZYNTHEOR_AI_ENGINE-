@@ -20,7 +20,9 @@ export type MemoryCategory =
   | 'USER_PREFERENCE'
   | 'PROJECT_KNOWLEDGE'
   | 'SESSION_CONTEXT'
-  | 'DOMAIN_ENTITY';
+  | 'DOMAIN_ENTITY'
+  | 'TASK_MEMORY'
+  | 'CONVERSATIONAL_MEMORY';
 
 export interface VectorMemoryEntry {
   id: string;
@@ -32,6 +34,7 @@ export interface VectorMemoryEntry {
   tags: string[];
   metadata: Record<string, any>;
   sessionId?: string;
+  enabled?: boolean;
   accessCount: number;
   lastAccessedAt: string;
   createdAt: string;
@@ -213,12 +216,102 @@ export class LongTermVectorMemoryService {
       tags: params.tags || [],
       metadata: params.metadata || {},
       sessionId: params.sessionId,
+      enabled: true,
       accessCount: 0,
       lastAccessedAt: now,
       createdAt: now,
       updatedAt: now,
     };
 
+    this.entries.set(id, entry);
+    this.saveToDisk();
+    return entry;
+  }
+
+  /**
+   * Find duplicate or semantically overlapping entries before inserting
+   */
+  public findDuplicates(
+    workspaceId: string,
+    title: string,
+    content: string,
+    threshold = 0.85
+  ): MemorySearchResult[] {
+    const text = `${title}\n${content}`;
+    const embedding = generateDenseEmbedding(text);
+    const targetWs = workspaceId || 'default';
+    const matches: MemorySearchResult[] = [];
+
+    for (const entry of this.entries.values()) {
+      if (entry.workspaceId !== targetWs && entry.workspaceId !== 'default') continue;
+      const score = cosineSimilarity(embedding, entry.embedding);
+      if (score >= threshold) {
+        matches.push({ entry, score });
+      }
+    }
+    return matches.sort((a, b) => b.score - a.score);
+  }
+
+  /**
+   * Update an existing memory entry and recompute dense embedding if title/content changes
+   */
+  public updateMemory(
+    id: string,
+    updates: Partial<{
+      title: string;
+      content: string;
+      category: MemoryCategory;
+      tags: string[];
+      enabled: boolean;
+      metadata: Record<string, any>;
+    }>
+  ): VectorMemoryEntry | null {
+    const entry = this.entries.get(id);
+    if (!entry) return null;
+
+    let contentChanged = false;
+
+    if (updates.title !== undefined && updates.title.trim() !== entry.title) {
+      entry.title = updates.title.trim();
+      contentChanged = true;
+    }
+    if (updates.content !== undefined && updates.content.trim() !== entry.content) {
+      entry.content = updates.content.trim();
+      contentChanged = true;
+    }
+    if (updates.category !== undefined) {
+      entry.category = updates.category;
+    }
+    if (updates.tags !== undefined) {
+      entry.tags = updates.tags;
+      contentChanged = true;
+    }
+    if (updates.enabled !== undefined) {
+      entry.enabled = Boolean(updates.enabled);
+    }
+    if (updates.metadata !== undefined) {
+      entry.metadata = { ...entry.metadata, ...updates.metadata };
+    }
+
+    if (contentChanged) {
+      const textToEmbed = `${entry.title}\n${entry.content}\n${entry.tags.join(' ')}`;
+      entry.embedding = generateDenseEmbedding(textToEmbed);
+    }
+
+    entry.updatedAt = new Date().toISOString();
+    this.entries.set(id, entry);
+    this.saveToDisk();
+    return entry;
+  }
+
+  /**
+   * Toggle enabled status of a memory record
+   */
+  public toggleEnabled(id: string): VectorMemoryEntry | null {
+    const entry = this.entries.get(id);
+    if (!entry) return null;
+    entry.enabled = entry.enabled === undefined ? false : !entry.enabled;
+    entry.updatedAt = new Date().toISOString();
     this.entries.set(id, entry);
     this.saveToDisk();
     return entry;
@@ -234,6 +327,7 @@ export class LongTermVectorMemoryService {
       topK?: number;
       minScore?: number;
       category?: MemoryCategory;
+      includeDisabled?: boolean;
     }
   ): MemorySearchResult[] {
     const queryEmbedding = generateDenseEmbedding(query);
@@ -248,6 +342,9 @@ export class LongTermVectorMemoryService {
         continue;
       }
       if (options?.category && entry.category !== options.category) {
+        continue;
+      }
+      if (!options?.includeDisabled && entry.enabled === false) {
         continue;
       }
 
@@ -365,6 +462,8 @@ export class LongTermVectorMemoryService {
       PROJECT_KNOWLEDGE: 0,
       SESSION_CONTEXT: 0,
       DOMAIN_ENTITY: 0,
+      TASK_MEMORY: 0,
+      CONVERSATIONAL_MEMORY: 0,
     };
 
     for (const e of entries) {

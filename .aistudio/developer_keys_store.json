@@ -1,0 +1,139 @@
+[
+  {
+    "id": "key-dev-default-001",
+    "workspaceId": "default",
+    "name": "Default Sovereign Developer Key",
+    "keyPrefix": "zyntheor_live_defa…",
+    "keyHash": "f4e5988cce3b8d898a06a447878bcc9165e05e837f3d945fe0622dc0b2c742a7",
+    "tier": "enterprise",
+    "permissions": [
+      "chat:create",
+      "research:execute",
+      "memory:read",
+      "memory:write",
+      "models:read"
+    ],
+    "rateLimitPerMin": 120,
+    "monthlyQuotaRequests": 100000,
+    "requestCountCurrentMonth": 0,
+    "accessCount": 0,
+    "status": "ACTIVE",
+    "createdAt": "2026-11-06T14:47:53.999Z"
+  },
+  {
+    "id": "key-mw539ui0-ca0d",
+    "workspaceId": "dev-platform-ws-1793976474016",
+    "name": "CI/CD Pipeline Integration Key",
+    "keyPrefix": "zyntheor_live_c0ea…",
+    "keyHash": "c07436221c2221c4b46a1f700436b46668302034494bac17a5536a3b7c226165",
+    "tier": "pro",
+    "permissions": [
+      "chat:create",
+      "research:execute"
+    ],
+    "rateLimitPerMin": 60,
+    "monthlyQuotaRequests": 25000,
+    "requestCountCurrentMonth": 0,
+    "accessCount": 0,
+    "status": "ACTIVE",
+    "createdAt": "2026-11-06T14:47:54.025Z"
+  },
+  {
+    "id": "key-mw539ui5-9892",
+    "workspaceId": "dev-platform-ws-1793976474016",
+    "name": "Rate Limit Test Key",
+    "keyPrefix": "zyntheor_live_d71e…",
+    "keyHash": "886412bcdc8bf33ce362be69c3723cea3c761789b04b3703eb32a72a277e740c",
+    "tier": "developer",
+    "permissions": [
+      "chat:create",
+      "research:execute",
+      "models:read"
+    ],
+    "rateLimitPerMin": 3,
+    "monthlyQuotaRequests": 5000,
+    "requestCountCurrentMonth": 3,
+    "accessCount": 3,
+    "status": "ACTIVE",
+    "createdAt": "2026-11-06T14:47:54.029Z",
+    "lastUsedAt": "2026-11-06T14:47:54.030Z"
+  },
+  {
+    "id": "key-mw539ui6-3839",
+    "workspaceId": "dev-platform-ws-1793976474016",
+    "name": "Revocation Test Key",
+    "keyPrefix": "zyntheor_live_eba1…",
+    "keyHash": "63c8efebcc5856445aae8980482c7ac4aeb9a147964f820c0046420d49f55ba5",
+    "tier": "developer",
+    "permissions": [
+      "chat:create",
+      "research:execute",
+      "models:read"
+    ],
+    "rateLimitPerMin": 30,
+    "monthlyQuotaRequests": 5000,
+    "requestCountCurrentMonth": 1,
+    "accessCount": 1,
+    "status": "REVOKED",
+    "createdAt": "2026-11-06T14:47:54.030Z",
+    "lastUsedAt": "2026-11-06T14:47:54.031Z"
+  },
+  {
+    "id": "key-mw53aqc2-07a0",
+    "workspaceId": "dev-platform-ws-1793976515273",
+    "name": "CI/CD Pipeline Integration Key",
+    "keyPrefix": "zyntheor_live_ad31…",
+    "keyHash": "2da75efac2a000813d2eb2194a5de54d64554814c42552a10278cf09d6438287",
+    "tier": "pro",
+    "permissions": [
+      "chat:create",
+      "research:execute"
+    ],
+    "rateLimitPerMin": 60,
+    "monthlyQuotaRequests": 25000,
+    "requestCountCurrentMonth": 0,
+    "accessCount": 0,
+    "status": "ACTIVE",
+    "createdAt": "2026-11-06T14:48:35.283Z"
+  },
+  {
+    "id": "key-mw53aqc9-f14e",
+    "workspaceId": "dev-platform-ws-1793976515273",
+    "name": "Rate Limit Test Key",
+    "keyPrefix": "zyntheor_live_05a2…",
+    "keyHash": "be00dada4ccc20ab466da8d47a705123a786e0520868a188374ade210ce8c221",
+    "tier": "developer",
+    "permissions": [
+      "chat:create",
+      "research:execute",
+      "models:read"
+    ],
+    "rateLimitPerMin": 3,
+    "monthlyQuotaRequests": 5000,
+    "requestCountCurrentMonth": 3,
+    "accessCount": 3,
+    "status": "ACTIVE",
+    "createdAt": "2026-11-06T14:48:35.289Z",
+    "lastUsedAt": "2026-11-06T14:48:35.291Z"
+  },
+  {
+    "id": "key-mw53aqcd-8088",
+    "workspaceId": "dev-platform-ws-1793976515273",
+    "name": "Revocation Test Key",
+    "keyPrefix": "zyntheor_live_347f…",
+    "keyHash": "a5a47e64a3e3b6bc2c2099fe3b4f53856f7ecf3f2fad098853f647223a45e31b",
+    "tier": "developer",
+    "permissions": [
+      "chat:create",
+      "research:execute",
+      "models:read"
+    ],
+    "rateLimitPerMin": 30,
+    "monthlyQuotaRequests": 5000,
+    "requestCountCurrentMonth": 1,
+    "accessCount": 1,
+    "status": "REVOKED",
+    "createdAt": "2026-11-06T14:48:35.293Z",
+    "lastUsedAt": "2026-11-06T14:48:35.293Z"
+  }
+]

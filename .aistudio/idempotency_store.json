@@ -1,0 +1,10 @@
+[
+  {
+    "key": "idempotent-task-123",
+    "timestamp": "2026-11-06T14:48:31.453Z",
+    "result": {
+      "status": "COMPLETED",
+      "taskId": "task-123"
+    }
+  }
+]

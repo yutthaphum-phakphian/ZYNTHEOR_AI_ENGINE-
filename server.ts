@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import intelligenceRouter from './src/routes/intelligence.ts';
 import editingRouter from './src/routes/editing.ts';
 import workspaceRouter from './src/routes/workspace.ts';
+import developerApiRouter from './src/routes/developerApi.ts';
 import { 
   ZYNTHEOR_MODEL_SOVEREIGNTY_POLICY, 
   validateModelSovereignty,
@@ -16,12 +17,27 @@ import { probeNativeModelRuntime, classifyAnswerSource } from './lib/native-mode
 import { IntelligenceOrchestrationEngine, TaskPlanningEngine } from './lib/intelligence-orchestrator.ts';
 import { createProvider } from './lib/providers.ts';
 
+import { applySecurityHeaders } from './src/services/securityGuard.ts';
+import { logger } from './src/services/structuredLogger.ts';
+import { productionMetrics } from './src/services/productionMetrics.ts';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
+
+app.use(applySecurityHeaders);
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const isErr = res.statusCode >= 400;
+    productionMetrics.recordRequest(duration, isErr);
+  });
+  next();
+});
 
 app.use(express.json({ limit: '10mb' }));
 
@@ -106,6 +122,49 @@ app.get('/api/health', (req, res) => {
       security: 'PASS',
       sandbox: 'READY',
     },
+  });
+});
+
+// Production Liveness Probe
+app.get('/api/health/liveness', (req, res) => {
+  res.json({
+    status: 'ALIVE',
+    uptimeSeconds: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Production Readiness Probe
+app.get('/api/health/readiness', (req, res) => {
+  const snapshot = productionMetrics.getSnapshot();
+  const isReady = snapshot.database.status !== 'FAILED';
+  res.status(isReady ? 200 : 503).json({
+    status: isReady ? 'READY' : 'NOT_READY',
+    checks: {
+      database: snapshot.database.status,
+      memory: `${snapshot.memory.heapUsedMb}MB used`,
+      uptime: `${snapshot.uptimeSeconds}s`,
+    },
+    snapshot,
+  });
+});
+
+// Production Telemetry & Metrics
+app.get('/api/production/metrics', (req, res) => {
+  res.json({
+    ok: true,
+    metrics: productionMetrics.getSnapshot(),
+  });
+});
+
+// Production Readiness Gates
+app.get('/api/production/gates', (req, res) => {
+  const evaluation = productionMetrics.evaluateProductionGates();
+  res.json({
+    ok: true,
+    overallStatus: evaluation.overallStatus,
+    gates: evaluation.gates,
+    evaluatedAt: new Date().toISOString(),
   });
 });
 
@@ -907,6 +966,7 @@ app.get('/api/audit/report', (req, res) => {
 app.use(intelligenceRouter);
 app.use(editingRouter);
 app.use(workspaceRouter);
+app.use(developerApiRouter);
 
 // Frontend Vite Integration in Dev vs Production Static
 if (process.env.NODE_ENV !== 'production') {
