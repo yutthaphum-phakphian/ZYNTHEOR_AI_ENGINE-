@@ -1,11 +1,13 @@
-// @ts-nocheck
-import React from 'react';
-import EvaluationLabDashboard from '../components/evaluation/EvaluationLabDashboard';
+import React, { useMemo } from 'react';
+import CapabilityRegistryView from '../components/evaluation/CapabilityRegistryView';
+import { createUnifiedEvaluation } from '../evaluation/unifiedEngine';
 
 export default function EvaluationLab() {
+  const evaluation = useMemo(() => createUnifiedEvaluation(), []);
+
   return (
     <div className="flex-1 min-h-0 overflow-y-auto">
-      <EvaluationLabDashboard />
+      <CapabilityRegistryView evaluation={evaluation} />
     </div>
   );
 }
