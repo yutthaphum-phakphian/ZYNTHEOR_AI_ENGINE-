@@ -331,18 +331,13 @@ export const ModelsPage: React.FC<ModelsPageProps> = ({
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
                 <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                  <div className="font-bold text-zinc-200">Google Gemini Cloud</div>
                   <div className="text-[10px] text-zinc-400 mt-0.5">Provider: Google Cloud Vertex / AI Studio</div>
                   <div className="text-[10px] text-zinc-500 mt-1 font-mono">Scope: External API Proxy</div>
                 </div>
                 <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                  <div className="font-bold text-zinc-200">OpenAI API</div>
-                  <div className="text-[10px] text-zinc-400 mt-0.5">Provider: OpenAI Gateway</div>
                   <div className="text-[10px] text-zinc-500 mt-1 font-mono">Scope: External API Proxy</div>
                 </div>
                 <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                  <div className="font-bold text-zinc-200">Anthropic Claude</div>
-                  <div className="text-[10px] text-zinc-400 mt-0.5">Provider: Anthropic API</div>
                   <div className="text-[10px] text-zinc-500 mt-1 font-mono">Scope: External API Proxy</div>
                 </div>
               </div>

@@ -148,7 +148,7 @@ export function GovernanceObservabilityPanels() {
             </div>
             <div style={{ padding: '10px', background: '#111e30', borderRadius: '8px', border: '1px solid #1e293b' }}>
               <span style={{ fontSize: '10px', color: '#94a3b8' }}>Leader Provider</span>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', fontFamily: 'monospace' }}>{consensus?.consensus?.state?.leaderProviderId ?? 'provider-gemini-primary'}</div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', fontFamily: 'monospace' }}>{consensus?.consensus?.state?.leaderProviderId }</div>
             </div>
             <div style={{ padding: '10px', background: '#111e30', borderRadius: '8px', border: '1px solid #1e293b' }}>
               <span style={{ fontSize: '10px', color: '#94a3b8' }}>Quorum Threshold</span>
@@ -164,7 +164,7 @@ export function GovernanceObservabilityPanels() {
 
           <b style={{ fontSize: '12px', color: '#cbd5e1' }}>Active Provider Consensus Cluster:</b>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
-            {(consensus?.consensus?.state?.activeProviders || ['provider-gemini-primary', 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec']).map((p: string) => (
+            {(consensus?.consensus?.state?.activeProviders || [ 'provider-ollama-local', 'provider-zyntheor-core', 'provider-vertex-sec']).map((p: string) => (
               <span key={p} style={{ fontSize: '10px', fontFamily: 'monospace', padding: '4px 8px', borderRadius: '4px', background: '#071626', border: '1px solid #0284c7', color: '#7dd3fc' }}>
                 ● {p}
               </span>

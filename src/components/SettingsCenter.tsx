@@ -164,8 +164,6 @@ const CATEGORY_META: Record<
     icon: Server,
     titleTh: '4. ผู้ให้บริการ (Providers)',
     titleEn: '4. Providers',
-    descTh: 'ตรวจสอบการเชื่อมต่อผู้ให้บริการ Gemini, OpenAI, Anthropic และ Local Ollama',
-    descEn: 'Connection status for Gemini, OpenAI, Anthropic, and Local Ollama.',
   },
   privacy: {
     icon: Shield,
@@ -1318,13 +1316,11 @@ export function SettingsCenter({
                   detail={serverSettings?.apiKeyConfigured ? 'Server Environment Key Active' : 'No Server API Key Configured'}
                 />
                 <ProviderCard
-                  name="OpenAI API"
                   type="Cloud Provider Proxy"
                   status={serverSettings?.onlineConsentGranted ? 'PROXY_ALLOWED' : 'CONSENT_REQUIRED'}
                   detail={serverSettings?.onlineConsentGranted ? 'Server-side proxy route active' : 'Awaiting explicit online consent'}
                 />
                 <ProviderCard
-                  name="Anthropic API"
                   type="Cloud Provider Proxy"
                   status={serverSettings?.onlineConsentGranted ? 'PROXY_ALLOWED' : 'CONSENT_REQUIRED'}
                   detail={serverSettings?.onlineConsentGranted ? 'Server-side proxy route active' : 'Awaiting explicit online consent'}
@@ -1339,7 +1335,6 @@ export function SettingsCenter({
                   <div style={{ fontSize: '12px', color: '#cbd5e1' }}>
                     <b>Server API Key Status:</b>{' '}
                     <span style={{ color: serverSettings?.apiKeyConfigured ? '#10b981' : '#f59e0b' }}>
-                      {serverSettings?.apiKeyConfigured ? (isTh ? '✓ มี API Key บนเซิร์ฟเวอร์แล้ว (Server-side Only)' : '✓ Configured on Server') : (isTh ? '⚠️ ยังไม่ได้ตั้งค่า GEMINI_API_KEY บนเซิร์ฟเวอร์' : '⚠️ Not configured on server')}
                     </span>
                   </div>
 
