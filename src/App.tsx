@@ -61,7 +61,8 @@ import {
   User,
   Mic,
   MicOff,
-  Info
+  Info,
+  Download
 } from 'lucide-react';
 
 import { useVoiceIntelligenceInput, appendTranscriptWithSmartSpacing } from './hooks/useVoiceIntelligenceInput';
@@ -254,6 +255,38 @@ function HomeExperience() {
   const contractValidation = useMemo(() => {
     return validateDefaultInferenceModel(activeModel);
   }, [activeModel]);
+
+  const handleExportWorkspace = useCallback(() => {
+    const manifestData = {
+      name: projectInfo.name,
+      branch: projectInfo.branch,
+      status: projectInfo.status,
+      exportedAt: new Date().toISOString(),
+      platform: 'ZYNTHEOR AI ENGINE',
+      version: '1.3.1-clean-first-party',
+      workspace: {
+        type: 'Universal Intelligence Workspace',
+        capabilities: CANONICAL_CAPABILITIES.map(c => ({ id: c.id, title: c.title })),
+        recentWorkCount: recentWork.length,
+        recentWork,
+      },
+      metadata: {
+        owner: 'ZYNTHEOR',
+        identity: activeModel?.modelId || 'zyntheor-core-native-v1',
+        environment: 'Sovereign Process Enclave',
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(manifestData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${projectInfo.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-manifest.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [projectInfo, activeModel, recentWork]);
 
   const handleStart = useCallback(
     (text?: string, forceGrounding?: boolean) => {
@@ -629,7 +662,7 @@ function HomeExperience() {
               <button
                 key={item.id}
                 onClick={() => handleStart(item.prompt, item.grounding)}
-                className="text-left rounded-[16px] border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-2 hover:border-white/20 hover:bg-[#111a2d] transition group cursor-pointer shadow-sm"
+                className="text-left rounded-[16px] border border-white/[0.08] bg-[#0b1020]/90 p-4 space-y-2 hover:border-white/20 hover:bg-[#111a2d] hover:scale-[1.02] transition group cursor-pointer shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -741,8 +774,19 @@ function HomeExperience() {
             7. PROJECTS (CONNECTED WORKSPACE)
         ========================================================= */}
         <section className="space-y-2">
-          <div className="text-xs font-bold tracking-widest text-white/50 uppercase">
-            PROJECTS
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-bold tracking-widest text-white/50 uppercase">
+              PROJECTS
+            </div>
+            <button
+              type="button"
+              onClick={handleExportWorkspace}
+              title="Export workspace manifest JSON"
+              className="px-2.5 py-1 rounded-[10px] bg-white/[0.04] hover:bg-white/[0.09] border border-white/10 hover:border-[#00D9A3]/40 text-[11px] font-medium text-white/70 hover:text-white transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <Download size={12} className="text-[#00D9A3]" />
+              <span>Export Workspace</span>
+            </button>
           </div>
           <div className="rounded-[16px] border border-white/[0.08] bg-[#0b1020]/90 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 shadow-sm hover:border-white/20 transition">
             <div className="space-y-1">
@@ -758,14 +802,24 @@ function HomeExperience() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => navigate('/workspace')}
-              className="px-4 py-2 rounded-[12px] bg-[#00D9A3]/10 hover:bg-[#00D9A3]/20 text-xs font-semibold text-[#00D9A3] transition flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>Open</span>
-              <ArrowRight size={12} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportWorkspace}
+                className="px-3 py-2 rounded-[12px] bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/80 hover:text-white transition flex items-center gap-1.5 cursor-pointer border border-white/5"
+              >
+                <Download size={13} className="text-[#00D9A3]" />
+                <span>Export Manifest</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/workspace')}
+                className="px-4 py-2 rounded-[12px] bg-[#00D9A3]/10 hover:bg-[#00D9A3]/20 text-xs font-semibold text-[#00D9A3] transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Open</span>
+                <ArrowRight size={12} />
+              </button>
+            </div>
           </div>
         </section>
 
