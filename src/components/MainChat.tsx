@@ -758,9 +758,9 @@ export function MainChat() {
           </div>
 
           {/* =========================================================
-              3. MULTIMODAL OMNI COMPOSER AT BOTTOM
+              3. MULTIMODAL OMNI COMPOSER AT BOTTOM (Sticky & Safe Area)
           ========================================================= */}
-          <div className="p-4 border-t border-white/[0.08] bg-[#070b16]">
+          <div className="p-2.5 sm:p-4 border-t border-white/[0.08] bg-[#070b16]/95 backdrop-blur-md sticky bottom-0 z-20">
             <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
               <div className="rounded-2xl border border-white/10 bg-[#0b1020] p-2.5 shadow-2xl focus-within:border-cyan-500/50 transition">
                 {/* Attached Files Preview Chips */}

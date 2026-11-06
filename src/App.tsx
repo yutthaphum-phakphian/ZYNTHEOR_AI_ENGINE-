@@ -968,6 +968,8 @@ function HomeExperience() {
    APP SHELL & 5-ITEM UNIFIED NAVIGATION
 ========================================================= */
 
+import SettingsPage from './pages/SettingsPage';
+
 function AppShell() {
   const location = useLocation();
   const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
@@ -992,29 +994,29 @@ function AppShell() {
 
   const current = useMemo(() => {
     const path = location.pathname;
-    if (path === '/' || path === '/home') return 'home';
+    if (path === '/' || path.startsWith('/chat') || path.startsWith('/workspace')) return 'chat';
     if (path.startsWith('/explore')) return 'explore';
-    if (path.startsWith('/chat') || path.startsWith('/workspace')) return 'chat';
     if (path.startsWith('/library') || path.startsWith('/knowledge') || path.startsWith('/memory')) return 'library';
-    if (path.startsWith('/more') || path.startsWith('/model') || path.startsWith('/agent') || path.startsWith('/eval') || path.startsWith('/diagnostics')) return 'more';
-    return 'home';
+    if (path.startsWith('/agents') || path.startsWith('/agent')) return 'agents';
+    if (path.startsWith('/settings') || path.startsWith('/more') || path.startsWith('/model') || path.startsWith('/eval') || path.startsWith('/diagnostics')) return 'settings';
+    return 'chat';
   }, [location.pathname]);
 
   /* 
-   * 5 Main Hubs as specified by user:
-   * 1. Home
+   * 5 Main Hubs as specified by Mobile-First UX Architecture:
+   * 1. Chat
    * 2. Explore
-   * 3. Intelligence
-   * 4. Library
-   * 5. More
+   * 3. Library
+   * 4. Agents
+   * 5. Settings
    */
   const navItems = [
     {
-      id: 'home',
-      path: '/',
-      icon: Home,
-      label: 'Home',
-      th: 'หน้าแรก'
+      id: 'chat',
+      path: '/chat',
+      icon: MessageSquare,
+      label: 'Chat',
+      th: 'แชท'
     },
     {
       id: 'explore',
@@ -1024,13 +1026,6 @@ function AppShell() {
       th: 'สำรวจ'
     },
     {
-      id: 'chat',
-      path: '/chat',
-      icon: Sparkles,
-      label: 'Intelligence',
-      th: 'Intelligence'
-    },
-    {
       id: 'library',
       path: '/library',
       icon: BookOpen,
@@ -1038,16 +1033,23 @@ function AppShell() {
       th: 'คลังข้อมูล'
     },
     {
-      id: 'more',
-      path: '/more',
-      icon: Layers,
-      label: 'More',
-      th: 'เพิ่มเติม'
+      id: 'agents',
+      path: '/agents',
+      icon: Brain,
+      label: 'Agents',
+      th: 'เอเจนต์'
+    },
+    {
+      id: 'settings',
+      path: '/settings',
+      icon: Settings,
+      label: 'Settings',
+      th: 'ตั้งค่า'
     }
   ];
 
   return (
-    <div className="app-shell flex flex-col md:flex-row h-screen w-full overflow-hidden antialiased bg-[#050810]">
+    <div className="app-shell flex flex-col md:flex-row h-[100dvh] min-h-[100dvh] w-full overflow-hidden antialiased bg-[#050810]">
 
       {/* =================================================
           DESKTOP SIDEBAR (72px centered, clean)
@@ -1125,9 +1127,11 @@ function AppShell() {
                 {/* Primary 5 Hubs */}
                 <Route path="/" element={<HomeExperience />} />
                 <Route path="/home" element={<HomeExperience />} />
-                <Route path="/explore" element={<ExplorePage />} />
                 <Route path="/chat" element={<MainChat />} />
+                <Route path="/explore" element={<ExplorePage />} />
                 <Route path="/library" element={<LibraryPage />} />
+                <Route path="/agents" element={<AgentCommandCenter />} />
+                <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/more" element={<MorePage />} />
 
                 {/* Workspaces & Knowledge Routes */}
@@ -1138,11 +1142,10 @@ function AppShell() {
                 <Route path="/memory" element={<MemoryCenter />} />
                 <Route path="/model-studio" element={<ModelStudio />} />
                 <Route path="/evaluation" element={<EvaluationLab />} />
-                <Route path="/agents" element={<AgentCommandCenter />} />
                 <Route path="/audit" element={<AuditFoundationPage />} />
                 <Route path="/diagnostics" element={<><GpuTelemetryWidget /><Diagnostics /></>} />
 
-                <Route path="*" element={<HomeExperience />} />
+                <Route path="*" element={<MainChat />} />
               </Routes>
             </ErrorBoundary>
           </main>
@@ -1156,7 +1159,7 @@ function AppShell() {
           aria-label="Main navigation"
           className="bottom-tab md:hidden shrink-0 bg-[#070a14]/95 backdrop-blur-xl border-t border-white/[0.08] safe-bottom z-30"
         >
-          <div className="flex items-center justify-around h-16 px-1">
+          <div className="mobile-navigation">
             {navItems.map(item => {
               const Icon = item.icon;
               const active = current === item.id;
@@ -1167,14 +1170,17 @@ function AppShell() {
                   to={item.path}
                   aria-label={item.label}
                   aria-current={active ? 'page' : undefined}
-                  className={`flex-1 flex flex-col items-center justify-center py-1 transition select-none cursor-pointer ${
+                  className={`mobile-navigation-item relative transition select-none cursor-pointer ${
                     active
                       ? 'text-[#00D9A3]'
                       : 'text-white/40 hover:text-white/70'
                   }`}
                 >
-                  <Icon size={19} className={active ? 'scale-110 transition-transform' : ''} />
-                  <span className={`text-[10px] mt-1 tracking-tight ${active ? 'font-bold' : 'font-medium'}`}>
+                  {active && (
+                    <span className="absolute top-0 w-8 h-0.5 rounded-full bg-[#00D9A3] shadow-[0_0_8px_#00D9A3]" />
+                  )}
+                  <Icon size={20} className={active ? 'scale-110 transition-transform text-[#00D9A3]' : ''} />
+                  <span className={`text-[10px] tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${active ? 'font-bold text-[#00D9A3]' : 'font-medium'}`}>
                     {item.th}
                   </span>
                 </NavLink>

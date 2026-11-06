@@ -120,14 +120,14 @@ export interface ServerSettingsData {
 }
 
 export interface SettingsCenterProps {
-  serverSettings: ServerSettingsData | null;
-  loading: boolean;
-  refreshServer: () => void;
-  onLocalOnlyToggle: (localOnly: boolean) => Promise<void>;
-  onConsentReview: () => void;
-  onSelectPage: (pageName: any) => void;
-  currentLang: SupportedLanguage;
-  onLanguageChange: (lang: SupportedLanguage) => void;
+  serverSettings?: ServerSettingsData | null;
+  loading?: boolean;
+  refreshServer?: () => void;
+  onLocalOnlyToggle?: (localOnly: boolean) => Promise<void>;
+  onConsentReview?: () => void;
+  onSelectPage?: (pageName: any) => void;
+  currentLang?: SupportedLanguage;
+  onLanguageChange?: (lang: SupportedLanguage) => void;
   serverSession?: { id: string; role: string; isTokenVerified: boolean; source: string } | null;
 }
 
@@ -211,16 +211,16 @@ const LOCAL_STORAGE_KEY = 'zyntheor.settings';
 const ACCESS_TOKEN_KEY = 'zyntheor.access.v1';
 
 export function SettingsCenter({
-  serverSettings,
-  loading,
-  refreshServer,
-  onLocalOnlyToggle,
-  onConsentReview,
-  onSelectPage,
-  currentLang,
-  onLanguageChange,
-  serverSession,
-}: SettingsCenterProps) {
+  serverSettings = null,
+  loading = false,
+  refreshServer = () => {},
+  onLocalOnlyToggle = async () => {},
+  onConsentReview = () => {},
+  onSelectPage = () => {},
+  currentLang = 'th',
+  onLanguageChange = () => {},
+  serverSession = null,
+}: SettingsCenterProps = {}) {
   const { t } = useTranslation();
   const isTh = currentLang === 'th';
 
