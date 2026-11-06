@@ -181,6 +181,6 @@ export function runDryRunMigration(filePath = STORAGE_FILE_PATH) {
   };
 }
 
-if (process.argv[1] && process.argv[1].endsWith('dry-run-vector-migration.mjs')) {
+if (process.argv[1] && process.argv[1].endsWith('/scripts/dry-run-vector-migration.mjs')) {
   runDryRunMigration();
 }
