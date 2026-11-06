@@ -109,12 +109,22 @@ export function cosineSimilarity(vecA: number[], vecB: number[]): number {
   return Math.max(0, Math.min(1, (dotProduct + 1) / 2));
 }
 
+import { getMemoryStorageProvider, type MemoryStorageProvider } from './memoryStorageProvider.ts';
+
 export class LongTermVectorMemoryService {
   private entries: Map<string, VectorMemoryEntry> = new Map();
+  private _provider: MemoryStorageProvider | null = null;
   private isLoaded = false;
 
   constructor() {
     this.loadFromDisk();
+  }
+
+  public getActiveProvider(): MemoryStorageProvider {
+    if (!this._provider) {
+      this._provider = getMemoryStorageProvider();
+    }
+    return this._provider;
   }
 
   private loadFromDisk() {
@@ -221,6 +231,15 @@ export class LongTermVectorMemoryService {
 
     this.entries.set(id, entry);
     this.saveToDisk();
+
+    // Also persist through active provider if Postgres
+    const activeProvider = this.getActiveProvider();
+    if (activeProvider.providerName === 'postgres') {
+      activeProvider.store(entry).catch(err => {
+        console.error('[LongTermVectorMemoryService] Postgres store error:', err.message);
+      });
+    }
+
     return entry;
   }
 

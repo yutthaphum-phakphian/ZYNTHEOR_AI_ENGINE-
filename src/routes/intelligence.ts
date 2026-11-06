@@ -913,6 +913,7 @@ r.get('/api/intelligence/scan', (_req, res) => {
     const result = runRepositoryScan();
     res.json({ ok: true, ...scanApiPayload(result) });
   } catch (err: any) {
+    console.error('[intelligence scan error]', err);
     res.status(500).json({ ok: false, error: err.message || 'Scan failed' });
   }
 });

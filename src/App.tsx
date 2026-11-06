@@ -61,10 +61,14 @@ import {
   User,
   Mic,
   MicOff,
-  Info
+  Info,
+  Pin,
+  PinOff,
+  Trash2
 } from 'lucide-react';
 
 import { useVoiceIntelligenceInput, appendTranscriptWithSmartSpacing } from './hooks/useVoiceIntelligenceInput';
+import { AudioWaveformVisualizer } from './components/AudioWaveformVisualizer';
 
 import {
   CAPABILITIES,
@@ -204,6 +208,41 @@ function HomeExperience() {
     { id: '2', title: 'สรุปมาตรฐานความมั่นคง Enclave & FIPS 140-3', time: 'เมื่อวานนี้' },
     { id: '3', title: 'ตรวจสอบโค้ด React Hook & Navigation Guard', time: '3 วันก่อน' },
   ]);
+
+  // Persistent pinned tasks IDs stored in localStorage
+  const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('zyntheor.recent_work.pinned');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const togglePin = useCallback((id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setPinnedIds(prev => {
+      const next = prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id];
+      try {
+        localStorage.setItem('zyntheor.recent_work.pinned', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+
+  const handleClearRecentHistory = useCallback(() => {
+    setRecentWork(prev => prev.filter(item => pinnedIds.includes(item.id)));
+  }, [pinnedIds]);
+
+  const sortedRecentWork = useMemo(() => {
+    return [...recentWork].sort((a, b) => {
+      const aPinned = pinnedIds.includes(a.id);
+      const bPinned = pinnedIds.includes(b.id);
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+      return 0;
+    });
+  }, [recentWork, pinnedIds]);
 
   const [projectInfo, setProjectInfo] = useState<{ name: string; branch: string; status: string }>({
     name: 'ZYNTHEOR AI ENGINE',
@@ -500,21 +539,24 @@ function HomeExperience() {
 
               {/* Live Interim Transcript Preview Banner */}
               {isListening && (
-                <div className="mt-2.5 p-2.5 rounded-[10px] bg-rose-500/10 border border-rose-500/25 space-y-1">
-                  <div className="flex items-center justify-between text-[11px] text-rose-300">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping inline-block" />
-                      <span className="font-medium">
+                <div className="mt-2.5 p-2.5 rounded-[10px] bg-rose-500/10 border border-rose-500/25 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] text-rose-300 gap-2 flex-wrap sm:flex-nowrap">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping inline-block shrink-0" />
+                      <span className="font-medium truncate">
                         กำลังฟัง ({voiceLang === 'th-TH' ? 'ภาษาไทย th-TH' : 'English en-US'})... พูดคำสั่งแล้วระบบจะประมวลผลข้อความเมื่อจบประโยค
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={toggleVoiceInput}
-                      className="px-2 py-0.5 rounded-[6px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-[10px] font-medium cursor-pointer"
-                    >
-                      เสร็จสิ้น / หยุด
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <AudioWaveformVisualizer isListening={isListening} barCount={14} height={20} />
+                      <button
+                        type="button"
+                        onClick={toggleVoiceInput}
+                        className="px-2 py-0.5 rounded-[6px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-[10px] font-medium cursor-pointer"
+                      >
+                        เสร็จสิ้น / หยุด
+                      </button>
+                    </div>
                   </div>
                   {interimTranscript && (
                     <div className="text-xs italic text-white/80 bg-black/30 px-2 py-1.5 rounded-[6px] border border-white/5">
@@ -671,20 +713,69 @@ function HomeExperience() {
                     <Clock size={14} />
                     Recent Work
                   </span>
-                  <span className="text-[10px] text-white/30 font-normal">Recent activities</span>
+                  <div className="flex items-center gap-2">
+                    {recentWork.some(w => !pinnedIds.includes(w.id)) && (
+                      <button
+                        type="button"
+                        onClick={handleClearRecentHistory}
+                        title="ล้างประวัติกิจกรรมที่ไม่ได้ปักหมุด"
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-[6px] bg-white/[0.04] hover:bg-rose-500/20 text-white/40 hover:text-rose-300 text-[10px] font-medium border border-white/5 hover:border-rose-500/30 transition cursor-pointer"
+                      >
+                        <Trash2 size={11} />
+                        <span>Clear History</span>
+                      </button>
+                    )}
+                    <span className="text-[10px] text-white/30 font-normal hidden sm:inline">Recent activities</span>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5 pt-1">
-                  {recentWork.map((s, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => navigate('/chat')}
-                      className="p-2.5 rounded-[12px] bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs cursor-pointer transition"
-                    >
-                      <span className="truncate pr-2 text-white/80 text-[11px] font-medium">{s.title}</span>
-                      <span className="text-[10px] text-white/40 shrink-0 font-mono">{s.time}</span>
+                  {sortedRecentWork.length === 0 ? (
+                    <div className="p-4 text-center text-xs text-white/30 italic rounded-[12px] bg-white/[0.01] border border-dashed border-white/5">
+                      ไม่มีประวัติงานล่าสุด
                     </div>
-                  ))}
+                  ) : (
+                    sortedRecentWork.map((s) => {
+                      const isPinned = pinnedIds.includes(s.id);
+                      return (
+                        <div
+                          key={s.id}
+                          onClick={() => navigate('/chat')}
+                          className={`p-2.5 rounded-[12px] border flex items-center justify-between text-xs cursor-pointer transition group ${
+                            isPinned
+                              ? 'bg-amber-500/[0.06] border-amber-500/30 text-amber-100'
+                              : 'bg-white/[0.02] hover:bg-white/[0.06] border-white/5 text-white/80'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                            {isPinned && (
+                              <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[9px] font-bold tracking-wider shrink-0 uppercase flex items-center gap-1">
+                                <Pin size={9} className="fill-amber-300" />
+                                Pinned
+                              </span>
+                            )}
+                            <span className="truncate text-[11px] font-medium">{s.title}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[10px] text-white/40 font-mono">{s.time}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => togglePin(s.id, e)}
+                              title={isPinned ? 'ถอนการปักหมุด' : 'ปักหมุดงานสำคัญนี้'}
+                              className={`p-1 rounded-[6px] transition cursor-pointer ${
+                                isPinned
+                                  ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
+                                  : 'opacity-0 group-hover:opacity-100 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white'
+                              }`}
+                            >
+                              {isPinned ? <PinOff size={12} /> : <Pin size={12} />}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
